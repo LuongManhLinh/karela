@@ -34,13 +34,14 @@ public class GeminiDynamicModel<A> implements DynamicModel<A> {
     private ChatModel chatModel;
     private final A model;
 
-    public GeminiDynamicModel(Class<A> modelClass, String modelName) {
+    public GeminiDynamicModel(Class<A> modelClass, String modelName, Double temperature) {
         this.modelName = modelName;
 
         String apiKey = API_KEYS.get(currentIndex);
         chatModel = GoogleAiGeminiChatModel.builder()
                 .apiKey(apiKey)
                 .modelName(modelName)
+                .temperature(temperature)
                 .build();
 
         model = AiServices.builder(modelClass)

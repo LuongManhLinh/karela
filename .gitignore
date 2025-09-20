@@ -22,3 +22,54 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Gradle files
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Java IDE files
+*.iml
+.idea/
+*.ipr
+*.iws
+*.project
+*.classpath
+*.settings/
+
+# VSCode files
+.vscode/
+
+# Node modules
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# npm/yarn/pnpm logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Mac system files
+.DS_Store
+
+# Coverage directory
+coverage/
+
+# Optional: OS generated files
+Thumbs.db
+
+/services/external

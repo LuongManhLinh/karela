@@ -1,13 +1,11 @@
 package io.ratsnake.dsl.schema;
 
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -21,9 +19,9 @@ public class UserStory {
 
     private String role;
 
-    private String feature;
+    private String want;
 
-    private String benefit;
+    private String soThat;
 
     private Priority priority;
 
