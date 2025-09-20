@@ -72,4 +72,4 @@ coverage/
 # Optional: OS generated files
 Thumbs.db
 
-/services/external
+external/
