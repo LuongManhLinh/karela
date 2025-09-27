@@ -17,7 +17,7 @@ public class UserStory {
 
     private String title;
 
-    private String role;
+    private String asA;
 
     private String want;
 
@@ -27,13 +27,11 @@ public class UserStory {
 
     private Type type;
 
-    private List<AcceptanceCriterion> acceptanceCriteria;
+    private List<Gherkin> acceptanceCriteria;
 
     public enum Type {
         FR, NFR
     }
-
-
 
     public enum Priority {
         P0, P1, P2, P3
