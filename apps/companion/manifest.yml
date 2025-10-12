@@ -1,0 +1,37 @@
+modules:
+  # jira:issuePanel:
+  #   - key: companion-pannel-hello-world-panel
+  #     resource: pannel
+  #     resolver:
+  #       function: resolver
+  #     viewportSize: medium
+  #     title: Companion Pannel
+  #     icon: https://developer.atlassian.com/platform/forge/images/issue-panel-icon.svg
+  jira:projectPage:
+    - key: companion-project-page
+      resource: page
+      resolver:
+        function: resolver
+      title: Companion Page
+      icon: https://developer.atlassian.com/platform/forge/images/issue-panel-icon.svg
+  function:
+    - key: resolver
+      handler: index.handler
+resources:
+  # - key: pannel
+  #   path: static/pannel/dist
+  - key: page
+    path: static/page/dist
+permissions:
+  scopes:
+    - read:jira-work
+  # external:
+  #   fetch:
+  #     backend:
+  #       - "https://api.github.com"
+app:
+  runtime:
+    name: nodejs22.x
+    memoryMB: 256
+    architecture: arm64
+  id: ari:cloud:ecosystem::app/dbce6e80-9145-45b4-9574-44b174c27d89
