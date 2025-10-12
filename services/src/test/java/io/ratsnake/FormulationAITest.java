@@ -2,13 +2,15 @@ package io.ratsnake;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.ratsnake.dsl.schema.*;
+import io.ratsnake.llm.aiservice.DefectAIService;
 import io.ratsnake.llm.aiservice.FormulationAIService;
 import io.ratsnake.llm.dto.ContextInput;
 import io.ratsnake.llm.dto.GenerateGherkinInput;
 import io.ratsnake.llm.dto.GenerateUserStoryInput;
 import io.ratsnake.llm.dto.UserStoryDto;
 import io.ratsnake.llm.models.GeminiDynamicModel;
-import io.ratsnake.llm.promptservice.FormulationPromptService;
+import io.ratsnake.llm.prompt.DefectPrompt;
+import io.ratsnake.llm.prompt.FormulationPrompt;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -17,13 +19,22 @@ import java.util.Map;
 import static io.ratsnake.util.LanguageProcessor.jsonify;
 
 public class FormulationAITest {
-    private final FormulationAIService service = new FormulationAIService(
+    private final FormulationAIService formulationAIService = new FormulationAIService(
             new GeminiDynamicModel<>(
-                    FormulationPromptService.class,
+                    FormulationPrompt.class,
                     GeminiDynamicModel.GEMINI_2_0_FLASH,
                     0.4
             )
     );
+
+    private final DefectAIService defectAIService = new DefectAIService(
+            new GeminiDynamicModel<>(
+                    DefectPrompt.class,
+                    GeminiDynamicModel.GEMINI_2_0_FLASH,
+                    0.4
+            )
+    );
+
 
     @Test
     void improveUserStoryTest() throws JsonProcessingException {
@@ -47,7 +58,7 @@ public class FormulationAITest {
                 )
                 .build();
 
-        var output = service.improveUserStory(input);
+        var output = defectAIService.improveUserStory(input);
         long endTime = System.currentTimeMillis();
         System.out.println("Time taken: " + (endTime - startTime) + " ms. Output:");
         System.out.println(jsonify(output));
@@ -94,7 +105,7 @@ public class FormulationAITest {
                 )
                 .build();
 
-        var output = service.suggestWhileWritingGherkin(input);
+        var output = formulationAIService.suggestWhileWritingGherkin(input);
         long endTime = System.currentTimeMillis();
         System.out.println("Time taken: " + (endTime - startTime) + " ms. Output:");
         System.out.println(jsonify(output));
@@ -187,7 +198,7 @@ public class FormulationAITest {
                 )
                 .build();
 
-        var output = service.improveGherkin(input);
+        var output = defectAIService.improveGherkin(input);
         long endTime = System.currentTimeMillis();
         System.out.println("Time taken: " + (endTime - startTime) + " ms. Output:");
         System.out.println(jsonify(output));

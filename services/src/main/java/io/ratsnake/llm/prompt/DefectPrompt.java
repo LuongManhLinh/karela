@@ -1,10 +1,10 @@
-package io.ratsnake.llm.promptservice;
+package io.ratsnake.llm.prompt;
 
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
 
-public interface DefectPromptService {
+public interface DefectPrompt {
     @SystemMessage("""
             You are a discovery coach for Agile Scrum teams.
             

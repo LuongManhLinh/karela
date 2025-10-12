@@ -21,7 +21,7 @@ public class GeminiDynamicModel<A> implements DynamicModel<A> {
     static {
         List<String> apiKeys;
         try {
-            apiKeys = Files.readAllLines(Path.of("external/API_KEYS"));
+            apiKeys = Files.readAllLines(Path.of("external/GEMINI_API_KEYS"));
         } catch (IOException e) {
             apiKeys = List.of();
         }
