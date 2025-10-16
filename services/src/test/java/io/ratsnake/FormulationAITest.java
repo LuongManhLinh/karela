@@ -2,15 +2,15 @@ package io.ratsnake;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.ratsnake.dsl.schema.*;
-import io.ratsnake.llm.aiservice.DefectAIService;
-import io.ratsnake.llm.aiservice.FormulationAIService;
+import io.ratsnake.llm.adapter.DefectAiAdapter;
+import io.ratsnake.llm.adapter.FormulationAiAdapter;
 import io.ratsnake.llm.dto.ContextInput;
 import io.ratsnake.llm.dto.GenerateGherkinInput;
 import io.ratsnake.llm.dto.GenerateUserStoryInput;
 import io.ratsnake.llm.dto.UserStoryDto;
 import io.ratsnake.llm.models.GeminiDynamicModel;
-import io.ratsnake.llm.prompt.DefectPrompt;
-import io.ratsnake.llm.prompt.FormulationPrompt;
+import io.ratsnake.llm.aiservice.DefectAiService;
+import io.ratsnake.llm.aiservice.FormulationAiService;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -19,17 +19,17 @@ import java.util.Map;
 import static io.ratsnake.util.LanguageProcessor.jsonify;
 
 public class FormulationAITest {
-    private final FormulationAIService formulationAIService = new FormulationAIService(
+    private final FormulationAiAdapter formulationAIService = new FormulationAiAdapter(
             new GeminiDynamicModel<>(
-                    FormulationPrompt.class,
+                    FormulationAiService.class,
                     GeminiDynamicModel.GEMINI_2_0_FLASH,
                     0.4
             )
     );
 
-    private final DefectAIService defectAIService = new DefectAIService(
+    private final DefectAiAdapter defectAIService = new DefectAiAdapter(
             new GeminiDynamicModel<>(
-                    DefectPrompt.class,
+                    DefectAiService.class,
                     GeminiDynamicModel.GEMINI_2_0_FLASH,
                     0.4
             )
@@ -58,7 +58,7 @@ public class FormulationAITest {
                 )
                 .build();
 
-        var output = defectAIService.improveUserStory(input);
+        var output = defectAIService.improveStructuredUserStory(input);
         long endTime = System.currentTimeMillis();
         System.out.println("Time taken: " + (endTime - startTime) + " ms. Output:");
         System.out.println(jsonify(output));
@@ -198,7 +198,7 @@ public class FormulationAITest {
                 )
                 .build();
 
-        var output = defectAIService.improveGherkin(input);
+        var output = defectAIService.improveStructuredGherkin(input);
         long endTime = System.currentTimeMillis();
         System.out.println("Time taken: " + (endTime - startTime) + " ms. Output:");
         System.out.println(jsonify(output));

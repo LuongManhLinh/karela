@@ -1,17 +1,34 @@
 package io.ratsnake.llm.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class DetectDefectInput {
-    private ContextInput context;
-    private List<ShortUserStory> userStories;
+
+public abstract class DetectDefectInput {
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class SingleType {
+        private ContextInput context;
+        private String type;
+        private List<WorkItemMinimal> workItems;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class SingleItem{
+        private ContextInput context;
+        private List<WorkItem> workItems;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class CrossTypes {
+        private ContextInput context;
+        private List<WorkItemWithRef> workItems;
+    }
 }

@@ -15,7 +15,7 @@ import java.util.List;
 public class UserStory {
     private String id;
 
-    private String title;
+    private String summary;
 
     private String asA;
 

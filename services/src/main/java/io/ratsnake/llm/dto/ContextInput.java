@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 import java.util.Map;
 
 @Data
@@ -13,8 +12,20 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ContextInput {
-    private List<String> projectGlossary;
-    private List<String> styleRules;
-    private List<String> constraints;
+    private Documentation documentation;
+    private String guidelines;
     private Map<String, Object> additionalContext;
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Documentation {
+        private String productVision;
+        private String productScope;
+        private String sprintGoals;
+        private String glossary;
+        private String constraints;
+        private Map<String, String> otherDocuments;
+    }
 }

@@ -31,84 +31,84 @@ public final class Jql {
 
     // ---------- Common convenience clauses ----------
     public Jql project(String key) {
-        clause(Field.PROJECT.text(), "=", literal(key));
+        clause(FieldName.PROJECT.text(), "=", literal(key));
         return this;
     }
 
-    public Jql issuetypeIn(IssueType... types) {
-        String list = listOf(Arrays.stream(types).map(IssueType::text).collect(Collectors.toList()));
-        clause(Field.ISSUE_TYPE.text(), "in", list);
+    public Jql issuetypeIn(IssueTypeName... types) {
+        String list = listOf(Arrays.stream(types).map(IssueTypeName::text).collect(Collectors.toList()));
+        clause(FieldName.ISSUE_TYPE.text(), "in", list);
         return this;
     }
 
     public Jql statusIn(Status... statuses) {
         String list = listOf(Arrays.stream(statuses).map(Status::text).collect(Collectors.toList()));
-        clause(Field.STATUS.text(), "in", list);
+        clause(FieldName.STATUS.text(), "in", list);
         return this;
     }
 
     public Jql assigneeEquals(String accountOrName) {
-        clause(Field.ASSIGNEE.text(), "=", literal(accountOrName));
+        clause(FieldName.ASSIGNEE.text(), "=", literal(accountOrName));
         return this;
     }
 
     public Jql labelsIn(String... labels) {
-        clause(Field.LABELS.text(), "in", listOf(Arrays.asList(labels)));
+        clause(FieldName.LABELS.text(), "in", listOf(Arrays.asList(labels)));
         return this;
     }
 
     public Jql summaryContains(String text) {
-        clause(Field.SUMMARY.text(), "~", literal(text));
+        clause(FieldName.SUMMARY.text(), "~", literal(text));
         return this;
     }
 
     public Jql descriptionContains(String text) {
-        clause(Field.DESCRIPTION.text(), "~", literal(text));
+        clause(FieldName.DESCRIPTION.text(), "~", literal(text));
         return this;
     }
 
     // ---------- Generic field operations ----------
-    public Jql fieldEq(Field field, String value) {
+    public Jql fieldEq(FieldName field, String value) {
         clause(field.text(), "=", literal(value));
         return this;
     }
-    public Jql fieldNe(Field field, String value) {
+    public Jql fieldNe(FieldName field, String value) {
         clause(field.text(), "!=", literal(value));
         return this;
     }
-    public Jql fieldIn(Field field, Collection<String> values) {
+    public Jql fieldIn(FieldName field, Collection<String> values) {
         clause(field.text(), "in", listOf(values));
         return this;
     }
-    public Jql fieldNotIn(Field field, Collection<String> values) {
+    public Jql fieldNotIn(FieldName field, Collection<String> values) {
         clause(field.text(), "not in", listOf(values));
         return this;
     }
-    public Jql fieldGt(Field field, String value) {
+    public Jql fieldGt(FieldName field, String value) {
         clause(field.text(), ">", literal(value));
         return this;
     }
-    public Jql fieldGte(Field field, String value) {
+    public Jql fieldGte(FieldName field, String value) {
         clause(field.text(), ">=", literal(value));
         return this;
     }
-    public Jql fieldLt(Field field, String value) {
+    public Jql fieldLt(FieldName field, String value) {
         clause(field.text(), "<", literal(value));
         return this;
     }
-    public Jql fieldLte(Field field, String value) {
+    public Jql fieldLte(FieldName field, String value) {
         clause(field.text(), "<=", literal(value));
         return this;
     }
-    public Jql fieldContains(Field field, String value) {
+    public Jql fieldContains(FieldName field, String value) {
         clause(field.text(), "~", literal(value));
         return this;
     }
-    public Jql isEmpty(Field field) {
+    public Jql isEmpty(FieldName field) {
         clause(field.text(), "is", "EMPTY");
         return this;
     }
-    public Jql isNotEmpty(Field field) {
+    public Jql isNotEmpty(FieldName field) {
         clause(field.text(), "is", "NOT EMPTY");
         return this;
     }
@@ -131,7 +131,7 @@ public final class Jql {
     public JqlGroup group() { return new JqlGroup(this); }
 
     // ---------- ORDER BY ----------
-    public Jql orderBy(Field field, Order dir) {
+    public Jql orderBy(FieldName field, Order dir) {
         orderBy.add(field.text() + " " + dir.name());
         return this;
     }
@@ -202,20 +202,20 @@ public final class Jql {
         }
 
         public JqlGroup project(String key) {
-            clause(Field.PROJECT.text(), "=", literal(key)); return this;
+            clause(FieldName.PROJECT.text(), "=", literal(key)); return this;
         }
-        public JqlGroup issuetypeIn(IssueType... types) {
-            String list = listOf(Arrays.stream(types).map(IssueType::text).collect(Collectors.toList()));
-            clause(Field.ISSUE_TYPE.text(), "in", list); return this;
+        public JqlGroup issuetypeIn(IssueTypeName... types) {
+            String list = listOf(Arrays.stream(types).map(IssueTypeName::text).collect(Collectors.toList()));
+            clause(FieldName.ISSUE_TYPE.text(), "in", list); return this;
         }
         public JqlGroup statusIn(Status... statuses) {
             String list = listOf(Arrays.stream(statuses).map(Status::text).collect(Collectors.toList()));
-            clause(Field.STATUS.text(), "in", list); return this;
+            clause(FieldName.STATUS.text(), "in", list); return this;
         }
-        public JqlGroup fieldEq(Field field, String value) {
+        public JqlGroup fieldEq(FieldName field, String value) {
             clause(field.text(), "=", literal(value)); return this;
         }
-        public JqlGroup fieldContains(Field field, String value) {
+        public JqlGroup fieldContains(FieldName field, String value) {
             clause(field.text(), "~", literal(value)); return this;
         }
         public JqlGroup and() { parent.sb.append(" AND "); return this; }
@@ -239,12 +239,12 @@ public final class Jql {
         }
 
         public JqlGroup summaryContains(String text) {
-            clause(Field.SUMMARY.text(), "~", literal(text));
+            clause(FieldName.SUMMARY.text(), "~", literal(text));
             return this;
         }
 
         public JqlGroup descriptionContains(String text) {
-            clause(Field.DESCRIPTION.text(), "~", literal(text));
+            clause(FieldName.DESCRIPTION.text(), "~", literal(text));
             return this;
         }
 

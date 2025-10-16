@@ -12,18 +12,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DetectDefectOutput {
-    private List<Issue> issues;
+    private List<Defect> defects;
     private Double confidence;
-
-    @Data
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class Issue {
-        private String type;
-        private List<String> userStoryIds;
-        private String severity;
-        private String explanation;
-        private String suggestedImprovements;
-    }
 }

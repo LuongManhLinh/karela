@@ -3,12 +3,12 @@ package io.ratsnake;
 import com.atlassian.adf.model.node.Doc;
 import io.ratsnake.integrations.jira.JiraApi;
 import io.ratsnake.integrations.jira.JiraApiFactory;
-import io.ratsnake.integrations.jira.JiraService;
+import io.ratsnake.integrations.jira.JiraApiService;
 import io.ratsnake.integrations.jira.dto.IssuesCreateRequest;
 import io.ratsnake.integrations.jira.dto.Project;
 import io.ratsnake.integrations.jira.dto.SearchRequest;
-import io.ratsnake.integrations.jira.jql.Field;
-import io.ratsnake.integrations.jira.jql.IssueType;
+import io.ratsnake.integrations.jira.jql.FieldName;
+import io.ratsnake.integrations.jira.jql.IssueTypeName;
 import io.ratsnake.integrations.jira.jql.Jql;
 import io.ratsnake.integrations.jira.jql.Order;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ import static io.ratsnake.util.LanguageProcessor.jsonify;
 
 public class JiraApiTest {
     private final JiraApi api = JiraApiFactory.create();
-    private final JiraService service = new JiraService();
+    private final JiraApiService service = new JiraApiService();
 
     @Test
     void testGetAllIssues() throws IOException {
@@ -31,9 +31,9 @@ public class JiraApiTest {
                         .jql(Jql.builder()
                                 .project("RD")
                                 .and()
-                                .issuetypeIn(IssueType.STORY, IssueType.TASK)
+                                .issuetypeIn(IssueTypeName.STORY, IssueTypeName.TASK)
                                 .orderBy(
-                                        Field.CREATED,
+                                        FieldName.CREATED,
                                         Order.DESC
                                 )
                                 .build()

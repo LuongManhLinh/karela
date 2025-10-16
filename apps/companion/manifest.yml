@@ -1,12 +1,4 @@
 modules:
-  # jira:issuePanel:
-  #   - key: companion-pannel-hello-world-panel
-  #     resource: pannel
-  #     resolver:
-  #       function: resolver
-  #     viewportSize: medium
-  #     title: Companion Pannel
-  #     icon: https://developer.atlassian.com/platform/forge/images/issue-panel-icon.svg
   jira:projectPage:
     - key: companion-project-page
       resource: page
@@ -14,6 +6,12 @@ modules:
         function: resolver
       title: Companion Page
       icon: https://developer.atlassian.com/platform/forge/images/issue-panel-icon.svg
+  jira:projectSettingsPage:
+    - key: companion-project-settings
+      resource: page-settings
+      resolver:
+        function: resolver
+      title: Companion Settings
   function:
     - key: resolver
       handler: index.handler
@@ -22,13 +20,17 @@ resources:
   #   path: static/pannel/dist
   - key: page
     path: static/page/dist
+  - key: page-settings
+    path: static/pageSettings/dist
 permissions:
   scopes:
     - read:jira-work
-  # external:
-  #   fetch:
-  #     backend:
-  #       - "https://api.github.com"
+    - write:jira-work
+    - manage:jira-project
+  external:
+    fetch:
+      backend:
+        - address: "https://exclusive-cayman-wishing-sender.trycloudflare.com"
 app:
   runtime:
     name: nodejs22.x

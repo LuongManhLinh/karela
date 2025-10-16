@@ -1,1 +1,1 @@
-rootProject.name = "ratsnake-scrum"
+rootProject.name = "ratsnake"
