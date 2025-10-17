@@ -4,9 +4,11 @@ import Button from "@atlaskit/button";
 import SectionMessage, {
   SectionMessageAction,
 } from "@atlaskit/section-message";
-import ReactMarkdown from "react-markdown";
 import type { SuggestionItem } from "../types";
 import SuggestionItemRow from "./SuggestionItem";
+// import Heading from "@atlaskit/heading";
+// import Link from "@atlaskit/link";
+import { marked } from "marked";
 
 type Props = {
   markdown: string;
@@ -20,15 +22,13 @@ type Props = {
 
 const containerStyles = xcss({
   flex: 1,
-  minWidth: "0px",
   height: "100vh",
   overflowY: "auto",
-  backgroundColor: "color.background.neutral.subtle",
+  backgroundColor: "color.background.neutral",
 });
 
 const contentStyles = xcss({
   color: "color.text",
-  maxWidth: "980px",
   marginLeft: "auto",
   marginRight: "auto",
   padding: "space.400",
@@ -37,8 +37,7 @@ const contentStyles = xcss({
 const headingStyles = xcss({
   marginBottom: "space.200",
   color: "color.text",
-  fontSize: "16px",
-  fontWeight: "600",
+  fontWeight: "bold",
 });
 
 const skeletonStyles = xcss({
@@ -55,20 +54,6 @@ const skeletonTextStyles = xcss({
   borderRadius: "border.radius.050",
   width: "40%",
 });
-
-// const markdownStyles = xcss({
-//   color: "color.text",
-//   "& p": {
-//     marginBottom: "space.150",
-//   },
-//   "& li": {
-//     marginBottom: "space.100",
-//   },
-//   "& h1, & h2, & h3": {
-//     marginTop: "space.300",
-//     marginBottom: "space.150",
-//   },
-// });
 
 const suggestionsContainerStyles = xcss({
   marginTop: "space.400",
@@ -91,6 +76,10 @@ const skeletonCheckboxStyles = xcss({
   marginBottom: "space.100",
 });
 
+const markdownToHtml = (markdown: string) => {
+  return marked(markdown, { breaks: true });
+};
+
 export default function RightPanel({
   markdown,
   suggestions,
@@ -101,10 +90,10 @@ export default function RightPanel({
   onRetry,
 }: Props) {
   const list = useMemo(() => suggestions, [suggestions]);
+  const html = markdownToHtml(markdown);
   return (
     <Box xcss={containerStyles}>
       <Box xcss={contentStyles}>
-        <Box xcss={headingStyles}>Defect description:</Box>
         {isRunning ? (
           <Box>
             <Box xcss={skeletonTextStyles} />
@@ -125,10 +114,29 @@ export default function RightPanel({
           </SectionMessage>
         ) : null}
         <Box>
-          <ReactMarkdown>{markdown}</ReactMarkdown>
+          <div dangerouslySetInnerHTML={{ __html: html }} />
+          {/* <ReactMarkdown
+            components={{
+              h1: ({ node, ...props }) => <Heading level="h600" {...props} />,
+              h2: ({ node, ...props }) => <Heading level="h500" {...props} />,
+              p: ({ node, ...props }) => <Text {...props} />,
+              a: ({ node, ...props }) => <Link {...props} />,
+              li: ({ node, ...props }) => (
+                <li style={{ marginLeft: 16 }} {...props} />
+              ),
+            }}
+          >
+            {markdown}
+          </ReactMarkdown> */}
         </Box>
         <Box xcss={suggestionsContainerStyles}>
-          <Box xcss={headingStyles}>Suggestions:</Box>
+          <Box
+            as="h1"
+            xcss={headingStyles}
+            backgroundColor="color.background.accent.blue.bolder"
+          >
+            Suggestionsxxx:
+          </Box>
           {isRunning ? (
             <Stack space="space.100">
               <Box xcss={skeletonCheckboxStyles} />

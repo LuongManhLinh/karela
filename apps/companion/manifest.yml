@@ -20,6 +20,8 @@ resources:
   #   path: static/pannel/dist
   - key: page
     path: static/page/dist
+    tunnel:
+      port: 5174
   - key: page-settings
     path: static/pageSettings/dist
 permissions:
@@ -30,7 +32,7 @@ permissions:
   external:
     fetch:
       backend:
-        - address: "https://exclusive-cayman-wishing-sender.trycloudflare.com"
+        - address: "*.trycloudflare.com"
 app:
   runtime:
     name: nodejs22.x

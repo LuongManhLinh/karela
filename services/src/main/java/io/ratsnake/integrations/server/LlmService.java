@@ -35,58 +35,58 @@ public class LlmService {
     private final JiraApiService jiraApiService = new JiraApiService();
 
     public DefectResponse analyzeWorkItems(String projectKey) throws IOException {
-        System.out.println("Analyzing work items for project: " + projectKey);
-        long startTime = System.currentTimeMillis();
-        var jiraIssues = jiraApiService.searchIssues(
-                Jql.builder()
-                        .project(projectKey)
-                        .and()
-                        .issuetypeIn(IssueTypeName.STORY, IssueTypeName.TASK, IssueTypeName.BUG)
-                        .orderBy(
-                                FieldName.CREATED,
-                                Order.ASC
-                        )
-                        .build(),
-                List.of(FieldName.SUMMARY, FieldName.ISSUE_TYPE, FieldName.DESCRIPTION),
-                10,
-                true
-        );
-
-        System.out.println("Fetched " + jiraIssues.size() + " issues from Jira in " + (System.currentTimeMillis() - startTime) + " ms");
-
-        List<WorkItemWithRef> workItems = jiraIssues.stream()
-                .map(issue ->
-                    WorkItemWithRef.builder()
-                            .id(issue.getId())
-                            .title(issue.getFields().getSummary())
-                            .type(issue.getFields().getIssuetype().getName())
-                            .description(issue.getRenderedFields().getDescription())
-                            .relatedWorkItemIds(List.of())
-                            .build()
-                )
-                .toList();
-        System.out.println("Mapped issues to " + workItems.size() + " work items.");
+        return null;
+//        System.out.println("Analyzing work items for project: " + projectKey);
+//        long startTime = System.currentTimeMillis();
+//        var jiraIssues = jiraApiService.searchIssues(
+//                Jql.builder()
+//                        .project(projectKey)
+//                        .and()
+//                        .issuetypeIn(IssueTypeName.STORY, IssueTypeName.TASK, IssueTypeName.BUG)
+//                        .orderBy(
+//                                FieldName.CREATED,
+//                                Order.ASC
+//                        )
+//                        .build(),
+//                List.of(FieldName.SUMMARY, FieldName.ISSUE_TYPE, FieldName.DESCRIPTION),
+//                10,
+//                true
+//        );
+//
+//        System.out.println("Fetched " + jiraIssues.size() + " issues from Jira in " + (System.currentTimeMillis() - startTime) + " ms");
+//
+//        List<WorkItemWithRef> workItems = jiraIssues.stream()
+//                .map(issue ->
+//                    WorkItemWithRef.builder()
+//                            .id(issue.getId())
+//                            .title(issue.getFields().getSummary())
+//                            .type(issue.getFields().getIssuetype().getName())
+//                            .description(issue.getRenderedFields().getDescription())
+//                            .relatedWorkItemIds(List.of())
+//                            .build()
+//                )
+//                .toList();
+//        System.out.println("Mapped issues to " + workItems.size() + " work items.");
 //        System.out.println(jsonify(workItems));
-//        return null;
-        var defectOutputs = defectAiAdapter.checkDefects(workItems)
-                        .stream().filter(output -> !output.getDefects().isEmpty())
-                        .toList();
-        System.out.println("Detected defects: \n" + jsonify(defectOutputs));
-        var result = defectQAAdapter.respondFromDetectedDefects(
-                defectOutputs,
-                workItems.stream()
-                        .map(iwRef ->
-                                WorkItem.builder()
-                                .id(iwRef.getId())
-                                .type(iwRef.getType())
-                                .title(iwRef.getTitle())
-                                .description(iwRef.getDescription())
-                                .build())
-                        .toList()
-        );
-
-        System.out.println("Defect analysis completed in " + (System.currentTimeMillis() - startTime) + " ms");
-        return result;
+//        var defectOutputs = defectAiAdapter.checkDefects(workItems)
+//                        .stream().filter(output -> !output.getDefects().isEmpty())
+//                        .toList();
+//        System.out.println("Detected defects: \n" + jsonify(defectOutputs));
+//        var result = defectQAAdapter.respondFromDetectedDefects(
+//                defectOutputs,
+//                workItems.stream()
+//                        .map(iwRef ->
+//                                WorkItem.builder()
+//                                .id(iwRef.getId())
+//                                .type(iwRef.getType())
+//                                .title(iwRef.getTitle())
+//                                .description(iwRef.getDescription())
+//                                .build())
+//                        .toList()
+//        );
+//
+//        System.out.println("Defect analysis completed in " + (System.currentTimeMillis() - startTime) + " ms");
+//        return result;
     }
 
     public ImproveItemOutput improveUserStory(GenerateUserStoryInput input) {

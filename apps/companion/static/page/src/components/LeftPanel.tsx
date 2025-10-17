@@ -16,7 +16,7 @@ type Props = {
 const containerStyles = xcss({
   width: "320px",
   flexShrink: 0,
-  backgroundColor: "color.background.neutral",
+  backgroundColor: "color.background.selected",
   height: "100vh",
   borderRightColor: "color.border",
   borderRightStyle: "solid",
@@ -128,7 +128,7 @@ export default function LeftPanel({
               </>
             ) : (
               <>
-                <Box xcss={titleStyles}>20 Defects - Tasks</Box>
+                <Box xcss={titleStyles}>Defect Detection</Box>
                 <Box xcss={subtitleStyles}>
                   {message ??
                     (sorted[0]
