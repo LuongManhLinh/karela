@@ -3,6 +3,7 @@ package io.ratsnake.integrations.jira.llm;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
+import io.ratsnake.integrations.jira.dto.IssuesGenerateOutput;
 
 public interface IssuesGeneratePrompt {
     @SystemMessage("""
@@ -44,7 +45,7 @@ public interface IssuesGeneratePrompt {
             
             Remember to complete the task as specified, and follow the OUTPUT RULES strictly!
             """)
-    String generateNaturalIssues(@V("input") String input);
+    IssuesGenerateOutput generateNaturalIssues(@V("input") String input);
 
 
     @SystemMessage("""
@@ -92,5 +93,5 @@ public interface IssuesGeneratePrompt {
             
             Remember to complete the task as specified, and follow the OUTPUT RULES strictly!
             """)
-    String generateStructuredIssues(@V("input") String input);
+    IssuesGenerateOutput generateStructuredIssues(@V("input") String input);
 }

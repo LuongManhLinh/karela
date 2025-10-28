@@ -5,8 +5,8 @@ import io.ratsnake.dsl.schema.*;
 import io.ratsnake.llm.adapter.DefectAiAdapter;
 import io.ratsnake.llm.adapter.FormulationAiAdapter;
 import io.ratsnake.llm.dto.ContextInput;
-import io.ratsnake.llm.dto.GenerateGherkinInput;
-import io.ratsnake.llm.dto.GenerateUserStoryInput;
+import io.ratsnake.llm.dto.in.GenerateGherkinInput;
+import io.ratsnake.llm.dto.in.GenerateUserStoryInput;
 import io.ratsnake.llm.dto.UserStoryDto;
 import io.ratsnake.llm.models.GeminiDynamicModel;
 import io.ratsnake.llm.aiservice.DefectAiService;
@@ -23,7 +23,8 @@ public class FormulationAITest {
             new GeminiDynamicModel<>(
                     FormulationAiService.class,
                     GeminiDynamicModel.GEMINI_2_0_FLASH,
-                    0.4
+                    0.4,
+                    3
             )
     );
 
@@ -31,7 +32,8 @@ public class FormulationAITest {
             new GeminiDynamicModel<>(
                     DefectAiService.class,
                     GeminiDynamicModel.GEMINI_2_0_FLASH,
-                    0.4
+                    0.4,
+                    3
             )
     );
 

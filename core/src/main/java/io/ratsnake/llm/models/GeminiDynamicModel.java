@@ -1,16 +1,20 @@
 package io.ratsnake.llm.models;
 
+import dev.langchain4j.exception.HttpException;
+import dev.langchain4j.exception.RateLimitException;
 import dev.langchain4j.model.chat.ChatModel;
-import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
-import dev.langchain4j.model.googleai.GoogleAiGeminiStreamingChatModel;
 import dev.langchain4j.service.AiServices;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Random;
+
+import static dev.langchain4j.model.chat.Capability.RESPONSE_FORMAT_JSON_SCHEMA;
 
 
 public class GeminiDynamicModel<A> implements DynamicModel<A> {
@@ -34,26 +38,43 @@ public class GeminiDynamicModel<A> implements DynamicModel<A> {
     private int currentIndex;
     private final String modelName;
     private final double temperature;
-    private final boolean streaming;
-    private Object chatModel;
+    private ChatModel chatModel;
     private final A model;
 
-    public GeminiDynamicModel(Class<A> modelClass, String modelName, double temperature, boolean streaming) {
+    public GeminiDynamicModel(Class<A> modelClass, String modelName, double temperature, int maxRetries) {
         this.modelName = modelName;
         this.temperature = temperature;
-        this.streaming = streaming;
 
         currentIndex = new Random().nextInt(API_KEYS.size());
         roll();
 
-        model = streaming ?
-                AiServices.builder(modelClass)
-                        .streamingChatModel((StreamingChatModel) chatModel)
-                        .build()
-                :
-                AiServices.builder(modelClass)
-                        .chatModel((ChatModel) chatModel)
+        var internalModel = AiServices.builder(modelClass)
+                        .chatModel(chatModel)
                         .build();
+
+        model = modelRetryWrap(internalModel, modelClass, maxRetries, error -> {
+            if (error instanceof HttpException httpEx) {
+                int status = httpEx.statusCode();
+                if (status == 429) {
+                    System.out.println("Rate limit exceeded, rolling to next API key.");
+                    roll();
+                } else if (status >= 500) {
+                    System.out.println("Server error (" + status + "), retrying with the same API key after a short delay.");
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                return true;
+            } else if (error instanceof RateLimitException) {
+                System.out.println("Rate limit exceeded, rolling to next API key.");
+                roll();
+                return true;
+            } else {
+                return false;
+            }
+        });
 
     }
 
@@ -62,16 +83,10 @@ public class GeminiDynamicModel<A> implements DynamicModel<A> {
         currentIndex = (currentIndex + 1) % API_KEYS.size();
         String apiKey = API_KEYS.get(currentIndex);
         System.out.println("Switched to API key: " + apiKey.substring(0, 4) + "****" + apiKey.substring(apiKey.length() - 4));
-        chatModel = streaming ?
-                GoogleAiGeminiStreamingChatModel.builder()
+        chatModel = GoogleAiGeminiChatModel.builder()
                         .apiKey(apiKey)
                         .modelName(modelName)
-                        .temperature(temperature)
-                        .build()
-                :
-                GoogleAiGeminiChatModel.builder()
-                        .apiKey(apiKey)
-                        .modelName(modelName)
+                        .supportedCapabilities(RESPONSE_FORMAT_JSON_SCHEMA)
                         .temperature(temperature)
                         .build();
     }
@@ -79,5 +94,38 @@ public class GeminiDynamicModel<A> implements DynamicModel<A> {
     @Override
     public A get() {
         return model;
+    }
+
+    @FunctionalInterface
+    private interface Action {
+        boolean execute(Throwable error);
+    }
+
+    @SuppressWarnings("unchecked")
+    private A modelRetryWrap(A target, Class<A> interfaceType, int maxAttempt, Action onRetry) {
+        return (A) Proxy.newProxyInstance(
+                interfaceType.getClassLoader(),
+                new Class<?>[]{interfaceType},
+                (proxy, method, args) -> {
+                    int attempts = 0;
+                    while (attempts < maxAttempt) {
+                        try {
+                            return method.invoke(target, args);
+                        } catch (InvocationTargetException e) {
+                            attempts++;
+                            Throwable cause = e.getCause();
+
+                            if (attempts >= maxAttempt) {
+                                throw cause;
+                            }
+
+                            if (cause != null && !onRetry.execute(cause)) {
+                                throw cause;
+                            }
+                        }
+                    }
+                    throw new RuntimeException("Failed to invoke method " + method.getName() + " after " + maxAttempt + " attempts");
+                }
+        );
     }
 }

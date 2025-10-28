@@ -32,7 +32,7 @@ public class JiraApiService {
                         IssuesGeneratePrompt.class,
                         GeminiDynamicModel.GEMINI_2_0_FLASH,
                         0.7,
-                        false
+                        3
                 )
         );
     }

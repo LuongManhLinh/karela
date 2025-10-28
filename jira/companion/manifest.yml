@@ -1,6 +1,6 @@
 modules:
   jira:projectPage:
-    - key: companion-hello-world-project-page
+    - key: ratsnake-companion-project-page
       resource: main
       resolver:
         function: resolver
@@ -11,7 +11,7 @@ modules:
       handler: index.handler
 resources:
   - key: main
-    path: src/frontend/index.jsx
+    path: src/frontend/index.tsx
 
 permissions:
   scopes:
@@ -21,7 +21,7 @@ permissions:
   external:
     fetch:
       backend:
-        - address: "https://certificate-engage-shapes-treated.trycloudflare.com"
+        - address: "https://*.trycloudflare.com"
 app:
   runtime:
     name: nodejs22.x

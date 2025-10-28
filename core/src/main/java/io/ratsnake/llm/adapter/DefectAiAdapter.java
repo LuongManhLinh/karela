@@ -2,6 +2,11 @@ package io.ratsnake.llm.adapter;
 
 import io.ratsnake.llm.aiservice.DefectAiService;
 import io.ratsnake.llm.dto.*;
+import io.ratsnake.llm.dto.in.DetectDefectInput;
+import io.ratsnake.llm.dto.in.GenerateGherkinInput;
+import io.ratsnake.llm.dto.in.GenerateUserStoryInput;
+import io.ratsnake.llm.dto.out.DetectDefectOutput;
+import io.ratsnake.llm.dto.out.ImproveItemOutput;
 import io.ratsnake.llm.models.DynamicModel;
 
 import java.util.List;
@@ -10,15 +15,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
+import static io.ratsnake.util.LanguageProcessor.*;
+
 
 public class DefectAiAdapter extends AiAdapter<DefectAiService> {
-    public DefectAiAdapter(
-            DynamicModel<DefectAiService> model,
-            int maxRetries
-    ) {
-        super(model, maxRetries);
-    }
-
     public DefectAiAdapter(DynamicModel<DefectAiService> model) {
         super(model);
     }
@@ -63,25 +63,15 @@ public class DefectAiAdapter extends AiAdapter<DefectAiService> {
 
 
     public ImproveItemOutput improveStructuredUserStory(GenerateUserStoryInput input) {
-        return executeWithRetries(
-                input,
-                ImproveItemOutput.class,
-                model()::improveStructuredUserStory,
-                "IMPROVE_USER_STORY"
-        );
+        return model().improveStructuredUserStory(safeJsonify(input));
     }
 
 
     public ImproveItemOutput improveStructuredGherkin(GenerateGherkinInput input) {
-        return executeWithRetries(
-                input,
-                ImproveItemOutput.class,
-                model()::improveStructuredGherkin,
-                "IMPROVE_GHERKIN"
-        );
+        return model().improveStructuredGherkin(safeJsonify(input));
     }
 
-    public List<DetectDefectOutput> checkDefects(List<WorkItemWithRef> workItems) {
+    public List<DefectLlm> checkDefects(List<WorkItemWithRef> workItems) {
 
         ExecutorService ex = Executors.newFixedThreadPool(3);
         CompletableFuture<DetectDefectOutput> f1 =
@@ -93,13 +83,18 @@ public class DefectAiAdapter extends AiAdapter<DefectAiService> {
         CompletableFuture<DetectDefectOutput> f4 =
                 CompletableFuture.supplyAsync(() -> checkSingleWorkItem(workItems), ex);
         CompletableFuture<DetectDefectOutput> f5 =
-                CompletableFuture.supplyAsync(() -> checkWorkItemsCrossTypes(workItems), ex);
+                CompletableFuture.supplyAsync(() -> DetectDefectOutput.builder().defects(List.of()).build(), ex);
 
-        return CompletableFuture.allOf(f1, f2, f3, f4, f5)
+        var outputs = CompletableFuture.allOf(f1, f2, f3, f4, f5)
                 .thenApply(v -> Stream.of(f1, f2, f3, f4, f5)
                                 .map(CompletableFuture::join)
                                 .toList())
                 .join();
+        ex.shutdown();
+
+        return outputs.stream()
+                .flatMap(output -> output.getDefects().stream())
+                .toList();
     }
 
     private DetectDefectOutput checkWorkItemsSingleType(List<WorkItemWithRef> workItems, String type) {
@@ -111,17 +106,17 @@ public class DefectAiAdapter extends AiAdapter<DefectAiService> {
                         .description(item.getDescription())
                         .build())
                 .toList();
+
+        if (items.isEmpty()) {
+            return DetectDefectOutput.builder().defects(List.of()).build();
+        }
+
         var input = DetectDefectInput.SingleType.builder()
                 .context(exampleContext)
                 .type(type)
                 .workItems(items)
                 .build();
-        return executeWithRetries(
-                input,
-                DetectDefectOutput.class,
-                model()::checkWorkItemsSingleType,
-                "CHECK_WORK_ITEMS_SINGLE_TYPE"
-        );
+        return model().checkWorkItemsSingleType(safeJsonify(input));
     }
 
     private DetectDefectOutput checkSingleWorkItem(List<WorkItemWithRef> workItems) {
@@ -133,29 +128,26 @@ public class DefectAiAdapter extends AiAdapter<DefectAiService> {
                         .description(item.getDescription())
                         .build())
                 .toList();
+        if (items.isEmpty()) {
+            return DetectDefectOutput.builder().defects(List.of()).build();
+        }
         var input = DetectDefectInput.SingleItem.builder()
                 .context(exampleContext)
                 .workItems(items)
                 .build();
-        return executeWithRetries(
-                input,
-                DetectDefectOutput.class,
-                model()::checkSingleWorkItem,
-                "CHECK_SINGLE_WORK_ITEM"
-        );
+        return model().checkSingleWorkItem(safeJsonify(input));
     }
 
     private DetectDefectOutput checkWorkItemsCrossTypes(List<WorkItemWithRef> workItems) {
+        if (workItems.isEmpty()) {
+            return DetectDefectOutput.builder().defects(List.of()).build();
+        }
+
         var input = DetectDefectInput.CrossTypes.builder()
                 .context(exampleContext)
                 .workItems(workItems)
                 .build();
-        return executeWithRetries(
-                input,
-                DetectDefectOutput.class,
-                model()::checkWorkItemsCrossTypes,
-                "CHECK_WORK_ITEMS_CROSS_TYPES"
-        );
+        return model().checkWorkItemsCrossTypes(safeJsonify(input));
     }
 
 

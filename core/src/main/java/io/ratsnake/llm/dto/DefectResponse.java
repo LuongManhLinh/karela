@@ -1,5 +1,7 @@
 package io.ratsnake.llm.dto;
 
+import io.ratsnake.llm.dto.out.DefectReport;
+import io.ratsnake.llm.dto.out.DetectDefectOutput;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,5 +16,4 @@ import java.util.List;
 public class DefectResponse {
     private String notification;
     private DefectReport report;
-    private List<DetectDefectOutput> defects;
 }

@@ -1,18 +1,9 @@
 package io.ratsnake.util;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class LanguageProcessor {
     private static final ObjectMapper mapper;
@@ -36,6 +27,15 @@ public class LanguageProcessor {
         return mapper.writeValueAsString(obj);
     }
 
+    public static String safeJsonify(Object obj) {
+        try {
+            return jsonify(obj);
+        } catch (JsonProcessingException e) {
+            System.err.println("JSON serialization error: " + e.getMessage() + ". Returning empty JSON object.");
+            return "{}";
+        }
+    }
+
     public static <T> T parseJson(String json, Class<T> clazz) throws JsonProcessingException {
         return mapper.readValue(json, clazz);
     }
@@ -44,29 +44,13 @@ public class LanguageProcessor {
         return mapper.readValue(json, typeRef);
     }
 
-    public static <T> T secureParseJson(String json, Class<T> clazz) throws JsonProcessingException {
+    public static <T> T safeParseJson(String json, Class<T> clazz) throws JsonProcessingException {
         String cleanedJson = removeCodeFences(json);
         return parseJson(cleanedJson, clazz);
     }
 
-    public static <T> T secureParseJson(String json, TypeReference<T> typeRef) throws JsonProcessingException {
+    public static <T> T safeParseJson(String json, TypeReference<T> typeRef) throws JsonProcessingException {
         String cleanedJson = removeCodeFences(json);
         return parseJson(cleanedJson, typeRef);
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class A {
-        String iWant;
-        String inOrderTo;
-        String xAnd;
-        String isLike;
-    }
-
-    public static void main(String[] args) throws JsonProcessingException {
-        var a = new A(
-                "", "", "", ""
-        );
-        System.out.println(jsonify(a));
     }
 }

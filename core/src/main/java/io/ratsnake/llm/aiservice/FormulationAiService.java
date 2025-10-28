@@ -3,6 +3,7 @@ package io.ratsnake.llm.aiservice;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
+import io.ratsnake.llm.dto.out.GenerateGherkinOutput;
 
 public interface FormulationAiService {
     @SystemMessage("""
@@ -96,7 +97,7 @@ public interface FormulationAiService {
             
             Remember to follow the output rules strictly.
             """)
-    String suggestWhileWritingGherkin(@V("input") String input);
+    GenerateGherkinOutput suggestWhileWritingGherkin(@V("input") String input);
 
 
 }

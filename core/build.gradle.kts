@@ -29,14 +29,20 @@ tasks.withType<JavaCompile> {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
-//    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-amqp")
 //	implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 //	implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
-    implementation("dev.langchain4j:langchain4j:1.3.0")
-    implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.3.0")
-    implementation("dev.langchain4j:langchain4j-core:1.3.0")
+    // https://mvnrepository.com/artifact/dev.langchain4j/langchain4j
+    implementation("dev.langchain4j:langchain4j:1.7.1")
+    implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.7.1")
+    implementation("dev.langchain4j:langchain4j-core:1.7.1")
+    // https://mvnrepository.com/artifact/dev.langchain4j/langchain4j-agentic
+    implementation("dev.langchain4j:langchain4j-agentic:1.7.1-beta14")
+    // https://mvnrepository.com/artifact/dev.langchain4j/langchain4j-open-ai
+    implementation("dev.langchain4j:langchain4j-open-ai:1.7.1")
 
     // LangGraph4j core
     implementation("org.bsc.langgraph4j:langgraph4j-core:1.6.0")
