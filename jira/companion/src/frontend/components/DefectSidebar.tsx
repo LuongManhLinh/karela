@@ -56,7 +56,7 @@ const DefectItem = ({ defect }: { defect: DefectDto }) => {
             padding: "space.050",
           }}
         >
-          <Text weight="bold">{defect.suggestedImprovements}</Text>
+          <Text weight="bold">{defect.suggestedFix}</Text>
         </Box>
         <TagGroup>
           {defect.workItemIds.map((item) => (

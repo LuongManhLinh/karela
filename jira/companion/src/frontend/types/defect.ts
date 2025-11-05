@@ -27,7 +27,7 @@ export interface DefectDto {
   severity: string;
   explanation: string;
   confidence: number;
-  suggestedImprovements: string;
+  suggestedFix: string;
   solved: boolean;
   workItemIds: string[];
 }

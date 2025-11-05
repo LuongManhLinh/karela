@@ -1,0 +1,120 @@
+# .gitignore for Python ML + Django project
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+develop-eggs/
+.eggs/
+*.egg-info/
+pip-wheel-metadata/
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv_bak/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+.noseids
+nose2-junit.xml
+coverage.xml
+*.cover
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+# If you want to ignore per-app migrations, uncomment:
+# */migrations/*.py
+# */migrations/*.pyc
+# Note: many teams commit migrations; adjust as needed.
+
+# Jupyter / IPython
+.ipynb_checkpoints
+*.ipynb
+
+# Notebook checkpoints (VSCode)
+.vscode/
+
+# IDEs
+.idea/
+*.iml
+*.sublime-project
+*.sublime-workspace
+
+# Data, models, checkpoints, outputs (ML artifacts)
+data/
+datasets/
+raw_data/
+processed_data/
+outputs/
+checkpoints/
+checkpoints-*/
+*.pt
+*.pth
+*.h5
+*.hdf5
+*.ckpt
+*.pkl
+*.joblib
+*.sav
+
+# Logs
+logs/
+*.log
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Sphinx docs
+docs/_build/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# Docker
+docker-compose.override.yml
+*.env
+
+# Credentials / secrets
+*.key
+*.pem
+secrets.yml
+aws_credentials
+aws_secret
+credentials

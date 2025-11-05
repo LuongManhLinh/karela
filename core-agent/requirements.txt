@@ -1,0 +1,16 @@
+weaviate-client
+pandas
+requests
+tqdm
+scikit-learn
+fastapi[all]
+sqlalchemy
+uvicorn
+langchain
+langgraph
+langchain-google-genai
+pydantic
+pymysql
+html2text
+rq
+redis

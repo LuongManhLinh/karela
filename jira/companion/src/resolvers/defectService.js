@@ -25,22 +25,24 @@ const fetchData = async (url, options) => {
 
 const DefectService = {
   analyzeWorkItems: async (projectKey) => {
-    return await fetchData(`${BACKEND_URL}/defect/analysis`, {
+    return await fetchData(`${BACKEND_URL}/defects/analyses`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ projectKey: projectKey }),
+      body: JSON.stringify({ projectKey: projectKey, analysisType: "ALL" }),
     });
   },
 
-  getAllAnalysisBriefs: async () => {
-    return await fetchData(`${BACKEND_URL}/defect/analysis`, { method: "GET" });
+  getAllAnalysisBriefs: async (projectKey) => {
+    return await fetchData(`${BACKEND_URL}/defects/analyses/${projectKey}`, {
+      method: "GET",
+    });
   },
 
   getAnalysisStatus: async (analysisId) => {
     return await fetchData(
-      `${BACKEND_URL}/defect/analysis/${analysisId}/status`,
+      `${BACKEND_URL}/defects/analyses/${analysisId}/status`,
       {
         method: "GET",
       }
@@ -48,9 +50,12 @@ const DefectService = {
   },
 
   getAnalysisDetails: async (analysisId) => {
-    return await fetchData(`${BACKEND_URL}/defect/analysis/${analysisId}`, {
-      method: "GET",
-    });
+    return await fetchData(
+      `${BACKEND_URL}/defects/analyses/${analysisId}/detail`,
+      {
+        method: "GET",
+      }
+    );
   },
 };
 

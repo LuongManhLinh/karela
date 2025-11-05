@@ -19,7 +19,10 @@ const DefectService = {
   getAllDefectAnalysisBriefs: async (): Promise<
     ApiResponse<AnalysisBrief[]>
   > => {
-    const result = await invoke("getAllDefectAnalysisBriefs", {});
+    const context = await view.getContext();
+    const result = await invoke("getAllDefectAnalysisBriefs", {
+      projectKey: context.extension.project.key || "---",
+    });
     return result as ApiResponse<AnalysisBrief[]>;
   },
   getDefectAnalysisStatus: async (
