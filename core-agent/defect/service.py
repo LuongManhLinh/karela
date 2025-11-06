@@ -22,44 +22,21 @@ from .agents.initializing import run_analysis
 from .schemas import AnalysisSummary, AnalysisDetailDto, DefectDto
 from integrations.jira.client import default_client as jira_client
 from integrations.jira.schemas import FieldName
+from integrations.jira.defaults import DEFAULT_SETTINGS_KEY
 
 
-def get_default_context_input() -> ContextInput:
+def get_default_context_input(project_key) -> ContextInput:
+    jira_settings = jira_client.get_settings(project_key, DEFAULT_SETTINGS_KEY)
     return ContextInput(
         documentation=Documentation(
-            product_vision="""
-A flight booking application that allows users to search, book, and manage their flights easily.""",
-            product_scope="""
-In-scope:
-- Flight search and booking
-- User account management
-- Payment processing
-- Booking management (view, change, cancel)
-- Notifications and alerts
-Out-of-scope:
-- Hotel and car rental bookings
-- Travel insurance
-- Customer support services""",
-            glossary="""
-- Booking: The process of reserving a flight.
-- Itinerary: A detailed plan of a user's flight schedule.
-- PNR (Passenger Name Record): A unique identifier for a booking.
-- Fare Class: The category of service and pricing for a flight.
-- Check-in: The process of confirming a flight reservation and obtaining a boarding pass.""",
-            constraints="""
-- The system must comply with GDPR regulations regarding user data.
-- Payment processing must be PCI-DSS compliant.
-- The application should support high availability and handle peak loads during holiday seasons.
-- The system must integrate with multiple airline APIs for flight data.
-- The user interface must be responsive and accessible on both desktop and mobile devices.""",
-            sprint_goals="""
-Implement user authentication and flight search functionality.""",
+            product_vision=jira_settings.get("product_vision"),
+            product_scope=jira_settings.get("product_scope"),
+            sprint_goals=jira_settings.get("sprint_goals"),
+            glossary=jira_settings.get("glossary"),
+            constraints=jira_settings.get("constraints"),
+            additional_docs=jira_settings.get("additional_docs"),
         ),
-        guidelines="""
-Should focus more on User Stories and Tasks.
-Focusing on Bug items is unnecessary.
-Should avoid technical implementation details.""",
-        additional_context=None,
+        guidelines=jira_settings.get("guidelines"),
     )
 
 

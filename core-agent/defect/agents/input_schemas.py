@@ -17,7 +17,15 @@ class Documentation(BaseModel):
     sprint_goals: Optional[str] = None
     glossary: Optional[str] = None
     constraints: Optional[str] = None
-    other_documents: Optional[Dict[str, str]] = None
+    additional_docs: Optional[Dict[str, str]] = None
+
+    model_config = ConfigDict(
+        extra="ignore",
+    )
+
+class LlmContext(BaseModel):
+    guidelines: Optional[str] = None
+    additional_context: Optional[Dict[str, Any]] = None
 
     model_config = ConfigDict(
         extra="ignore",
@@ -26,8 +34,7 @@ class Documentation(BaseModel):
 
 class ContextInput(BaseModel):
     documentation: Optional[Documentation] = None
-    guidelines: Optional[str] = None
-    additional_context: Optional[Dict[str, Any]] = None
+    llm_context: Optional[LlmContext] = None
 
     model_config = ConfigDict(
         extra="ignore",

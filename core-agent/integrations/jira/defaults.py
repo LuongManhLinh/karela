@@ -1,0 +1,1 @@
+DEFAULT_SETTINGS_KEY = "ratsnake-companion-settings"

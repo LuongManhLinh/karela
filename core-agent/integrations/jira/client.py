@@ -2,7 +2,7 @@ import base64
 from typing import List
 
 import requests
-from .schemas import SearchResponse, FieldName
+from .schemas import SearchResponse
 from config import JiraConfig
 
 
@@ -60,20 +60,24 @@ class JiraApiClient:
             )
 
         return SearchResponse.model_validate(resp.json())
+    
+    def get_settings(
+        self,
+        project_id,
+        prop_key
+    ) -> dict:
+        url = self.base_url + f"/rest/api/3/project/{project_id}/properties/{prop_key}"
+        resp = requests.get(url, headers=self._auth_header, timeout=60)
+        if not resp.ok:
+            try:
+                detail = resp.text
+            except Exception:
+                detail = ""
+            raise RuntimeError(
+                f"Jira get settings failed: {resp.status_code} {resp.reason} {detail}"
+            )
+
+        return resp.json()["value"]
 
 
 default_client = JiraApiClient.from_env()
-
-
-def main():
-    client = default_client
-    response = client.search_issues(
-        jql="project = 'AF' AND issuetype in ('Story', 'Task', 'Bug') ORDER BY created ASC",
-        fields=["summary", "description"],
-        max_results=5,
-        expand_rendered_fields=True,
-    )
-    for issue in response.issues:
-        print(f"Issue Key: {issue.key}")
-        print(f"Summary: {issue.fields.summary}")
-        print(f"Description: {issue.rendered_fields.description}")

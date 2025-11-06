@@ -1,16 +1,8 @@
-from enum import Enum
+from integrations.jira.client import default_client
+from integrations.jira.defaults import DEFAULT_SETTINGS_KEY
+from defect.agents.input_schemas import ContextInput
 
-
-class Types(Enum):
-    A = "A"
-    B = "B"
-    UNDEFINED = "UNDEFINED"
-
-    @classmethod
-    def _missing_(cls, value):
-        # called when value isn't found among members
-        return cls.UNDEFINED
-
-
-print(Types("A"))  # Types.A
-print(Types("XYZ"))  # Types.UNDEFINED ✅
+settings = default_client.get_settings("AF", DEFAULT_SETTINGS_KEY)
+print(settings)
+context = ContextInput(**settings)
+print(context.model_dump_json(indent=2))

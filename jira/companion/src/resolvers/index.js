@@ -24,6 +24,8 @@ resolver.define("getDefectAnalysisDetails", async ({ payload }) => {
   return result;
 });
 
+const PROP_KEY = "ratsnake-companion-settings";
+
 resolver.define("getProjectSettings", async ({ payload }) => {
   const { projectId } = payload;
   const res = await api
@@ -31,13 +33,16 @@ resolver.define("getProjectSettings", async ({ payload }) => {
     .requestJira(
       route`/rest/api/3/project/${projectId}/properties/${PROP_KEY}`
     );
+  if (!res.ok) {
+    return {
+      data: null,
+      error: `Error fetching project settings: ${res.status}`,
+    };
+  } else {
+    const data = await res.json();
 
-  if (res.status === 404) {
-    return { enableLLM: true, coverageThreshold: 70 };
+    return { data: data.value, error: null };
   }
-  if (!res.ok) throw new Error(`Get settings failed: ${res.status}`);
-  const body = await res.json();
-  return body.value;
 });
 
 resolver.define("setProjectSettings", async ({ payload }) => {
@@ -52,9 +57,13 @@ resolver.define("setProjectSettings", async ({ payload }) => {
         body: JSON.stringify(settings),
       }
     );
-  if (!res.ok)
-    throw new Error(`Set settings failed: ${res.status} ${await res.text()}`);
-  return { ok: true };
+  if (!res.ok) {
+    return {
+      data: null,
+      error: `Error saving project settings: ${res.status}`,
+    };
+  }
+  return { data: null, error: null };
 });
 
 export const handler = resolver.getDefinitions();

@@ -5,13 +5,22 @@ modules:
       resolver:
         function: resolver
       render: native
-      title: Defect Analyzer
+      title: Companion
+  jira:projectSettingsPage:
+    - key: ratsnake-companion-project-settings-page
+      resource: settings
+      resolver:
+        function: resolver
+      render: native
+      title: Companion Settings
   function:
     - key: resolver
       handler: index.handler
 resources:
   - key: main
     path: src/frontend/index.tsx
+  - key: settings
+    path: src/settings/index.tsx
 
 permissions:
   scopes:
