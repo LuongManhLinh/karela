@@ -9,6 +9,7 @@ import {
   Text,
   xcss,
   ProgressBar,
+  Icon,
 } from "@forge/react";
 import { AnalysisBrief } from "../types/defect";
 
@@ -16,12 +17,17 @@ const HistoryItem = ({
   item,
   onClick,
   selectedId,
+  loadingId,
 }: {
   item: AnalysisBrief;
   onClick: (id: string) => void;
   selectedId?: string;
+  loadingId?: string;
 }) => {
-  const isRunning = item.status === "PENDING" || item.status === "IN_PROGRESS";
+  const isRunning =
+    item.status === "PENDING" ||
+    item.status === "IN_PROGRESS" ||
+    loadingId === item.id;
   const startedAt = new Date(item.startedAt);
   const [duration, setDuration] = useState<string>("");
 
@@ -33,7 +39,10 @@ const HistoryItem = ({
     };
 
     const updateDuration = () => {
-      const now = isRunning ? new Date() : new Date(item.endedAt!);
+      const now =
+        item.status === "PENDING" || item.status === "IN_PROGRESS"
+          ? new Date()
+          : new Date(item.endedAt!);
       const diff = now.getTime() - startedAt.getTime();
       setDuration(formatDuration(diff));
     };
@@ -59,6 +68,7 @@ const HistoryItem = ({
           selectedId === item.id
             ? "color.background.accent.lime.subtler"
             : undefined,
+        borderRadius: "border.radius",
       }}
     >
       {isRunning ? <ProgressBar value={0} isIndeterminate /> : null}
@@ -67,14 +77,22 @@ const HistoryItem = ({
           {item.title}
         </Text>
         <TagGroup>
-          <Tag text={item.status} color="blueLight" />
+          <Tag
+            text={item.status}
+            color={
+              item.status === "DONE"
+                ? "green"
+                : item.status === "FAILED"
+                ? "red"
+                : "blueLight"
+            }
+          />
           <Tag text={duration} color="greyLight" />
         </TagGroup>
         <Button
-          iconAfter="chevron-right"
-          spacing="compact"
-          appearance="primary"
+          appearance="subtle"
           onClick={() => onClick(item.id)}
+          iconAfter="chevron-right"
         >
           View
         </Button>
@@ -87,10 +105,12 @@ export default function HistorySidebar({
   history,
   onClick,
   selectedId,
+  loadingId,
 }: {
   history: AnalysisBrief[];
   onClick: (id: string) => void;
   selectedId?: string;
+  loadingId?: string;
 }) {
   return (
     <Stack space="space.100">
@@ -100,6 +120,7 @@ export default function HistorySidebar({
           key={item.id}
           onClick={onClick}
           selectedId={selectedId}
+          loadingId={loadingId}
         />
       ))}
     </Stack>

@@ -9,6 +9,7 @@ from sqlalchemy import (
     Integer,
 )
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.mysql import DATETIME
 from enum import Enum
 from datetime import datetime
 
@@ -76,8 +77,8 @@ class Analysis(Base):
     project_key = Column(String(32), index=True)
     type = Column(SqlEnum(AnalysisType), nullable=False)
     status = Column(SqlEnum(AnalysisStatus), nullable=False)
-    started_at = Column(DateTime, default=datetime.now, nullable=False)
-    ended_at = Column(DateTime, nullable=True)
+    started_at = Column(DATETIME(fsp=6), default=datetime.now, nullable=False)
+    ended_at = Column(DATETIME(fsp=6), nullable=True)
     title = Column(String(256), nullable=True)
     error_message = Column(String(1024), nullable=True)
 

@@ -6,6 +6,7 @@ modules:
         function: resolver
       render: native
       title: Companion
+      icon: https://raw.githubusercontent.com/LuongManhLinh/assets/main/ratsnake-icon.svg
   jira:projectSettingsPage:
     - key: ratsnake-companion-project-settings-page
       resource: settings

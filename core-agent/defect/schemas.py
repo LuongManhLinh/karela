@@ -48,3 +48,7 @@ class AnalysisRunRequest(CamelModel):
     model_config = ConfigDict(
         extra="ignore",
     )
+
+
+class DefectSolvedUpdateRequest(CamelModel):
+    solved: bool

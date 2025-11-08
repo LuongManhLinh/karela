@@ -57,6 +57,16 @@ const DefectService = {
       }
     );
   },
+
+  changeDefectSolved: async (defectId, solvedBody) => {
+    return await fetchData(`${BACKEND_URL}/defects/defects/${defectId}/solve`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(solvedBody),
+    });
+  },
 };
 
 export default DefectService;

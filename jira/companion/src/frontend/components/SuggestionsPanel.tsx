@@ -22,7 +22,6 @@ export default function SuggestionsPanel({
 }) {
   return (
     <Box>
-      <Heading size="large">Suggestions</Heading>
       <Stack space="space.100">
         {(suggestions || []).map((s) => (
           <Checkbox

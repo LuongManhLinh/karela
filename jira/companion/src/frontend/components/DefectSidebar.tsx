@@ -1,25 +1,21 @@
 import { DefectDto } from "../types/defect";
 import {
   Box,
-  Button,
-  Inline,
   Stack,
-  Strong,
   Tag,
   TagGroup,
   Text,
-  xcss,
+  Checkbox,
+  Inline,
 } from "@forge/react";
 
-const cardStyle = xcss({
-  padding: "space.100",
-  width: "100%",
-  ":hover": {
-    backgroundColor: "color.background.accent.lime.subtlest",
-  },
-});
-
-const DefectItem = ({ defect }: { defect: DefectDto }) => {
+const DefectItem = ({
+  defect,
+  onSolvedChange,
+}: {
+  defect: DefectDto;
+  onSolvedChange: (id: string, solved: boolean) => void;
+}) => {
   let severityColor: "green" | "yellow" | "red";
   switch (defect.severity.toLocaleLowerCase()) {
     case "low":
@@ -37,7 +33,19 @@ const DefectItem = ({ defect }: { defect: DefectDto }) => {
   }
 
   return (
-    <Box xcss={cardStyle}>
+    <Box
+      xcss={{
+        padding: "space.100",
+        width: "100%",
+        ":hover": {
+          backgroundColor: "color.background.accent.lime.subtlest",
+        },
+        borderRadius: "border.radius",
+        backgroundColor: "elevation.surface.raised",
+        boxShadow: "elevation.shadow.raised",
+        opacity: defect.solved ? "opacity.disabled" : undefined,
+      }}
+    >
       <Stack>
         <TagGroup>
           <Tag text={defect.type} color="red" />
@@ -47,32 +55,63 @@ const DefectItem = ({ defect }: { defect: DefectDto }) => {
         <Box
           xcss={{
             padding: "space.050",
+            // backgroundColor: "color.background.accent.orange.subtlest",
+            borderRadius: "border.radius",
+            marginBottom: "space.100",
           }}
         >
+          {/* <Text size="large" weight="bold">
+            Explanation
+          </Text> */}
           <Text>{defect.explanation}</Text>
         </Box>
         <Box
           xcss={{
             padding: "space.050",
+            backgroundColor: "color.background.accent.gray.subtlest",
+            borderRadius: "border.radius",
           }}
         >
-          <Text weight="bold">{defect.suggestedFix}</Text>
+          <Text size="large" weight="bold">
+            Suggested Fix
+          </Text>
+
+          <Text>{defect.suggestedFix}</Text>
         </Box>
-        <TagGroup>
-          {defect.workItemIds.map((item) => (
-            <Tag text={item} href="https://youtube.com" color="tealLight" />
-          ))}
-        </TagGroup>
+        <Inline alignBlock="center" alignInline="center" spread="space-between">
+          <TagGroup>
+            {defect.workItemIds.map((item) => (
+              <Tag text={item} href="https://youtube.com" color="tealLight" />
+            ))}
+          </TagGroup>
+          <Checkbox
+            label="Solved"
+            isChecked={defect.solved}
+            onChange={(e) =>
+              onSolvedChange(defect.id, e.target.checked || false)
+            }
+          />
+        </Inline>
       </Stack>
     </Box>
   );
 };
 
-const DefectSidebar = ({ defects }: { defects: DefectDto[] }) => {
+const DefectSidebar = ({
+  defects,
+  onSolvedChange,
+}: {
+  defects: DefectDto[];
+  onSolvedChange: (id: string, solved: boolean) => void;
+}) => {
   return (
     <Stack space="space.100">
       {defects.map((item) => (
-        <DefectItem defect={item} key={item.id} />
+        <DefectItem
+          defect={item}
+          onSolvedChange={onSolvedChange}
+          key={item.id}
+        />
       ))}
     </Stack>
   );

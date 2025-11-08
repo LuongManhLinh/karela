@@ -12,7 +12,7 @@ class ReportDefectOutput(BaseModel):
     """A report of the defects"""
 
     title: str = Field(
-        description="A concise title, the most important information of the summary, around 5 words",
+        description="A concise title, the most important information of the summary, around 5 words, do not emphasize this is a report",
     )
 
     content: str = Field(description="The detailed summary")

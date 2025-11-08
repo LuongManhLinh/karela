@@ -32,7 +32,7 @@ const SettingField = ({
   placeholder?: string;
 }) => (
   <Box>
-    <Text weight="medium">{label}</Text>
+    <Heading size="small">{label}</Heading>
     <TextArea
       value={value}
       onChange={(e) => onChange(e.target.value)}
@@ -73,7 +73,7 @@ const AdditionalSettingsSection = ({
 
   return (
     <Box>
-      <Heading size="medium">{title}</Heading>
+      <Heading size="small">{title}</Heading>
       <Stack space="space.300">
         {additionalDocs.map((doc) => (
           <Box
@@ -299,40 +299,40 @@ const Settings = () => {
         maxWidth: "900px",
       }}
     >
+      {showMsg && (
+        <Box
+          xcss={{
+            padding: "space.100",
+            backgroundColor: success
+              ? "color.background.success"
+              : "color.background.danger",
+            borderRadius: "border.radius",
+            marginBottom: "space.400",
+          }}
+        >
+          <Inline
+            alignInline="center"
+            grow="fill"
+            alignBlock="center"
+            spread="space-between"
+          >
+            <Text
+              color={success ? "color.text.success" : "color.text.danger"}
+              align="center"
+            >
+              {msg}
+            </Text>
+            <Button onClick={closeMsg} appearance="subtle">
+              ×
+            </Button>
+          </Inline>
+        </Box>
+      )}
       <Stack space="space.400">
         <Heading size="large">Documentation</Heading>
 
-        {showMsg && (
-          <Box
-            xcss={{
-              padding: "space.100",
-              backgroundColor: success
-                ? "color.background.success"
-                : "color.background.danger",
-              borderRadius: "border.radius",
-            }}
-          >
-            <Inline
-              alignInline="center"
-              grow="fill"
-              alignBlock="center"
-              spread="space-between"
-            >
-              <Text
-                color={success ? "color.text.success" : "color.text.danger"}
-                align="center"
-              >
-                {msg}
-              </Text>
-              <Button onClick={closeMsg} appearance="subtle">
-                ×
-              </Button>
-            </Inline>
-          </Box>
-        )}
-
         <Box>
-          <Stack space="space.300">
+          <Stack space="space.200">
             <SettingField
               label="Product Vision"
               value={productVision}
@@ -366,8 +366,8 @@ const Settings = () => {
           </Stack>
         </Box>
 
-        <Box>
-          <Heading size="large">Documentation</Heading>
+        <Stack space="space.200">
+          <Heading size="large">LLM Guidelines</Heading>
           <SettingField
             label="Guidelines"
             value={guidelines}
@@ -378,7 +378,7 @@ const Settings = () => {
             setDocs={setAdditionalContexts}
             title="Additional Contexts"
           />
-        </Box>
+        </Stack>
 
         <Box>
           <Inline space="space.200">

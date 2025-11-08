@@ -24,6 +24,13 @@ resolver.define("getDefectAnalysisDetails", async ({ payload }) => {
   return result;
 });
 
+resolver.define("changeDefectSolved", async ({ payload }) => {
+  const result = await DefectService.changeDefectSolved(payload.defectId, {
+    solved: payload.solved,
+  });
+  return result;
+});
+
 const PROP_KEY = "ratsnake-companion-settings";
 
 resolver.define("getProjectSettings", async ({ payload }) => {

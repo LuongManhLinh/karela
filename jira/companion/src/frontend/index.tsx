@@ -4,7 +4,9 @@ import ForgeReconciler, {
   Button,
   ButtonGroup,
   Inline,
+  ProgressBar,
   Text,
+  Icon,
 } from "@forge/react";
 import HistorySidebar from "./components/HistorySidebar";
 import ActionPanel from "./components/ActionPanel";
@@ -16,9 +18,12 @@ import DefectSidebar from "./components/DefectSidebar";
 const App = () => {
   const [analysisBriefs, setAnalysisBriefs] = useState<AnalysisBrief[]>([]);
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
+  const [loadingId, setLoadingId] = useState<string | undefined>(undefined);
   const [analysisDetails, setAnalysisDetails] =
     useState<AnalysisDetailDto | null>(null);
   const [polling, setPolling] = useState<boolean>(false);
+
+  const [initLoading, setInitLoading] = useState<boolean>(true);
 
   const [layoutStyle, setLayoutStyle] = useState<
     "style1" | "style2" | "style3"
@@ -42,7 +47,22 @@ const App = () => {
   };
 
   useEffect(() => {
-    fetchBriefs();
+    setInitLoading(true);
+    DefectService.getAllDefectAnalysisBriefs().then((res) => {
+      if (res.data) {
+        setAnalysisBriefs(res.data);
+        setPolling(false);
+        for (const brief of res.data) {
+          if (brief.status === "PENDING" || brief.status === "IN_PROGRESS") {
+            setPolling(true);
+            break;
+          }
+        }
+      } else {
+        console.log("Error fetching analysis briefs:", res.error);
+      }
+      setInitLoading(false);
+    });
   }, []);
 
   useEffect(() => {
@@ -60,10 +80,36 @@ const App = () => {
   };
 
   const selectAnalysis = (id: string) => {
+    setLoadingId(id);
     setSelectedId(id);
+    console.log("Selected analysis ID:", id);
     DefectService.getDefectAnalysisDetails(id).then((res) => {
       if (res.data) {
         setAnalysisDetails(res.data);
+      }
+      setLoadingId(undefined);
+    });
+    console.log("Loaded analysis details for ID:", id);
+  };
+
+  const onSolvedChange = (defectId: string, solved: boolean) => {
+    if (analysisDetails) {
+      // Move the defect to the end of the list
+      const updatedDefects = analysisDetails.defects
+        .map((defect) =>
+          defect.id === defectId ? { ...defect, solved: solved } : defect
+        )
+        .sort((a, b) => Number(a.solved) - Number(b.solved));
+      setAnalysisDetails({
+        ...analysisDetails,
+        defects: updatedDefects,
+      });
+    }
+    DefectService.changeDefectSolved(defectId, solved).then((res) => {
+      if (res.data !== null) {
+        console.log("Defect solved status updated successfully", res.data);
+      } else {
+        console.log("Error updating defect solved status:", res.error);
       }
     });
   };
@@ -77,33 +123,22 @@ const App = () => {
     >
       <Box
         xcss={{
-          padding: "space.050",
-          backgroundColor: "elevation.surface.raised",
-          boxShadow: "elevation.shadow.raised",
-          borderRadius: "border.radius",
-        }}
-      >
-        <ActionPanel
-          idleMessage={"RatSnake is idle."}
-          isRunning={false}
-          runMessage={"Analyzing…"}
-          notification={""}
-        />
-      </Box>
-
-      <Box
-        xcss={{
           overflow: "auto",
           height: "600px",
-          marginTop: "space.200",
           paddingRight: "space.200",
           paddingBottom: "space.400",
         }}
       >
+        <Box xcss={{ marginBottom: "space.200" }}>
+          <Button onClick={() => triggerAnalysis()} appearance="primary">
+            Start New Analysis
+          </Button>
+        </Box>
         <HistorySidebar
           history={analysisBriefs}
           onClick={selectAnalysis}
           selectedId={selectedId}
+          loadingId={loadingId}
         />
       </Box>
     </Box>
@@ -114,19 +149,14 @@ const App = () => {
       xcss={{
         width: width,
         height: "680px",
-        padding: "space.600",
+        padding: "space.200",
         overflow: "auto",
         backgroundColor: "elevation.surface.raised",
         boxShadow: "elevation.shadow.raised",
         borderRadius: "border.radius",
       }}
     >
-      <Box>
-        <Text size="large" weight="bold">
-          Summary
-        </Text>
-        <ReportPanel report={analysisDetails ? analysisDetails.summary : ""} />
-      </Box>
+      <ReportPanel report={analysisDetails ? analysisDetails.summary : ""} />
     </Box>
   );
 
@@ -140,10 +170,10 @@ const App = () => {
         paddingBottom: "space.400",
       }}
     >
-      <Text size="large" weight="bold">
-        Defects
-      </Text>
-      <DefectSidebar defects={analysisDetails ? analysisDetails.defects : []} />
+      <DefectSidebar
+        defects={analysisDetails ? analysisDetails.defects : []}
+        onSolvedChange={onSolvedChange}
+      />
     </Box>
   );
 
@@ -157,34 +187,30 @@ const App = () => {
       }}
     >
       <ButtonGroup>
-        <Button onClick={() => triggerAnalysis()} appearance="primary">
-          Start Analysis
-        </Button>
         <Button
           spacing="none"
-          appearance="primary"
-          onClick={() => setLayoutStyle("style1")}
-        >
-          {" "}
-          Left Style{" "}
-        </Button>
-        <Button
-          spacing="none"
-          appearance="primary"
+          appearance="subtle"
           onClick={() => setLayoutStyle("style2")}
         >
-          {" "}
-          Center Style{" "}
+          <Icon glyph="align-image-left" label="Left Style" />
         </Button>
         <Button
           spacing="none"
-          appearance="primary"
+          appearance="subtle"
+          onClick={() => setLayoutStyle("style1")}
+        >
+          <Icon glyph="align-image-center" label="Center Style" />
+        </Button>
+        <Button
+          spacing="none"
+          appearance="subtle"
           onClick={() => setLayoutStyle("style3")}
         >
-          {" "}
-          Right Style{" "}
+          <Icon glyph="align-image-right" label="Right Style" />
         </Button>
       </ButtonGroup>
+
+      {initLoading && <ProgressBar value={0} isIndeterminate />}
 
       {layoutStyle === "style1" && (
         <Inline space="space.200" alignBlock="stretch" alignInline="stretch">

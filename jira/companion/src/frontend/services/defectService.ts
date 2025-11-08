@@ -37,6 +37,16 @@ const DefectService = {
     const result = await invoke("getDefectAnalysisDetails", { analysisId });
     return result as ApiResponse<AnalysisDetailDto>;
   },
+  changeDefectSolved: async (
+    defectId: string,
+    solved: boolean
+  ): Promise<ApiResponse<null>> => {
+    const result = await invoke("changeDefectSolved", {
+      defectId,
+      solved,
+    });
+    return result as ApiResponse<null>;
+  },
 };
 
 export default DefectService;
