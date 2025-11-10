@@ -1,6 +1,6 @@
 import Resolver from "@forge/resolver";
 import DefectService from "./defectService";
-import api, { route } from "@forge/api";
+import api, { route, getAppContext } from "@forge/api";
 
 const resolver = new Resolver();
 
@@ -71,6 +71,29 @@ resolver.define("setProjectSettings", async ({ payload }) => {
     };
   }
   return { data: null, error: null };
+});
+
+resolver.define("getFirstScrumBoardUrl", async ({ payload }) => {
+  const { projectKey } = payload;
+  const result = await api
+    .asApp()
+    .requestJira(
+      route`/rest/agile/1.0/board?projectKeyOrId=${projectKey}&type=scrum`
+    );
+  if (!result.ok) {
+    return { data: null, error: `Error fetching boards: ${result.status}` };
+  } else {
+    const data = await result.json();
+    if (data.values && data.values.length > 0) {
+      const siteUrl = getAppContext().siteUrl;
+      return {
+        data: `${siteUrl}/jira/software/c/projects/${projectKey}/boards/${data.values[0].id}`,
+        error: null,
+      };
+    } else {
+      return { data: null, error: "No scrum boards found for this project." };
+    }
+  }
 });
 
 export const handler = resolver.getDefinitions();

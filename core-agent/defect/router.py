@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 
 from database import get_db
-from .service import DefectRunService, DefectDataService
+from .services import DefectRunService, DefectDataService
 from .schemas import (
     AnalysisRunRequest,
     AnalysisSummary,
@@ -10,7 +10,7 @@ from .schemas import (
     DefectSolvedUpdateRequest,
 )
 from common.schemas import BasicResponse
-from .tasks import run_analysis_task
+from .tasks import analyze_all_user_stories, analyze_target_user_story
 from common.redis_app import task_queue
 
 router = APIRouter()
@@ -35,8 +35,19 @@ async def run_analysis(run_req: AnalysisRunRequest, db=Depends(get_db)):
         db, run_req.project_key, run_req.analysis_type
     )
 
-    # Do NOT pass db into the Celery task
-    task_queue.enqueue(run_analysis_task, analysis_id)
+    if run_req.analysis_type == "ALL":
+        task_queue.enqueue(analyze_all_user_stories, analysis_id)
+    elif run_req.analysis_type == "TARGETED":
+        if not run_req.target_story_key:
+            raise HTTPException(
+                status_code=400,
+                detail="target_story_key is required for TARGETED analysis",
+            )
+        task_queue.enqueue(
+            analyze_target_user_story, analysis_id, run_req.target_story_key
+        )
+    else:
+        raise HTTPException(status_code=400, detail="Unsupported analysis type")
 
     return BasicResponse(message="Analysis started successfully")
 

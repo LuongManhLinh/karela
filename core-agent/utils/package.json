@@ -1,0 +1,1 @@
+{"type":"module","name":"md-adf-bridge","private":true,"dependencies":{"adf-to-md":"^1.2.1","extended-markdown-adf-parser":"^2.3.2","md-to-adf":"^0.6.4"}}

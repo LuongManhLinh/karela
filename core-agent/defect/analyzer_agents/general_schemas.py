@@ -8,8 +8,8 @@ class DefectByLlm(BaseModel):
     type: str = Field(
         description="Type of the defect, one of the types mentioned in the instruction",
     )
-    work_item_ids: List[str] = Field(
-        description="IDs of the work items involved in the defect"
+    work_item_keys: List[str] = Field(
+        description="Keys of the work items involved in the defect"
     )
     severity: str = Field(description="'LOW' | 'MEDIUM' | 'HIGH'")
     explanation: str = Field()
@@ -44,7 +44,7 @@ class UserStoryDto(BaseModel):
 
 
 class WorkItemMinimal(BaseModel):
-    id: Optional[str] = None
+    key: Optional[str] = None
     title: Optional[str] = None
     description: Optional[str] = None
 

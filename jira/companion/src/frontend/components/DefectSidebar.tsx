@@ -12,9 +12,11 @@ import {
 const DefectItem = ({
   defect,
   onSolvedChange,
+  getIssueLink,
 }: {
   defect: DefectDto;
   onSolvedChange: (id: string, solved: boolean) => void;
+  getIssueLink: (id: string) => string;
 }) => {
   let severityColor: "green" | "yellow" | "red";
   switch (defect.severity.toLocaleLowerCase()) {
@@ -81,7 +83,7 @@ const DefectItem = ({
         <Inline alignBlock="center" alignInline="center" spread="space-between">
           <TagGroup>
             {defect.workItemIds.map((item) => (
-              <Tag text={item} href="https://youtube.com" color="tealLight" />
+              <Tag text={item} href={getIssueLink(item)} color="tealLight" />
             ))}
           </TagGroup>
           <Checkbox
@@ -100,9 +102,11 @@ const DefectItem = ({
 const DefectSidebar = ({
   defects,
   onSolvedChange,
+  getIssueLink,
 }: {
   defects: DefectDto[];
   onSolvedChange: (id: string, solved: boolean) => void;
+  getIssueLink: (id: string) => string;
 }) => {
   return (
     <Stack space="space.100">
@@ -111,6 +115,7 @@ const DefectSidebar = ({
           defect={item}
           onSolvedChange={onSolvedChange}
           key={item.id}
+          getIssueLink={getIssueLink}
         />
       ))}
     </Stack>

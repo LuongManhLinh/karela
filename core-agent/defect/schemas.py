@@ -5,7 +5,6 @@ from common.schemas import CamelModel
 
 class AnalysisSummary(CamelModel):
     id: str
-    title: Optional[str] = None
     status: Optional[str] = None
     type: Optional[str] = None
     started_at: Optional[str] = None
@@ -24,7 +23,7 @@ class DefectDto(CamelModel):
     confidence: Optional[float] = None
     suggested_fix: Optional[str] = None
     solved: Optional[bool] = None
-    work_item_ids: Optional[List[str]] = None
+    work_item_keys: Optional[List[str]] = None
 
     model_config = ConfigDict(
         extra="ignore",
@@ -33,7 +32,6 @@ class DefectDto(CamelModel):
 
 class AnalysisDetailDto(CamelModel):
     id: str
-    summary: str
     defects: List[DefectDto]
 
     model_config = ConfigDict(
@@ -44,6 +42,9 @@ class AnalysisDetailDto(CamelModel):
 class AnalysisRunRequest(CamelModel):
     project_key: str = Field(..., description="The key of the project to analyze")
     analysis_type: str = Field(..., description="The type of analysis to perform")
+    target_story_key: Optional[str] = Field(
+        None, description="The key of the target user story for targeted analysis"
+    )
 
     model_config = ConfigDict(
         extra="ignore",

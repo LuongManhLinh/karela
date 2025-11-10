@@ -15,8 +15,18 @@ class DatabaseConfig:
 
 class LLMConfig:
     GEMINI_API_KEYS = os.getenv("GEMINI_API_KEYS", "").split(",")
-    GEMINI_API_TEMPERATURE = float(os.getenv("GEMINI_API_TEMPERATURE", "0.7"))
-    GEMINI_API_MODEL = os.getenv("GEMINI_API_MODEL", "gemini-2.0-flash-lite")
+    GEMINI_API_DEFECT_TEMPERATURE = float(
+        os.getenv("GEMINI_API_DEFECT_TEMPERATURE", "0.1")
+    )
+    GEMINI_API_DEFECT_MODEL = os.getenv(
+        "GEMINI_API_DEFECT_MODEL", "gemini-2.0-flash-lite"
+    )
+    GEMINI_API_CHAT_TEMPERATURE = float(os.getenv("GEMINI_API_CHAT_TEMPERATURE", "0.7"))
+    GEMINI_API_CHAT_MODEL = os.getenv("GEMINI_API_CHAT_MODEL", "gemini-2.0-flash")
+    GEMINI_API_DEFAULT_TEMPERATURE = float(
+        os.getenv("GEMINI_API_DEFAULT_TEMPERATURE", "0.3")
+    )
+    GEMINI_API_DEFAULT_MODEL = os.getenv("GEMINI_API_DEFAULT_MODEL", "gemini-2.0-flash")
     GEMINI_API_MAX_RETRY = int(os.getenv("GEMINI_API_MAX_RETRY", "3"))
     GEMINI_API_RETRY_DELAY_MS = int(os.getenv("GEMINI_API_RETRY_DELAY_MS", "1000"))
 

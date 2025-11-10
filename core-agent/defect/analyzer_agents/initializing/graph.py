@@ -12,10 +12,9 @@ from ..general_schemas import (
     WorkItemMinimal,
     DefectByLlm,
 )
-from llm.dynamic_llm import DynamicGeminiModel
+from llm.dynamic_agent import GenimiDynamicAgent
 from ..input_schemas import (
     ContextInput,
-    DetectDefectCrossTypesInput,
     DetectDefectSingleItemInput,
     DetectDefectSingleTypeInput,
     ReportDefectInput,
@@ -24,7 +23,6 @@ from ..output_schemas import DetectDefectOutput, ReportDefectOutput
 from .prompts import (
     SINGLE_ITEM_SYSTEM_PROMPT,
     SINGLE_TYPE_SYSTEM_PROMPT,
-    CROSS_TYPE_SYSTEM_PROMPT,
     REPORT_SYSTEM_PROMPT,
 )
 from config import LLMConfig
@@ -50,35 +48,26 @@ class Context(TypedDict):
     report: Optional[ReportDefectOutput] = None
 
 
-defect_model = DynamicGeminiModel(
-    model_name=LLMConfig.GEMINI_API_MODEL,
-    temperature=LLMConfig.GEMINI_API_TEMPERATURE,
+single_item_agent = GenimiDynamicAgent(
+    system_prompt=SINGLE_ITEM_SYSTEM_PROMPT,
+    model_name=LLMConfig.GEMINI_API_DEFECT_MODEL,
+    temperature=LLMConfig.GEMINI_API_DEFECT_TEMPERATURE,
     response_schema=DetectDefectOutput,
     api_keys=LLMConfig.GEMINI_API_KEYS,
     max_retries=LLMConfig.GEMINI_API_MAX_RETRY,
     retry_delay_ms=LLMConfig.GEMINI_API_RETRY_DELAY_MS,
 )
 
-report_model = DynamicGeminiModel(
-    model_name="gemini-2.0-flash-lite",
-    temperature=LLMConfig.GEMINI_API_TEMPERATURE,
+single_type_agent = GenimiDynamicAgent(
+    system_prompt=SINGLE_TYPE_SYSTEM_PROMPT,
+    model_name=LLMConfig.GEMINI_API_DEFECT_MODEL,
+    temperature=LLMConfig.GEMINI_API_DEFECT_TEMPERATURE,
     response_schema=ReportDefectOutput,
     api_keys=LLMConfig.GEMINI_API_KEYS,
     max_retries=LLMConfig.GEMINI_API_MAX_RETRY,
     retry_delay_ms=LLMConfig.GEMINI_API_RETRY_DELAY_MS,
 )
 
-single_item_agent = create_agent(
-    model=defect_model,
-    system_prompt=SINGLE_ITEM_SYSTEM_PROMPT,
-    response_format=ProviderStrategy(DetectDefectOutput),
-)
-
-single_type_agent = create_agent(
-    model=defect_model,
-    system_prompt=SINGLE_TYPE_SYSTEM_PROMPT,
-    response_format=ProviderStrategy(DetectDefectOutput),
-)
 
 # cross_type_agent = create_agent(
 #     model=model,
@@ -86,10 +75,14 @@ single_type_agent = create_agent(
 #     response_format=ProviderStrategy(DetectDefectOutput),
 # )
 
-report_agent = create_agent(
-    model=report_model,
+report_agent = GenimiDynamicAgent(
     system_prompt=REPORT_SYSTEM_PROMPT,
-    response_format=ProviderStrategy(ReportDefectOutput),
+    model_name="gemini-2.0-flash-lite",
+    temperature=LLMConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    response_schema=ReportDefectOutput,
+    api_keys=LLMConfig.GEMINI_API_KEYS,
+    max_retries=LLMConfig.GEMINI_API_MAX_RETRY,
+    retry_delay_ms=LLMConfig.GEMINI_API_RETRY_DELAY_MS,
 )
 
 
@@ -131,19 +124,11 @@ def single_item_check_node(state: State, runtime: Runtime[Context]) -> dict:
         input_data = DetectDefectSingleItemInput(
             work_items=work_items, context=runtime.context.get("context_input")
         )
-        result = single_item_agent.invoke(
-            {
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": "Here is the input data:\n"
-                        + input_data.model_dump_json(),
-                    }
-                ]
-            },
+
+        output: DetectDefectOutput = single_item_agent.invoke(
+            "Here is the input data:\n" + input_data.model_dump_json()
         )
 
-        output: DetectDefectOutput = result["structured_response"]
         runtime.context.get("defects").extend(output.defects or [])
 
     return {"done_single_item_check": True}
@@ -173,19 +158,9 @@ def single_type_check_node_builder(type_: str) -> dict:
                 type=type_,
                 context=runtime.context.get("context_input"),
             )
-            result = single_type_agent.invoke(
-                {
-                    "messages": [
-                        {
-                            "role": "user",
-                            "content": "Here is the input data:\n"
-                            + input_data.model_dump_json(),
-                        }
-                    ]
-                },
+            output: DetectDefectOutput = single_type_agent.invoke(
+                "Here is the input data:\n" + input_data.model_dump_json()
             )
-
-            output: DetectDefectOutput = result["structured_response"]
             runtime.context.get("defects").extend(output.defects or [])
 
         types_state = state.get("done_single_type_checks", {})
@@ -226,19 +201,10 @@ def report_node(state: State, runtime: Runtime[Context]) -> dict:
         analyzed_work_items=analyzed_work_items,
     )
 
-    result = report_agent.invoke(
-        {
-            "messages": [
-                {
-                    "role": "user",
-                    "content": "Here is the input data:\n"
-                    + input_data.model_dump_json(),
-                }
-            ]
-        },
+    output: ReportDefectOutput = report_agent.invoke(
+        "Here is the input data:\n" + input_data.model_dump_json()
     )
 
-    output: ReportDefectOutput = result["structured_response"]
     print(
         f"""
 {"-"*100}

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 from enum import Enum
-from typing import List, Optional, Union
+from typing import Annotated, List, Optional, Union
 
 from pydantic import BaseModel, Field, conlist, confloat
 
@@ -164,7 +164,7 @@ class NFR(BaseModel):
     value: Optional[float] = None
     unit: Optional[str] = None
     scope: Optional[NfrScope] = None
-    confidence: Optional[confloat(ge=0.0, le=1.0)] = None
+    confidence: Annotated[Optional[float], Field(ge=0.0, le=1.0)] = None
 
 
 class Temporal(BaseModel):

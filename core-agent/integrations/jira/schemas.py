@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Optional
 from enum import Enum
 from pydantic import BaseModel, Field, ConfigDict
+from common.schemas import CamelModel
 
 
 class Project(BaseModel):
@@ -105,3 +106,26 @@ class IssueTypeName(Enum):
     STORY = "Story"
     EPIC = "Epic"
     SUB_TASK = "Sub-task"
+
+
+class IssueUpdateFields(BaseModel):
+    project: Project
+    issuetype: IssueType
+    summary: Optional[str] = None
+    description: Optional[Any] = None
+
+    model_config = ConfigDict(
+        extra="ignore",
+    )
+
+
+class IssueUpdate(BaseModel):
+    fields: IssueUpdateFields
+
+    model_config = ConfigDict(
+        extra="ignore",
+    )
+
+
+class IssuesCreateRequest(CamelModel):
+    issue_updates: List[IssueUpdate] = Field(default_factory=list, alias="issueUpdates")

@@ -1,0 +1,235 @@
+{
+  "issues": [
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations,customfield_10010.requestTypePractice",
+      "id": "11169",
+      "self": "https://lmldev.atlassian.net/rest/api/3/issue/11169",
+      "key": "RD-12",
+      "fields": {
+        "statuscategorychangedate": "2025-10-11T22:11:53.702+0700",
+        "issuetype": {
+          "self": "https://lmldev.atlassian.net/rest/api/3/issuetype/10005",
+          "id": "10005",
+          "description": "A small, distinct piece of work.",
+          "iconUrl": "https://lmldev.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+          "name": "Task",
+          "subtask": false,
+          "avatarId": 10318,
+          "hierarchyLevel": 0
+        },
+        "timespent": null,
+        "customfield_10030": null,
+        "project": {
+          "self": "https://lmldev.atlassian.net/rest/api/3/project/10001",
+          "id": "10001",
+          "key": "RD",
+          "name": "ratsnake-dev",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://lmldev.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10400",
+            "24x24": "https://lmldev.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10400?size=small",
+            "16x16": "https://lmldev.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10400?size=xsmall",
+            "32x32": "https://lmldev.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10400?size=medium"
+          }
+        },
+        "customfield_10031": null,
+        "customfield_10032": null,
+        "customfield_10033": null,
+        "fixVersions": [],
+        "aggregatetimespent": null,
+        "statusCategory": {
+          "self": "https://lmldev.atlassian.net/rest/api/3/statuscategory/2",
+          "id": 2,
+          "key": "new",
+          "colorName": "blue-gray",
+          "name": "To Do"
+        },
+        "customfield_10034": [],
+        "resolution": null,
+        "customfield_10035": null,
+        "customfield_10036": null,
+        "customfield_10027": null,
+        "customfield_10028": null,
+        "customfield_10029": null,
+        "resolutiondate": null,
+        "workratio": -1,
+        "watches": {
+          "self": "https://lmldev.atlassian.net/rest/api/3/issue/RD-12/watchers",
+          "watchCount": 1,
+          "isWatching": true
+        },
+        "lastViewed": "2025-11-08T21:26:35.039+0700",
+        "created": "2025-10-11T22:11:53.583+0700",
+        "customfield_10020": null,
+        "customfield_10021": null,
+        "customfield_10022": null,
+        "customfield_10023": null,
+        "priority": {
+          "self": "https://lmldev.atlassian.net/rest/api/3/priority/3",
+          "iconUrl": "https://lmldev.atlassian.net/images/icons/priorities/medium_new.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "customfield_10024": null,
+        "customfield_10025": null,
+        "labels": [],
+        "customfield_10026": null,
+        "customfield_10016": null,
+        "customfield_10017": null,
+        "customfield_10019": "0|i0003r:",
+        "timeestimate": null,
+        "aggregatetimeoriginalestimate": null,
+        "versions": [],
+        "issuelinks": [],
+        "assignee": null,
+        "updated": "2025-10-11T22:11:53.618+0700",
+        "status": {
+          "self": "https://lmldev.atlassian.net/rest/api/3/status/10003",
+          "description": "",
+          "iconUrl": "https://lmldev.atlassian.net/",
+          "name": "To Do",
+          "id": "10003",
+          "statusCategory": {
+            "self": "https://lmldev.atlassian.net/rest/api/3/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": {
+          "type": "doc",
+          "version": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Ratsnake currently supports code analysis for Python, but it doesn't yet offer refactoring suggestions. This task involves adding support for refactoring Python code. This includes:"
+                }
+              ]
+            },
+            {
+              "type": "bulletList",
+              "content": [
+                {
+                  "type": "listItem",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Implementing algorithms to identify refactoring opportunities (e.g., extracting methods, renaming variables)."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "listItem",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Generating code suggestions for refactoring."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "listItem",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Allowing developers to easily apply the refactoring suggestions."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "customfield_10010": null,
+        "customfield_10014": null,
+        "customfield_10015": null,
+        "customfield_10005": null,
+        "customfield_10006": null,
+        "customfield_10007": null,
+        "security": null,
+        "customfield_10008": null,
+        "customfield_10009": null,
+        "aggregatetimeestimate": null,
+        "summary": "Task: Add support for Python code refactoring",
+        "creator": {
+          "self": "https://lmldev.atlassian.net/rest/api/3/user?accountId=712020%3Aab79faf0-1dca-4da5-b0b4-bda38367e740",
+          "accountId": "712020:ab79faf0-1dca-4da5-b0b4-bda38367e740",
+          "emailAddress": "thefifthluongmanhlinh@gmail.com",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/176416360b598d7b60e5323dbe5787d0?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FLL-2.png",
+            "24x24": "https://secure.gravatar.com/avatar/176416360b598d7b60e5323dbe5787d0?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FLL-2.png",
+            "16x16": "https://secure.gravatar.com/avatar/176416360b598d7b60e5323dbe5787d0?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FLL-2.png",
+            "32x32": "https://secure.gravatar.com/avatar/176416360b598d7b60e5323dbe5787d0?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FLL-2.png"
+          },
+          "displayName": "Luong Manh Linh",
+          "active": true,
+          "timeZone": "Asia/Saigon",
+          "accountType": "atlassian"
+        },
+        "subtasks": [],
+        "customfield_10041": null,
+        "customfield_10042": null,
+        "reporter": {
+          "self": "https://lmldev.atlassian.net/rest/api/3/user?accountId=712020%3Aab79faf0-1dca-4da5-b0b4-bda38367e740",
+          "accountId": "712020:ab79faf0-1dca-4da5-b0b4-bda38367e740",
+          "emailAddress": "thefifthluongmanhlinh@gmail.com",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/176416360b598d7b60e5323dbe5787d0?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FLL-2.png",
+            "24x24": "https://secure.gravatar.com/avatar/176416360b598d7b60e5323dbe5787d0?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FLL-2.png",
+            "16x16": "https://secure.gravatar.com/avatar/176416360b598d7b60e5323dbe5787d0?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FLL-2.png",
+            "32x32": "https://secure.gravatar.com/avatar/176416360b598d7b60e5323dbe5787d0?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FLL-2.png"
+          },
+          "displayName": "Luong Manh Linh",
+          "active": true,
+          "timeZone": "Asia/Saigon",
+          "accountType": "atlassian"
+        },
+        "customfield_10043": null,
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10001": null,
+        "customfield_10002": [],
+        "customfield_10003": null,
+        "customfield_10004": null,
+        "customfield_10039": null,
+        "environment": null,
+        "duedate": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "votes": {
+          "self": "https://lmldev.atlassian.net/rest/api/3/issue/RD-12/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      }
+    }
+  ],
+  "nextPageToken": "ChUjU3RyaW5nJlVrUT0lSW50Jk1UST0QARiztIifpjMiDHByb2plY3QgPSBSRA==",
+  "isLast": false
+}

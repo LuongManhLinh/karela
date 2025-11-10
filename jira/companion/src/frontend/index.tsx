@@ -9,9 +9,9 @@ import ForgeReconciler, {
   Icon,
 } from "@forge/react";
 import HistorySidebar from "./components/HistorySidebar";
-import ActionPanel from "./components/ActionPanel";
 import { AnalysisBrief, AnalysisDetailDto } from "./types/defect";
 import DefectService from "./services/defectService";
+import ProjectService from "./services/projectService";
 import ReportPanel from "./components/ReportPanel";
 import DefectSidebar from "./components/DefectSidebar";
 
@@ -28,6 +28,8 @@ const App = () => {
   const [layoutStyle, setLayoutStyle] = useState<
     "style1" | "style2" | "style3"
   >("style1");
+
+  const [defaultBoardUrl, setDefaultBoardUrl] = useState<string | null>(null);
 
   const fetchBriefs = () => {
     DefectService.getAllDefectAnalysisBriefs().then((res) => {
@@ -48,6 +50,13 @@ const App = () => {
 
   useEffect(() => {
     setInitLoading(true);
+    ProjectService.getFirstScrumBoardUrl().then((res) => {
+      if (res.data) {
+        setDefaultBoardUrl(res.data);
+      } else {
+        console.log("Error fetching project ID:", res.error);
+      }
+    });
     DefectService.getAllDefectAnalysisBriefs().then((res) => {
       if (res.data) {
         setAnalysisBriefs(res.data);
@@ -114,6 +123,13 @@ const App = () => {
     });
   };
 
+  const getIssueLink = (id: string) => {
+    if (defaultBoardUrl) {
+      return `${defaultBoardUrl}?selectedIssue=${id}`;
+    }
+    return "#";
+  };
+
   const leftPanel = (width: string) => (
     <Box
       xcss={{
@@ -173,6 +189,7 @@ const App = () => {
       <DefectSidebar
         defects={analysisDetails ? analysisDetails.defects : []}
         onSolvedChange={onSolvedChange}
+        getIssueLink={getIssueLink}
       />
     </Box>
   );
