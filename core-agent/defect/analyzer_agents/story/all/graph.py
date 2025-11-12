@@ -185,7 +185,7 @@ compiled = build_graph()
 
 async def run_analysis_async(
     user_stories: List[WorkItemMinimal],
-    on_done: Callable[[List[DefectByLlm]]],
+    on_done: Callable[[List[DefectByLlm]], None],
     context_input: Optional[ContextInput] = None,
     existing_defects: List[DefectByLlm] = [],
 ) -> dict:
@@ -208,7 +208,7 @@ async def run_analysis_async(
 
 def run_analysis(
     user_stories: List[WorkItemMinimal],
-    on_done: Callable[[List[DefectByLlm]]],
+    on_done: Callable[[List[DefectByLlm]], None],
     context_input: Optional[ContextInput] = None,
     existing_defects: List[DefectByLlm] = [],
 ) -> dict:

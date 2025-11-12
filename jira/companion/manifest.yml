@@ -7,6 +7,7 @@ modules:
       render: native
       title: Companion
       icon: https://raw.githubusercontent.com/LuongManhLinh/assets/main/ratsnake-icon.svg
+
   jira:projectSettingsPage:
     - key: ratsnake-companion-project-settings-page
       resource: settings
@@ -14,6 +15,16 @@ modules:
         function: resolver
       render: native
       title: Companion Settings
+
+  jira:issuePanel:
+    - key: ratsnake-companion-chat-panel
+      resource: chat-panel
+      resolver:
+        function: resolver
+      title: Companion Chat
+      icon: https://raw.githubusercontent.com/LuongManhLinh/assets/main/ratsnake-icon.svg
+      render: native
+
   function:
     - key: resolver
       handler: index.handler
@@ -22,16 +33,20 @@ resources:
     path: src/frontend/index.tsx
   - key: settings
     path: src/settings/index.tsx
+  - key: chat-panel
+    path: src/chat-panel/index.tsx
 
 permissions:
   scopes:
     - read:jira-work
     - write:jira-work
     - manage:jira-project
+    - read:board-scope:jira-software
+    - read:project:jira
   external:
     fetch:
       backend:
-        - address: "https://*.trycloudflare.com"
+        - address: "https://ratsnake.lmlinh.com"
 app:
   runtime:
     name: nodejs22.x

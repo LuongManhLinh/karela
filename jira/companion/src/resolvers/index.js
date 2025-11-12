@@ -31,6 +31,46 @@ resolver.define("changeDefectSolved", async ({ payload }) => {
   return result;
 });
 
+resolver.define("createChatSession", async ({ payload }) => {
+  const result = await DefectService.createChatSession({
+    projectKey: payload.projectKey,
+    storyKey: payload.storyKey,
+    userMessage: payload.userMessage,
+  });
+  return result;
+});
+
+resolver.define("getChatSessionByProjectAndStory", async ({ payload }) => {
+  const result = await DefectService.getChatSessionByProjectAndStory({
+    projectKey: payload.projectKey,
+    storyKey: payload.storyKey,
+  });
+  return result;
+});
+
+resolver.define("getChatSession", async ({ payload }) => {
+  const result = await DefectService.getChatSession(payload.sessionId);
+  return result;
+});
+
+resolver.define("getChatMessagesAfter", async ({ payload }) => {
+  const result = await DefectService.getChatMessagesAfter({
+    sessionId: payload.sessionId,
+    messageId: payload.messageId,
+  });
+  return result;
+});
+
+resolver.define("postChatMessage", async ({ payload }) => {
+  const result = await DefectService.postChatMessage({
+    sessionId: payload.sessionId,
+    projectKey: payload.projectKey,
+    storyKey: payload.storyKey,
+    message: payload.message,
+  });
+  return result;
+});
+
 const PROP_KEY = "ratsnake-companion-settings";
 
 resolver.define("getProjectSettings", async ({ payload }) => {
@@ -43,12 +83,12 @@ resolver.define("getProjectSettings", async ({ payload }) => {
   if (!res.ok) {
     return {
       data: null,
-      error: `Error fetching project settings: ${res.status}`,
+      errors: [`Error fetching project settings: ${res.status}`],
     };
   } else {
     const data = await res.json();
 
-    return { data: data.value, error: null };
+    return { data: data.value, errors: null };
   }
 });
 
@@ -67,10 +107,10 @@ resolver.define("setProjectSettings", async ({ payload }) => {
   if (!res.ok) {
     return {
       data: null,
-      error: `Error saving project settings: ${res.status}`,
+      errors: [`Error saving project settings: ${res.status}`],
     };
   }
-  return { data: null, error: null };
+  return { data: null, errors: null };
 });
 
 resolver.define("getFirstScrumBoardUrl", async ({ payload }) => {
@@ -81,7 +121,7 @@ resolver.define("getFirstScrumBoardUrl", async ({ payload }) => {
       route`/rest/agile/1.0/board?projectKeyOrId=${projectKey}&type=scrum`
     );
   if (!result.ok) {
-    return { data: null, error: `Error fetching boards: ${result.status}` };
+    return { data: null, errors: [`Error fetching boards: ${result.status}`] };
   } else {
     const data = await result.json();
     if (data.values && data.values.length > 0) {
@@ -91,7 +131,10 @@ resolver.define("getFirstScrumBoardUrl", async ({ payload }) => {
         error: null,
       };
     } else {
-      return { data: null, error: "No scrum boards found for this project." };
+      return {
+        data: null,
+        errors: ["No scrum boards found for this project."],
+      };
     }
   }
 });

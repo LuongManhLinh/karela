@@ -18,9 +18,7 @@ class LLMConfig:
     GEMINI_API_DEFECT_TEMPERATURE = float(
         os.getenv("GEMINI_API_DEFECT_TEMPERATURE", "0.1")
     )
-    GEMINI_API_DEFECT_MODEL = os.getenv(
-        "GEMINI_API_DEFECT_MODEL", "gemini-2.0-flash-lite"
-    )
+    GEMINI_API_DEFECT_MODEL = os.getenv("GEMINI_API_DEFECT_MODEL", "gemini-2.0-flash")
     GEMINI_API_CHAT_TEMPERATURE = float(os.getenv("GEMINI_API_CHAT_TEMPERATURE", "0.7"))
     GEMINI_API_CHAT_MODEL = os.getenv("GEMINI_API_CHAT_MODEL", "gemini-2.0-flash")
     GEMINI_API_DEFAULT_TEMPERATURE = float(

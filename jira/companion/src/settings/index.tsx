@@ -186,8 +186,9 @@ const Settings = () => {
         setAdditionalContexts(
           loadAdditionalDocs(settings.llm_context.additional_contexts)
         );
-      } else if (result.error) {
-        setMsg(result.error);
+      } else if (result.errors) {
+        // setMsg(result.errors.toString());
+        console.log("Error loading settings:", result.errors);
         setSuccess(false);
         setShowMsg(true);
       } else {
@@ -196,6 +197,7 @@ const Settings = () => {
       }
     } catch (err) {
       setMsg("Failed to load settings: " + err);
+      console.log("Failed to load settings:", err);
       setSuccess(false);
       setShowMsg(true);
     } finally {
@@ -234,8 +236,9 @@ const Settings = () => {
       };
 
       const result = await SettingsService.setProjectSettings(settings);
-      if (result.error) {
-        setMsg(result.error);
+      if (result.errors) {
+        // setMsg(result.errors.toString());
+        console.log("Error saving settings:", result.errors);
         setSuccess(false);
       } else {
         setMsg("Settings saved successfully");
@@ -243,6 +246,7 @@ const Settings = () => {
       }
     } catch (err) {
       setMsg("Failed to save settings");
+      console.log("Failed to save settings:", err);
       setSuccess(false);
     } finally {
       setShowMsg(true);

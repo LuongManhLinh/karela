@@ -1,2 +1,1 @@
-export const BACKEND_URL =
-  "https://fruits-soviet-strip-peer.trycloudflare.com/api/v1";
+export const BACKEND_URL = "https://ratsnake.lmlinh.com/api/v1";

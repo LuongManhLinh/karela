@@ -1,5 +1,5 @@
 from database import SessionLocal
-from .services import DefectRunService
+from .services.run_services import DefectRunService
 
 
 def analyze_all_user_stories(analysis_id: str):

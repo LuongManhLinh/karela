@@ -1,5 +1,5 @@
 import { invoke, view } from "@forge/bridge";
-import { ApiResponse } from "../types/apiResponse";
+import { ApiResponse } from "../../common/apiResponse";
 
 const ProjectService = {
   getFirstScrumBoardUrl: async (): Promise<ApiResponse<string>> => {

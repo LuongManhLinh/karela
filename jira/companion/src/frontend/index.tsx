@@ -43,7 +43,7 @@ const App = () => {
           }
         }
       } else {
-        console.log("Error fetching analysis briefs:", res.error);
+        console.log("Error fetching analysis briefs:", res.errors);
       }
     });
   };
@@ -54,7 +54,7 @@ const App = () => {
       if (res.data) {
         setDefaultBoardUrl(res.data);
       } else {
-        console.log("Error fetching project ID:", res.error);
+        console.log("Error fetching project ID:", res.errors);
       }
     });
     DefectService.getAllDefectAnalysisBriefs().then((res) => {
@@ -68,7 +68,7 @@ const App = () => {
           }
         }
       } else {
-        console.log("Error fetching analysis briefs:", res.error);
+        console.log("Error fetching analysis briefs:", res.errors);
       }
       setInitLoading(false);
     });
@@ -118,7 +118,7 @@ const App = () => {
       if (res.data !== null) {
         console.log("Defect solved status updated successfully", res.data);
       } else {
-        console.log("Error updating defect solved status:", res.error);
+        console.log("Error updating defect solved status:", res.errors);
       }
     });
   };

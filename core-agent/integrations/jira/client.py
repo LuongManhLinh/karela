@@ -156,7 +156,7 @@ class JiraApiClient:
                 description=issue.get("description"),
             )
 
-    def create_issues(self, issues: IssuesCreateRequest) -> None:
+    def create_issues(self, issues: IssuesCreateRequest) -> List[str]:
         url = self.base_url + "/rest/api/3/issue/bulk"
         payload = issues.model_dump(by_alias=True)
         resp = requests.post(url, headers=self._auth_header, json=payload, timeout=60)

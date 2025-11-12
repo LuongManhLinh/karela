@@ -2,14 +2,15 @@ from langchain.tools import tool, ToolRuntime
 from typing import Optional
 import json
 
-from ..services import DefectDataService, DefectRunService
+from ..services.data_service import DefectDataService
+
 from ..tasks import analyze_target_user_story
 from common.redis_app import task_queue
 
 
 @tool
 def get_defects(story_key: Optional[str], runtime: ToolRuntime) -> str:
-    """Fetch defects for a User Story by its ID.
+    """Fetch defects for a User Story by its key.
 
     Args:
         story_key (Optional[str]):
@@ -87,15 +88,50 @@ def get_analysis_status(analysis_id: str, runtime: ToolRuntime) -> str:
 
 
 @tool
-def show_analysis_status_bar_in_chat(analysis_id: str, runtime: ToolRuntime) -> str:
-    """Show the analysis status bar in the chat interface.
+def show_analysis_progress_in_chat(analysis_id: str, runtime: ToolRuntime) -> str:
+    """Show the analysis progress in the chat interface.
 
     Args:
         analysis_id (str): The ID of the analysis to show status for.
     Returns:
-        str: A message indicating the status bar has been shown.
+        str: A message indicating the progress has been shown.
     """
-    pass
+    db = runtime.state.get("db_session")
+    if not db:
+        return "Database session not found in context. Cannot show analysis progress."
+
+    session_id = runtime.state.get("session_id")
+    if not session_id:
+        return "Session ID not found in context. Cannot show analysis progress."
+
+    DefectDataService.create_analysis_progress_message(db, session_id, analysis_id)
+    return f"Analysis progress for '{analysis_id}' has been posted in the chat."
+
+
+@tool
+def get_latest_done_analysis(
+    story_key: Optional[str], runtime: ToolRuntime
+) -> Optional[str]:
+    """Get the latest done analysis information, including start time, end time and a list of detected defects.
+    Args:
+        story_key (Optional[str]): If specified, fetch the latest done analysis for the Story having this key.
+            If None, fetch the latest done analysis for the current project in context.
+
+    Returns:
+        Optional[str]: The latest done analysis information as a JSON string, or None if no analysis is found.
+    """
+    db = runtime.state.get("db_session")
+    if not db:
+        return None
+
+    project_key = runtime.state.get("project_key")
+    if not project_key:
+        return None
+
+    analysis = DefectDataService.get_latest_done_analysis(db, project_key, story_key)
+    if analysis:
+        return json.dumps(analysis, indent=2)
+    return None
 
 
 @tool
@@ -103,12 +139,12 @@ def modify_multiple_stories(modifications: list[dict], runtime: ToolRuntime) -> 
     """Modify multiple user stories based on the provided modifications.
     Args:
         modifications (list[dict]): A list of modifications to apply to user stories.
-            Each modification should include 'story_id', 'title' and/or 'description'.
-            If 'title' or 'description' is not provided, that field will not be modified.
-            At least one of 'title' or 'description' must be provided for each modification.
-            Use normal text for title and markdown for description. For example:
+            Each modification should include 'story_id', 'summary' and/or 'description'.
+            If 'summary' or 'description' is not provided, that field will not be modified.
+            At least one of 'summary' or 'description' must be provided for each modification.
+            Use normal text for summary and markdown for description. For example:
             [
-                {"story_key": "US-123", "title": "New Title", "description": "Updated description in **markdown**."},
+                {"story_key": "US-123", "summary": "New Summary", "description": "Updated description in **markdown**."},
                 {"story_key": "US-456", "description": "**Another** updated description."}
             ]
 
@@ -124,24 +160,24 @@ def modify_multiple_stories(modifications: list[dict], runtime: ToolRuntime) -> 
     if not project_key:
         return "Project key not found in context. Cannot modify stories."
 
-    num_modified = DefectDataService.modify_multiple_stories(
+    modified_keys = DefectDataService.propose_modifying_stories(
         db, project_key, modifications
     )
-    return f"Modifications applied to {num_modified} stories."
+    return f"Modifications applied to stories with keys: {', '.join(modified_keys)}."
 
 
 @tool
 def modify_story(
     story_key: str,
-    title: Optional[str],
+    summary: Optional[str],
     description: Optional[str],
     runtime: ToolRuntime,
 ) -> str:
-    """Modify a user story's title and/or description.
+    """Modify a user story's summary and/or description.
 
     Args:
         story_key (str): The key of the user story to modify.
-        title (Optional[str]): The new title for the user story. If None, the title will not be modified.
+        summary (Optional[str]): The new summary for the user story. If None, the summary will not be modified.
         description (Optional[str]): The new description for the user story. If None, the description will not be modified.
 
     Returns:
@@ -156,13 +192,16 @@ def modify_story(
     if not project_key:
         return "Project key not found in context. Cannot modify story."
 
-    DefectDataService.modify_multiple_stories(
+    modified_keys = DefectDataService.propose_modifying_stories(
         db,
         project_key,
-        [{"story_key": story_key, "title": title, "description": description}],
+        [{"story_key": story_key, "summary": summary, "description": description}],
     )
 
-    return f"Story '{story_key}' modified successfully."
+    if modified_keys:
+        return f"Story '{story_key}' modified successfully."
+    else:
+        return f"No modifications applied to story '{story_key}'."
 
 
 @tool
@@ -187,7 +226,7 @@ def create_stories(
     if not project_key:
         return "Project key not found in context. Cannot create stories."
 
-    keys = DefectDataService.create_stories(project_key, stories)
+    keys = DefectDataService.propose_creating_stories(project_key, stories)
     return f"Stories created successfully with keys: {', '.join(keys)}."
 
 
@@ -195,7 +234,8 @@ tools = [
     get_defects,
     run_defect_analysis,
     get_analysis_status,
-    show_analysis_status_bar_in_chat,
+    get_latest_done_analysis,
+    show_analysis_progress_in_chat,
     modify_multiple_stories,
     modify_story,
     create_stories,

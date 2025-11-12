@@ -3,6 +3,7 @@ from langchain_core.messages import HumanMessage, AIMessage
 from sqlalchemy.orm import Session
 
 from ..models import Message, SenderRole
+from database import get_db
 
 
 class SQLChatMessageHistory(BaseChatMessageHistory):
@@ -46,7 +47,6 @@ class SQLChatMessageHistory(BaseChatMessageHistory):
         self.db.commit()
 
 
-def get_session_history_from_config(config):
-    session_id = config["configurable"]["session_id"]
-    db = config["configurable"]["db"]
-    return SQLChatMessageHistory(db=db, session_id=session_id)
+def get_session_history_from_config(session_id: str):
+    db_session: Session = get_db().__next__()
+    return SQLChatMessageHistory(db=db_session, session_id=session_id)

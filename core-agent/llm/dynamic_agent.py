@@ -57,7 +57,7 @@ class GenimiDynamicAgent:
             self.agent = RunnableWithMessageHistory(
                 self.agent,
                 session_history_provider,
-                input_messages_key="messages",
+                input_messages_key="input",
                 history_messages_key="messages",
             )
 
@@ -74,9 +74,13 @@ class GenimiDynamicAgent:
         attempts = 0
         while attempts < self.max_retries:
             try:
+                print(
+                    f"Function: {fn.__name__}, Attempt: {attempts + 1}, Args: {args}, Kwargs: {kwargs}"
+                )
                 return fn(*args, **kwargs)
             except Exception as e:
                 attempts += 1
+                print(f"Error on attempt {attempts}: {e}")
                 if (
                     attempts >= self.max_retries
                     or self.errors_to_retry is not None
@@ -89,7 +93,7 @@ class GenimiDynamicAgent:
     def invoke(self, user_message: str, *args, **kwargs):
         return self._run_with_retries(
             self.agent.invoke,
-            {"messages": [HumanMessage(content=user_message)]},
+            {"input": user_message},
             *args,
             **kwargs,
         )
@@ -97,7 +101,7 @@ class GenimiDynamicAgent:
     async def ainvoke(self, user_message: str, *args, **kwargs):
         return await self._run_with_retries(
             self.agent.ainvoke,
-            {"messages": [HumanMessage(content=user_message)]},
+            {"input": user_message},
             *args,
             **kwargs,
         )

@@ -1,15 +1,19 @@
 import { invoke, view } from "@forge/bridge";
-import { ApiResponse } from "../frontend/types/apiResponse";
+import { ApiResponse } from "../common/apiResponse";
 import { ProjectSettings } from "./types";
 
 const SettingsService = {
   getProjectSettings: async (): Promise<ApiResponse<ProjectSettings>> => {
     const context = await view.getContext();
     const projectId = context.extension.project.id || "---";
+    console.log("Fetched context", context);
+    console.log("Project ID:", projectId);
 
     const result = await invoke("getProjectSettings", {
       projectId,
     });
+
+    console.log("Fetched project settings:", result);
     return result as ApiResponse<ProjectSettings>;
   },
 
