@@ -1,3 +1,5 @@
+import { AnalysisStatus } from "../../common/analysisStatus";
+
 // Types adapted from backend schemas.py
 export type ChatRole = "user" | "ai" | "system" | "tool" | "analysis_progress";
 
@@ -6,7 +8,11 @@ export interface ChatMessageDto {
   role: ChatRole;
   content: string;
   created_at: string;
-  analysis_id?: string | null;
+}
+
+export interface AnalysisProgressMessageDto extends ChatMessageDto {
+  analysis_id: string;
+  status: AnalysisStatus;
 }
 
 export interface ChatProposalContentDto {
@@ -32,6 +38,15 @@ export interface ChatSessionDto {
   project_key: string;
   story_key?: string | null;
   created_at: string;
-  messages: ChatMessageDto[];
+  messages: (ChatMessageDto | AnalysisProgressMessageDto)[];
   change_proposals: ChatProposalDto[];
+}
+
+export interface MessagePostResponse {
+  message_id: number;
+  message_created_at: string;
+}
+
+export interface CreateSessionResponse extends MessagePostResponse {
+  session_id: string;
 }

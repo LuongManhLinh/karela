@@ -21,6 +21,7 @@ from defect.schemas import (
     AnalysisDto,
     ChatMessageDto,
     ChatSessionDto,
+    AnalysisProgressMessageDto,
 )
 from integrations.jira.client import default_client as jira_client
 from integrations.jira.schemas import IssuesCreateRequest
@@ -77,7 +78,7 @@ class DefectDataService:
         ]
 
     @staticmethod
-    def get_analysis_detail(
+    def get_analysis_details(
         db: Session, analysis_id: str
     ) -> Optional[AnalysisDetailDto]:
         analysis_detail = db.query(Analysis).filter(Analysis.id == analysis_id).first()
@@ -90,7 +91,7 @@ class DefectDataService:
         # Query order by solved, type asc, severity desc
         defects = (
             db.query(Defect)
-            .filter(Defect.analysis_detail_id == analysis_detail.id)
+            .filter(Defect.analysis_id == analysis_detail.id)
             .order_by(Defect.solved.asc(), Defect.type.asc(), Defect.severity.desc())
             .all()
         )
@@ -104,9 +105,7 @@ class DefectDataService:
                 confidence=defect.confidence,
                 suggested_fix=defect.suggested_fix,
                 solved=defect.solved,
-                work_item_keys=[
-                    work_item.work_item_id for work_item in defect.work_item_ids
-                ],
+                work_item_keys=[work_item.key for work_item in defect.work_item_ids],
             )
             for defect in defects
         ]
@@ -123,7 +122,6 @@ class DefectDataService:
             project_key=project_key,
             type=AnalysisType(analysis_type.upper()),
             status=AnalysisStatus.PENDING,
-            title="Pending...",
         )
 
         db.add(analysis)
@@ -169,21 +167,45 @@ class DefectDataService:
     @staticmethod
     def create_chat_session(
         db: Session,
-        inital_message: str,
-        role: str,
         project_key: str,
+        role: str,
+        initial_message: str,
         story_key: str = None,
     ) -> str:
-        chat_session = ChatSession(project_key=project_key, story_key=story_key)
-        message = Message(
-            session_id=chat_session.id, role=SenderRole(role), content=inital_message
+        chat_session = ChatSession(
+            project_key=project_key,
+            story_key=story_key,
+            messages=[
+                Message(
+                    role=SenderRole(role),
+                    content=initial_message,
+                )
+            ],
         )
-        chat_session.messages = [message]
 
         db.add(chat_session)
         db.commit()
 
-        return chat_session.id
+        return DefectDataService._get_chat_session_dto(db, chat_session)
+
+    @staticmethod
+    def create_chat_message(
+        db: Session,
+        session_id: str,
+        role: str,
+        content: str,
+        analysis_id: Optional[str] = None,
+    ):
+        message = Message(
+            session_id=session_id,
+            role=SenderRole(role),
+            content=content,
+            analysis_id=analysis_id,
+        )
+        db.add(message)
+        db.commit()
+        db.refresh(message)
+        return message.id, message.created_at.isoformat()
 
     @staticmethod
     def get_chat_session_by_project_and_story(
@@ -211,21 +233,33 @@ class DefectDataService:
         return DefectDataService._get_chat_session_dto(session)
 
     @staticmethod
-    def _get_chat_session_dto(session: ChatSession) -> ChatSessionDto:
-        return ChatSessionDto(
-            id=session.id,
-            project_key=session.project_key,
-            story_key=session.story_key,
-            messages=[
-                ChatMessageDto(
+    def _get_chat_session_dto(db: Session, chat_session: ChatSession) -> ChatSessionDto:
+        messages = []
+        for message in chat_session.messages:
+            if message.analysis_id:
+                msg_dto = AnalysisProgressMessageDto(
                     id=message.id,
                     role=message.role.value,
                     content=message.content,
                     analysis_id=message.analysis_id,
+                    status=message.analysis.status.value,
                     created_at=message.created_at.isoformat(),
                 )
-                for message in session.messages
-            ],
+            else:
+                msg_dto = ChatMessageDto(
+                    id=message.id,
+                    role=message.role.value,
+                    content=message.content,
+                    created_at=message.created_at.isoformat(),
+                )
+            messages.append(msg_dto)
+
+        return ChatSessionDto(
+            id=chat_session.id,
+            project_key=chat_session.project_key,
+            story_key=chat_session.story_key,
+            created_at=chat_session.created_at.isoformat(),
+            messages=messages,
             change_proposals=[
                 ChatProposalDto(
                     id=proposal.id,
@@ -243,7 +277,7 @@ class DefectDataService:
                         for content in proposal.contents
                     ],
                 )
-                for proposal in session.change_proposals
+                for proposal in chat_session.change_proposals
             ],
         )
 

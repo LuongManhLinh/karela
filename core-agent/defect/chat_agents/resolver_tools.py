@@ -3,9 +3,18 @@ from typing import Optional
 import json
 
 from ..services.data_service import DefectDataService
+from ..services.run_services import DefectRunService
+from database import SessionLocal
 
-from ..tasks import analyze_target_user_story
 from common.redis_app import task_queue
+
+
+def analyze_target_user_story(analysis_id: str, target_story_key: str):
+    db = SessionLocal()
+    try:
+        DefectRunService.analyze_target_user_story(db, analysis_id, target_story_key)
+    finally:
+        db.close()
 
 
 @tool
@@ -20,14 +29,21 @@ def get_defects(story_key: Optional[str], runtime: ToolRuntime) -> str:
     Returns:
         str: A summary of defects associated with the Story.
     """
+    print(
+        f"""
+{"-"*100}
+| Get Defects Tool Called
+{"-"*100}
+"""
+    )
 
     if not story_key:
-        story_key = runtime.state.get("story_key", None)
+        story_key = runtime.context.story_key
 
         if not story_key:
             return "No story_key provided or found in context. Cannot fetch defects."
 
-    db = runtime.state.get("db_session")
+    db = runtime.context.db_session
     if not db:
         return "Database session not found in context. Cannot fetch defects."
     defects = DefectDataService.get_defects_by_work_item(db, story_key)
@@ -39,22 +55,38 @@ def get_defects(story_key: Optional[str], runtime: ToolRuntime) -> str:
 
 
 @tool
-def run_defect_analysis(story_key: str, runtime: ToolRuntime) -> str:
+def run_defect_analysis(story_key: Optional[str], runtime: ToolRuntime) -> str:
     """Run a defect analysis for a User Story.
 
     Args:
-        story_key (str): The key of the Story to run defect analysis for.
+        story_key (Optional[str]): The key of the Story to run defect analysis for. If None, use story_key from current context.
 
     Returns:
         str: The result of the defect analysis.
     """
+    print(
+        f"""
+{"-"*100}
+| Run Defect Analysis Tool Called
+| Story Key: {story_key}
+{"-"*100}
+"""
+    )
 
-    db = runtime.state.get("db_session")
+    db = runtime.context.db_session
     if not db:
+        print("Database session not found in context.")
         return "Database session not found in context. Cannot run defect analysis."
-    project_key = runtime.state.get("project_key")
+    project_key = runtime.context.project_key
     if not project_key:
+        print("Project key not found in context.")
         return "Project key not found in context. Cannot run defect analysis."
+
+    if not story_key:
+        story_key = runtime.context.story_key
+    if not story_key:
+        return "No story_key provided or found in context. Cannot run defect analysis."
+
     analysis_id = DefectDataService.init_analysis(
         db, project_key=project_key, analysis_type="TARGETED"
     )
@@ -74,8 +106,15 @@ def get_analysis_status(analysis_id: str, runtime: ToolRuntime) -> str:
     Returns:
         str: The current status of the analysis.
     """
+    print(
+        f"""
+{"-"*100}
+| Get Analysis Status Tool Called
+{"-"*100}
+"""
+    )
 
-    db = runtime.state.get("db_session")
+    db = runtime.context.db_session
     if not db:
         return "Database session not found in context. Cannot get analysis status."
 
@@ -96,11 +135,19 @@ def show_analysis_progress_in_chat(analysis_id: str, runtime: ToolRuntime) -> st
     Returns:
         str: A message indicating the progress has been shown.
     """
-    db = runtime.state.get("db_session")
+    print(
+        f"""
+{"-"*100}
+| Show Analysis Progress in Chat Tool Called
+{"-"*100}
+"""
+    )
+
+    db = runtime.context.db_session
     if not db:
         return "Database session not found in context. Cannot show analysis progress."
 
-    session_id = runtime.state.get("session_id")
+    session_id = runtime.context.session_id
     if not session_id:
         return "Session ID not found in context. Cannot show analysis progress."
 
@@ -120,11 +167,20 @@ def get_latest_done_analysis(
     Returns:
         Optional[str]: The latest done analysis information as a JSON string, or None if no analysis is found.
     """
-    db = runtime.state.get("db_session")
+
+    print(
+        f"""
+{"-"*100}
+| Get Latest Done Analysis Tool Called
+{"-"*100}
+"""
+    )
+
+    db = runtime.context.db_session
     if not db:
         return None
 
-    project_key = runtime.state.get("project_key")
+    project_key = runtime.context.project_key
     if not project_key:
         return None
 
@@ -152,11 +208,19 @@ def modify_multiple_stories(modifications: list[dict], runtime: ToolRuntime) -> 
         str: A summary of the modifications applied.
     """
 
-    db = runtime.state.get("db_session")
+    print(
+        f"""
+{"-"*100}
+| Modify Multiple Stories Tool Called
+{"-"*100}
+"""
+    )
+
+    db = runtime.context.db_session
     if not db:
         return "Database session not found in context. Cannot modify stories."
 
-    project_key = runtime.state.get("project_key")
+    project_key = runtime.context.project_key
     if not project_key:
         return "Project key not found in context. Cannot modify stories."
 
@@ -184,11 +248,19 @@ def modify_story(
         str: A confirmation message indicating the modification status.
     """
 
-    db = runtime.state.get("db_session")
+    print(
+        f"""
+{"-"*100}
+| Modify Story Tool Called
+{"-"*100}
+"""
+    )
+
+    db = runtime.context.db_session
     if not db:
         return "Database session not found in context. Cannot modify story."
 
-    project_key = runtime.state.get("project_key")
+    project_key = runtime.context.project_key
     if not project_key:
         return "Project key not found in context. Cannot modify story."
 
@@ -222,11 +294,23 @@ def create_stories(
         str: A confirmation message indicating the keys of the created stories.
     """
 
-    project_key = runtime.state.get("project_key")
+    print(
+        f"""
+{"-"*100}
+| Create Stories Tool Called
+{"-"*100}
+"""
+    )
+
+    db = runtime.context.db_session
+    if not db:
+        return "Database session not found in context. Cannot create stories."
+
+    project_key = runtime.context.project_key
     if not project_key:
         return "Project key not found in context. Cannot create stories."
 
-    keys = DefectDataService.propose_creating_stories(project_key, stories)
+    keys = DefectDataService.propose_creating_stories(db, project_key, stories)
     return f"Stories created successfully with keys: {', '.join(keys)}."
 
 

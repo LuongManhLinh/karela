@@ -3,9 +3,10 @@ from langchain.agents.middleware import LLMToolSelectorMiddleware
 from langchain_core.runnables.config import RunnableConfig
 from langchain_google_genai import ChatGoogleGenerativeAI
 from sqlalchemy.orm import Session
+from dataclasses import dataclass
 
-from config import LLMConfig
-from .chat_history import get_session_history_from_config
+from config import GeminiConfig
+from .chat_history import get_session_history, set_session_history
 from .prompts import RESOLVER_SYSTEM_PROMPT, RESOLVER_TOOL_SELECTOR_SYSTEM_PROMPT
 from .resolver_tools import tools
 
@@ -14,7 +15,7 @@ tool_selector_middleware = LLMToolSelectorMiddleware(
     model=ChatGoogleGenerativeAI(
         model="gemini-2.0-flash-lite",
         temperature=0,
-        google_api_key=LLMConfig.GEMINI_API_KEYS[-1],
+        google_api_key=GeminiConfig.GEMINI_API_KEYS[-1],
         max_retries=3,
     ),
     system_prompt=RESOLVER_TOOL_SELECTOR_SYSTEM_PROMPT,
@@ -24,24 +25,31 @@ tool_selector_middleware = LLMToolSelectorMiddleware(
 
 agent = GenimiDynamicAgent(
     system_prompt=RESOLVER_SYSTEM_PROMPT,
-    model_name=LLMConfig.GEMINI_API_CHAT_MODEL,
-    temperature=LLMConfig.GEMINI_API_CHAT_TEMPERATURE,
+    model_name=GeminiConfig.GEMINI_API_CHAT_MODEL,
+    temperature=GeminiConfig.GEMINI_API_CHAT_TEMPERATURE,
     tools=tools,
     # middleware=[tool_selector_middleware],
-    session_history_provider=get_session_history_from_config,
-    api_keys=LLMConfig.GEMINI_API_KEYS,
-    max_retries=LLMConfig.GEMINI_API_MAX_RETRY,
-    retry_delay_ms=LLMConfig.GEMINI_API_RETRY_DELAY_MS,
+    api_keys=GeminiConfig.GEMINI_API_KEYS,
+    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    retry_delay_ms=GeminiConfig.GEMINI_API_RETRY_DELAY_MS,
 )
 
 
+@dataclass
+class Context:
+    session_id: str
+    db_session: Session
+    project_key: str
+    story_key: str = None
+
+
 def chat_with_agent(
-    message: str,
+    messages: list,
     session_id: str,
     db_session: Session,
     project_key: str,
     story_key: str = None,
-) -> str:
+) -> dict:
     """Chat with the resolver agent.
 
     Args:
@@ -53,15 +61,14 @@ def chat_with_agent(
     Returns:
         str: The agent's response.
     """
+    set_session_history(session_id, db_session)
     response = agent.invoke(
-        user_message=message,
-        config=RunnableConfig(
-            configurable={
-                "session_id": session_id,
-                "db_session": db_session,
-                "project_key": project_key,
-                "story_key": story_key,
-            }
+        messages,
+        context=Context(
+            session_id=session_id,
+            db_session=db_session,
+            project_key=project_key,
+            story_key=story_key,
         ),
     )
 

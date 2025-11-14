@@ -13,7 +13,7 @@ class DatabaseConfig:
     DATA_SOURCE = f"mysql+pymysql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
 
 
-class LLMConfig:
+class GeminiConfig:
     GEMINI_API_KEYS = os.getenv("GEMINI_API_KEYS", "").split(",")
     GEMINI_API_DEFECT_TEMPERATURE = float(
         os.getenv("GEMINI_API_DEFECT_TEMPERATURE", "0.1")
@@ -27,6 +27,11 @@ class LLMConfig:
     GEMINI_API_DEFAULT_MODEL = os.getenv("GEMINI_API_DEFAULT_MODEL", "gemini-2.0-flash")
     GEMINI_API_MAX_RETRY = int(os.getenv("GEMINI_API_MAX_RETRY", "3"))
     GEMINI_API_RETRY_DELAY_MS = int(os.getenv("GEMINI_API_RETRY_DELAY_MS", "1000"))
+
+
+class OpenRouterConfig:
+    OPENROUTER_API_KEYS = os.getenv("OPENROUTER_API_KEYS", "").split(",")
+    OPENROUTER_API_MODEL = os.getenv("OPENROUTER_API_MODEL", "gpt-4o")
 
 
 class JiraConfig:

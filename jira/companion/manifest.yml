@@ -5,7 +5,7 @@ modules:
       resolver:
         function: resolver
       render: native
-      title: Companion
+      title: Analyzer
       icon: https://raw.githubusercontent.com/LuongManhLinh/assets/main/ratsnake-icon.svg
 
   jira:projectSettingsPage:
@@ -21,16 +21,17 @@ modules:
       resource: chat-panel
       resolver:
         function: resolver
-      title: Companion Chat
+      title: Chat
       icon: https://raw.githubusercontent.com/LuongManhLinh/assets/main/ratsnake-icon.svg
       render: native
 
   function:
     - key: resolver
       handler: index.handler
+
 resources:
   - key: main
-    path: src/frontend/index.tsx
+    path: src/analyzer-page/index.tsx
   - key: settings
     path: src/settings/index.tsx
   - key: chat-panel
@@ -50,6 +51,6 @@ permissions:
 app:
   runtime:
     name: nodejs22.x
-    memoryMB: 256
+    memoryMB: 512
     architecture: arm64
   id: ari:cloud:ecosystem::app/a34b55a3-18bb-4439-8461-96111deed76a

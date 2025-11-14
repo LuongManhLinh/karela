@@ -10,8 +10,10 @@ import {
   xcss,
   ProgressBar,
   Icon,
+  Pressable,
+  Lozenge,
 } from "@forge/react";
-import { AnalysisBrief } from "../types/defect";
+import { AnalysisSummary } from "../types/defect";
 
 const HistoryItem = ({
   item,
@@ -19,7 +21,7 @@ const HistoryItem = ({
   selectedId,
   loadingId,
 }: {
-  item: AnalysisBrief;
+  item: AnalysisSummary;
   onClick: (id: string) => void;
   selectedId?: string;
   loadingId?: string;
@@ -28,7 +30,7 @@ const HistoryItem = ({
     item.status === "PENDING" ||
     item.status === "IN_PROGRESS" ||
     loadingId === item.id;
-  const startedAt = new Date(item.startedAt);
+  const startedAt = new Date(item.started_at);
   const [duration, setDuration] = useState<string>("");
 
   useEffect(() => {
@@ -42,7 +44,8 @@ const HistoryItem = ({
       const now =
         item.status === "PENDING" || item.status === "IN_PROGRESS"
           ? new Date()
-          : new Date(item.endedAt!);
+          : new Date(item.ended_at!);
+
       const diff = now.getTime() - startedAt.getTime();
       setDuration(formatDuration(diff));
     };
@@ -54,10 +57,10 @@ const HistoryItem = ({
       const interval = setInterval(updateDuration, 1000);
       return () => clearInterval(interval);
     }
-  }, [isRunning, item.endedAt, startedAt]);
+  }, [isRunning, item.ended_at, startedAt]);
 
   return (
-    <Box
+    <Pressable
       xcss={{
         padding: "space.100",
         width: "100%",
@@ -66,17 +69,36 @@ const HistoryItem = ({
         },
         backgroundColor:
           selectedId === item.id
-            ? "color.background.accent.lime.subtler"
-            : undefined,
+            ? "color.background.accent.lime.subtlest"
+            : "color.background.neutral.subtle",
         borderRadius: "border.radius",
       }}
+      onClick={() => onClick(item.id)}
     >
       {isRunning ? <ProgressBar value={0} isIndeterminate /> : null}
       <Stack alignInline="start">
-        <Text size="medium" weight="bold">
-          {item.title}
+        <Text weight="bold">
+          Analysis{" "}
+          {`${item.id.substring(0, 8)}...${item.id.substring(
+            item.id.length - 4
+          )}`}
         </Text>
-        <TagGroup>
+        <Inline space="space.100">
+          <Lozenge
+            appearance={
+              item.status === "DONE"
+                ? "success"
+                : item.status === "FAILED"
+                ? "removed"
+                : "inprogress"
+            }
+            isBold
+          >
+            {item.status}
+          </Lozenge>
+          <Lozenge isBold>{duration}</Lozenge>
+        </Inline>
+        {/* <TagGroup>
           <Tag
             text={item.status}
             color={
@@ -88,16 +110,9 @@ const HistoryItem = ({
             }
           />
           <Tag text={duration} color="greyLight" />
-        </TagGroup>
-        <Button
-          appearance="subtle"
-          onClick={() => onClick(item.id)}
-          iconAfter="chevron-right"
-        >
-          View
-        </Button>
+        </TagGroup> */}
       </Stack>
-    </Box>
+    </Pressable>
   );
 };
 
@@ -107,7 +122,7 @@ export default function HistorySidebar({
   selectedId,
   loadingId,
 }: {
-  history: AnalysisBrief[];
+  history: AnalysisSummary[];
   onClick: (id: string) => void;
   selectedId?: string;
   loadingId?: string;

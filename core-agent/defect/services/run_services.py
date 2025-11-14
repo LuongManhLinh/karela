@@ -355,8 +355,8 @@ class DefectRunService:
 
             start = time.perf_counter()
             run_user_stories_analysis_target(
+                target_user_story=target,
                 user_stories=user_stories,
-                target_user_story_key=target_key,
                 on_done=lambda defects: DefectRunService._save_defects_to_analysis(
                     analysis, defects
                 ),

@@ -1,0 +1,1 @@
+[{"id": "515b536d-ab6f-4c9c-9e8e-caf2147d0aed", "url": "https://lmldev.atlassian.net", "name": "lmldev", "scopes": ["manage:jira-project", "manage:jira-configuration", "read:jira-work", "manage:jira-data-provider", "manage:jira-webhook", "write:jira-work", "read:jira-user"], "avatarUrl": "https://site-admin-avatar-cdn.prod.public.atl-paas.net/avatars/240/compass.png"}]

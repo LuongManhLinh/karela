@@ -13,7 +13,7 @@ from .schemas import CrossCheckInput, SingleCheckInput
 from ...output_schemas import DetectDefectOutput
 from ...input_schemas import ContextInput
 from .prompts import CROSS_CHECK_SYSTEM_PROMPT, SINGLE_CHECK_SYSTEM_PROMPT
-from config import LLMConfig
+from config import GeminiConfig
 
 
 class State(TypedDict):
@@ -39,22 +39,24 @@ potential_single_defects = ["OUT_OF_SCOPE", "IRRELEVANCE"]
 
 cross_check_agent = GenimiDynamicAgent(
     system_prompt=CROSS_CHECK_SYSTEM_PROMPT,
-    model_name=LLMConfig.GEMINI_API_DEFECT_MODEL,
-    temperature=LLMConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
+    temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    response_mime_type="application/json",
     response_schema=DetectDefectOutput,
-    api_keys=LLMConfig.GEMINI_API_KEYS,
-    max_retries=LLMConfig.GEMINI_API_MAX_RETRY,
-    retry_delay_ms=LLMConfig.GEMINI_API_RETRY_DELAY_MS,
+    api_keys=GeminiConfig.GEMINI_API_KEYS,
+    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    retry_delay_ms=GeminiConfig.GEMINI_API_RETRY_DELAY_MS,
 )
 
 single_check_agent = GenimiDynamicAgent(
     system_prompt=SINGLE_CHECK_SYSTEM_PROMPT,
-    model_name=LLMConfig.GEMINI_API_DEFECT_MODEL,
-    temperature=LLMConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
+    temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,
     response_schema=DetectDefectOutput,
-    api_keys=LLMConfig.GEMINI_API_KEYS,
-    max_retries=LLMConfig.GEMINI_API_MAX_RETRY,
-    retry_delay_ms=LLMConfig.GEMINI_API_RETRY_DELAY_MS,
+    response_mime_type="application/json",
+    api_keys=GeminiConfig.GEMINI_API_KEYS,
+    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    retry_delay_ms=GeminiConfig.GEMINI_API_RETRY_DELAY_MS,
 )
 
 
@@ -200,6 +202,7 @@ async def run_analysis_async(
             done_single_item_check=False,
             done_cross_type_check=False,
             done_signing=False,
+            defects=[],
         ),
         context=Context(
             target=target_user_story,
@@ -232,6 +235,7 @@ def run_analysis(
             context_input=context_input,
             on_done=on_done,
             existing_defects=existing_defects,
+            defects=[],
         ),
         config=RunnableConfig(max_concurrency=3),
     )

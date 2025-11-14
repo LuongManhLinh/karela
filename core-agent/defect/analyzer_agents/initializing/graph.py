@@ -25,7 +25,7 @@ from .prompts import (
     SINGLE_TYPE_SYSTEM_PROMPT,
     REPORT_SYSTEM_PROMPT,
 )
-from config import LLMConfig
+from config import GeminiConfig
 
 
 class State(TypedDict):
@@ -50,22 +50,22 @@ class Context(TypedDict):
 
 single_item_agent = GenimiDynamicAgent(
     system_prompt=SINGLE_ITEM_SYSTEM_PROMPT,
-    model_name=LLMConfig.GEMINI_API_DEFECT_MODEL,
-    temperature=LLMConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
+    temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,
     response_schema=DetectDefectOutput,
-    api_keys=LLMConfig.GEMINI_API_KEYS,
-    max_retries=LLMConfig.GEMINI_API_MAX_RETRY,
-    retry_delay_ms=LLMConfig.GEMINI_API_RETRY_DELAY_MS,
+    api_keys=GeminiConfig.GEMINI_API_KEYS,
+    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    retry_delay_ms=GeminiConfig.GEMINI_API_RETRY_DELAY_MS,
 )
 
 single_type_agent = GenimiDynamicAgent(
     system_prompt=SINGLE_TYPE_SYSTEM_PROMPT,
-    model_name=LLMConfig.GEMINI_API_DEFECT_MODEL,
-    temperature=LLMConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
+    temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,
     response_schema=ReportDefectOutput,
-    api_keys=LLMConfig.GEMINI_API_KEYS,
-    max_retries=LLMConfig.GEMINI_API_MAX_RETRY,
-    retry_delay_ms=LLMConfig.GEMINI_API_RETRY_DELAY_MS,
+    api_keys=GeminiConfig.GEMINI_API_KEYS,
+    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    retry_delay_ms=GeminiConfig.GEMINI_API_RETRY_DELAY_MS,
 )
 
 
@@ -78,11 +78,11 @@ single_type_agent = GenimiDynamicAgent(
 report_agent = GenimiDynamicAgent(
     system_prompt=REPORT_SYSTEM_PROMPT,
     model_name="gemini-2.0-flash-lite",
-    temperature=LLMConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,
     response_schema=ReportDefectOutput,
-    api_keys=LLMConfig.GEMINI_API_KEYS,
-    max_retries=LLMConfig.GEMINI_API_MAX_RETRY,
-    retry_delay_ms=LLMConfig.GEMINI_API_RETRY_DELAY_MS,
+    api_keys=GeminiConfig.GEMINI_API_KEYS,
+    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    retry_delay_ms=GeminiConfig.GEMINI_API_RETRY_DELAY_MS,
 )
 
 

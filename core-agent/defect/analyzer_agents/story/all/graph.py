@@ -13,7 +13,7 @@ from .schemas import CrossCheckInput, SingleCheckInput
 from ...output_schemas import DetectDefectOutput
 from ...input_schemas import ContextInput
 from .prompts import CROSS_CHECK_SYSTEM_PROMPT, SINGLE_CHECK_SYSTEM_PROMPT
-from config import LLMConfig
+from config import GeminiConfig
 
 
 class State(TypedDict):
@@ -38,34 +38,38 @@ potential_single_defects = ["OUT_OF_SCOPE", "IRRELEVANCE"]
 
 cross_check_agent = GenimiDynamicAgent(
     system_prompt=CROSS_CHECK_SYSTEM_PROMPT,
-    model_name=LLMConfig.GEMINI_API_DEFECT_MODEL,
-    temperature=LLMConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
+    temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    response_mime_type="application/json",
     response_schema=DetectDefectOutput,
-    api_keys=LLMConfig.GEMINI_API_KEYS,
-    max_retries=LLMConfig.GEMINI_API_MAX_RETRY,
-    retry_delay_ms=LLMConfig.GEMINI_API_RETRY_DELAY_MS,
+    api_keys=GeminiConfig.GEMINI_API_KEYS,
+    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    retry_delay_ms=GeminiConfig.GEMINI_API_RETRY_DELAY_MS,
 )
 
 single_check_agent = GenimiDynamicAgent(
     system_prompt=SINGLE_CHECK_SYSTEM_PROMPT,
-    model_name=LLMConfig.GEMINI_API_DEFECT_MODEL,
-    temperature=LLMConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
+    temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    response_mime_type="application/json",
     response_schema=DetectDefectOutput,
-    api_keys=LLMConfig.GEMINI_API_KEYS,
-    max_retries=LLMConfig.GEMINI_API_MAX_RETRY,
-    retry_delay_ms=LLMConfig.GEMINI_API_RETRY_DELAY_MS,
+    api_keys=GeminiConfig.GEMINI_API_KEYS,
+    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    retry_delay_ms=GeminiConfig.GEMINI_API_RETRY_DELAY_MS,
 )
 
 
 def defect_adapter_node(state: State, runtime: Runtime[Context]) -> dict:
     work_items = runtime.context.get("work_items", [])
+    defects = runtime.context.get("defects")
 
     print(
         f"""
 {"-"*100}
-| Defect Adapter Node
+| Defect Adapter Node ALL
 | State: {state}
 | Number of work items to adapt: {len(work_items)}
+| Defects before adapter: {defects} {defects is not None}
 {"-"*100}
 """
     )
@@ -75,12 +79,15 @@ def defect_adapter_node(state: State, runtime: Runtime[Context]) -> dict:
 
 def single_check_node(state: State, runtime: Runtime[Context]) -> dict:
     work_items = runtime.context.get("work_items", [])
+    defects = runtime.context.get("defects")
+
     print(
         f"""
 {"-"*100}
 | Single Check Node
 | State: {state}
 | Number of work items to check: {len(work_items)}
+| Defects before single check: {defects} {defects is not None}
 {"-"*100}
 """
     )
@@ -101,19 +108,26 @@ def single_check_node(state: State, runtime: Runtime[Context]) -> dict:
             "Here is the input data:\n" + input_data.model_dump_json(indent=2)
         )["structured_response"]
 
-        runtime.context.get("defects").extend(output.defects or [])
+        if defects is not None:
+            print(f"Single check found defects: {output.defects}")
+            defects.extend(output.defects or [])
+        else:
+            print("No defects list found in context!")
 
     return {"done_single_check": True}
 
 
 def cross_check_node(state: State, runtime: Runtime[Context]) -> dict:
     work_items = runtime.context.get("work_items", [])
+    defects = runtime.context.get("defects")
+
     print(
         f"""
 {"-"*100}
 | Cross Check Node
 | State: {state}
 | Number of work items to check: {len(work_items)}
+| Defects before cross check: {defects}
 {"-"*100}
 """
     )
@@ -132,7 +146,11 @@ def cross_check_node(state: State, runtime: Runtime[Context]) -> dict:
             "Here is the input data:\n" + input_data.model_dump_json(indent=2)
         )["structured_response"]
 
-        runtime.context.get("defects").extend(output.defects or [])
+        if defects is not None:
+            print(f"Cross check found defects: {output.defects}")
+            defects.extend(output.defects or [])
+        else:
+            print("No defects list found in context!")
     return {"done_cross_check": True}
 
 
@@ -192,16 +210,17 @@ async def run_analysis_async(
     return await compiled.ainvoke(
         State(
             done_adapter=False,
-            done_single_item_check=False,
-            done_cross_type_check=False,
+            done_cross_check=False,
+            done_single_check=False,
             done_signing=False,
         ),
-        context=Context(
-            work_items=user_stories,
-            context_input=context_input,
-            on_done=on_done,
-            existing_defects=existing_defects,
-        ),
+        context={
+            "work_items": user_stories,
+            "on_done": on_done,
+            "context_input": context_input,
+            "existing_defects": existing_defects or [],
+            "defects": [],
+        },
         config=RunnableConfig(max_concurrency=3),
     )
 
@@ -219,11 +238,12 @@ def run_analysis(
             done_cross_type_check=False,
             done_signing=False,
         ),
-        context=Context(
-            work_items=user_stories,
-            context_input=context_input,
-            on_done=on_done,
-            existing_defects=existing_defects,
-        ),
+        context={
+            "work_items": user_stories,
+            "on_done": on_done,
+            "context_input": context_input,
+            "existing_defects": existing_defects or [],
+            "defects": [],
+        },
         config=RunnableConfig(max_concurrency=3),
     )

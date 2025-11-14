@@ -1,73 +1,157 @@
 import Resolver from "@forge/resolver";
-import DefectService from "./defectService";
 import api, { route, getAppContext } from "@forge/api";
+
+import { BACKEND_URL } from "./backendUrl";
+
+const fetchData = async (url, options) => {
+  try {
+    const response = await api.fetch(url, options);
+    if (!response.ok) {
+      const detailedError = await response.text();
+      return {
+        data: null,
+        errors: [
+          `Backend responded with status ${response.status}, details: ${detailedError}`,
+        ],
+      };
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    return {
+      data: null,
+      errors: [`Error communicating with backend: ${error.message}`],
+    };
+  }
+};
 
 const resolver = new Resolver();
 
-resolver.define("analyzeDefect", async ({ payload }) => {
-  const result = await DefectService.analyzeWorkItems(payload.projectKey);
-  return result;
-});
-
-resolver.define("getAllDefectAnalysisBriefs", async ({ payload }) => {
-  const result = await DefectService.getAllAnalysisBriefs(payload.projectKey);
-  return result;
-});
-
-resolver.define("getDefectAnalysisStatus", async ({ payload }) => {
-  const result = await DefectService.getAnalysisStatus(payload.analysisId);
+resolver.define("getAllDefectAnalysisSummaries", async ({ payload }) => {
+  const result = await fetchData(
+    `${BACKEND_URL}/defects/analyses/${payload.projectKey}`,
+    {
+      method: "GET",
+    }
+  );
   return result;
 });
 
 resolver.define("getDefectAnalysisDetails", async ({ payload }) => {
-  const result = await DefectService.getAnalysisDetails(payload.analysisId);
+  const result = await fetchData(
+    `${BACKEND_URL}/defects/analyses/${payload.analysisId}/details`,
+    {
+      method: "GET",
+    }
+  );
   return result;
 });
 
-resolver.define("changeDefectSolved", async ({ payload }) => {
-  const result = await DefectService.changeDefectSolved(payload.defectId, {
-    solved: payload.solved,
+resolver.define("analyzeDefect", async ({ payload }) => {
+  const result = await fetchData(`${BACKEND_URL}/defects/analyses`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      project_key: payload.projectKey,
+      analysis_type: payload.analysisType,
+      target_story_key: payload.targetStoryKey || null,
+    }),
   });
   return result;
 });
 
+resolver.define("getDefectAnalysisStatus", async ({ payload }) => {
+  const result = await fetchData(
+    `${BACKEND_URL}/defects/analyses/${payload.analysisId}/status`,
+    {
+      method: "GET",
+    }
+  );
+  return result;
+});
+
+resolver.define("changeDefectSolved", async ({ payload }) => {
+  const result = await fetchData(
+    `${BACKEND_URL}/defects/defects/${payload.defectId}/solve`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        solved: payload.solved,
+      }),
+    }
+  );
+  return result;
+});
+
 resolver.define("createChatSession", async ({ payload }) => {
-  const result = await DefectService.createChatSession({
-    projectKey: payload.projectKey,
-    storyKey: payload.storyKey,
-    userMessage: payload.userMessage,
+  const body = {
+    project_key: payload.projectKey,
+    user_message: payload.userMessage,
+    story_key: payload.storyKey,
+  };
+  const result = await fetchData(`${BACKEND_URL}/defects/chat`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
   });
   return result;
 });
 
 resolver.define("getChatSessionByProjectAndStory", async ({ payload }) => {
-  const result = await DefectService.getChatSessionByProjectAndStory({
-    projectKey: payload.projectKey,
-    storyKey: payload.storyKey,
-  });
+  const result = await fetchData(
+    `${BACKEND_URL}/defects/chat/projects/${payload.projectKey}/stories${
+      payload.storyKey ? "/" + payload.storyKey : ""
+    }`,
+    {
+      method: "GET",
+    }
+  );
   return result;
 });
 
 resolver.define("getChatSession", async ({ payload }) => {
-  const result = await DefectService.getChatSession(payload.sessionId);
+  const result = await fetchData(
+    `${BACKEND_URL}/defects/chat/${payload.sessionId}`,
+    {
+      method: "GET",
+    }
+  );
   return result;
 });
 
 resolver.define("getChatMessagesAfter", async ({ payload }) => {
-  const result = await DefectService.getChatMessagesAfter({
-    sessionId: payload.sessionId,
-    messageId: payload.messageId,
-  });
+  const result = await fetchData(
+    `${BACKEND_URL}/defects/chat/${payload.sessionId}/messages/${payload.messageId}`,
+    {
+      method: "GET",
+    }
+  );
   return result;
 });
 
 resolver.define("postChatMessage", async ({ payload }) => {
-  const result = await DefectService.postChatMessage({
-    sessionId: payload.sessionId,
-    projectKey: payload.projectKey,
-    storyKey: payload.storyKey,
+  const body = {
     message: payload.message,
-  });
+    project_key: payload.projectKey,
+    story_key: payload.storyKey,
+  };
+  const result = await fetchData(
+    `${BACKEND_URL}/defects/chat/${payload.sessionId}/messages`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    }
+  );
   return result;
 });
 

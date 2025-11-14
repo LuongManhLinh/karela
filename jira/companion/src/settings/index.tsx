@@ -10,6 +10,8 @@ import ForgeReconciler, {
   Text,
   TextArea,
   Textfield,
+  SectionMessage,
+  SectionMessageAction,
 } from "@forge/react";
 import SettingsService from "./settingsService";
 import { ProjectSettings } from "./types";
@@ -314,22 +316,16 @@ const Settings = () => {
             marginBottom: "space.400",
           }}
         >
-          <Inline
-            alignInline="center"
-            grow="fill"
-            alignBlock="center"
-            spread="space-between"
+          <SectionMessage
+            appearance={success ? "success" : "error"}
+            actions={[
+              <SectionMessageAction onClick={closeMsg}>
+                Close
+              </SectionMessageAction>,
+            ]}
           >
-            <Text
-              color={success ? "color.text.success" : "color.text.danger"}
-              align="center"
-            >
-              {msg}
-            </Text>
-            <Button onClick={closeMsg} appearance="subtle">
-              ×
-            </Button>
-          </Inline>
+            <Text>{msg}</Text>
+          </SectionMessage>
         </Box>
       )}
       <Stack space="space.400">

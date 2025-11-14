@@ -3,12 +3,9 @@ from typing import List
 
 from database import get_db
 from .services.data_service import DefectDataService
-from .services.run_services import DefectRunService
-from .services.chat_service import DefectChatService
 from .schemas import (
     AnalysisRunRequest,
     AnalysisSummary,
-    AnalysisSummariesResponse,
     AnalysisDetailDto,
     DefectSolvedUpdateRequest,
     ChatSessionCreateRequest,
@@ -18,7 +15,7 @@ from .schemas import (
     ChatMessagesResponse,
 )
 from common.schemas import BasicResponse
-from .tasks import analyze_all_user_stories, analyze_target_user_story
+from .tasks import analyze_all_user_stories, analyze_target_user_story, chat_with_agent
 from common.redis_app import task_queue
 
 router = APIRouter()
@@ -27,12 +24,15 @@ router = APIRouter()
 @router.get("/analyses/{project_key}")
 async def get_analysis_summaries(project_key: str, db=Depends(get_db)):
     summaries = DefectDataService.get_analysis_summaries(db, project_key)
-    return BasicResponse(data=AnalysisSummariesResponse(analyses=summaries))
+    import json
+
+    print("Analysis summaries:\n", json.dumps(summaries, default=str, indent=2))
+    return BasicResponse(data=summaries)
 
 
-@router.get("/analyses/{analysis_id}/detail")
-async def get_analysis_detail(analysis_id: str, db=Depends(get_db)):
-    detail = DefectDataService.get_analysis_detail(db, analysis_id)
+@router.get("/analyses/{analysis_id}/details")
+async def get_analysis_details(analysis_id: str, db=Depends(get_db)):
+    detail = DefectDataService.get_analysis_details(db, analysis_id)
     if detail is None:
         raise HTTPException(status_code=404, detail="Analysis detail not found")
     return BasicResponse(data=detail)
@@ -58,7 +58,7 @@ async def run_analysis(run_req: AnalysisRunRequest, db=Depends(get_db)):
     else:
         raise HTTPException(status_code=400, detail="Unsupported analysis type")
 
-    return BasicResponse(message="Analysis started successfully")
+    return BasicResponse(message="Analysis started successfully", data=analysis_id)
 
 
 @router.get("/analyses/{analysis_id}/status")
@@ -90,26 +90,23 @@ async def create_chat_session(
     create_request: ChatSessionCreateRequest,
     db=Depends(get_db),
 ):
-    session_id = DefectDataService.create_chat_session(
+    session = DefectDataService.create_chat_session(
         db,
-        inital_message=create_request.user_message,
+        project_key=create_request.project_key,
+        story_key=create_request.story_key,
         role="user",
-        project_key=create_request.project_key,
-        story_key=create_request.story_key,
+        initial_message=create_request.user_message,
     )
 
-    DefectChatService.chat(
-        db,
-        session_id=session_id,
-        message=create_request.user_message,
-        project_key=create_request.project_key,
-        story_key=create_request.story_key,
+    task_queue.enqueue(chat_with_agent, session.id)
+
+    return BasicResponse(
+        message="Chat session created successfully",
+        data=session,
     )
 
-    return BasicResponse(message="Chat session created successfully", data=session_id)
 
-
-@router.get("/chat/project/{project_key}/{story_key}")
+@router.get("/chat/projects/{project_key}/stories/{story_key}")
 async def get_chat_session_by_project_and_story(
     project_key: str,
     story_key: str = None,
@@ -139,7 +136,7 @@ async def get_chat_session(
     return BasicResponse(data=session)
 
 
-@router.get("/chat/{session_id}/{message_id}")
+@router.get("/chat/{session_id}/messages/{message_id}")
 async def get_latest_messages_after(
     session_id: str,
     message_id: int,
@@ -153,21 +150,27 @@ async def get_latest_messages_after(
     return BasicResponse(data=messages)
 
 
-@router.post("/chat/{session_id}/message")
+@router.post("/chat/{session_id}/messages")
 async def post_chat_message(
     session_id: str,
     message_request: ChatMessageCreateRequest,
     db=Depends(get_db),
 ):
-    print("Posting message to chat agent with session ID:", session_id)
-    message_id = DefectChatService.chat(
+    print("Posting message to chat agent with content:", message_request.message)
+    message_id, message_created_at = DefectDataService.create_chat_message(
         db,
         session_id=session_id,
-        message=message_request.message,
-        project_key=message_request.project_key,
-        story_key=message_request.story_key,
+        role="user",
+        content=message_request.message,
     )
-    return BasicResponse(message="Message posted successfully", data=message_id)
+    task_queue.enqueue(chat_with_agent, session_id)
+    return BasicResponse(
+        message="Message posted successfully",
+        data={
+            "message_id": message_id,
+            "message_created_at": message_created_at,
+        },
+    )
 
 
 @router.post("/chat/{session_id}/proposals/{proposal_id}/accept")

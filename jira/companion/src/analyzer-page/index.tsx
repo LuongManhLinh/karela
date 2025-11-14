@@ -7,16 +7,21 @@ import ForgeReconciler, {
   ProgressBar,
   Text,
   Icon,
+  Tabs,
+  TabList,
+  TabPanel,
+  Tab,
 } from "@forge/react";
 import HistorySidebar from "./components/HistorySidebar";
-import { AnalysisBrief, AnalysisDetailDto } from "./types/defect";
-import DefectService from "./services/defectService";
+import { AnalysisSummary, AnalysisDetailDto } from "./types/defect";
+import { MockDefectService as DefectService } from "./services/defectService";
 import ProjectService from "./services/projectService";
 import ReportPanel from "./components/ReportPanel";
 import DefectSidebar from "./components/DefectSidebar";
+import { ChatPanel } from "../chat-panel";
 
-const App = () => {
-  const [analysisBriefs, setAnalysisBriefs] = useState<AnalysisBrief[]>([]);
+const AnalyzerPanel = () => {
+  const [analysisBriefs, setAnalysisBriefs] = useState<AnalysisSummary[]>([]);
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const [loadingId, setLoadingId] = useState<string | undefined>(undefined);
   const [analysisDetails, setAnalysisDetails] =
@@ -25,14 +30,10 @@ const App = () => {
 
   const [initLoading, setInitLoading] = useState<boolean>(true);
 
-  const [layoutStyle, setLayoutStyle] = useState<
-    "style1" | "style2" | "style3"
-  >("style1");
-
   const [defaultBoardUrl, setDefaultBoardUrl] = useState<string | null>(null);
 
   const fetchBriefs = () => {
-    DefectService.getAllDefectAnalysisBriefs().then((res) => {
+    DefectService.getAllDefectAnalysisSummaries().then((res) => {
       if (res.data) {
         setAnalysisBriefs(res.data);
         setPolling(false);
@@ -57,7 +58,7 @@ const App = () => {
         console.log("Error fetching project ID:", res.errors);
       }
     });
-    DefectService.getAllDefectAnalysisBriefs().then((res) => {
+    DefectService.getAllDefectAnalysisSummaries().then((res) => {
       if (res.data) {
         setAnalysisBriefs(res.data);
         setPolling(false);
@@ -93,9 +94,8 @@ const App = () => {
     setSelectedId(id);
     console.log("Selected analysis ID:", id);
     DefectService.getDefectAnalysisDetails(id).then((res) => {
-      if (res.data) {
-        setAnalysisDetails(res.data);
-      }
+      setAnalysisDetails(res.data);
+
       setLoadingId(undefined);
     });
     console.log("Loaded analysis details for ID:", id);
@@ -160,7 +160,7 @@ const App = () => {
     </Box>
   );
 
-  const centerPanel = (width: string) => (
+  const rightPanel = (width: string) => (
     <Box
       xcss={{
         width: width,
@@ -170,20 +170,6 @@ const App = () => {
         backgroundColor: "elevation.surface.raised",
         boxShadow: "elevation.shadow.raised",
         borderRadius: "border.radius",
-      }}
-    >
-      <ReportPanel report={analysisDetails ? analysisDetails.summary : ""} />
-    </Box>
-  );
-
-  const rightPanel = (width: string) => (
-    <Box
-      xcss={{
-        overflow: "auto",
-        width: width,
-        height: "680px",
-        paddingRight: "space.200",
-        paddingBottom: "space.400",
       }}
     >
       <DefectSidebar
@@ -201,54 +187,33 @@ const App = () => {
         height: "700px",
         padding: "space.100",
         overflow: "hidden",
+        marginTop: "space.100",
       }}
     >
-      <ButtonGroup>
-        <Button
-          spacing="none"
-          appearance="subtle"
-          onClick={() => setLayoutStyle("style2")}
-        >
-          <Icon glyph="align-image-left" label="Left Style" />
-        </Button>
-        <Button
-          spacing="none"
-          appearance="subtle"
-          onClick={() => setLayoutStyle("style1")}
-        >
-          <Icon glyph="align-image-center" label="Center Style" />
-        </Button>
-        <Button
-          spacing="none"
-          appearance="subtle"
-          onClick={() => setLayoutStyle("style3")}
-        >
-          <Icon glyph="align-image-right" label="Right Style" />
-        </Button>
-      </ButtonGroup>
-
       {initLoading && <ProgressBar value={0} isIndeterminate />}
 
-      {layoutStyle === "style1" && (
-        <Inline space="space.200" alignBlock="stretch" alignInline="stretch">
-          {leftPanel("500px")}
-          {centerPanel("800px")}
-          {rightPanel("100%")}
-        </Inline>
-      )}
-      {layoutStyle === "style2" && (
-        <Inline space="space.200" alignBlock="stretch" alignInline="stretch">
-          {leftPanel("400px")}
-          {rightPanel("100%")}
-        </Inline>
-      )}
-      {layoutStyle === "style3" && (
-        <Inline space="space.200" alignBlock="stretch" alignInline="stretch">
-          {centerPanel("1000px")}
-          {rightPanel("100%")}
-        </Inline>
-      )}
+      <Inline space="space.200" alignBlock="stretch" alignInline="stretch">
+        {leftPanel("400px")}
+        {rightPanel("100%")}
+      </Inline>
     </Box>
+  );
+};
+
+const App = () => {
+  return (
+    <Tabs id="default">
+      <TabList>
+        <Tab>Analyzer</Tab>
+        <Tab>Discovery Coach</Tab>
+      </TabList>
+      <TabPanel>
+        <AnalyzerPanel />
+      </TabPanel>
+      <TabPanel>
+        <ChatPanel />
+      </TabPanel>
+    </Tabs>
   );
 };
 

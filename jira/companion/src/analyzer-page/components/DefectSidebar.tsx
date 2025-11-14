@@ -78,11 +78,11 @@ const DefectItem = ({
             Suggested Fix
           </Text>
 
-          <Text>{defect.suggestedFix}</Text>
+          <Text>{defect.suggested_fix}</Text>
         </Box>
         <Inline alignBlock="center" alignInline="center" spread="space-between">
           <TagGroup>
-            {defect.workItemIds.map((item) => (
+            {defect.work_item_keys.map((item) => (
               <Tag text={item} href={getIssueLink(item)} color="tealLight" />
             ))}
           </TagGroup>

@@ -9,6 +9,7 @@ uvicorn
 langchain
 langgraph
 langchain-google-genai
+langchain-openai
 pydantic
 pymysql
 html2text

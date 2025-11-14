@@ -14,14 +14,6 @@ class AnalysisSummary(BaseModel):
     )
 
 
-class AnalysisSummariesResponse(BaseModel):
-    analyses: List[AnalysisSummary]
-
-    model_config = ConfigDict(
-        extra="ignore",
-    )
-
-
 class DefectDto(BaseModel):
     id: str
     type: Optional[str] = None
@@ -57,11 +49,9 @@ class AnalysisDto(AnalysisSummary):
 
 
 class AnalysisRunRequest(BaseModel):
-    project_key: str = Field(..., description="The key of the project to analyze")
-    analysis_type: str = Field(..., description="The type of analysis to perform")
-    target_story_key: Optional[str] = Field(
-        None, description="The key of the target user story for targeted analysis"
-    )
+    project_key: str
+    analysis_type: Optional[Literal["ALL", "TARGETED"]] = "ALL"
+    target_story_key: Optional[str] = None
 
     model_config = ConfigDict(
         extra="ignore",
@@ -88,16 +78,19 @@ class ChatSessionCreateRequest(BaseModel):
 
 
 class ChatMessageDto(BaseModel):
-    id: str
+    id: int
     role: Literal["user", "ai", "system", "tool", "analysis_progress"]
     content: str
     created_at: str
 
-    analysis_id: Optional[str] = None
-
     model_config = ConfigDict(
         extra="ignore",
     )
+
+
+class AnalysisProgressMessageDto(ChatMessageDto):
+    analysis_id: str
+    status: str
 
 
 class ChatProposalContentDto(BaseModel):
