@@ -1,0 +1,235 @@
+from sqlalchemy.orm import Session
+from langchain_core.messages import (
+    AIMessage,
+    HumanMessage,
+    ToolMessage,
+    AIMessageChunk,
+)
+
+from ..agents.agent import chat_with_agent, stream_with_agent
+
+from ..models import (
+    ChatSession,
+    SenderRole,
+    Message,
+)
+from ..schemas import MessageChunk
+from common.database import uuid_generator
+from .sesison_cache import SESSION_CACHE
+
+
+from sqlalchemy.orm import Session
+
+
+from typing import List, Optional, Iterator
+from datetime import datetime
+import json
+
+_langchain_message_dict = {
+    HumanMessage: SenderRole.USER,
+    AIMessage: SenderRole.AGENT,
+    ToolMessage: SenderRole.TOOL,
+}
+
+
+def _convert_langchain_message_to_orm(message, session_id) -> Message:
+    return Message(
+        role=_langchain_message_dict.get(type(message), SenderRole.USER),
+        content=message.content,
+        session_id=session_id,
+    )
+
+
+class ChatService:
+    @staticmethod
+    def chat_polling(db: Session, session_id: str):
+
+        session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
+        if not session:
+            raise ValueError(f"Chat session with id '{session_id}' not found.")
+
+        try:
+            messages = []
+            for msg in session.messages:
+                if msg.role == SenderRole.USER:
+                    messages.append(HumanMessage(content=msg.content))
+                elif msg.role == SenderRole.AGENT:
+                    messages.append(AIMessage(content=msg.content))
+                elif msg.role == SenderRole.TOOL:
+                    messages.append(
+                        ToolMessage(content=msg.content, tool_call_id=msg.id)
+                    )
+
+            project_key = session.project_key
+            story_key = session.story_key
+
+            response = chat_with_agent(
+                messages=messages,
+                session_id=session_id,
+                db_session=db,
+                project_key=project_key,
+                story_key=story_key,
+            )
+
+            # response["messages"] includes old messages, so we only add the new ones
+            new_messages = response["messages"][len(messages) :]
+            for msg in new_messages:
+                db.add(_convert_langchain_message_to_orm(msg, session_id))
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            error_message = Message(
+                role=SenderRole.ERROR,
+                content=f"An error occurred during chat processing: {str(e)}",
+                session_id=session_id,
+            )
+            db.add(error_message)
+
+        finally:
+            db.commit()
+
+    async def stream(db: Session, session_id: str, user_message: str):
+        session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
+        if not session:
+            raise ValueError(f"Chat session with id '{session_id}' not found.")
+
+        new_message = Message(
+            role=SenderRole.USER,
+            content=user_message,
+            session_id=session_id,
+            created_at=datetime.now(),
+        )
+
+        db.add(new_message)
+        db.commit()
+
+        cache = {}
+
+        try:
+            print("Preparing history messages for agent...")
+            history_messages = []
+            for msg in session.messages:
+                if msg.role == SenderRole.USER:
+                    history_messages.append(HumanMessage(content=msg.content))
+                elif msg.role == SenderRole.AGENT:
+                    history_messages.append(AIMessage(content=msg.content))
+                elif msg.role == SenderRole.TOOL:
+                    history_messages.append(
+                        ToolMessage(content=msg.content, tool_call_id=msg.id)
+                    )
+            history_messages.append(HumanMessage(content=user_message))
+            project_key = session.project_key
+            story_key = session.story_key
+            print("Starting streaming response from agent...")
+            for chunk, _ in stream_with_agent(
+                messages=history_messages,
+                session_id=session_id,
+                db_session=db,
+                project_key=project_key,
+                story_key=story_key,
+            ):
+
+                msg_chunk = MessageChunk(
+                    id=chunk.id,
+                )
+
+                yield_after = None
+
+                if isinstance(chunk, AIMessageChunk):
+                    fn_call = chunk.additional_kwargs.get("function_call")
+                    if fn_call:
+                        msg_chunk.role = "agent_function_call"
+                        msg_chunk.content = fn_call.get("name")
+                    else:
+                        msg_chunk.role = "agent"
+                        msg_chunk.content = chunk.content
+                else:
+                    msg_chunk.role = "tool"
+                    msg_chunk.content = chunk.content
+                    yield_after = ChatService._additional_from_tool_msg(msg_chunk)
+
+                yield {"type": "message", "data": msg_chunk.model_dump_json()}
+
+                if yield_after:
+                    yield yield_after
+
+                stored_chunk = cache.get(msg_chunk.id)
+                if stored_chunk:
+                    stored_chunk["data"].content += msg_chunk.content
+                else:
+                    cache[msg_chunk.id] = {
+                        "data": msg_chunk,
+                        "created_at": datetime.now(),
+                    }
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            err_id = uuid_generator()
+            cache[err_id] = {
+                "data": MessageChunk(
+                    id=err_id,
+                    content=f"An error occurred during chat processing: {str(e)}",
+                    role="error",
+                ),
+                "created_at": datetime.now(),
+            }
+
+        finally:
+            SESSION_CACHE[session_id] = cache
+
+    @staticmethod
+    def _additional_from_tool_msg(tool_msg: ToolMessage):
+        try:
+            match tool_msg.name:
+                case "propose_creating_stories" | "propose_modifying_stories":
+                    payload = json.loads(tool_msg.content)
+                    return {"type": "proposal", "data": payload["propose_id"]}
+                case "show_analysis_progress_in_chat":
+                    payload = json.loads(tool_msg.content)
+                    return {
+                        "type": "proposal",
+                        "data": MessageChunk(
+                            id=uuid_generator(),
+                            role="analysis_progress",
+                            content=payload["analysis_id"],
+                        ).model_dump_json(),
+                    }
+
+        except:
+            return None
+        finally:
+            return None
+
+    @staticmethod
+    def persist(db: Session, session_id: str):
+        cache = SESSION_CACHE.get(session_id)
+        if not cache:
+            return
+
+        session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
+        if not session:
+            raise ValueError(f"Chat session with id '{session_id}' not found.")
+
+        try:
+            for item in cache.values():
+                msg_chunk: MessageChunk = item["data"]
+                orm_message = Message(
+                    id=msg_chunk.id,
+                    content=msg_chunk.content,
+                    session_id=session_id,
+                    created_at=item["created_at"],
+                )
+                if msg_chunk.role == "agent":
+                    orm_message.role = SenderRole.AGENT
+                elif msg_chunk.role == "agent_function_call":
+                    orm_message.role = SenderRole.AGENT_FUNCTION_CALL
+                elif msg_chunk.role == "tool":
+                    orm_message.role = SenderRole.TOOL
+                else:  # Default to error
+                    orm_message.role = SenderRole.ERROR
+
+                db.add(orm_message)
+
+        finally:
+            db.commit()
+            del SESSION_CACHE[session_id]

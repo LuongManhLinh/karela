@@ -9,7 +9,7 @@ time.sleep(1)
 
 # Start FastAPI with Uvicorn
 uvicorn_process = subprocess.Popen(
-    ["uvicorn", "main:app", "--reload", "--port", "8080"]
+    ["uvicorn", "main:app", "--reload", "--port", "8000"]
 )
 
 try:

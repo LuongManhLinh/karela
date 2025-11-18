@@ -1,5 +1,3 @@
-from .client import JiraApiClient
-
 from .schemas import (
     Project,
     IssueType,

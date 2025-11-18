@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional, Any, List
 import re
+from enum import Enum
 
 
 def to_camel(s: str) -> str:
@@ -13,6 +14,11 @@ class CamelModel(BaseModel):
 
 
 class BasicResponse(BaseModel):
-    message: Optional[str] = None
+    detail: Optional[str] = None
     data: Optional[Any] = None
     errors: Optional[List[Any]] = None
+
+
+class Platform(str, Enum):
+    JIRA = "JIRA"
+    AZURE_DEVOPS = "AZURE_DEVOPS"

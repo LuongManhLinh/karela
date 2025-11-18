@@ -1,7 +1,6 @@
 from typing import Any, Dict, List, Optional
 from enum import Enum
 from pydantic import BaseModel, Field, ConfigDict
-from common.schemas import CamelModel
 
 
 class Project(BaseModel):
@@ -127,5 +126,41 @@ class IssueUpdate(BaseModel):
     )
 
 
-class IssuesCreateRequest(CamelModel):
+class IssuesCreateRequest(BaseModel):
     issue_updates: List[IssueUpdate] = Field(default_factory=list, alias="issueUpdates")
+
+
+class ExchangeAutorizationCodeResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    expires_in: int
+    token_type: str
+    scope: Optional[str] = None
+
+    model_config = ConfigDict(
+        extra="ignore",
+    )
+
+
+class JiraCloudInfoResponse(BaseModel):
+    id: str
+    name: Optional[str] = None
+    url: Optional[str] = None
+    scopes: Optional[List[str]] = None
+    avatarUrl: Optional[str] = None
+
+    model_config = ConfigDict(
+        extra="ignore",
+    )
+
+
+class JiraConnectionDto(BaseModel):
+    id: str
+    cloud_id: str
+    name: Optional[str] = None
+    url: Optional[str] = None
+    avatar_url: Optional[str] = None
+
+    model_config = ConfigDict(
+        extra="ignore",
+    )

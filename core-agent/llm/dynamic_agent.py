@@ -6,7 +6,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import BaseMessage
 from pydantic import BaseModel
 import random
-from typing import Callable, List, Dict, Any
+from typing import Callable, Iterator, List, Dict, Any
 
 from utils.json_processor import schema_without_titles
 from .dynamic_llm import LogCallback
@@ -88,6 +88,42 @@ class GenimiDynamicAgent:
             *args,
             **kwargs,
         )
+
+    def _run_stream_with_retries(self, fn, *args, **kwargs) -> Iterator:
+        attempts = 0
+        last_exception = None
+
+        while attempts < self.max_retries:
+            try:
+                # return a *fresh generator* every attempt
+                return fn(*args, **kwargs)
+            except Exception as e:
+                attempts += 1
+                last_exception = e
+                print(f"[Stream Error] Attempt {attempts}: {e}")
+
+                if (
+                    attempts >= self.max_retries
+                    or self.errors_to_retry is not None
+                    and not isinstance(e, self.errors_to_retry)
+                ):
+                    raise last_exception
+
+                self._rotate_api_key()
+
+        raise RuntimeError("Max retries exceeded in stream")
+
+    def stream(self, messages: List[BaseMessage] | List[Dict], *args, **kwargs) -> Iterator:
+        stream_gen = self._run_stream_with_retries(
+            self.agent.stream,
+            {"messages": messages},
+            *args,
+            **kwargs,
+        )
+
+        # stream the chunks while handling mid-stream failure
+        for chunk in stream_gen:
+            yield chunk
 
 
 class OpenRouterDynamicAgent:

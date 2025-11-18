@@ -1,6 +1,6 @@
 from rq import Queue
 from redis import Redis
-from config import RedisConfig
+from common.configs import RedisConfig
 
 redis_conn = Redis(
     host=RedisConfig.REDIS_HOST,

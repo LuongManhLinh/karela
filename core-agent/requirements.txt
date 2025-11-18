@@ -15,6 +15,8 @@ pymysql
 html2text
 rq
 redis
+argon2-cffi
+PyJWT
 
 nltk
 sentence-transformers
