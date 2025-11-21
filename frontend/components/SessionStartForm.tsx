@@ -7,9 +7,7 @@ import {
   Button,
   Box,
   MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
+  Autocomplete,
   Typography,
   Stack,
 } from "@mui/material";
@@ -20,75 +18,34 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 interface SessionStartFormProps {
-  onSubmit: (data: {
-    connectionId: string;
-    projectKey: string;
-    storyKey?: string;
-    userMessage?: string;
-  }) => void;
-  onConnectionChange?: (connectionId: string) => void;
+  connectionId: string;
+  connections: JiraConnectionDto[];
+  onConnectionChange: (connectionId: string) => void;
+  projectKey: string;
+  projectKeys: string[];
+  onProjectKeyChange: (projectKey: string) => void;
+  storyKey?: string;
+  storyKeys: string[];
+  onStoryKeyChange: (storyKey: string) => void;
+  onSubmit: () => void;
   loading?: boolean;
   submitLabel?: string;
-  showMessageField?: boolean;
 }
 
 export const SessionStartForm: React.FC<SessionStartFormProps> = ({
-  onSubmit,
+  connectionId,
+  connections,
   onConnectionChange,
-  loading = false,
-  submitLabel = "Start",
-  showMessageField = false,
+  projectKey,
+  projectKeys,
+  onProjectKeyChange,
+  storyKey,
+  storyKeys,
+  onStoryKeyChange,
+  onSubmit,
+  loading,
+  submitLabel,
 }) => {
-  const [connections, setConnections] = useState<JiraConnectionDto[]>([]);
-  const [connectionId, setConnectionId] = useState("");
-  const [projectKey, setProjectKey] = useState("");
-  const [storyKey, setStoryKey] = useState("");
-  const [userMessage, setUserMessage] = useState("");
-  const [loadingConnections, setLoadingConnections] = useState(true);
-
-  useEffect(() => {
-    loadConnections();
-  }, []);
-
-  const router = useRouter();
-
-  const loadConnections = async () => {
-    try {
-      const response = await userService.getUserConnections();
-      if (response.data) {
-        const jiraConnections = response.data.jira_connections || [];
-        setConnections(jiraConnections);
-        if (jiraConnections.length > 0) {
-          const firstId = jiraConnections[0].id;
-          setConnectionId(firstId);
-          if (onConnectionChange) {
-            onConnectionChange(firstId);
-          }
-        }
-      }
-    } catch (err) {
-      console.error("Failed to load connections:", err);
-    } finally {
-      setLoadingConnections(false);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (connectionId && projectKey) {
-      onSubmit({
-        connectionId,
-        projectKey,
-        storyKey: storyKey || undefined,
-        userMessage: showMessageField ? userMessage || undefined : undefined,
-      });
-    }
-  };
-
-  if (loadingConnections) {
-    return <LoadingSpinner />;
-  }
-
   if (connections.length === 0) {
     // No connnections available, add a link to /profile to set up connections
     return (
@@ -114,72 +71,97 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
   }
 
   return (
-    <Box component="form" onSubmit={handleSubmit}>
-      <FormControl fullWidth margin="normal" required>
-        <InputLabel>Connection</InputLabel>
-        <Select
-          value={connectionId}
-          onChange={(e) => {
-            setConnectionId(e.target.value);
-            console.log("Selected connection ID:", e.target.value);
-            if (onConnectionChange) {
-              onConnectionChange(e.target.value);
-            }
-          }}
-          label="Connection"
-          disabled={loading}
-        >
-          {connections.map((conn) => (
-            <MenuItem value={conn.id} key={conn.id}>
-              <Box sx={{ display: "flex", alignItems: "center", px: 1 }}>
-                {/* Example 1: Using a local image */}
-                <img
-                  src={conn.avatar_url}
-                  alt="icon"
-                  style={{ width: 20, height: 20, marginRight: 10 }}
-                />
-                {conn.name || conn.id}
-              </Box>
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <TextField
+    <Box>
+      <Autocomplete
         fullWidth
-        margin="normal"
-        required
-        label="Project Key"
-        value={projectKey}
-        onChange={(e) => setProjectKey(e.target.value)}
+        options={connections}
+        value={connections.find((conn) => conn.id === connectionId) || null}
+        onChange={(event, newValue) => {
+          onConnectionChange(newValue?.id || "");
+        }}
+        getOptionLabel={(option) => option.name || option.id}
+        isOptionEqualToValue={(option, value) => option.id === value.id}
         disabled={loading}
+        renderInput={(params) => (
+          <TextField {...params} label="Connection" required margin="normal" />
+        )}
+        renderOption={(props, option) => (
+          <li {...props} key={option.id}>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <img
+                src={option.avatar_url}
+                alt="icon"
+                style={{ width: 20, height: 20, marginRight: 10 }}
+              />
+              {option.name || option.id}
+            </Box>
+          </li>
+        )}
+        filterOptions={(options, { inputValue }) => {
+          if (!inputValue) return options;
+          const searchValue = inputValue.toLowerCase();
+          return options.filter((option) => {
+            const label = (option.name || option.id).toLowerCase();
+            return label.startsWith(searchValue);
+          });
+        }}
       />
-      <TextField
+      <Autocomplete
         fullWidth
-        margin="normal"
-        label="Story Key (Optional)"
-        value={storyKey}
-        onChange={(e) => setStoryKey(e.target.value)}
+        options={projectKeys}
+        value={projectKey || null}
+        onChange={(event, newValue) => {
+          onProjectKeyChange(newValue || "");
+        }}
         disabled={loading}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Project Key"
+            required
+            margin="normal"
+            sx={{ minWidth: 120 }}
+          />
+        )}
+        filterOptions={(options, { inputValue }) => {
+          if (!inputValue) return options;
+          const searchValue = inputValue.toLowerCase();
+          return options.filter((key) =>
+            key.toLowerCase().startsWith(searchValue)
+          );
+        }}
       />
-      {showMessageField && (
-        <TextField
-          fullWidth
-          margin="normal"
-          label="Initial Message"
-          multiline
-          rows={3}
-          value={userMessage}
-          onChange={(e) => setUserMessage(e.target.value)}
-          disabled={loading}
-          placeholder="Enter your initial message to start the chat..."
-        />
-      )}
+      <Autocomplete
+        fullWidth
+        options={storyKeys}
+        value={storyKey || null}
+        onChange={(event, newValue) => {
+          onStoryKeyChange(newValue || "");
+        }}
+        disabled={loading}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Story Key (Optional)"
+            margin="normal"
+            sx={{ minWidth: 150 }}
+          />
+        )}
+        filterOptions={(options, { inputValue }) => {
+          if (!inputValue) return options;
+          const searchValue = inputValue.toLowerCase();
+          return options.filter((key) =>
+            key.toLowerCase().startsWith(searchValue)
+          );
+        }}
+      />
       <Button
         type="submit"
         variant="contained"
         fullWidth
         sx={{ mt: 2 }}
         disabled={loading || !connectionId || !projectKey}
+        onClick={onSubmit}
       >
         {loading ? <LoadingSpinner size={24} /> : submitLabel}
       </Button>

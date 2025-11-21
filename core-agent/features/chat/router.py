@@ -85,7 +85,7 @@ async def websocket_chat(websocket: WebSocket):
         async for chunk_dict in ChatService.stream(
             db=db, session_id=session_id, user_message=user_message
         ):
-            print(f"Sending chunk: {chunk_dict}")
+            print(f"Sending chunk: {chunk_dict['data']}")
             await asyncio.sleep(0.5)
             await websocket.send_json(chunk_dict)
 
@@ -95,7 +95,7 @@ async def websocket_chat(websocket: WebSocket):
     finally:
         await websocket.close()
         if db and session_id:
-            ChatService.persist(db=db, session_id=session_id)
+            ChatService.persist_messages(db=db, session_id=session_id)
 
 
 @router.get("/")

@@ -214,3 +214,76 @@ class JiraClient:
         )
 
         return resp["value"]
+
+    @staticmethod
+    def fetch_project_keys(
+        cloud_id: str,
+        access_token: str,
+    ) -> List[str]:
+        """Fetch all project keys from Jira
+
+        Args:
+            cloud_id (str): Jira cloud ID
+            access_token (str): OAuth2 access token
+
+        Returns:
+            List[str]: List of project keys
+        """
+        url = API_BASE.format(cloud_id=cloud_id) + "/project/search"
+        params = {
+            "maxResults": "1000",
+        }
+        resp = requests.get(
+            url, headers=_get_auth_header(access_token), params=params, timeout=60
+        )
+        if not resp.ok:
+            try:
+                detail = resp.text
+            except Exception:
+                detail = ""
+            raise RuntimeError(
+                f"Jira fetch projects failed: {resp.status_code} {resp.reason} {detail}"
+            )
+
+        json_data = resp.json()
+        projects = json_data.get("values", [])
+        return [project["key"] for project in projects]
+
+    @staticmethod
+    def fetch_story_keys(
+        cloud_id: str,
+        access_token: str,
+        project_key: str,
+    ) -> List[str]:
+        """Fetch all story issue keys for a specific project
+
+        Args:
+            cloud_id (str): Jira cloud ID
+            access_token (str): OAuth2 access token
+            project_key (str): The project key to fetch stories from
+
+        Returns:
+            List[str]: List of story issue keys
+        """
+        url = API_BASE.format(cloud_id=cloud_id) + "/search/jql"
+        jql = f'project = "{project_key}" AND issuetype = "Story" ORDER BY created ASC'
+        params = {
+            "jql": jql,
+            "fields": "key",
+            "maxResults": "1000",
+        }
+        resp = requests.get(
+            url, headers=_get_auth_header(access_token), params=params, timeout=60
+        )
+        if not resp.ok:
+            try:
+                detail = resp.text
+            except Exception:
+                detail = ""
+            raise RuntimeError(
+                f"Jira fetch story keys failed: {resp.status_code} {resp.reason} {detail}"
+            )
+
+        json_data = resp.json()
+        issues = json_data.get("issues", [])
+        return [issue["key"] for issue in issues]

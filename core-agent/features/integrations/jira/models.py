@@ -11,9 +11,9 @@ class JiraConnection(Base):
 
     id = Column(String(64), primary_key=True, default=uuid_generator)
     token = Column(LONGBLOB, nullable=False)
-    token_iv = Column(BINARY(16), nullable=False)
+    token_iv = Column(BINARY(12), nullable=False)
     refresh_token = Column(LONGBLOB, nullable=False)
-    refresh_token_iv = Column(BINARY(16), nullable=False)
+    refresh_token_iv = Column(BINARY(12), nullable=False)
 
     cloud_id = Column(String(64), index=True, nullable=False)
     name = Column(String(128), nullable=True)

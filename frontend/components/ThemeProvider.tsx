@@ -102,7 +102,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
           contained: {
             background:
               mode === "light"
-                ? "linear-gradient(135deg,rgb(200, 206, 235) 0%,rgb(204, 177, 234) 100%)"
+                ? "linear-gradient(135deg,rgb(179, 188, 236) 0%,rgb(183, 146, 224) 100%)"
                 : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
             "&:hover": {
               background:
@@ -110,6 +110,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
                   ? "linear-gradient(135deg, #5a6fd8 0%, #6a3f92 100%)"
                   : "linear-gradient(135deg, #5a6fd8 0%, #6a3f92 100%)",
             },
+            ":disabled": {
+              background:
+                mode === "light"
+                  ? "linear-gradient(135deg,rgb(125, 143, 234) 0%,rgb(193, 149, 233) 100%)"
+                  : "linear-gradient(135deg,rgb(48, 60, 118) 0%,rgb(58, 35, 80) 100%)",
+            },
+            color: mode === "light" ? "#1a202c" : "#f7fafc",
           },
         },
       },

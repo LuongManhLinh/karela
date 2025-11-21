@@ -1,9 +1,9 @@
 # router.py
 from fastapi import APIRouter, Request, Depends, HTTPException
-from fastapi.responses import HTMLResponse, FileResponse
-from fastapi.responses import RedirectResponse
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 import httpx
+import traceback
 
 from common.database import get_db
 from common.fastapi_router import get_jwt_payload
@@ -50,15 +50,21 @@ async def oauth_callback(request: Request, db: Session = Depends(get_db)):
         code = request.query_params.get("code")
         user_id = request.query_params.get("state")
 
-        JiraService.save_connection(
+        code = JiraService.save_connection(
             db=db,
             user_id=user_id,
             code=code,
         )
-        return FileResponse("resources/pages/jira_oauth_success.html")
+        if code == 1:
+            return FileResponse("resources/pages/jira_oauth_success.html")
+        elif code == 2:
+            return FileResponse("resources/pages/jira_oauth_update.html")
+        else:
+            return FileResponse("resources/pages/jira_oauth_failure.html")
 
     except Exception as e:
         print("Error during Jira OAuth callback:", str(e))
+        traceback.print_exc()
         return FileResponse("resources/pages/jira_oauth_failure.html")
 
 

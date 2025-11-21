@@ -13,6 +13,7 @@ TASK DETAILS:
 
 OUTPUT RULES:
 - If no defects are found, return an empty "defects" array.
+- Do not include stories that were not involved in any defects.
 - Follow the response format strictly.
 """
 
@@ -31,5 +32,6 @@ TASK DETAILS:
 
 OUTPUT RULES:
 - If no defects are found, return an empty "defects" array.
+- Do not include stories that were not involved in any defects.
 - Follow the response format strictly.
 """

@@ -1,4 +1,4 @@
-from integrations.jira.schemas import IssuesCreateRequest
+from features.integrations.jira.schemas import IssuesCreateRequest
 from sqlalchemy.orm import Session
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from ..models import (
@@ -15,10 +15,9 @@ from ..schemas import (
     ChatProposalDto,
     ChatMessageDto,
     ChatSessionDto,
-    AnalysisProgressMessageContent,
     ChatSessionSummary,
 )
-from integrations import get_platform_service
+from features.integrations import get_platform_service
 from common.database import uuid_generator
 from utils.markdown_adf_bridge.markdown_adf_bridge import adf_to_md, md_to_adf
 
@@ -105,23 +104,13 @@ class ChatDataService:
     def _get_chat_session_dto(db: Session, chat_session: ChatSession) -> ChatSessionDto:
         messages = []
         for message in chat_session.messages:
-            if message.analysis_id:
-                msg_dto = ChatMessageDto(
-                    id=message.id,
-                    role=message.role.value,
-                    content=AnalysisProgressMessageContent(
-                        analysis_id=message.analysis_id,
-                        status=message.analysis.status.value,
-                    ),
-                    created_at=message.created_at.isoformat(),
-                )
-            else:
-                msg_dto = ChatMessageDto(
-                    id=message.id,
-                    role=message.role.value,
-                    content=message.content,
-                    created_at=message.created_at.isoformat(),
-                )
+            msg_dto = ChatMessageDto(
+                id=message.id,
+                role=message.role.value,
+                content=message.content,
+                created_at=message.created_at.isoformat(),
+            )
+
             messages.append(msg_dto)
 
         return ChatSessionDto(
@@ -175,7 +164,7 @@ class ChatDataService:
 
     @staticmethod
     def propose_modifying_stories(
-        db: Session, project_key: str, session_id: str, modifications: list[dict]
+        db: Session, session_id: str, project_key: str, modifications: list[dict]
     ):
         keys = []
         contents = []
@@ -276,7 +265,7 @@ class ChatDataService:
 
     @staticmethod
     def propose_creating_stories(
-        db: Session, project_key: str, stories: list[dict]
+        db: Session, session_id: str, project_key: str, stories: list[dict]
     ) -> List[str]:
         content = []
         for story in stories:
@@ -293,6 +282,7 @@ class ChatDataService:
         id = uuid_generator()
         proposal = StoryChangeProposal(
             id=id,
+            session_id=session_id,
             project_key=project_key,
             type=ProposalType.CREATE,
             contents=content,
@@ -426,9 +416,7 @@ class ChatDataService:
     def create_analysis_progress_message(
         db: Session, session_id: str, analysis_id: str
     ):
-        id = uuid_generator()
         message = Message(
-            id=id,
             session_id=session_id,
             role=SenderRole.ANALYSIS_PROGRESS,
             content="",

@@ -139,25 +139,3 @@ class DefectWorkItemId(Base):
     key = Column(String(32), nullable=False, index=True)
 
     defect = relationship("Defect", back_populates="work_item_ids")
-
-
-class Settings(Base):
-    __tablename__ = "settings"
-
-    id = Column(String(64), primary_key=True, index=True, default=uuid_generator)
-    connection_id = Column(String(64), nullable=False, index=True)
-    project_key = Column(String(32), index=True, nullable=False)
-    product_vision = Column(Text, nullable=True)
-    product_scope = Column(Text, nullable=True)
-    current_sprint_goals = Column(Text, nullable=True)
-    glossary = Column(Text, nullable=True)
-    additional_docs = Column(JSON, nullable=True)
-
-    llm_guidelines = Column(Text, nullable=True)
-
-    last_updated = Column(
-        DATETIME(fsp=2),
-        server_default=text("CURRENT_TIMESTAMP(2)"),
-        nullable=False,
-        onupdate=text("CURRENT_TIMESTAMP(2)"),
-    )

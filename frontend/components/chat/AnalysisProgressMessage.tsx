@@ -1,53 +1,77 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Box, LinearProgress, Typography, Chip, useTheme } from "@mui/material";
+import {
+  Box,
+  LinearProgress,
+  Typography,
+  Chip,
+  Paper,
+  useTheme,
+  Button,
+  Stack,
+} from "@mui/material";
 import { Analytics } from "@mui/icons-material";
 import { defectService } from "@/services/defectService";
-import type { ChatMessageDto, AnalysisProgressMessageContent } from "@/types";
+import type { ChatMessageDto } from "@/types";
 
 interface AnalysisProgressMessageProps {
   message: ChatMessageDto;
 }
 
-export const AnalysisProgressMessage: React.FC<AnalysisProgressMessageProps> = ({
-  message,
-}) => {
+export const AnalysisProgressMessage: React.FC<
+  AnalysisProgressMessageProps
+> = ({ message }) => {
   const theme = useTheme();
-  const content = message.content as AnalysisProgressMessageContent;
-  const [status, setStatus] = useState(content.status);
-  const [polling, setPolling] = useState(
-    content.status === "PENDING" || content.status === "IN_PROGRESS"
-  );
+
+  const analysisId = message.content;
+
+  const [status, setStatus] = useState("");
+  const [polling, setPolling] = useState(false);
+
+  useEffect(() => {
+    defectService.getAnalysisStatus(analysisId).then((response) => {
+      if (response.data) {
+        console.log("Status response:", response.data);
+        setStatus(response.data || "");
+        if (response.data === "PENDING" || response.data === "IN_PROGRESS") {
+          setPolling(true);
+        }
+      }
+    });
+  }, []);
 
   useEffect(() => {
     if (!polling) return;
 
     const pollInterval = setInterval(async () => {
       try {
-        const response = await defectService.getAnalysisStatus(content.analysis_id);
+        const response = await defectService.getAnalysisStatus(analysisId);
         if (response.data) {
-          const newStatus = response.data.status;
+          const newStatus = response.data;
           setStatus(newStatus);
 
-          if (newStatus === "COMPLETED" || newStatus === "FAILED") {
+          if (newStatus === "DONE" || newStatus === "FAILED") {
             setPolling(false);
             clearInterval(pollInterval);
           }
+        } else {
+          setPolling(false);
+          clearInterval(pollInterval);
         }
       } catch (err) {
         console.error("Failed to poll analysis status:", err);
         setPolling(false);
         clearInterval(pollInterval);
       }
-    }, 5000); // Poll every 5 seconds
+    }, 2000);
 
     return () => clearInterval(pollInterval);
-  }, [polling, content.analysis_id]);
+  }, [polling, analysisId]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "COMPLETED":
+      case "DONE":
         return "success";
       case "IN_PROGRESS":
         return "info";
@@ -65,29 +89,28 @@ export const AnalysisProgressMessage: React.FC<AnalysisProgressMessageProps> = (
   return (
     <Box
       sx={{
-        my: 3,
         display: "flex",
         justifyContent: "center",
         width: "100%",
+        mb: 2,
       }}
     >
       <Paper
         elevation={2}
         sx={{
-          p: 3,
-          borderRadius: 3,
-          maxWidth: "85%",
+          p: 2,
+          borderRadius: 1,
           width: "100%",
           bgcolor: "background.paper",
           boxShadow: "0 4px 16px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
           <Box
             sx={{
-              p: 1.5,
+              p: 0.75,
               borderRadius: 2,
-              bgcolor: theme.palette.mode === "light" ? "#f0f4ff" : "#2d3748",
+              bgcolor: theme.palette.mode === "light" ? "#e0e7ff" : "#2d3748",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -95,13 +118,12 @@ export const AnalysisProgressMessage: React.FC<AnalysisProgressMessageProps> = (
           >
             <Analytics
               sx={{
-                color: theme.palette.primary.main,
                 fontSize: 28,
               }}
             />
           </Box>
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
+          <Stack direction={"row"} alignItems="center" spacing={2}>
+            <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
               Analysis Progress
             </Typography>
             <Chip
@@ -110,7 +132,7 @@ export const AnalysisProgressMessage: React.FC<AnalysisProgressMessageProps> = (
               color={getStatusColor(status)}
               sx={{ borderRadius: 1.5 }}
             />
-          </Box>
+          </Stack>
         </Box>
         {isInProgress && (
           <LinearProgress
@@ -135,10 +157,9 @@ export const AnalysisProgressMessage: React.FC<AnalysisProgressMessageProps> = (
             mt: 1,
           }}
         >
-          ID: {content.analysis_id}
+          ID: {analysisId}
         </Typography>
       </Paper>
     </Box>
   );
-}
-
+};

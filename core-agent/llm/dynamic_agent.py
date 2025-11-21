@@ -61,11 +61,12 @@ class GenimiDynamicAgent:
 
     def _rotate_api_key(self):
         self._api_key_index = (self._api_key_index + 1) % len(self.api_keys)
-        self.model.open = self.api_keys[self._api_key_index]
+        self.model.google_api_key = self.api_keys[self._api_key_index]
         print(f"Rotated to API key index: {self._api_key_index}")
 
     def _run_with_retries(self, fn, *args, **kwargs):
         attempts = 0
+        print("Current API key index:", self._api_key_index)
         while attempts < self.max_retries:
             try:
                 return fn(*args, **kwargs)
@@ -113,7 +114,9 @@ class GenimiDynamicAgent:
 
         raise RuntimeError("Max retries exceeded in stream")
 
-    def stream(self, messages: List[BaseMessage] | List[Dict], *args, **kwargs) -> Iterator:
+    def stream(
+        self, messages: List[BaseMessage] | List[Dict], *args, **kwargs
+    ) -> Iterator:
         stream_gen = self._run_stream_with_retries(
             self.agent.stream,
             {"messages": messages},

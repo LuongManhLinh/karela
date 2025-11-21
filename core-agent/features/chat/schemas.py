@@ -24,15 +24,10 @@ class ChatSessionCreateRequest(BaseModel):
     )
 
 
-class AnalysisProgressMessageContent(BaseModel):
-    analysis_id: str
-    status: str
-
-
 class ChatMessageDto(BaseModel):
     id: str
     role: MessageRole
-    content: Union[str, AnalysisProgressMessageContent]
+    content: str
     created_at: str
 
     model_config = ConfigDict(
@@ -41,7 +36,7 @@ class ChatMessageDto(BaseModel):
 
 
 class ChatProposalContentDto(BaseModel):
-    story_key: str  # The key of the User Story (Jira Issue)
+    story_key: Optional[str]  # The key of the User Story (Jira Issue)
     summary: Optional[str]
     description: Optional[str]
 

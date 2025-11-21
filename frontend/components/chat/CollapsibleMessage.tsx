@@ -39,7 +39,7 @@ export const CollapsibleMessage: React.FC<CollapsibleMessageProps> = ({
           "&:before": {
             display: "none",
           },
-          bgcolor: theme.palette.mode === "light" ? "#f8f9fa" : "#1a202c",
+          bgcolor: theme.palette.background.paper,
         }}
       >
         <AccordionSummary
@@ -63,7 +63,8 @@ export const CollapsibleMessage: React.FC<CollapsibleMessageProps> = ({
                 sx={{
                   p: 0.75,
                   borderRadius: 1.5,
-                  bgcolor: theme.palette.mode === "light" ? "#e0e7ff" : "#2d3748",
+                  bgcolor:
+                    theme.palette.mode === "light" ? "#e0e7ff" : "#2d3748",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -107,5 +108,4 @@ export const CollapsibleMessage: React.FC<CollapsibleMessageProps> = ({
       </Accordion>
     </Box>
   );
-}
-
+};

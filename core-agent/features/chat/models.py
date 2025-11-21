@@ -90,9 +90,6 @@ class Message(Base):
     role = Column(SqlEnum(SenderRole), nullable=False)
     content = Column(Text, nullable=False)
 
-    # Non-null if role is ANALYSIS_PROGRESS
-    analysis_id = Column(String(64), ForeignKey("analyses.id"), nullable=True)
-
     created_at = Column(
         DATETIME(fsp=2),
         server_default=text("CURRENT_TIMESTAMP(2)"),
@@ -100,11 +97,11 @@ class Message(Base):
         index=True,
     )
 
-    analysis = relationship("Analysis", lazy="joined", uselist=False)
-
     session = relationship("ChatSession", back_populates="messages")
 
-    __table_args__ = (Index("ix_messages_session_created", "session_id", "created_at"),)
+    __table_args__ = (
+        Index("idx_messages_session_created", "session_id", "created_at"),
+    )
 
 
 class WorkItemVersion(Base):

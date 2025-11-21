@@ -57,20 +57,15 @@ export interface ChatSessionCreateRequest {
   story_key?: string;
 }
 
-export interface AnalysisProgressMessageContent {
-  analysis_id: string;
-  status: string;
-}
-
 export interface ChatMessageDto {
   id: string;
   role: MessageRole;
-  content: string | AnalysisProgressMessageContent;
+  content: string;
   created_at: string;
 }
 
 export interface ChatProposalContentDto {
-  story_key: string;
+  story_key?: string;
   summary?: string;
   description?: string;
 }
@@ -108,6 +103,8 @@ export interface AnalysisSummary {
   id: string;
   status?: string;
   type?: string;
+  project_key?: string;
+  story_key?: string;
   started_at?: string;
   ended_at?: string;
 }
@@ -123,8 +120,7 @@ export interface DefectDto {
   work_item_keys?: string[];
 }
 
-export interface AnalysisDetailDto {
-  id: string;
+export interface AnalysisDetailDto extends AnalysisSummary {
   defects: DefectDto[];
 }
 
@@ -139,6 +135,36 @@ export interface AnalysisRunRequest {
   target_story_key?: string;
 }
 
-export interface AnalysisStatus {
-  status: string;
+// Settings types
+export interface SettingsDto {
+  id: string;
+  connection_id: string;
+  project_key: string;
+  product_vision?: string;
+  product_scope?: string;
+  current_sprint_goals?: string;
+  glossary?: string;
+  additional_docs?: Record<string, any>;
+  llm_guidelines?: string;
+  last_updated: string;
+}
+
+export interface CreateSettingsRequest {
+  connection_id: string;
+  project_key: string;
+  product_vision?: string;
+  product_scope?: string;
+  current_sprint_goals?: string;
+  glossary?: string;
+  additional_docs?: Record<string, any>;
+  llm_guidelines?: string;
+}
+
+export interface UpdateSettingsRequest {
+  product_vision?: string;
+  product_scope?: string;
+  current_sprint_goals?: string;
+  glossary?: string;
+  additional_docs?: Record<string, any>;
+  llm_guidelines?: string;
 }

@@ -4,7 +4,7 @@ from utils.security_utils import generate_jwt
 from .models import User
 from .schemas import UserDto, UserConnections
 
-from integrations import JiraService
+from features.integrations import JiraService
 
 ph = PasswordHasher(
     time_cost=4, memory_cost=256 * 1024, parallelism=4, hash_len=32, salt_len=16

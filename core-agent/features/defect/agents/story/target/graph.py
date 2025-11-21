@@ -93,7 +93,7 @@ def single_check_node(state: State, runtime: Runtime[Context]) -> dict:
         filtered_existing_defects = [
             defect
             for defect in existing_defects
-            if defect.defect_type in potential_single_defects
+            if defect.type in potential_single_defects
         ]
         input_data = SingleCheckInput(
             target_user_story=runtime.context.get("target"),

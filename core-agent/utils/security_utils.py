@@ -1,6 +1,5 @@
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 import os
-import base64
 import jwt
 from common.configs import AuthConfig
 
@@ -32,7 +31,8 @@ def verify_jwt(token: str):
 
 
 # Key must be 32 bytes for AES-256
-key = AESGCM.generate_key(bit_length=256)
+key = AuthConfig.AES_KEY
+
 aesgcm = AESGCM(key)
 
 

@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ratsnake - Core Agent",
+  title: "RatSnake",
   description: "Ratsnake Core Agent Frontend",
 };
 

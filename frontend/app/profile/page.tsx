@@ -136,18 +136,22 @@ export default function ProfilePage() {
   }
 
   return (
-    <Layout>
+    <Layout
+      appBarLeftContent={
+        <Stack direction={"row"} alignItems="center" spacing={2}>
+          <Typography variant="h5" fontWeight="bold">
+            Profile
+          </Typography>
+        </Stack>
+      }
+    >
       <Container maxWidth="md" sx={{ mt: 4, mb: 4, overflowY: "auto" }}>
-        <Typography variant="h4" gutterBottom>
-          Profile
-        </Typography>
-
         <Paper
           elevation={2}
           sx={{
             p: 3,
             mb: 3,
-            borderRadius: 3,
+            borderRadius: 1,
             bgcolor: "background.paper",
           }}
         >
@@ -175,7 +179,7 @@ export default function ProfilePage() {
           sx={{
             p: 3,
             mb: 3,
-            borderRadius: 3,
+            borderRadius: 1,
             bgcolor: "background.paper",
           }}
         >
@@ -252,7 +256,8 @@ export default function ProfilePage() {
           elevation={2}
           sx={{
             p: 3,
-            borderRadius: 3,
+            mb: 3,
+            borderRadius: 1,
             bgcolor: "background.paper",
           }}
         >
@@ -303,6 +308,30 @@ export default function ProfilePage() {
                 )}
               </Button>
             </Stack>
+          </Box>
+        </Paper>
+
+        <Paper
+          elevation={2}
+          sx={{
+            p: 3,
+            borderRadius: 1,
+            bgcolor: "background.paper",
+          }}
+        >
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+            Settings
+          </Typography>
+          <Box sx={{ width: "100%" }}>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={changingPassword}
+              onClick={() => router.push("/settings")}
+              fullWidth
+            >
+              Edit Settings
+            </Button>
           </Box>
         </Paper>
 

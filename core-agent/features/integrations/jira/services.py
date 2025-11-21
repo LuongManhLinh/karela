@@ -5,7 +5,7 @@ from utils.security_utils import encrypt_token, decrypt_token
 from common.configs import JiraConfig
 from common.schemas import Platform
 from common.database import uuid_generator
-from integrations.models import Connection
+from features.integrations.models import Connection
 from .client import JiraClient
 from .models import JiraConnection
 from .schemas import IssuesCreateRequest, IssueUpdate, Issue, JiraConnectionDto
@@ -31,6 +31,31 @@ class JiraService:
             0
         ]
 
+        existing_connection = (
+            db.query(JiraConnection)
+            .filter(
+                JiraConnection.user_id == user_id,
+                JiraConnection.cloud_id == cloud_info.id,
+            )
+            .first()
+        )
+        if existing_connection:
+            # Update existing connection
+            existing_connection.token = encryped_token
+            existing_connection.token_iv = token_iv
+            existing_connection.refresh_token = refresh_encrypted_token
+            existing_connection.refresh_token_iv = refresh_token_iv
+            existing_connection.name = cloud_info.name
+            existing_connection.url = cloud_info.url
+            existing_connection.scopes = (
+                " ".join(cloud_info.scopes) if cloud_info.scopes else None
+            )
+            existing_connection.avatar_url = cloud_info.avatarUrl
+
+            db.add(existing_connection)
+            db.commit()
+            return 2
+
         jira_conn_id = uuid_generator()
 
         jira_connection = JiraConnection(
@@ -53,6 +78,8 @@ class JiraService:
         )
         db.add_all([jira_connection, connection])
         db.commit()
+
+        return 1
 
     @staticmethod
     def _refresh_access_token(db: Session, connection: JiraConnection):
@@ -83,9 +110,8 @@ class JiraService:
         *args,
         **kwargs,
     ):
-        access_token = decrypt_token(connection.token, connection.token_iv)
-
         try:
+            access_token = decrypt_token(connection.token, connection.token_iv)
             return func(access_token=access_token, *args, **kwargs)
         except Exception as e:
             if "401" in str(e):
@@ -253,3 +279,55 @@ class JiraService:
 
         db.delete(connection)
         db.commit()
+
+    @staticmethod
+    def fetch_project_keys(db: Session, connection_id: str) -> List[str]:
+        """Fetch all project keys from Jira
+
+        Args:
+            db (Session): Database session
+            connection_id (str): Jira connection ID
+
+        Returns:
+            List[str]: List of project keys
+        """
+        connection = (
+            db.query(JiraConnection).filter(JiraConnection.id == connection_id).first()
+        )
+        if not connection:
+            raise ValueError("Connection not found")
+
+        return JiraService._execute_with_refreshing(
+            db,
+            connection,
+            JiraClient.fetch_project_keys,
+            cloud_id=connection.cloud_id,
+        )
+
+    @staticmethod
+    def fetch_story_keys(
+        db: Session, connection_id: str, project_key: str
+    ) -> List[str]:
+        """Fetch all story issue keys for a specific project
+
+        Args:
+            db (Session): Database session
+            connection_id (str): Jira connection ID
+            project_key (str): The project key to fetch stories from
+
+        Returns:
+            List[str]: List of story issue keys
+        """
+        connection = (
+            db.query(JiraConnection).filter(JiraConnection.id == connection_id).first()
+        )
+        if not connection:
+            raise ValueError("Connection not found")
+
+        return JiraService._execute_with_refreshing(
+            db,
+            connection,
+            JiraClient.fetch_story_keys,
+            cloud_id=connection.cloud_id,
+            project_key=project_key,
+        )

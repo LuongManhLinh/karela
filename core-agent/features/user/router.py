@@ -12,6 +12,7 @@ from .schemas import (
     UserConnections,
 )
 from .services import UserService
+from features.integrations.jira.services import JiraService
 
 router = APIRouter()
 
@@ -94,3 +95,42 @@ def get_user_connections(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     return BasicResponse(data=connections)
+
+
+@router.get("/connections/{connection_id}/projects")
+def get_project_keys(
+    connection_id: str,
+    db: Session = Depends(get_db),
+    jwt_payload=Depends(get_jwt_payload),
+):
+    user_id = jwt_payload.get("sub")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+    try:
+        return BasicResponse(
+            data=JiraService.fetch_project_keys(db=db, connection_id=connection_id)
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.get("/connections/{connection_id}/projects/{project_key}/issues")
+def get_story_keys(
+    connection_id: str,
+    project_key: str,
+    db: Session = Depends(get_db),
+    jwt_payload=Depends(get_jwt_payload),
+):
+    user_id = jwt_payload.get("sub")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+    try:
+        return BasicResponse(
+            data=JiraService.fetch_story_keys(
+                db=db,
+                connection_id=connection_id,
+                project_key=project_key,
+            )
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))

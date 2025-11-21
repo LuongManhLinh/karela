@@ -5,7 +5,7 @@ import json
 from features.defect.services import DefectDataService
 from features.defect.services import DefectRunService
 from ..services import ChatDataService
-from common.database import SessionLocal
+from common.database import SessionLocal, uuid_generator
 
 from common.redis_app import task_queue
 
@@ -121,8 +121,20 @@ def run_defect_analysis(story_key: Optional[str], runtime: ToolRuntime) -> str:
             indent=2,
         )
 
+    connection_id = runtime.context.connection_id
+    if not connection_id:
+        return json.dumps(
+            {
+                "error": "Connection ID not found in context. Cannot run defect analysis."
+            },
+            indent=2,
+        )
+
     analysis_id = DefectDataService.init_analysis(
-        db, project_key=project_key, analysis_type="TARGETED"
+        db,
+        connection_id=connection_id,
+        project_key=project_key,
+        analysis_type="TARGETED",
     )
 
     task_queue.enqueue(analyze_target_user_story, analysis_id, story_key)
@@ -184,15 +196,6 @@ def show_analysis_progress_in_chat(analysis_id: str, runtime: ToolRuntime) -> st
 """
     )
 
-    db = runtime.context.db_session
-    if not db:
-        return json.dumps(
-            {
-                "error": "Database session not found in context. Cannot show analysis progress."
-            },
-            indent=2,
-        )
-
     session_id = runtime.context.session_id
     if not session_id:
         return json.dumps(
@@ -202,7 +205,6 @@ def show_analysis_progress_in_chat(analysis_id: str, runtime: ToolRuntime) -> st
             indent=2,
         )
 
-    ChatDataService.create_analysis_progress_message(db, session_id, analysis_id)
     return json.dumps(
         {
             "analysis_id": analysis_id,
@@ -291,6 +293,13 @@ def propose_modifying_stories(modifications: list[dict], runtime: ToolRuntime) -
             indent=2,
         )
 
+    session_id = runtime.context.session_id
+    if not session_id:
+        return json.dumps(
+            {"error": "Session ID not found in context. Cannot modify stories."},
+            indent=2,
+        )
+
     project_key = runtime.context.project_key
     if not project_key:
         return json.dumps(
@@ -299,7 +308,7 @@ def propose_modifying_stories(modifications: list[dict], runtime: ToolRuntime) -
         )
 
     propose_id, modified_keys = ChatDataService.propose_modifying_stories(
-        db, project_key, modifications
+        db, session_id, project_key, modifications
     )
     return json.dumps(
         {"proposed_story_keys": modified_keys, "propose_id": propose_id}, indent=2
@@ -339,12 +348,16 @@ def propose_creating_stories(
     if not db:
         return "Database session not found in context. Cannot create stories."
 
+    session_id = runtime.context.session_id
+    if not session_id:
+        return "Session ID not found in context. Cannot create stories."
+
     project_key = runtime.context.project_key
     if not project_key:
         return "Project key not found in context. Cannot create stories."
 
     propose_id, keys = ChatDataService.propose_creating_stories(
-        db, project_key, stories
+        db, session_id, project_key, stories
     )
     return json.dumps({"proposed_story_keys": keys, "propose_id": propose_id}, indent=2)
 

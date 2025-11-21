@@ -4,16 +4,14 @@ import type {
   AnalysisSummary,
   AnalysisDetailDto,
   AnalysisRunRequest,
-  AnalysisStatus,
 } from "@/types";
 
 export const defectService = {
   getAnalysisSummaries: async (
-    connectionId: string,
-    projectKey: string
+    connectionId: string
   ): Promise<BasicResponse<AnalysisSummary[]>> => {
     const response = await apiClient.get<BasicResponse<AnalysisSummary[]>>(
-      `/defects/analyses/connections/${connectionId}/${projectKey}`
+      `/defects/analyses/connections/${connectionId}`
     );
     return response.data;
   },
@@ -41,8 +39,8 @@ export const defectService = {
 
   getAnalysisStatus: async (
     analysisId: string
-  ): Promise<BasicResponse<AnalysisStatus>> => {
-    const response = await apiClient.get<BasicResponse<AnalysisStatus>>(
+  ): Promise<BasicResponse<string>> => {
+    const response = await apiClient.get<BasicResponse<string>>(
       `/defects/analyses/${analysisId}/status`
     );
     return response.data;
@@ -58,4 +56,3 @@ export const defectService = {
     return response.data;
   },
 };
-

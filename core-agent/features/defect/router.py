@@ -11,12 +11,10 @@ from common.redis_app import task_queue
 router = APIRouter()
 
 
-@router.get("/analyses/connections/{connection_id}/{project_key}")
-async def get_analysis_summaries(
-    connection_id: str, project_key: str, db=Depends(get_db)
-):
+@router.get("/analyses/connections/{connection_id}")
+async def get_analysis_summaries(connection_id: str, db=Depends(get_db)):
     summaries: List[AnalysisSummary] = DefectDataService.get_analysis_summaries(
-        db, connection_id, project_key
+        db, connection_id
     )
     return BasicResponse(data=summaries)
 

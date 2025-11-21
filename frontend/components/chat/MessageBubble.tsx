@@ -2,11 +2,12 @@
 
 import React from "react";
 import { Box, Paper, Typography, Avatar, useTheme } from "@mui/material";
-import { Person, SmartToy } from "@mui/icons-material";
-import { MarkdownMessage } from "./MarkdownMessage";
 import type { ChatMessageDto } from "@/types";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import type { Components } from "react-markdown";
 
 interface MessageBubbleProps {
   message: ChatMessageDto;
@@ -29,7 +30,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
           display: "flex",
           justifyContent: "flex-end",
           mb: 2,
-          gap: 1.5,
         }}
       >
         <Box
@@ -77,8 +77,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
           display: "flex",
           justifyContent: "flex-start",
           mb: 4,
-          gap: 2,
-          maxWidth: "85%",
         }}
       >
         <Box
@@ -86,10 +84,72 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
             flex: 1,
             display: "flex",
             flexDirection: "column",
-            pt: 0.5,
+            textAlign: "left",
+            maxWidth: "100%",
+            "& p": {
+              margin: "0 0 1em 0",
+              "&:last-child": {
+                marginBottom: 0,
+              },
+            },
+            "& code": {
+              backgroundColor: "rgba(175, 184, 193, 0.2)",
+              padding: "2px 6px",
+              borderRadius: "4px",
+              fontSize: "0.875rem",
+              fontFamily: "monospace",
+            },
+            "& pre": {
+              backgroundColor: "#1e1e1e",
+              borderRadius: "6px",
+              padding: "12px",
+              overflowX: "auto",
+              margin: "0.75em 0",
+              "& code": {
+                backgroundColor: "transparent",
+                padding: 0,
+                fontSize: "0.875rem",
+              },
+            },
           }}
         >
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              code({ node, inline, className, children, ...props }: any) {
+                const match = /language-(\w+)/.exec(className || "");
+
+                if (!inline && match) {
+                  // Render fenced code blocks with language via SyntaxHighlighter
+                  return (
+                    <SyntaxHighlighter
+                      style={atomOneDark as any}
+                      language={match[1]}
+                      PreTag="div"
+                      wrapLongLines
+                      customStyle={{
+                        borderRadius: "16px",
+                        margin: "0.75em 0",
+                        padding: "12px",
+                      }}
+                      {...props}
+                    >
+                      {String(children).replace(/\n$/, "")}
+                    </SyntaxHighlighter>
+                  );
+                }
+
+                // Let ReactMarkdown handle inline code and plain code blocks naturally
+                return (
+                  <code className={className} {...props}>
+                    {children}
+                  </code>
+                );
+              },
+            }}
+          >
+            {content}
+          </ReactMarkdown>
         </Box>
       </Box>
     );

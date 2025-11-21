@@ -16,9 +16,9 @@ from .models import (
     DefectSeverity,
     DefectType,
     DefectWorkItemId,
-    Settings,
 )
 from .schemas import AnalysisDetailDto, AnalysisDto, AnalysisSummary, DefectDto
+from features.settings.models import Settings
 
 
 from html2text import html2text
@@ -29,7 +29,7 @@ import time
 import traceback
 from datetime import datetime
 from typing import List, Optional
-from integrations import get_platform_service
+from features.integrations import get_platform_service
 
 
 def get_default_context_input(
@@ -107,19 +107,17 @@ class DefectRunService:
     def _fetch_issues(
         db: Session, project_key: str, issue_types: List[str], connection_id: str
     ):
-        return (
-            get_platform_service(db, connection_id=connection_id)
-            .search_issues(
-                jql=f"project = '{project_key}' AND issuetype in ({', '.join(issue_types)}) ORDER BY created ASC",
-                fields=[
-                    "summary",
-                    "description",
-                    "issuetype",
-                ],
-                max_results=50,
-                expand_rendered_fields=True,
-            )
-            .issues
+        return get_platform_service(db, connection_id=connection_id).search_issues(
+            db=db,
+            connection_id=connection_id,
+            jql=f"project = '{project_key}' AND issuetype in ({', '.join(issue_types)}) ORDER BY created ASC",
+            fields=[
+                "summary",
+                "description",
+                "issuetype",
+            ],
+            max_results=50,
+            expand_rendered_fields=True,
         )
 
     # ---------------------------
@@ -144,7 +142,11 @@ class DefectRunService:
                 for i in issues
             ]
 
-            context_input = get_default_context_input(analysis.project_key)
+            context_input = get_default_context_input(
+                db=db,
+                connection_id=analysis.connection_id,
+                project_key=analysis.project_key,
+            )
             existing_defects = [
                 DefectByLlm(
                     type=d.type.value,
@@ -249,6 +251,7 @@ class DefectRunService:
             issues = DefectRunService._fetch_issues(
                 db, analysis.project_key, ["Story"], analysis.connection_id
             )
+
             user_stories = []
             target = None
             for i in issues:
@@ -262,7 +265,11 @@ class DefectRunService:
             if not target:
                 raise ValueError(f"Target user story {target_key} not found")
 
-            context_input = get_default_context_input(analysis.project_key)
+            context_input = get_default_context_input(
+                db=db,
+                connection_id=analysis.connection_id,
+                project_key=analysis.project_key,
+            )
             existing_defects = [
                 DefectByLlm(
                     type=d.type.value,
@@ -370,8 +377,8 @@ class DefectDataService:
             project_key=project_key,
             type=AnalysisType(analysis_type.capitalize()),
             status=AnalysisStatus.PENDING,
-            title="Pending...",
             connection_id=connection_id,
+            created_at=datetime.now(),
         )
 
         db.add(analysis)
@@ -388,12 +395,11 @@ class DefectDataService:
 
     @staticmethod
     def get_analysis_summaries(
-        db: Session, connection_id: str, project_key: str
+        db: Session, connection_id: str
     ) -> List[AnalysisSummary]:
         analyses = (
             db.query(Analysis)
             .filter(
-                Analysis.project_key == project_key,
                 Analysis.connection_id == connection_id,
             )
             .order_by(Analysis.started_at.desc())
@@ -403,6 +409,8 @@ class DefectDataService:
         return [
             AnalysisSummary(
                 id=analysis.id,
+                project_key=analysis.project_key,
+                story_key=analysis.story_key,
                 status=analysis.status.value,
                 type=analysis.type.value,
                 started_at=analysis.started_at.isoformat(),
@@ -446,22 +454,18 @@ class DefectDataService:
 
         return AnalysisDetailDto(
             id=analysis_detail.id,
+            project_key=analysis_detail.project_key,
+            story_key=analysis_detail.story_key,
+            status=analysis_detail.status.value,
+            type=analysis_detail.type.value,
+            started_at=analysis_detail.started_at.isoformat(),
+            ended_at=(
+                analysis_detail.ended_at.isoformat()
+                if analysis_detail.ended_at
+                else None
+            ),
             defects=defects_dto,
         )
-
-    @staticmethod
-    def init_analysis(db: Session, project_key: str, analysis_type: str) -> str:
-        print("Initializing analysis for project:", project_key, "type:", analysis_type)
-        analysis = Analysis(
-            project_key=project_key,
-            type=AnalysisType(analysis_type.upper()),
-            status=AnalysisStatus.PENDING,
-        )
-
-        db.add(analysis)
-        db.commit()
-
-        return analysis.id
 
     @staticmethod
     def change_defect_solved(db: Session, defect_id: str, solved: bool):

@@ -37,6 +37,7 @@ agent = GenimiDynamicAgent(
 @dataclass
 class Context:
     session_id: str
+    connection_id: str
     db_session: Session
     project_key: str
     story_key: str = None
@@ -77,6 +78,7 @@ def chat_with_agent(
 def stream_with_agent(
     messages: list,
     session_id: str,
+    connection_id: str,
     db_session: Session,
     project_key: str,
     story_key: str = None,
@@ -97,6 +99,7 @@ def stream_with_agent(
         messages,
         context=Context(
             session_id=session_id,
+            connection_id=connection_id,
             db_session=db_session,
             project_key=project_key,
             story_key=story_key,

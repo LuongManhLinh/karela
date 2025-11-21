@@ -1,3 +1,4 @@
+import base64
 import os
 from dotenv import load_dotenv
 
@@ -49,3 +50,4 @@ class RedisConfig:
 
 class AuthConfig:
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "")
+    AES_KEY = base64.b64decode(os.getenv("AES_KEY", ""))

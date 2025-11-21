@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 
-from integrations.jira.schemas import JiraConnectionDto
+from features.integrations.jira.schemas import JiraConnectionDto
 
 
 class RegisterUserRequest(BaseModel):

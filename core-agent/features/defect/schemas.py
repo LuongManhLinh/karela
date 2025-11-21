@@ -4,6 +4,8 @@ from typing import Optional, Any, List, Dict, Literal
 
 class AnalysisSummary(BaseModel):
     id: str
+    project_key: str
+    story_key: Optional[str] = None
     status: Optional[str] = None
     type: Optional[str] = None
     started_at: Optional[str] = None
@@ -29,8 +31,7 @@ class DefectDto(BaseModel):
     )
 
 
-class AnalysisDetailDto(BaseModel):
-    id: str
+class AnalysisDetailDto(AnalysisSummary):
     defects: List[DefectDto]
 
     model_config = ConfigDict(

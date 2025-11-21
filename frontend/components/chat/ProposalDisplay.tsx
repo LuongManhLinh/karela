@@ -103,7 +103,14 @@ export const ProposalDisplay: React.FC<ProposalDisplayProps> = ({
           borderRadius: expanded ? "8px 8px 0 0" : "8px",
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, width: "100%" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1.5,
+            width: "100%",
+          }}
+        >
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
             Change Proposal
           </Typography>
@@ -136,7 +143,7 @@ export const ProposalDisplay: React.FC<ProposalDisplayProps> = ({
             >
               <CardContent sx={{ p: 2.5 }}>
                 <Typography variant="subtitle2" gutterBottom>
-                  Story Key: {content.story_key}
+                  Story Key: {content.story_key || "N/A"}
                 </Typography>
                 {content.summary && (
                   <Typography variant="body2" paragraph>
@@ -151,7 +158,14 @@ export const ProposalDisplay: React.FC<ProposalDisplayProps> = ({
               </CardContent>
             </Card>
           ))}
-          <Box sx={{ display: "flex", gap: 1.5, justifyContent: "flex-end", mt: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 1.5,
+              justifyContent: "flex-end",
+              mt: 1,
+            }}
+          >
             {proposal.accepted === null && (
               <>
                 <Button
@@ -189,5 +203,4 @@ export const ProposalDisplay: React.FC<ProposalDisplayProps> = ({
       </AccordionDetails>
     </Accordion>
   );
-}
-
+};

@@ -24,6 +24,8 @@ from sqlalchemy.orm import Session
 from typing import List, Optional, Iterator
 from datetime import datetime
 import json
+import traceback
+
 
 _langchain_message_dict = {
     HumanMessage: SenderRole.USER,
@@ -124,11 +126,11 @@ class ChatService:
             for chunk, _ in stream_with_agent(
                 messages=history_messages,
                 session_id=session_id,
+                connection_id=session.connection_id,
                 db_session=db,
                 project_key=project_key,
                 story_key=story_key,
             ):
-
                 msg_chunk = MessageChunk(
                     id=chunk.id,
                 )
@@ -146,12 +148,18 @@ class ChatService:
                 else:
                     msg_chunk.role = "tool"
                     msg_chunk.content = chunk.content
-                    yield_after = ChatService._additional_from_tool_msg(msg_chunk)
+                    yield_after = ChatService._additional_from_tool_msg(chunk)
 
                 yield {"type": "message", "data": msg_chunk.model_dump_json()}
 
                 if yield_after:
-                    yield yield_after
+                    data = yield_after[1]
+                    if isinstance(data, MessageChunk):
+                        data = data.model_dump_json()
+                    print(
+                        f"Yielding additional data of type {yield_after[0]}, content: {data}"
+                    )
+                    yield {"type": yield_after[0], "data": data}
 
                 stored_chunk = cache.get(msg_chunk.id)
                 if stored_chunk:
@@ -162,15 +170,25 @@ class ChatService:
                         "created_at": datetime.now(),
                     }
 
+                if yield_after and yield_after[0] == "message":
+                    data = yield_after[1]
+                    cache[data.id] = {
+                        "data": data,
+                        "created_at": datetime.now(),
+                    }
+
         except Exception as e:
             print(f"An error occurred: {e}")
+            traceback.print_exc()
             err_id = uuid_generator()
+            err_chunk = MessageChunk(
+                id=err_id,
+                content=f"An error occurred during chat processing: {str(e)}",
+                role="error",
+            )
+            yield {"type": "message", "data": err_chunk.model_dump_json()}
             cache[err_id] = {
-                "data": MessageChunk(
-                    id=err_id,
-                    content=f"An error occurred during chat processing: {str(e)}",
-                    role="error",
-                ),
+                "data": err_chunk,
                 "created_at": datetime.now(),
             }
 
@@ -183,33 +201,33 @@ class ChatService:
             match tool_msg.name:
                 case "propose_creating_stories" | "propose_modifying_stories":
                     payload = json.loads(tool_msg.content)
-                    return {"type": "proposal", "data": payload["propose_id"]}
+                    return "proposal", payload["propose_id"]
                 case "show_analysis_progress_in_chat":
                     payload = json.loads(tool_msg.content)
-                    return {
-                        "type": "proposal",
-                        "data": MessageChunk(
-                            id=uuid_generator(),
-                            role="analysis_progress",
-                            content=payload["analysis_id"],
-                        ).model_dump_json(),
-                    }
+                    return "message", MessageChunk(
+                        id=tool_msg.tool_call_id,
+                        role="analysis_progress",
+                        content=payload["analysis_id"],
+                    )
+                case _:
+                    return None
 
         except:
             return None
-        finally:
-            return None
 
     @staticmethod
-    def persist(db: Session, session_id: str):
+    def persist_messages(db: Session, session_id: str):
+        print("Persisting messages from cache to database...")
         cache = SESSION_CACHE.get(session_id)
         if not cache:
+            print("No cached messages found.")
             return
 
         session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
         if not session:
             raise ValueError(f"Chat session with id '{session_id}' not found.")
 
+        print(f"Persisting {len(cache)} messages...")
         try:
             for item in cache.values():
                 msg_chunk: MessageChunk = item["data"]
@@ -225,6 +243,8 @@ class ChatService:
                     orm_message.role = SenderRole.AGENT_FUNCTION_CALL
                 elif msg_chunk.role == "tool":
                     orm_message.role = SenderRole.TOOL
+                elif msg_chunk.role == "analysis_progress":
+                    orm_message.role = SenderRole.ANALYSIS_PROGRESS
                 else:  # Default to error
                     orm_message.role = SenderRole.ERROR
 

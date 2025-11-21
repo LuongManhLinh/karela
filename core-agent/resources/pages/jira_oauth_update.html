@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Jira Connection - Failed</title>
+    <title>Jira Connection - Updated</title>
     <link
       rel="icon"
       href="https://raw.githubusercontent.com/LuongManhLinh/assets/main/icons/favicon.ico"
@@ -37,6 +37,13 @@
         --error-message: #e85858;
         --error-gradient-start: #f56565;
         --error-gradient-end: #e53e3e;
+
+        /* Update/Info colors */
+        --update-icon: #4299e1;
+        --update-title: #2c5282;
+        --update-message: #3182ce;
+        --update-gradient-start: #4299e1;
+        --update-gradient-end: #3182ce;
       }
 
       /* Dark theme */
@@ -62,6 +69,13 @@
           --error-message: #f5a5a5;
           --error-gradient-start: #f56565;
           --error-gradient-end: #e53e3e;
+
+          /* Update/Info colors - adjusted for dark theme */
+          --update-icon: #63b3ed;
+          --update-title: #bee3f8;
+          --update-message: #90cdf4;
+          --update-gradient-start: #4299e1;
+          --update-gradient-end: #3182ce;
         }
       }
 
@@ -252,6 +266,31 @@
         box-shadow: 0 10px 20px rgba(245, 101, 101, 0.4);
       }
 
+      /* Update state styles */
+      .update .icon-wrapper {
+        color: var(--update-icon);
+      }
+
+      .update .status-title {
+        color: var(--update-title);
+      }
+
+      .update .status-message {
+        color: var(--update-message);
+      }
+
+      .update .btn-primary {
+        background: linear-gradient(
+          135deg,
+          var(--update-gradient-start) 0%,
+          var(--update-gradient-end) 100%
+        );
+      }
+
+      .update .btn-primary:hover {
+        box-shadow: 0 10px 20px rgba(66, 153, 225, 0.4);
+      }
+
       /* Decorative elements */
       .decoration {
         position: fixed;
@@ -342,25 +381,25 @@
     </style>
   </head>
   <body>
-    <div class="decoration decoration-top">⚠️</div>
-    <div class="decoration decoration-bottom">🔄</div>
+    <div class="decoration decoration-top">🔄</div>
+    <div class="decoration decoration-bottom">⚡</div>
 
-    <div class="container error">
-      <div class="icon-wrapper">❌</div>
+    <div class="container update">
+      <div class="icon-wrapper">🔔</div>
 
-      <h1 class="status-title">Connection Failed</h1>
+      <h1 class="status-title">Successfully Updated!</h1>
 
       <p class="status-message">
-        Oops! We couldn't connect to Jira. Please check your credentials and
-        settings, then try again.
+        Your Jira connection settings have been refreshed and updated. All
+        changes are now in effect!
       </p>
 
       <div class="button-group">
-        <a href="javascript:location.reload()" class="btn btn-primary"
-          >Try Again</a
-        >
-        <a href="http://localhost:3000/profile" class="btn btn-secondary"
+        <a href="http://localhost:3000/profile" class="btn btn-primary"
           >Return to Home</a
+        >
+        <a href="javascript:history.back()" class="btn btn-secondary"
+          >Go Back</a
         >
       </div>
     </div>
