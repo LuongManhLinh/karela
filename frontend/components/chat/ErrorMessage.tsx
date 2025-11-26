@@ -3,7 +3,7 @@
 import React from "react";
 import { Box, Paper, Typography, useTheme } from "@mui/material";
 import { Error as ErrorIcon } from "@mui/icons-material";
-import type { ChatMessageDto } from "@/types";
+import type { ChatMessageDto } from "@/types/chat";
 
 interface ErrorMessageProps {
   message: ChatMessageDto;
@@ -22,6 +22,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({ message }) => {
       sx={{
         p: 3,
         borderRadius: 1,
+        mb: 2,
         width: "100%",
         background:
           theme.palette.mode === "light"

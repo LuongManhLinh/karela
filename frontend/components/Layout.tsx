@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { Brightness4, Brightness7, Logout } from "@mui/icons-material";
 import { useThemeMode } from "./ThemeProvider";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 
 export const MyAppBar: React.FC<{
@@ -30,98 +30,47 @@ export const MyAppBar: React.FC<{
     localStorage.removeItem("token");
     router.push("/login");
   };
+
+  const pathname = usePathname();
+
+  const pages = [
+    { name: "Chat", href: "/chat" },
+    { name: "Analyze", href: "/analysis" },
+    { name: "Proposals", href: "/proposals" },
+    { name: "Profile", href: "/profile" },
+  ];
   return (
     <Box
-      // Change background using the
       sx={{
         background: transparent
           ? "transparent"
           : theme.palette.mode === "dark"
           ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
           : "linear-gradient(135deg,rgb(202, 144, 235) 0%,rgb(197, 217, 245) 100%)",
-        // boxShadow: "0 4px 16px rgba(102, 126, 234, 0.3)",
         borderRadius: 0,
         width: "100%",
       }}
     >
       <Stack direction={"row"} alignItems="center" sx={{ px: 2, gap: 2 }}>
-        {/* <Stack
-          direction="row"
-          spacing={1}
-          alignItems="center"
-          sx={{ flexGrow: 1 }}
-        >
-          <Box
-            component="img"
-            sx={{
-              height: 32,
-              width: 32,
-            }}
-            alt="Icon"
-            src="/ratsnake-icon.svg"
-          />
-          <Typography
-            variant="h6"
-            component="div"
-            sx={{
-              flexGrow: 1,
-              fontWeight: 700,
-              letterSpacing: 0.5,
-            }}
-          >
-            <Link
-              href="/chat"
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              Ratsnake
-            </Link>
-          </Typography>
-        </Stack> */}
         <Box sx={{ flexGrow: 1 }}>{leftContent}</Box>
 
         <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
-          <Button
-            color="inherit"
-            component={Link}
-            href="/chat"
-            sx={{
-              borderRadius: 2,
-              px: 2,
-              "&:hover": {
-                bgcolor: "rgba(255, 255, 255, 0.1)",
-              },
-            }}
-          >
-            Chat
-          </Button>
-          <Button
-            color="inherit"
-            component={Link}
-            href="/analyze"
-            sx={{
-              borderRadius: 2,
-              px: 2,
-              "&:hover": {
-                bgcolor: "rgba(255, 255, 255, 0.1)",
-              },
-            }}
-          >
-            Analyze
-          </Button>
-          <Button
-            color="inherit"
-            component={Link}
-            href="/profile"
-            sx={{
-              borderRadius: 2,
-              px: 2,
-              "&:hover": {
-                bgcolor: "rgba(255, 255, 255, 0.1)",
-              },
-            }}
-          >
-            Profile
-          </Button>
+          {pages.map((page) => (
+            <Button
+              color="inherit"
+              component={Link}
+              href={page.href}
+              key={page.name}
+              sx={{
+                borderRadius: 2,
+                px: 2,
+                textDecoration: pathname === page.href ? "underline" : "none",
+              }}
+            >
+              {page.name}
+            </Button>
+          ))}
+
           <IconButton
             color="inherit"
             onClick={toggleColorMode}

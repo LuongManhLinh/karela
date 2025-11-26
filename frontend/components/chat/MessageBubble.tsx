@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Box, Paper, Typography, Avatar, useTheme } from "@mui/material";
-import type { ChatMessageDto } from "@/types";
+import type { ChatMessageDto } from "@/types/chat";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import SyntaxHighlighter from "react-syntax-highlighter";

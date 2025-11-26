@@ -26,8 +26,8 @@ import type {
   SettingsDto,
   CreateSettingsRequest,
   UpdateSettingsRequest,
-  JiraConnectionDto,
-} from "@/types";
+} from "@/types/settings";
+import type { JiraConnectionDto } from "@/types/integration";
 
 export default function SettingsPage() {
   const router = useRouter();

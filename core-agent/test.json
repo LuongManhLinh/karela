@@ -1,0 +1,13 @@
+[
+  {
+    "story_key": "US-123",
+    "summary": "New Summary",
+    "description": "Updated description in **markdown**.",
+    "explanation": "This change is necessary because..."
+  },
+  {
+    "story_key": "US-456",
+    "description": "**Another** updated description.",
+    "explanation": "This change is necessary to address the issue."
+  }
+]

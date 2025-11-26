@@ -3,7 +3,7 @@
 import React from "react";
 import { CollapsibleMessage } from "./CollapsibleMessage";
 import { Functions } from "@mui/icons-material";
-import type { ChatMessageDto } from "@/types";
+import type { ChatMessageDto } from "@/types/chat";
 
 interface FunctionCallMessageProps {
   message: ChatMessageDto;
@@ -13,7 +13,7 @@ export const FunctionCallMessage: React.FC<FunctionCallMessageProps> = ({
   message,
 }) => {
   let content: any;
-  
+
   try {
     if (typeof message.content === "string") {
       content = JSON.parse(message.content);
@@ -32,5 +32,4 @@ export const FunctionCallMessage: React.FC<FunctionCallMessageProps> = ({
       icon={<Functions />}
     />
   );
-}
-
+};

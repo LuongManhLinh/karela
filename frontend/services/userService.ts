@@ -1,12 +1,12 @@
 import apiClient from "./api";
+import type { BasicResponse } from "@/types";
+import type { UserConnections } from "@/types/user";
 import type {
-  BasicResponse,
   RegisterUserRequest,
   AuthenticateUserRequest,
   UserDto,
   ChangePasswordRequest,
-  UserConnections,
-} from "@/types";
+} from "@/types/user";
 
 export const userService = {
   register: async (data: RegisterUserRequest): Promise<BasicResponse> => {

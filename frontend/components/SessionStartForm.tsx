@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Paper,
   TextField,
@@ -11,20 +11,18 @@ import {
   Typography,
   Stack,
 } from "@mui/material";
-import { userService } from "@/services/userService";
 import { LoadingSpinner } from "./LoadingSpinner";
-import type { JiraConnectionDto } from "@/types";
-import { useRouter } from "next/navigation";
+import type { JiraConnectionDto } from "@/types/integration";
 import Link from "next/link";
 
 interface SessionStartFormProps {
-  connectionId: string;
+  selectedConnection: JiraConnectionDto | null;
   connections: JiraConnectionDto[];
-  onConnectionChange: (connectionId: string) => void;
-  projectKey: string;
+  onConnectionChange: (connection: JiraConnectionDto) => void;
+  selectedProjectKey: string | null;
   projectKeys: string[];
   onProjectKeyChange: (projectKey: string) => void;
-  storyKey?: string;
+  selectedStoryKey?: string | null;
   storyKeys: string[];
   onStoryKeyChange: (storyKey: string) => void;
   onSubmit: () => void;
@@ -33,13 +31,13 @@ interface SessionStartFormProps {
 }
 
 export const SessionStartForm: React.FC<SessionStartFormProps> = ({
-  connectionId,
+  selectedConnection,
   connections,
   onConnectionChange,
-  projectKey,
+  selectedProjectKey,
   projectKeys,
   onProjectKeyChange,
-  storyKey,
+  selectedStoryKey,
   storyKeys,
   onStoryKeyChange,
   onSubmit,
@@ -75,15 +73,35 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
       <Autocomplete
         fullWidth
         options={connections}
-        value={connections.find((conn) => conn.id === connectionId) || null}
+        value={
+          connections.find((conn) => conn.id === selectedConnection?.id) || null
+        }
         onChange={(event, newValue) => {
-          onConnectionChange(newValue?.id || "");
+          if (newValue) {
+            onConnectionChange(newValue);
+          }
         }}
         getOptionLabel={(option) => option.name || option.id}
         isOptionEqualToValue={(option, value) => option.id === value.id}
         disabled={loading}
         renderInput={(params) => (
-          <TextField {...params} label="Connection" required margin="normal" />
+          <TextField
+            {...params}
+            label="Connection"
+            required
+            margin="normal"
+            InputProps={{
+              ...params.InputProps,
+              startAdornment: selectedConnection ? (
+                <Box
+                  component="img"
+                  src={selectedConnection.avatar_url}
+                  alt="icon"
+                  sx={{ width: 20, height: 20, mx: 1 }}
+                />
+              ) : null,
+            }}
+          />
         )}
         renderOption={(props, option) => (
           <li {...props} key={option.id}>
@@ -109,7 +127,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
       <Autocomplete
         fullWidth
         options={projectKeys}
-        value={projectKey || null}
+        value={selectedProjectKey || null}
         onChange={(event, newValue) => {
           onProjectKeyChange(newValue || "");
         }}
@@ -134,7 +152,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
       <Autocomplete
         fullWidth
         options={storyKeys}
-        value={storyKey || null}
+        value={selectedStoryKey || null}
         onChange={(event, newValue) => {
           onStoryKeyChange(newValue || "");
         }}
@@ -160,10 +178,10 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
         variant="contained"
         fullWidth
         sx={{ mt: 2 }}
-        disabled={loading || !connectionId || !projectKey}
+        disabled={loading || !selectedConnection || !selectedProjectKey}
         onClick={onSubmit}
       >
-        {loading ? <LoadingSpinner size={24} /> : submitLabel}
+        {loading ? <LoadingSpinner size={24} /> : submitLabel || "Submit"}
       </Button>
     </Box>
   );

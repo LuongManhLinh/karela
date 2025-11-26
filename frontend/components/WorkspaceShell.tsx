@@ -21,7 +21,7 @@ import Link from "next/link";
 
 import { DoubleLayout } from "./Layout";
 import { LoadingSpinner } from "./LoadingSpinner";
-import type { JiraConnectionDto } from "@/types";
+import type { JiraConnectionDto } from "@/types/integration";
 import { SessionStartForm } from "./SessionStartForm";
 import React from "react";
 
@@ -33,16 +33,17 @@ export interface WorkspaceSessionItem {
 }
 
 interface WorkspaceShellProps {
-  selectedConnectionId: string;
+  selectedConnection: JiraConnectionDto | null;
   connections: JiraConnectionDto[];
-  onConnectionChange: (connectionId: string) => void;
-  selectedProjectKey: string;
+  onConnectionChange: (connection: JiraConnectionDto) => void;
+  selectedProjectKey: string | null;
   projectKeys: string[];
   onProjectKeyChange: (projectKey: string) => void;
-  selectedStoryKey?: string;
+  selectedStoryKey?: string | null;
   storyKeys: string[];
   onStoryKeyChange: (storyKey: string) => void;
   onSessionFormSubmit: () => void;
+  sessionSubmitLabel?: string;
   sessions: WorkspaceSessionItem[];
   selectedSessionId?: string | null;
   onSelectSession: (id: string) => void;
@@ -60,7 +61,7 @@ interface WorkspaceShellProps {
 
 export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
   connections,
-  selectedConnectionId,
+  selectedConnection,
   onConnectionChange,
   selectedProjectKey,
   projectKeys,
@@ -82,6 +83,7 @@ export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
   headerStoryKey,
   appBarTransparent = true,
   sidebarFooter,
+  sessionSubmitLabel,
 }) => {
   const renderConnections = () => {
     if (loadingConnections) {
@@ -116,17 +118,17 @@ export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
 
     return (
       <SessionStartForm
-        connectionId={selectedConnectionId}
+        selectedConnection={selectedConnection}
         connections={connections}
         onConnectionChange={onConnectionChange}
-        projectKey={selectedProjectKey}
+        selectedProjectKey={selectedProjectKey}
         projectKeys={projectKeys}
         onProjectKeyChange={onProjectKeyChange}
-        storyKey={selectedStoryKey}
+        selectedStoryKey={selectedStoryKey}
         storyKeys={storyKeys}
         onStoryKeyChange={onStoryKeyChange}
         onSubmit={onSessionFormSubmit}
-        submitLabel="New Session"
+        submitLabel={sessionSubmitLabel || "New Session"}
       />
     );
   };
@@ -179,8 +181,7 @@ export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
                     sx={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 1,
-                      flexWrap: "wrap",
+                      gap: 0.5,
                     }}
                   >
                     <Typography variant="body2" noWrap sx={{ flexGrow: 1 }}>
@@ -192,7 +193,6 @@ export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
                         label={chip.label}
                         size="small"
                         color={chip.color}
-                        sx={{ borderRadius: 1.5 }}
                       />
                     ))}
                   </Box>

@@ -1,10 +1,10 @@
 import apiClient from "./api";
+import type { BasicResponse } from "@/types";
 import type {
-  BasicResponse,
   SettingsDto,
   CreateSettingsRequest,
   UpdateSettingsRequest,
-} from "@/types";
+} from "@/types/settings";
 
 export const settingsService = {
   getSettings: async (
@@ -60,4 +60,3 @@ export const settingsService = {
     return response.data;
   },
 };
-

@@ -17,10 +17,6 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  FormControl,
-  MenuItem,
-  Select,
-  InputLabel,
   Stack,
   Chip,
   Skeleton,
@@ -32,8 +28,8 @@ import { ErrorMessage } from "@/components/chat/ErrorMessage";
 import { FunctionCallMessage } from "@/components/chat/FunctionCallMessage";
 import { ToolMessage } from "@/components/chat/ToolMessage";
 import { AnalysisProgressMessage } from "@/components/chat/AnalysisProgressMessage";
-import { ProposalDisplay } from "@/components/chat/ProposalDisplay";
 import { chatService } from "@/services/chatService";
+import { proposalService } from "@/services/proposalService";
 import { ErrorSnackbar } from "@/components/ErrorSnackbar";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import { useRouter } from "next/navigation";
@@ -42,64 +38,25 @@ import {
   WorkspaceSessionItem,
 } from "@/components/WorkspaceShell";
 import type {
+  ProposalDto,
+  ProposalContentDto,
+  ProposalActionFlag,
+} from "@/types/proposal";
+import type {
   ChatSessionSummary,
   ChatSessionDto,
   ChatMessageDto,
   MessageRole,
   MessageChunk,
-  JiraConnectionDto,
-} from "@/types";
+} from "@/types/chat";
+import type { JiraConnectionDto } from "@/types/integration";
 import { userService } from "@/services/userService";
-// app/dashboard/page.tsx
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Dashboard — Web Title",
-  description: "Dashboard page description",
-};
+import { ProposalCard } from "@/components/proposals/ProposalCard";
 
 const WS_BASE_URL =
   process.env.NEXT_PUBLIC_WS_BASE_URL || "ws://localhost:8000/api/v1/chat/";
 
 const MemoizedTextField = React.memo(TextField);
-
-const ChatTextField: React.FC<{
-  value: string;
-  onChange: (target: string) => void;
-  onKeyDown: (e: React.KeyboardEvent) => void;
-  disabled: boolean;
-}> = ({ value, onChange, onKeyDown, disabled }) => {
-  const [localValue, setLocalValue] = React.useState(value);
-  useEffect(() => {
-    setLocalValue(value);
-  }, [value]);
-  return (
-    <MemoizedTextField
-      variant="outlined"
-      fullWidth
-      multiline
-      maxRows={12}
-      placeholder="Type your message..."
-      value={localValue}
-      onChange={(e) => setLocalValue(e.target.value)}
-      onKeyDown={onKeyDown}
-      onBlur={() => onChange(localValue)}
-      disabled={disabled}
-      sx={{
-        "& fieldset": { border: "none" },
-      }}
-      slotProps={{
-        input: {
-          disableUnderline: true,
-          sx: {
-            pb: 0,
-            pt: 1,
-          },
-        },
-      }}
-    />
-  );
-};
 
 const ChatSection: React.FC<{
   sendMessage: (message: string) => void;
@@ -181,7 +138,8 @@ const ChatPageContent: React.FC = () => {
   );
   const [connections, setConnections] = useState<JiraConnectionDto[]>([]);
   const [loadingConnections, setLoadingConnections] = useState<boolean>(true);
-  const [connectionId, setConnectionId] = useState("");
+  const [selectedConnection, setSelectedConnnection] =
+    useState<JiraConnectionDto | null>(null);
 
   const [projectKeys, setProjectKeys] = useState<string[]>([]);
   const [projectKey, setProjectKey] = useState("");
@@ -189,6 +147,8 @@ const ChatPageContent: React.FC = () => {
   const [storyKeys, setStoryKeys] = useState<string[]>([]);
   const [storyKey, setStoryKey] = useState("");
   const [messages, setMessages] = useState<ChatMessageDto[]>([]);
+  const [sessionProposals, setSessionProposals] = useState<ProposalDto[]>([]);
+  const [loadingProposals, setLoadingProposals] = useState(false);
 
   // Separate streaming state - isolate active stream from history
   const streamingIdRef = useRef<string | null>(null);
@@ -318,9 +278,9 @@ const ChatPageContent: React.FC = () => {
         const jiraConnections = response.data.jira_connections || [];
         setConnections(jiraConnections);
         if (jiraConnections.length > 0) {
-          const firstId = jiraConnections[0].id;
-          setConnectionId(firstId);
-          await onConnectionChange(firstId);
+          const firstConn = jiraConnections[0];
+          setSelectedConnnection(firstConn);
+          await onConnectionChange(firstConn);
         }
       }
     } catch (err) {
@@ -330,12 +290,13 @@ const ChatPageContent: React.FC = () => {
     }
   };
 
-  const onConnectionChange = async (connId: string) => {
-    setConnectionId(connId);
+  const onConnectionChange = async (conn: JiraConnectionDto) => {
+    setSelectedConnnection(conn);
     setCurrentSession(null);
     setMessages([]);
-    await loadSessions(connId);
-    await loadProjectKeys(connId);
+    setSessionProposals([]);
+    await loadSessions(conn.id);
+    await loadProjectKeys(conn.id);
   };
 
   const loadProjectKeys = async (connId: string) => {
@@ -357,7 +318,7 @@ const ChatPageContent: React.FC = () => {
     setProjectKey(projKey);
     setStoryKey("");
     setStoryKeys([]);
-    await loadStoryKeys(connectionId, projKey);
+    await loadStoryKeys(selectedConnection!.id, projKey);
   };
 
   const loadStoryKeys = async (connId: string, projKey: string) => {
@@ -365,9 +326,7 @@ const ChatPageContent: React.FC = () => {
       const response = await userService.getIssueKeys(connId, projKey);
       if (response.data) {
         setStoryKeys(["None", ...response.data]);
-        if (response.data.length > 0) {
-          setStoryKey("None");
-        }
+        setStoryKey("None");
       }
     } catch (err) {
       console.error("Failed to load story keys:", err);
@@ -377,6 +336,53 @@ const ChatPageContent: React.FC = () => {
   const onStoryKeyChange = (sKey: string) => {
     setStoryKey(sKey);
   };
+
+  const fetchSessionProposals = useCallback(
+    async (sessionId: string | null) => {
+      if (!sessionId) {
+        setSessionProposals([]);
+        return;
+      }
+      setLoadingProposals(true);
+      try {
+        const response = await proposalService.getProposalsBySession(
+          sessionId,
+          "CHAT"
+        );
+        setSessionProposals(response.data || []);
+      } catch (err: any) {
+        const errorMessage =
+          err.response?.data?.detail || "Failed to load proposals";
+        setError(errorMessage);
+        setShowError(true);
+      } finally {
+        setLoadingProposals(false);
+      }
+    },
+    []
+  );
+
+  const handleIncomingProposal = useCallback(
+    async (proposalId: string) => {
+      try {
+        const response = await proposalService.getProposal(proposalId);
+        const proposal = response.data;
+        if (!proposal) {
+          return;
+        }
+        if (currentSession?.id && proposal.session_id !== currentSession.id) {
+          return;
+        }
+        setSessionProposals((prev) => {
+          const filtered = prev.filter((p) => p.id !== proposal.id);
+          return [proposal, ...filtered];
+        });
+      } catch (err) {
+        console.error("Failed to fetch proposal:", err);
+      }
+    },
+    [currentSession?.id]
+  );
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -396,21 +402,33 @@ const ChatPageContent: React.FC = () => {
     }
   }, []);
 
-  const loadSession = useCallback(async (sessionId: string) => {
-    try {
-      const response = await chatService.getChatSession(sessionId);
-      if (response.data) {
-        setCurrentSession(response.data);
-        setProjectKey(response.data.project_key);
-        setMessages(response.data.messages || []);
+  const loadSession = useCallback(
+    async (sessionId: string) => {
+      try {
+        const response = await chatService.getChatSession(sessionId);
+        const summary =
+          sessions.find((session) => session.id === sessionId) ||
+          currentSession;
+        const hydratedSession: ChatSessionDto = {
+          id: summary?.id || sessionId,
+          project_key: summary?.project_key || projectKey,
+          story_key: summary?.story_key || "",
+          created_at: summary?.created_at || new Date().toISOString(),
+          messages: response.data || [],
+        };
+        setCurrentSession(hydratedSession);
+        setProjectKey(hydratedSession.project_key);
+        setMessages(response.data || []);
+        await fetchSessionProposals(sessionId);
+      } catch (err: any) {
+        const errorMessage =
+          err.response?.data?.detail || "Failed to load session";
+        setError(errorMessage);
+        setShowError(true);
       }
-    } catch (err: any) {
-      const errorMessage =
-        err.response?.data?.detail || "Failed to load session";
-      setError(errorMessage);
-      setShowError(true);
-    }
-  }, []);
+    },
+    [sessions, currentSession, projectKey, fetchSessionProposals]
+  );
 
   const handleSelectSession = async (sessionId: string) => {
     await loadSession(sessionId);
@@ -423,9 +441,9 @@ const ChatPageContent: React.FC = () => {
       story_key: storyKey === "None" ? "" : storyKey,
       created_at: new Date().toISOString(),
       messages: [],
-      change_proposals: [],
     });
     setMessages([]);
+    setSessionProposals([]);
   };
 
   // Commit streaming message to history when stream ends
@@ -593,8 +611,11 @@ const ChatPageContent: React.FC = () => {
                     } as ChatSessionDto)
                 );
                 loadSessions(connId);
+                fetchSessionProposals(newSessionId);
                 // Don't reload session immediately - let streaming finish
               }
+            } else if (parsed.type === "proposal" && parsed.data) {
+              handleIncomingProposal(parsed.data);
             }
           } catch (err) {
             console.error("Failed to parse WebSocket message:", err);
@@ -629,11 +650,13 @@ const ChatPageContent: React.FC = () => {
       commitStreamingMessage,
       loadSessions,
       currentSession?.id,
+      fetchSessionProposals,
+      handleIncomingProposal,
     ]
   );
 
   const handleSendMessage = async (userMessage: string) => {
-    if (!userMessage.trim() || !connectionId || !projectKey) {
+    if (!userMessage.trim() || !selectedConnection || !projectKey) {
       return;
     }
 
@@ -649,7 +672,7 @@ const ChatPageContent: React.FC = () => {
     setMessages((prev) => [...prev, userMsg]);
 
     connectWebSocket(
-      connectionId,
+      selectedConnection.id,
       projectKey,
       messageToSend,
       storyKey || undefined,
@@ -675,14 +698,45 @@ const ChatPageContent: React.FC = () => {
     }
   };
 
-  const handleUpdateSession = async () => {
-    if (currentSession?.id) {
-      await loadSession(currentSession.id);
-      if (connectionId) {
-        await loadSessions(connectionId);
+  const handleProposalAction = useCallback(
+    async (proposalId: string, flag: ProposalActionFlag) => {
+      if (!currentSession?.id) return;
+      try {
+        await proposalService.actOnProposal(proposalId, flag);
+        await fetchSessionProposals(currentSession.id);
+      } catch (err: any) {
+        const errorMessage =
+          err.response?.data?.detail || "Failed to update proposal";
+        setError(errorMessage);
+        setShowError(true);
       }
-    }
-  };
+    },
+    [currentSession?.id, fetchSessionProposals]
+  );
+
+  const handleProposalContentAction = useCallback(
+    async (
+      proposalId: string,
+      content: ProposalContentDto,
+      flag: ProposalActionFlag
+    ) => {
+      if (!currentSession?.id || !content.id) return;
+      try {
+        await proposalService.actOnProposalContent(
+          proposalId,
+          content.id,
+          flag
+        );
+        await fetchSessionProposals(currentSession.id);
+      } catch (err: any) {
+        const errorMessage =
+          err.response?.data?.detail || "Failed to update proposal content";
+        setError(errorMessage);
+        setShowError(true);
+      }
+    },
+    [currentSession?.id, fetchSessionProposals]
+  );
 
   const sessionItems = useMemo<WorkspaceSessionItem[]>(() => {
     return sessions.map((session) => ({
@@ -794,40 +848,46 @@ const ChatPageContent: React.FC = () => {
           borderRadius: 2,
         }}
       >
-        {currentSession &&
-          currentSession.change_proposals &&
-          currentSession.change_proposals.length > 0 && (
-            <Box sx={{ p: 2, bgcolor: "background.paper" }}>
-              <Accordion
-                expanded={proposalExpanded}
-                onChange={() => setProposalExpanded(!proposalExpanded)}
-              >
-                <AccordionSummary expandIcon={<ExpandMore />}>
-                  <Typography variant="h6">
-                    Change Proposals ({currentSession.change_proposals.length})
+        {(loadingProposals || sessionProposals.length > 0) && (
+          <Box sx={{ p: 2, bgcolor: "background.paper", mb: 2 }}>
+            <Accordion
+              expanded={proposalExpanded}
+              onChange={() => setProposalExpanded(!proposalExpanded)}
+            >
+              <AccordionSummary expandIcon={<ExpandMore />}>
+                <Typography variant="h6">
+                  Change Proposals ({sessionProposals.length})
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {loadingProposals ? (
+                  <Skeleton
+                    variant="rectangular"
+                    height={120}
+                    sx={{ borderRadius: 2 }}
+                  />
+                ) : sessionProposals.length === 0 ? (
+                  <Typography color="text.secondary">
+                    No proposals yet in this session.
                   </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
+                ) : (
                   <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 2,
-                    }}
+                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
                   >
-                    {currentSession.change_proposals.map((proposal) => (
-                      <ProposalDisplay
+                    {sessionProposals.map((proposal) => (
+                      <ProposalCard
                         key={proposal.id}
                         proposal={proposal}
-                        sessionId={currentSession.id}
-                        onUpdate={handleUpdateSession}
+                        onProposalAction={handleProposalAction}
+                        onProposalContentAction={handleProposalContentAction}
                       />
                     ))}
                   </Box>
-                </AccordionDetails>
-              </Accordion>
-            </Box>
-          )}
+                )}
+              </AccordionDetails>
+            </Accordion>
+          </Box>
+        )}
         <ChatSection
           sendMessage={handleSendMessage}
           disabled={connecting || !currentSession}
@@ -844,7 +904,7 @@ const ChatPageContent: React.FC = () => {
   return (
     <WorkspaceShell
       connections={connections}
-      selectedConnectionId={connectionId}
+      selectedConnection={selectedConnection}
       onConnectionChange={onConnectionChange}
       selectedProjectKey={projectKey}
       projectKeys={projectKeys}
@@ -853,6 +913,7 @@ const ChatPageContent: React.FC = () => {
       storyKeys={storyKeys}
       onStoryKeyChange={onStoryKeyChange}
       onSessionFormSubmit={handleNewChat}
+      sessionSubmitLabel="New Chat"
       sessions={sessionItems}
       selectedSessionId={currentSession?.id}
       onSelectSession={handleSelectSession}

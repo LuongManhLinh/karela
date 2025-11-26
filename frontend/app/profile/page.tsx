@@ -18,7 +18,9 @@ import { jiraService } from "@/services/jiraService";
 import { ErrorSnackbar } from "@/components/ErrorSnackbar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useRouter } from "next/navigation";
-import type { UserDto, UserConnections, JiraConnectionDto } from "@/types";
+import type { UserConnections } from "@/types/user";
+import type { JiraConnectionDto } from "@/types/integration";
+import type { UserDto } from "@/types/user";
 import { Add, Link as LinkIcon } from "@mui/icons-material";
 
 export default function ProfilePage() {

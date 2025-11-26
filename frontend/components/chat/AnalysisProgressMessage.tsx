@@ -12,8 +12,8 @@ import {
   Stack,
 } from "@mui/material";
 import { Analytics } from "@mui/icons-material";
-import { defectService } from "@/services/defectService";
-import type { ChatMessageDto } from "@/types";
+import { analysisService } from "@/services/analysisService";
+import type { ChatMessageDto } from "@/types/chat";
 
 interface AnalysisProgressMessageProps {
   message: ChatMessageDto;
@@ -30,7 +30,7 @@ export const AnalysisProgressMessage: React.FC<
   const [polling, setPolling] = useState(false);
 
   useEffect(() => {
-    defectService.getAnalysisStatus(analysisId).then((response) => {
+    analysisService.getAnalysisStatus(analysisId).then((response) => {
       if (response.data) {
         console.log("Status response:", response.data);
         setStatus(response.data || "");
@@ -46,7 +46,7 @@ export const AnalysisProgressMessage: React.FC<
 
     const pollInterval = setInterval(async () => {
       try {
-        const response = await defectService.getAnalysisStatus(analysisId);
+        const response = await analysisService.getAnalysisStatus(analysisId);
         if (response.data) {
           const newStatus = response.data;
           setStatus(newStatus);
