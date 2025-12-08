@@ -1,5 +1,6 @@
 from sqlalchemy import (
     Column,
+    Index,
     String,
     ForeignKey,
     Enum as SqlEnum,
@@ -77,16 +78,18 @@ class DefectSeverity(Enum):
 class Analysis(Base):
     __tablename__ = "analyses"
     id = Column(String(64), primary_key=True, index=True, default=uuid_generator)
+    key = Column(String(64), nullable=False, index=True)
     connection_id = Column(
         String(64),
         ForeignKey("connections.platform_connection_id", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
     project_key = Column(String(32), index=True)
     type = Column(SqlEnum(AnalysisType), nullable=False)
     story_key = Column(String(32), nullable=True, index=True)  # For targeted analyses
     status = Column(SqlEnum(AnalysisStatus), nullable=False)
-    started_at = Column(
+    created_at = Column(
         DATETIME(fsp=2),
         server_default=text("CURRENT_TIMESTAMP(2)"),
         nullable=False,
@@ -103,14 +106,20 @@ class Analysis(Base):
         "Proposal", back_populates="analysis", cascade="all, delete-orphan"
     )
 
+    # Index connection_id and project_key for faster queries
+    __table_args__ = (
+        Index("idx_connection_id_project_key", "connection_id", "project_key"),
+    )
+
 
 class Defect(Base):
     __tablename__ = "defects"
 
     id = Column(String(64), primary_key=True, index=True, default=uuid_generator)
+    key = Column(String(64), nullable=False, index=True)
     analysis_id = Column(
         String(64),
-        ForeignKey("analyses.id", name="fk_defects_analysis", ondelete="CASCADE"),
+        ForeignKey("analyses.id", ondelete="CASCADE"),
         nullable=False,
     )
     type = Column(SqlEnum(DefectType), nullable=False, index=True)
@@ -120,26 +129,25 @@ class Defect(Base):
     suggested_fix = Column(Text, nullable=True)
     solved = Column(Boolean, default=False, nullable=False)
 
-    # analysis_detail = relationship("AnalysisDetail", back_populates="defects")
     analysis = relationship("Analysis", back_populates="defects")
 
-    work_item_ids = relationship(
-        "DefectWorkItemId",
+    story_keys = relationship(
+        "DefectStoryKey",
         cascade="all, delete-orphan",
         back_populates="defect",
         lazy="joined",  # eager fetch equivalent to FetchType.EAGER
     )
 
 
-class DefectWorkItemId(Base):
-    __tablename__ = "defect_work_item_ids"
+class DefectStoryKey(Base):
+    __tablename__ = "defect_story_keys"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     defect_id = Column(
         String(64),
-        ForeignKey("defects.id", name="fk_defect_work_item", ondelete="CASCADE"),
+        ForeignKey("defects.id", ondelete="CASCADE"),
         nullable=False,
     )
-    key = Column(String(32), nullable=False, index=True)
+    key = Column(String(64), nullable=False, index=True)
 
-    defect = relationship("Defect", back_populates="work_item_ids")
+    defect = relationship("Defect", back_populates="story_keys")

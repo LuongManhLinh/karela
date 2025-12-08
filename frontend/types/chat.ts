@@ -1,5 +1,7 @@
 // Chat types
 
+import { SessionSummary } from ".";
+
 export type MessageRole =
   | "user"
   | "agent"
@@ -23,12 +25,7 @@ export interface ChatMessageDto {
   created_at: string;
 }
 
-export interface ChatSessionSummary {
-  id: string;
-  project_key: string;
-  story_key?: string;
-  created_at: string;
-}
+export interface ChatSessionSummary extends SessionSummary {}
 
 export interface ChatSessionDto extends ChatSessionSummary {
   messages: ChatMessageDto[];

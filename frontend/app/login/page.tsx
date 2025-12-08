@@ -64,19 +64,43 @@ export default function LoginPage() {
       sx={{
         minHeight: "100vh",
         display: "flex",
-        alignItems: "center",
+        flexDirection: "column",
         justifyContent: "center",
+        alignItems: "center",
         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         p: 2,
+        gap: 2,
       }}
     >
+      <Box
+        sx={{
+          position: "absolute",
+          top: 32,
+          left: 32,
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Box
+          component="img"
+          src="logo.svg"
+          alt="Logo"
+          sx={{ height: 40, mr: 1 }}
+        />
+        <Typography variant="h5" fontWeight="bold">
+          {" "}
+          RatSnake
+        </Typography>
+      </Box>
       <Container component="main" maxWidth="xs">
         <Paper
           elevation={4}
           sx={{
             p: 4,
             width: "100%",
-            borderRadius: 4,
+            borderRadius: 2,
             boxShadow: "0 20px 60px rgba(0, 0, 0, 0.15)",
           }}
         >

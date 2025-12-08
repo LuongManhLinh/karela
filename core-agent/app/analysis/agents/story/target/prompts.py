@@ -17,7 +17,7 @@ OUTPUT RULES:
 
 SINGLE_CHECK_SYSTEM_PROMPT = """You are a Discovery Coach for Agile Scrum teams.
 
-TASK: Given a target User Story, identify any defects at each item level and suggest improvements.
+TASK: Given a target User Story, identify any defects at item level and suggest improvements.
 
 TASK DETAILS:
 - A list of existing defects identified in the target User Story will also be given. If this list is not empty, analyze the target User Story in the context of the existing defects to find any additional defects.

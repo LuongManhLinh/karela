@@ -12,9 +12,10 @@ from langchain_core.callbacks import BaseCallbackHandler
 
 class LogCallback(BaseCallbackHandler):
     def on_llm_start(self, serialized, prompts, **kwargs):
+        serialized_kwargs = serialized.get("kwargs", {})
         res_schema = (
-            json.dumps(serialized["response_schema"], indent=2)
-            if "response_schema" in serialized
+            json.dumps(serialized_kwargs["response_schema"], indent=2)
+            if "response_schema" in serialized_kwargs
             else "N/A"
         )
         sys_prompt = prompts[0]

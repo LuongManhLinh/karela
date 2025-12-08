@@ -2,69 +2,77 @@
 
 import React from "react";
 import {
-  Paper,
   TextField,
   Button,
   Box,
-  MenuItem,
   Autocomplete,
   Typography,
-  Stack,
 } from "@mui/material";
+import { OpenInNew } from "@mui/icons-material";
 import { LoadingSpinner } from "./LoadingSpinner";
 import type { JiraConnectionDto } from "@/types/integration";
 import Link from "next/link";
 
-interface SessionStartFormProps {
+export interface StringOptions {
+  options: string[];
+  onChange: (value: string) => void;
+  selectedOption: string | null;
+  label?: string;
+  required?: boolean;
+  disabled?: boolean;
+}
+
+export interface SubmitAction {
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+}
+
+export interface SessionStartFormProps {
   selectedConnection: JiraConnectionDto | null;
   connections: JiraConnectionDto[];
   onConnectionChange: (connection: JiraConnectionDto) => void;
-  selectedProjectKey: string | null;
-  projectKeys: string[];
-  onProjectKeyChange: (projectKey: string) => void;
-  selectedStoryKey?: string | null;
-  storyKeys: string[];
-  onStoryKeyChange: (storyKey: string) => void;
-  onSubmit: () => void;
+  projectKeyOptions?: StringOptions;
+  storyKeyOptions?: StringOptions;
+  submitAction?: SubmitAction;
   loading?: boolean;
-  submitLabel?: string;
 }
 
 export const SessionStartForm: React.FC<SessionStartFormProps> = ({
   selectedConnection,
   connections,
   onConnectionChange,
-  selectedProjectKey,
-  projectKeys,
-  onProjectKeyChange,
-  selectedStoryKey,
-  storyKeys,
-  onStoryKeyChange,
-  onSubmit,
+  projectKeyOptions,
+  storyKeyOptions,
+  submitAction,
   loading,
-  submitLabel,
 }) => {
   if (connections.length === 0) {
     // No connnections available, add a link to /profile to set up connections
     return (
-      <Paper
-        elevation={1}
+      <Box
         sx={{
-          p: 3,
-          borderRadius: 3,
-          bgcolor: "background.paper",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
-        <Typography variant="h6" color="red" gutterBottom>
+        <Typography variant="h6" color="error" gutterBottom>
           No Connections Available
         </Typography>
-        <Link
-          href="/profile"
-          style={{ color: "white", textDecoration: "underline" }}
-        >
-          Set up connection
-        </Link>
-      </Paper>
+        <Box>
+          <Link
+            href="/profile"
+            style={{ color: "white", textDecoration: "underline" }}
+          >
+            Set up connection
+          </Link>
+          <OpenInNew
+            fontSize="small"
+            sx={{ verticalAlign: "middle", ml: 0.5 }}
+          />
+        </Box>
+      </Box>
     );
   }
 
@@ -124,65 +132,71 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
           });
         }}
       />
-      <Autocomplete
-        fullWidth
-        options={projectKeys}
-        value={selectedProjectKey || null}
-        onChange={(event, newValue) => {
-          onProjectKeyChange(newValue || "");
-        }}
-        disabled={loading}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Project Key"
-            required
-            margin="normal"
-            sx={{ minWidth: 120 }}
-          />
-        )}
-        filterOptions={(options, { inputValue }) => {
-          if (!inputValue) return options;
-          const searchValue = inputValue.toLowerCase();
-          return options.filter((key) =>
-            key.toLowerCase().startsWith(searchValue)
-          );
-        }}
-      />
-      <Autocomplete
-        fullWidth
-        options={storyKeys}
-        value={selectedStoryKey || null}
-        onChange={(event, newValue) => {
-          onStoryKeyChange(newValue || "");
-        }}
-        disabled={loading}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Story Key (Optional)"
-            margin="normal"
-            sx={{ minWidth: 150 }}
-          />
-        )}
-        filterOptions={(options, { inputValue }) => {
-          if (!inputValue) return options;
-          const searchValue = inputValue.toLowerCase();
-          return options.filter((key) =>
-            key.toLowerCase().startsWith(searchValue)
-          );
-        }}
-      />
-      <Button
-        type="submit"
-        variant="contained"
-        fullWidth
-        sx={{ mt: 2 }}
-        disabled={loading || !selectedConnection || !selectedProjectKey}
-        onClick={onSubmit}
-      >
-        {loading ? <LoadingSpinner size={24} /> : submitLabel || "Submit"}
-      </Button>
+      {projectKeyOptions && (
+        <Autocomplete
+          fullWidth
+          options={projectKeyOptions.options}
+          value={projectKeyOptions.selectedOption || null}
+          onChange={(event, newValue) => {
+            projectKeyOptions.onChange(newValue || "");
+          }}
+          disabled={loading}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label={projectKeyOptions.label || "Project Key"}
+              required
+              margin="normal"
+              sx={{ minWidth: 120 }}
+            />
+          )}
+          filterOptions={(options, { inputValue }) => {
+            if (!inputValue) return options;
+            const searchValue = inputValue.toLowerCase();
+            return options.filter((key) =>
+              key.toLowerCase().startsWith(searchValue)
+            );
+          }}
+        />
+      )}
+      {storyKeyOptions && (
+        <Autocomplete
+          fullWidth
+          options={storyKeyOptions.options}
+          value={storyKeyOptions.selectedOption || null}
+          onChange={(event, newValue) => {
+            storyKeyOptions.onChange(newValue || "");
+          }}
+          disabled={loading}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label={storyKeyOptions.label || "Story Key (Optional)"}
+              margin="normal"
+              sx={{ minWidth: 150 }}
+            />
+          )}
+          filterOptions={(options, { inputValue }) => {
+            if (!inputValue) return options;
+            const searchValue = inputValue.toLowerCase();
+            return options.filter((key) =>
+              key.toLowerCase().startsWith(searchValue)
+            );
+          }}
+        />
+      )}
+      {submitAction && (
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          sx={{ mt: 2 }}
+          disabled={loading || submitAction.disabled}
+          onClick={submitAction.onClick}
+        >
+          {submitAction.label}
+        </Button>
+      )}
     </Box>
   );
 };

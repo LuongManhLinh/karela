@@ -1,6 +1,6 @@
 from fastapi import Depends
 
-from .analysis.services import DefectDataService, DefectRunService
+from .analysis.services import AnalysisDataService, AnalysisRunService, DefectService
 from .chat.services import ChatService, ChatDataService
 from .integrations.jira.services import JiraService
 from .proposal.services import ProposalService
@@ -9,12 +9,12 @@ from .user.services import UserService
 from common.database import get_db
 
 
-def get_defect_data_service(db=Depends(get_db)):
-    return DefectDataService(db)
+def get_analysis_data_service(db=Depends(get_db)):
+    return AnalysisDataService(db)
 
 
-def get_defect_run_service(db=Depends(get_db)):
-    return DefectRunService(db)
+def get_analysis_run_service(db=Depends(get_db)):
+    return AnalysisRunService(db)
 
 
 def get_chat_service(db=Depends(get_db)):
@@ -39,3 +39,7 @@ def get_settings_service(db=Depends(get_db)):
 
 def get_user_service(db=Depends(get_db)):
     return UserService(db)
+
+
+def get_defect_service(db=Depends(get_db)):
+    return DefectService(db)

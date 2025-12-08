@@ -1,22 +1,25 @@
 "use client";
 
 import React from "react";
+import { IconButton, Box, Button, Stack, Paper, useTheme } from "@mui/material";
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  IconButton,
-  Box,
-  Button,
-  Stack,
-  Icon,
-  Paper,
-  useTheme,
-} from "@mui/material";
-import { Brightness4, Brightness7, Logout } from "@mui/icons-material";
+  Brightness4,
+  Brightness7,
+  Logout,
+  Assistant,
+  Analytics,
+  EmojiObjects,
+  ManageAccounts,
+} from "@mui/icons-material";
 import { useThemeMode } from "./ThemeProvider";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+const pages = [
+  { name: "Chat", href: "/chat", icon: <Assistant /> },
+  { name: "Analysis", href: "/analysis", icon: <Analytics /> },
+  { name: "Proposals", href: "/proposals", icon: <EmojiObjects /> },
+  { name: "Profile", href: "/profile", icon: <ManageAccounts /> },
+];
 
 export const MyAppBar: React.FC<{
   leftContent?: React.ReactNode;
@@ -33,12 +36,6 @@ export const MyAppBar: React.FC<{
 
   const pathname = usePathname();
 
-  const pages = [
-    { name: "Chat", href: "/chat" },
-    { name: "Analyze", href: "/analysis" },
-    { name: "Proposals", href: "/proposals" },
-    { name: "Profile", href: "/profile" },
-  ];
   return (
     <Box
       sx={{
@@ -54,17 +51,19 @@ export const MyAppBar: React.FC<{
       <Stack direction={"row"} alignItems="center" sx={{ px: 2, gap: 2 }}>
         <Box sx={{ flexGrow: 1 }}>{leftContent}</Box>
 
-        <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
+        <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
           {pages.map((page) => (
             <Button
               color="inherit"
+              size="small"
               component={Link}
               href={page.href}
               key={page.name}
+              startIcon={page.icon}
               sx={{
-                borderRadius: 2,
-                px: 2,
-                textDecoration: pathname === page.href ? "underline" : "none",
+                px: 1,
+                py: 0.4,
+                bgcolor: pathname === page.href ? "primary.main" : "none",
               }}
             >
               {page.name}

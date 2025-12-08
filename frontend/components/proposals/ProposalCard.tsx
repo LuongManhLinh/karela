@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Accordion,
   AccordionSummary,
@@ -20,6 +20,8 @@ import type {
   ProposalContentDto,
   ProposalDto,
 } from "@/types/proposal";
+import StoryChip from "../StoryChip";
+import DefectChip from "../DefectChip";
 
 interface ProposalCardProps {
   proposal: ProposalDto;
@@ -51,6 +53,8 @@ const typeChipColor = (type: string) => {
       return "success";
     case "UPDATE":
       return "info";
+    case "DELETE":
+      return "error";
     default:
       return "default";
   }
@@ -93,6 +97,21 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
       onProposalContentAction(proposal.id, content, flag)
     );
   };
+
+  const proposalAccepted = useMemo<boolean | null>(() => {
+    // Accepted if all the contents are accepted
+    let numAccepted = 0;
+    let numRejected = 0;
+    let numPending = 0;
+    proposal.contents.forEach((content) => {
+      if (content.accepted === true) numAccepted++;
+      else if (content.accepted === false) numRejected++;
+      else numPending++;
+    });
+    if (numAccepted === proposal.contents.length) return true;
+    if (numRejected === proposal.contents.length) return false;
+    return null;
+  }, [proposal]);
 
   const renderActionButtons = (
     accepted?: boolean | null,
@@ -152,35 +171,53 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
       sx={{
         borderRadius: 1,
         bgcolor: "background.paper",
-        "&:before": { display: "none" },
+        "&.Mui-expanded": {
+          margin: "0",
+
+          // 2. IMPORTANT: Re-apply the Stack's margin (space={1} = 8px by default)
+          marginTop: (theme) => theme.spacing(1),
+          marginBottom: (theme) => theme.spacing(1),
+        },
+        // The optional fix for the line/shadow:
+        "&:before": {
+          display: "none",
+        },
       }}
     >
       <AccordionSummary expandIcon={<ExpandMore fontSize="medium" />}>
         <Stack
-          direction="row"
+          direction={{ xs: "column", md: "row" }}
+          justifyContent="space-between"
           spacing={1}
           alignItems="center"
           width={"100%"}
           paddingInlineEnd={1}
         >
-          <Stack direction="row" spacing={1} alignItems="center" flexGrow={1}>
-            <Typography variant="h6">Proposal</Typography>
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap", // items go to multiple rows
+              gap: 1,
+              flexGrow: 1, // expand to fill remaining space
+            }}
+          >
+            <Chip label={proposal.key} size="medium" color="primary" />
             <Chip
-              label={proposal.source}
-              size="small"
-              color={proposal.source === "CHAT" ? "primary" : "secondary"}
+              label={`Project: ${proposal.project_key}`}
+              size="medium"
+              color="secondary"
             />
+            <Chip label={proposal.source} size="medium" color="info" />
             <Chip
               label={`${proposal.contents.length} change${
                 proposal.contents.length === 1 ? "" : "s"
               }`}
-              size="small"
+              size="medium"
               color="default"
             />
-            {proposal.accepted !== undefined && statusChip(proposal.accepted)}
-          </Stack>
+          </Box>
           {renderActionButtons(
-            proposal.accepted ?? null,
+            proposalAccepted,
             () => handleProposalAction(1),
             () => handleProposalAction(0),
             () => handleProposalAction(-1),
@@ -192,16 +229,38 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
         </Stack>
       </AccordionSummary>
       <AccordionDetails>
-        <Stack direction="column">
-          <Typography variant="body2" color="text.secondary">
-            Project: {proposal.project_key}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 3,
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap", // items go to multiple rows
+              gap: 1,
+              flexGrow: 1, // expand to fill remaining space
+            }}
+          >
+            Target Defects:&nbsp;
+            {proposal.target_defect_keys?.map((defKey) => (
+              <DefectChip key={defKey} defectKey={defKey} />
+            ))}
+          </Box>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ flexShrink: 0 }}
+          >
             Created {new Date(proposal.created_at).toLocaleString()}
           </Typography>
-        </Stack>
+        </Box>
 
-        <Stack spacing={2}>
+        <Stack spacing={1}>
           {proposal.contents.map((content, index) => (
             <Card
               key={content.id || `${proposal.id}-${index}`}
@@ -213,26 +272,24 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
                   justifyContent="space-between"
                   spacing={1}
                 >
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    alignItems="center"
-                    flexWrap="wrap"
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexWrap: "wrap", // items go to multiple rows
+                      gap: 1,
+                      flexGrow: 1, // expand to fill remaining space
+                    }}
                   >
+                    {content.story_key && (
+                      <StoryChip storyKey={content.story_key} size="small" />
+                    )}
                     <Chip
                       label={content.type}
                       size="small"
                       color={typeChipColor(content.type) as any}
                     />
                     {statusChip(content.accepted)}
-                    {content.key && (
-                      <Chip
-                        label={content.key}
-                        size="small"
-                        variant="outlined"
-                      />
-                    )}
-                  </Stack>
+                  </Box>
                   {renderActionButtons(
                     content.accepted || null,
                     content.id

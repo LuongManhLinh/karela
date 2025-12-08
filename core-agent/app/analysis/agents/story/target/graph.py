@@ -1,13 +1,11 @@
 from langchain_core.runnables import RunnableConfig
+from langchain_core.messages import HumanMessage
 from typing_extensions import TypedDict
 from typing import Optional, List, Callable
 from langgraph.graph import StateGraph
 from langgraph.runtime import Runtime
 
-from ...schemas import (
-    WorkItemMinimal,
-    DefectByLlm,
-)
+from ...schemas import WorkItemMinimal, DefectByLlm, DefectInput
 from llm.dynamic_agent import GenimiDynamicAgent
 from .schemas import CrossCheckInput, SingleCheckInput
 from ...output_schemas import DetectDefectOutput
@@ -28,7 +26,7 @@ class Context(TypedDict):
     work_items: List[WorkItemMinimal]
     on_done: Callable
     context_input: ContextInput
-    existing_defects: List[DefectByLlm] = []
+    existing_defects: List[DefectInput] = []
 
     defects: List[DefectByLlm] = []
 
@@ -77,32 +75,36 @@ def defect_adapter_node(state: State, runtime: Runtime[Context]) -> dict:
 
 
 def single_check_node(state: State, runtime: Runtime[Context]) -> dict:
-    work_items = runtime.context.get("work_items", [])
+    target = runtime.context.get("target", None)
+    context_input = runtime.context.get("context_input", None)
     print(
         f"""
 {"-"*100}
 | Single Check Node
 | State: {state}
-| Number of work items to check: {len(work_items)}
+| Target: {target}
+| Having Context Input: {context_input is not None}
 {"-"*100}
 """
     )
-    if work_items:
+    if target and context_input:
         # Filter existing defects for single check, keeping only those have type
         existing_defects = runtime.context.get("existing_defects", [])
         filtered_existing_defects = [
             defect
             for defect in existing_defects
-            if defect.type in potential_single_defects
+            if defect.type in potential_single_defects and target in defect.story_keys
         ]
         input_data = SingleCheckInput(
-            target_user_story=runtime.context.get("target"),
-            user_stories=work_items,
-            context_input=runtime.context.get("context_input", None),
+            target_user_story=target,
+            context_input=context_input,
             existing_defects=filtered_existing_defects,
         )
         output: DetectDefectOutput = single_check_agent.invoke(
-            "Here is the input data:\n" + input_data.model_dump_json(indent=2)
+            HumanMessage(
+                content="Here is the input data:\n"
+                + input_data.model_dump_json(indent=2)
+            )
         )["structured_response"]
 
         runtime.context.get("defects").extend(output.defects or [])
@@ -135,7 +137,10 @@ def cross_check_node(state: State, runtime: Runtime[Context]) -> dict:
             existing_defects=filtered_existing_defects,
         )
         output: DetectDefectOutput = cross_check_agent.invoke(
-            "Here is the input data:\n" + input_data.model_dump_json(indent=2)
+            HumanMessage(
+                content="Here is the input data:\n"
+                + input_data.model_dump_json(indent=2)
+            )
         )["structured_response"]
 
         runtime.context.get("defects").extend(output.defects or [])
@@ -185,14 +190,14 @@ def build_graph():
     return graph.compile()
 
 
-compiled = build_graph()
+_compiled = build_graph()
 
 
 async def run_analysis_async(
     target_user_story: WorkItemMinimal,
     user_stories: List[WorkItemMinimal],
     context_input: Optional[ContextInput] = None,
-    existing_defects: List[DefectByLlm] = [],
+    existing_defects: List[DefectInput] = [],
 ) -> List[DefectByLlm]:
     res = None
 
@@ -200,7 +205,7 @@ async def run_analysis_async(
         nonlocal res
         res = defects
 
-    await compiled.ainvoke(
+    await _compiled.ainvoke(
         State(
             done_adapter=False,
             done_single_item_check=False,
@@ -225,7 +230,7 @@ def run_analysis(
     target_user_story: WorkItemMinimal,
     user_stories: List[WorkItemMinimal],
     context_input: Optional[ContextInput] = None,
-    existing_defects: List[DefectByLlm] = [],
+    existing_defects: List[DefectInput] = [],
 ) -> List[DefectByLlm]:
     res = None
 
@@ -233,7 +238,7 @@ def run_analysis(
         nonlocal res
         res = defects
 
-    compiled.invoke(
+    _compiled.invoke(
         State(
             done_adapter=False,
             done_single_item_check=False,
@@ -252,3 +257,47 @@ def run_analysis(
     )
 
     return res
+
+
+_node_completed_msg = {
+    "defect_adapter": "Checking for defects...",
+    "single_check": "Single Item Check completed.",
+    "cross_check": "Cross Type Check completed.",
+    "defect_signer": "All processes completed.",
+}
+
+
+def stream_analysis(
+    target_user_story: WorkItemMinimal,
+    user_stories: List[WorkItemMinimal],
+    context_input: Optional[ContextInput] = None,
+    existing_defects: List[DefectInput] = [],
+):
+    res = None
+
+    def on_done(defects: List[DefectByLlm]):
+        nonlocal res
+        res = defects
+
+    yield {"message": "Starting Analysis..."}
+
+    for step in _compiled.stream(
+        State(
+            done_adapter=False,
+            done_single_item_check=False,
+            done_cross_type_check=False,
+            done_signing=False,
+        ),
+        context=Context(
+            target=target_user_story,
+            work_items=user_stories,
+            context_input=context_input,
+            on_done=on_done,
+            existing_defects=existing_defects,
+            defects=[],
+        ),
+        config=RunnableConfig(max_concurrency=3, stream=True),
+    ):
+        yield {"message": _node_completed_msg.get(list(step.keys())[0], "")}
+
+    yield {"data": res}

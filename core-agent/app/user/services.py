@@ -84,3 +84,7 @@ class UserService:
         return UserConnections(
             jira_connections=jira_connections, azure_devops_connections=[]
         )
+
+    def is_valid_user(self, user_id: str) -> bool:
+        user = self.db.get(User, user_id)
+        return user is not None

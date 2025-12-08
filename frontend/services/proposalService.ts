@@ -2,6 +2,7 @@ import apiClient from "./api";
 import type { BasicResponse } from "@/types";
 import type {
   ProposalActionFlag,
+  SessionsHavingProposals,
   ProposalDto,
   ProposalSource,
 } from "@/types/proposal";
@@ -18,10 +19,10 @@ export const proposalService = {
 
   getProposalsByConnection: async (
     connectionId: string
-  ): Promise<BasicResponse<ProposalDto[]>> => {
-    const response = await apiClient.get<BasicResponse<ProposalDto[]>>(
-      `/proposals/connections/${connectionId}`
-    );
+  ): Promise<BasicResponse<SessionsHavingProposals>> => {
+    const response = await apiClient.get<
+      BasicResponse<SessionsHavingProposals>
+    >(`/proposals/connections/${connectionId}`);
     return response.data;
   },
 

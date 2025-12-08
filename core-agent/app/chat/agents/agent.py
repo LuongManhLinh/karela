@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from common.configs import GeminiConfig
 from app.chat.services import ChatDataService
 from app.proposal.services import ProposalService
-from app.analysis.services import DefectDataService
+from app.analysis.services import AnalysisDataService, DefectService
 from .prompts import RESOLVER_SYSTEM_PROMPT, RESOLVER_TOOL_SELECTOR_SYSTEM_PROMPT
 from .tools import tools
 
@@ -44,7 +44,8 @@ class Context:
     project_key: str
     chat_data_service: ChatDataService
     proposal_service: ProposalService
-    defect_data_service: DefectDataService
+    analysis_data_service: AnalysisDataService
+    defect_service: DefectService
     story_key: str = None
 
 
@@ -77,7 +78,8 @@ def chat_with_agent(
             story_key=story_key,
             chat_data_service=ChatDataService(db_session),
             proposal_service=ProposalService(db_session),
-            defect_data_service=DefectDataService(db_session),
+            analysis_data_service=AnalysisDataService(db_session),
+            defect_service=DefectService(db_session),
         ),
     )
 
@@ -113,7 +115,8 @@ def stream_with_agent(
             story_key=story_key,
             chat_data_service=ChatDataService(db_session),
             proposal_service=ProposalService(db_session),
-            defect_data_service=DefectDataService(db_session),
+            analysis_data_service=AnalysisDataService(db_session),
+            defect_service=DefectService(db_session),
         ),
         stream_mode="messages",
     ):

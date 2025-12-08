@@ -3,18 +3,31 @@ from pydantic import BaseModel, Field, ConfigDict
 
 
 class DefectByLlm(BaseModel):
-    """The schema for detected defects among work items"""
+    """The schema for detected defects among the User Stories."""
 
     type: str = Field(
         description="Type of the defect, one of the types mentioned in the instruction",
     )
-    work_item_keys: List[str] = Field(
-        description="Keys of the work items involved in the defect"
+    story_keys: List[str] = Field(
+        description="Keys of the stories involved in the defect"
     )
     severity: str = Field(description="'LOW' | 'MEDIUM' | 'HIGH'")
     explanation: str = Field()
     confidence: float = Field()
     suggested_fix: str = Field()
+
+    model_config = ConfigDict(
+        extra="ignore",
+    )
+
+
+class DefectInput(DefectByLlm):
+    """The schema for detected defects among the User Stories."""
+
+    id: str = Field(
+        ...,
+        description="The key to identify the defect.",
+    )
 
     model_config = ConfigDict(
         extra="ignore",

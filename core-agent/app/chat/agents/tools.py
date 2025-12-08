@@ -2,10 +2,9 @@ from langchain.tools import tool, ToolRuntime
 from typing import Optional
 import json
 
-from ..services import ChatDataService
 from app.proposal.services import ProposalService
 from app.proposal.schemas import CreateProposalRequest, ProposeStoryRequest
-from app.analysis.services import DefectDataService
+from app.analysis.services import AnalysisDataService, DefectService
 from app.analysis.tasks import analyze_target_user_story
 
 from common.redis_app import task_queue
@@ -42,13 +41,15 @@ def get_defects(story_key: Optional[str], runtime: ToolRuntime) -> str:
                 indent=2,
             )
 
-    service: DefectDataService = runtime.context.defect_data_service
+    service: DefectService = runtime.context.defect_service
     if not service:
         return json.dumps(
-            {"error": "DefectDataService not found in context. Cannot fetch defects."},
+            {
+                "error": "AnalysisDataService not found in context. Cannot fetch defects."
+            },
             indent=2,
         )
-    defects = service.get_defects_by_work_item_key(story_key)
+    defects = service.get_defects_by_story_key(story_key)
 
     return json.dumps({"defects": defects}, indent=2)
 
@@ -97,16 +98,16 @@ def run_defect_analysis(story_key: Optional[str], runtime: ToolRuntime) -> str:
             indent=2,
         )
 
-    defect_data_service: DefectDataService = runtime.context.defect_data_service
-    if not defect_data_service:
+    analysis_data_service: AnalysisDataService = runtime.context.analysis_data_service
+    if not analysis_data_service:
         return json.dumps(
             {
-                "error": "DefectDataService not found in context. Cannot run defect analysis."
+                "error": "AnalysisDataService not found in context. Cannot run defect analysis."
             },
             indent=2,
         )
 
-    analysis_id = defect_data_service.init_analysis(
+    analysis_id = analysis_data_service.init_analysis(
         connection_id=connection_id,
         project_key=project_key,
         analysis_type="TARGETED",
@@ -135,16 +136,16 @@ def get_analysis_status(analysis_id: str, runtime: ToolRuntime) -> str:
 """
     )
 
-    defect_data_service: DefectDataService = runtime.context.defect_data_service
-    if not defect_data_service:
+    analysis_data_service: AnalysisDataService = runtime.context.analysis_data_service
+    if not analysis_data_service:
         return json.dumps(
             {
-                "error": "DefectDataService not found in context. Cannot get analysis status."
+                "error": "AnalysisDataService not found in context. Cannot get analysis status."
             },
             indent=2,
         )
 
-    status = defect_data_service.get_analysis_status(analysis_id)
+    status = analysis_data_service.get_analysis_status(analysis_id)
 
     if not status:
         return json.dumps(
@@ -208,11 +209,11 @@ def get_latest_done_analysis(story_key: Optional[str], runtime: ToolRuntime) -> 
 """
     )
 
-    defect_data_service: DefectDataService = runtime.context.defect_data_service
-    if not defect_data_service:
+    analysis_data_service: AnalysisDataService = runtime.context.analysis_data_service
+    if not analysis_data_service:
         return json.dumps(
             {
-                "error": "DefectDataService not found in context. Cannot get latest done analysis."
+                "error": "AnalysisDataService not found in context. Cannot get latest done analysis."
             },
             indent=2,
         )
@@ -226,7 +227,7 @@ def get_latest_done_analysis(story_key: Optional[str], runtime: ToolRuntime) -> 
             indent=2,
         )
 
-    analysis = defect_data_service.get_latest_done_analysis(project_key, story_key)
+    analysis = analysis_data_service.get_latest_done_analysis(project_key, story_key)
     if analysis:
         return json.dumps(analysis, indent=2)
     return json.dumps(
@@ -237,13 +238,15 @@ def get_latest_done_analysis(story_key: Optional[str], runtime: ToolRuntime) -> 
 
 @tool
 def propose_updating_stories(modifications: list[dict], runtime: ToolRuntime) -> str:
-    """Make proposals to modify one or many user stories. The proposals will either be accepted or rejected by the user later.
+    """Make proposals to modify one or many user stories.
+    Story key is required for each modification.
+    The proposals will either be accepted or rejected by the user later.
     Args:
         modifications (list[dict]): A list of modifications to apply to user stories.
-            Each modification should include 'story_id', 'summary' and/or 'description',
-            and may include 'explanation'.
-            If 'summary' or 'description' is not provided, that field will not be modified.
-            At least one of 'summary' or 'description' must be provided for each modification.
+            Each modification should include 'story_id', `summary` and/or `description`,
+            and may include `explanation`.
+            If `summary` or `description` is not provided, that field will not be modified.
+            At least one of `summary` or `description` must be provided for each modification.
             Use normal text for summary and markdown for description. For example:
             [
                 {
@@ -332,22 +335,22 @@ def propose_creating_stories(
     stories: list[dict],
     runtime: ToolRuntime,
 ) -> str:
-    """Make proposals to create one or many user stories. The proposals will either be accepted or rejected by the user later.
+    """Make proposals to create one or many user stories.
+    Story key is NOT required for each creation since it will be automatically generated latter.
+    The proposals will either be accepted or rejected by the user later.
 
     Args:
         stories (list[dict]): A list of user stories to create.
-            Each story must include both 'summary' and 'description', and may include 'explanation'.
-            'summary' should be normal text, and 'description' should be in markdown format.
+            Each story must include both `summary` and `description`, and may include `explanation`.
+            `summary` should be normal text, and `description` should be in markdown format.
             For example:
             [
                 {
-                    "story_key": "US-123",
                     "summary": "New Summary",
                     "description": "Updated description in **markdown**.",
                     "explanation": "This change is necessary because..."
                 },
                 {
-                    "story_key": "US-456",
                     "summary": "Another New Summary",
                     "description": "**Another** updated description.",
                     "explanation": "This change is necessary to address the issue."
@@ -430,9 +433,9 @@ def propose_multiple_types_of_story_changes(
 
     Args:
         modifications (list[dict]): A list of modifications to apply to existing user stories.
-            Each modification should include 'story_key', 'summary' and/or 'description',
+            Each modification should include 'story_key', `summary` and/or `description`,
             and may include 'explanation'.
-            At least one of 'summary' or 'description' must be provided for each modification.
+            At least one of `summary` or `description` must be provided for each modification.
             Use normal text for summary and markdown for description. For example:
             [
                 {
@@ -449,8 +452,8 @@ def propose_multiple_types_of_story_changes(
             ]
 
         creations (list[dict]): A list of new user stories to create.
-            Each story must include both 'summary' and 'description', and may include 'explanation'.
-            'summary' should be normal text, and 'description' should be in markdown format.
+            Each story must include both `summary` and `description`, and may include 'explanation'.
+            `summary` should be normal text, and `description` should be in markdown format.
             For example:
             [
                 {

@@ -1,12 +1,9 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Divider, Stack, Typography } from "@mui/material";
 
-import {
-  WorkspaceShell,
-  WorkspaceSessionItem,
-} from "@/components/WorkspaceShell";
+import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { userService } from "@/services/userService";
 import { proposalService } from "@/services/proposalService";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -14,27 +11,33 @@ import { ErrorSnackbar } from "@/components/ErrorSnackbar";
 import { ProposalCard } from "@/components/proposals/ProposalCard";
 import type {
   ProposalActionFlag,
+  SessionsHavingProposals,
   ProposalContentDto,
   ProposalDto,
+  ProposalSource,
 } from "@/types/proposal";
 import type { JiraConnectionDto } from "@/types/integration";
+import { DoubleLayout } from "@/components/Layout";
+import { SessionStartForm } from "@/components/SessionStartForm";
+import SessionList, { SessionItem } from "@/components/SessionList";
+import HeaderContent from "@/components/HeaderContent";
 
 const ProposalPageContent: React.FC = () => {
   const [connections, setConnections] = useState<JiraConnectionDto[]>([]);
   const [selectedConnection, setSelectedConnection] =
     useState<JiraConnectionDto | null>(null);
-  const [projectKeys, setProjectKeys] = useState<string[]>([]);
-  const [projectKey, setProjectKey] = useState("");
-  const [storyKeys, setStoryKeys] = useState<string[]>([]);
-  const [storyKey, setStoryKey] = useState("");
 
   const [loadingConnections, setLoadingConnections] = useState(true);
   const [loadingProposals, setLoadingProposals] = useState(false);
 
-  const [proposals, setProposals] = useState<ProposalDto[]>([]);
-  const [selectedProposalId, setSelectedProposalId] = useState<string | null>(
+  const [sessions, setSessions] = useState<SessionsHavingProposals | null>(
     null
   );
+
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
+    null
+  );
+  const [proposals, setProposals] = useState<ProposalDto[]>([]);
 
   const [error, setError] = useState("");
   const [showError, setShowError] = useState(false);
@@ -53,10 +56,7 @@ const ProposalPageContent: React.FC = () => {
         if (jiraConnections.length > 0) {
           const firstConn = jiraConnections[0];
           setSelectedConnection(firstConn);
-          await Promise.all([
-            loadProjectKeys(firstConn.id),
-            loadProposals(firstConn.id),
-          ]);
+          await loadSessions(firstConn.id);
         }
       }
     } catch (err) {
@@ -66,48 +66,12 @@ const ProposalPageContent: React.FC = () => {
     }
   };
 
-  const loadProjectKeys = async (connId: string) => {
-    try {
-      const response = await userService.getProjectKeys(connId);
-      if (response.data) {
-        setProjectKeys(response.data);
-        if (response.data.length > 0) {
-          const firstProject = response.data[0];
-          setProjectKey(firstProject);
-          await loadStoryKeys(connId, firstProject);
-        } else {
-          setProjectKey("");
-          setStoryKeys([]);
-        }
-      }
-    } catch (err) {
-      console.error("Failed to load project keys:", err);
-    }
-  };
-
-  const loadStoryKeys = async (connId: string, projKey: string) => {
-    try {
-      const response = await userService.getIssueKeys(connId, projKey);
-      if (response.data) {
-        setStoryKeys(["None", ...response.data]);
-      }
-    } catch (err) {
-      console.error("Failed to load story keys:", err);
-    }
-  };
-
-  const loadProposals = async (connId: string) => {
+  const loadSessions = async (connId: string) => {
     if (!connId) return;
     setLoadingProposals(true);
     try {
       const response = await proposalService.getProposalsByConnection(connId);
-      const data = response.data || [];
-      setProposals(data);
-      setSelectedProposalId((prev) =>
-        prev && data.some((proposal) => proposal.id === prev)
-          ? prev
-          : data[0]?.id || null
-      );
+      setSessions(response.data);
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.detail || "Failed to load proposals";
@@ -120,19 +84,35 @@ const ProposalPageContent: React.FC = () => {
 
   const handleConnectionChange = async (conn: JiraConnectionDto) => {
     setSelectedConnection(conn);
-    setSelectedProposalId(null);
-    setProposals([]);
-    await Promise.all([loadProjectKeys(conn.id), loadProposals(conn.id)]);
-  };
-
-  const handleProjectKeyChange = async (projKey: string) => {
-    setProjectKey(projKey);
-    setStoryKey("");
-    await loadStoryKeys(selectedConnection!.id, projKey);
+    setSelectedSessionId(null);
+    setSessions(null);
+    await loadSessions(conn.id);
   };
 
   const handleRefresh = async () => {
-    await loadProposals(selectedConnection!.id);
+    await loadSessions(selectedConnection!.id);
+  };
+
+  const handleSelectSession = async (
+    sessionId: string,
+    source: ProposalSource
+  ) => {
+    setSelectedSessionId(sessionId);
+    try {
+      setLoadingProposals(true);
+      const res = await proposalService.getProposalsBySession(
+        sessionId,
+        source
+      );
+      setProposals(res.data || []);
+    } catch (err: any) {
+      const errorMessage =
+        err.response?.data?.detail || "Failed to load proposals for session";
+      setError(errorMessage);
+      setShowError(true);
+    } finally {
+      setLoadingProposals(false);
+    }
   };
 
   const handleProposalAction = async (
@@ -141,7 +121,7 @@ const ProposalPageContent: React.FC = () => {
   ) => {
     try {
       await proposalService.actOnProposal(proposalId, flag);
-      await loadProposals(selectedConnection!.id);
+      await loadSessions(selectedConnection!.id);
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.detail || "Failed to update proposal";
@@ -158,7 +138,7 @@ const ProposalPageContent: React.FC = () => {
     if (!content.id) return;
     try {
       await proposalService.actOnProposalContent(proposalId, content.id, flag);
-      await loadProposals(selectedConnection!.id);
+      await loadSessions(selectedConnection!.id);
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.detail || "Failed to update proposal content";
@@ -167,33 +147,25 @@ const ProposalPageContent: React.FC = () => {
     }
   };
 
-  const sessionItems = useMemo<WorkspaceSessionItem[]>(() => {
-    return proposals.map((proposal) => ({
-      id: proposal.id,
-      title: `${proposal.project_key} · ${proposal.source}`,
-      subtitle: new Date(proposal.created_at).toLocaleString(),
-      chips: [
-        {
-          label: `${proposal.contents.length} changes`,
-          color: "default",
-        },
-      ],
+  const analysisSessions = useMemo<SessionItem[]>(() => {
+    if (!sessions) return [];
+
+    return sessions.analysis_sessions.map((session) => ({
+      id: session.id,
+      title: session.key,
+      subtitle: new Date(session.created_at).toLocaleString(),
     }));
-  }, [proposals]);
+  }, [sessions]);
 
-  const visibleProposals = useMemo(() => {
-    if (!selectedProposalId) {
-      return proposals;
-    }
-    const match = proposals.find(
-      (proposal) => proposal.id === selectedProposalId
-    );
-    return match ? [match] : proposals;
-  }, [proposals, selectedProposalId]);
+  const chatSessions = useMemo<SessionItem[]>(() => {
+    if (!sessions) return [];
 
-  const handleSelectProposal = (proposalId: string) => {
-    setSelectedProposalId((prev) => (prev === proposalId ? null : proposalId));
-  };
+    return sessions.chat_sessions.map((session) => ({
+      id: session.id,
+      title: session.key,
+      subtitle: new Date(session.created_at).toLocaleString(),
+    }));
+  }, [sessions]);
 
   const proposalsContent = (
     <Box
@@ -204,7 +176,8 @@ const ProposalPageContent: React.FC = () => {
         alignItems: "center",
         width: "100%",
         height: "100%",
-        p: 2,
+        scrollbarColor: "#6b6b6b transparent",
+        scrollbarWidth: "auto",
       }}
     >
       <Box
@@ -219,25 +192,19 @@ const ProposalPageContent: React.FC = () => {
         <Box sx={{ width: "70%", py: 2 }}>
           {loadingProposals ? (
             <LoadingSpinner />
-          ) : proposals.length === 0 ? (
+          ) : sessions === null ? (
             <Typography color="text.secondary" textAlign="center">
               No proposals found for this connection.
             </Typography>
           ) : (
             <Stack spacing={2}>
-              {selectedProposalId && visibleProposals.length === 1 && (
-                <Typography variant="body2" color="text.secondary">
-                  Showing proposal {visibleProposals[0].id}. Select it again to
-                  view all proposals.
-                </Typography>
-              )}
-              {visibleProposals.map((proposal) => (
+              {proposals.map((proposal) => (
                 <ProposalCard
                   key={proposal.id}
                   proposal={proposal}
                   onProposalAction={handleProposalAction}
                   onProposalContentAction={handleProposalContentAction}
-                  defaultExpanded={visibleProposals.length === 1}
+                  defaultExpanded={proposals.length === 1}
                 />
               ))}
             </Stack>
@@ -253,27 +220,62 @@ const ProposalPageContent: React.FC = () => {
   );
 
   return (
-    <WorkspaceShell
-      connections={connections}
-      selectedConnection={selectedConnection}
-      onConnectionChange={handleConnectionChange}
-      selectedProjectKey={projectKey}
-      projectKeys={projectKeys}
-      onProjectKeyChange={handleProjectKeyChange}
-      selectedStoryKey={storyKey}
-      storyKeys={storyKeys}
-      onStoryKeyChange={setStoryKey}
-      onSessionFormSubmit={handleRefresh}
-      sessionSubmitLabel="Refresh"
-      sessions={sessionItems}
-      selectedSessionId={selectedProposalId}
-      onSelectSession={handleSelectProposal}
-      loadingSessions={loadingProposals}
-      loadingConnections={loadingConnections}
-      emptyStateText="No proposals in this connection"
-      sessionListLabel="Proposals"
+    <DoubleLayout
+      leftChildren={
+        <Box
+          sx={{
+            p: 2,
+            height: "100%",
+            flexDirection: "column",
+            display: "flex",
+          }}
+        >
+          <SessionStartForm
+            selectedConnection={selectedConnection}
+            connections={connections}
+            onConnectionChange={handleConnectionChange}
+            loading={loadingConnections}
+          />
+          <Divider sx={{ my: 2 }} />
+          <Typography
+            variant="subtitle2"
+            sx={{
+              textTransform: "uppercase",
+              mb: 1,
+              ml: 2,
+              color: "text.secondary",
+            }}
+          >
+            Analysis Proposals
+          </Typography>
+          <SessionList
+            sessions={analysisSessions}
+            selectedId={selectedSessionId || null}
+            onSelect={(id: string) => handleSelectSession(id, "ANALYSIS")}
+            emptyStateText="No analysis sessions having proposals"
+          />
+          <Divider sx={{ my: 2 }} />
+          <Typography
+            variant="subtitle2"
+            sx={{
+              textTransform: "uppercase",
+              mb: 1,
+              ml: 2,
+              color: "text.secondary",
+            }}
+          >
+            Chat Proposals
+          </Typography>
+          <SessionList
+            sessions={chatSessions}
+            selectedId={selectedSessionId || null}
+            onSelect={(id: string) => handleSelectSession(id, "CHAT")}
+            emptyStateText="No chat sessions having proposals"
+          />
+        </Box>
+      }
       rightChildren={proposalsContent}
-      headerText="Proposals"
+      appBarLeftContent={<HeaderContent headerText="Proposals" />}
       appBarTransparent
     />
   );

@@ -9,10 +9,12 @@ from ..models import (
 )
 from ..schemas import (
     ChatMessageDto,
+    ChatSessionDto,
     ChatSessionSummary,
 )
 
 from sqlalchemy.orm import Session
+from sqlalchemy import func, select
 
 
 from typing import List, Optional
@@ -24,13 +26,17 @@ class ChatDataService:
 
     def create_chat_session(
         self,
-        user_id: str,
         connection_id: str,
         project_key: str,
         story_key: str = None,
     ):
+        stmt = select(func.count(ChatSession.id)).filter(
+            ChatSession.connection_id == connection_id,
+            ChatSession.project_key == project_key,
+        )
+        chat_session_count = self.db.execute(stmt).scalar_one()
         chat_session = ChatSession(
-            user_id=user_id,
+            key=f"{project_key}-CHAT-{chat_session_count + 1}",
             connection_id=connection_id,
             project_key=project_key,
             story_key=story_key,
@@ -60,11 +66,10 @@ class ChatDataService:
         self.db.refresh(message)
         return message.id, message.created_at.isoformat()
 
-    def list_chat_sessions(self, user_id: str, connection_id: str):
+    def list_chat_sessions(self, connection_id: str):
         sessions = (
             self.db.query(ChatSession)
             .filter(
-                ChatSession.user_id == user_id,
                 ChatSession.connection_id == connection_id,
             )
             .order_by(ChatSession.created_at.desc())
@@ -74,6 +79,7 @@ class ChatDataService:
         return [
             ChatSessionSummary(
                 id=session.id,
+                key=session.key,
                 project_key=session.project_key,
                 story_key=session.story_key,
                 created_at=session.created_at.isoformat(),
@@ -81,9 +87,9 @@ class ChatDataService:
             for session in sessions
         ]
 
-    def get_messages_in_session(self, session_id: str) -> List[ChatMessageDto]:
+    def get_chat_session(self, session_id: str) -> ChatSessionDto:
         session = (
-            self.db.query(ChatSession.id).filter(ChatSession.id == session_id).first()
+            self.db.query(ChatSession).filter(ChatSession.id == session_id).first()
         )
         if not session:
             raise ValueError(f"Chat session {session_id} not found")
@@ -93,15 +99,22 @@ class ChatDataService:
             .order_by(Message.created_at.asc())
             .all()
         )
-        return [
-            ChatMessageDto(
-                id=message.id,
-                role=message.role.value,
-                content=message.content,
-                created_at=message.created_at.isoformat(),
-            )
-            for message in messages
-        ]
+        return ChatSessionDto(
+            id=session.id,
+            key=session.key,
+            project_key=session.project_key,
+            story_key=session.story_key,
+            created_at=session.created_at.isoformat(),
+            messages=[
+                ChatMessageDto(
+                    id=message.id,
+                    role=message.role.value,
+                    content=message.content,
+                    created_at=message.created_at.isoformat(),
+                )
+                for message in messages
+            ],
+        )
 
     def get_latest_messages_after(
         self, session_id: str, message_id: int

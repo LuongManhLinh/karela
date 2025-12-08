@@ -10,5 +10,7 @@ class CrossCheckInput(BaseModel):
     target_user_story: WorkItemMinimal
 
 
-class SingleCheckInput(CrossCheckInput):
-    context_input: Optional[ContextInput] = None
+class SingleCheckInput(BaseModel):
+    target_user_story: WorkItemMinimal
+    existing_defects: List[DefectByLlm]
+    context_input: ContextInput

@@ -20,9 +20,5 @@ class User(Base):
         "JiraConnection", back_populates="user", cascade="all, delete-orphan"
     )
 
-    chat_sessions = relationship(
-        "ChatSession", back_populates="user", cascade="all, delete-orphan"
-    )
-
     def __repr__(self):
         return f"<User(username={self.username}, email={self.email})>"

@@ -22,3 +22,15 @@ class BasicResponse(BaseModel):
 class Platform(str, Enum):
     JIRA = "JIRA"
     AZURE_DEVOPS = "AZURE_DEVOPS"
+
+
+class SessionSummary(BaseModel):
+    id: str
+    key: str
+    project_key: str
+    story_key: Optional[str] = None
+    created_at: str
+
+    model_config = ConfigDict(
+        extra="ignore",
+    )

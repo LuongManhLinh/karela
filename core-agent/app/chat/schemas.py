@@ -1,8 +1,7 @@
-from pydantic import BaseModel, Field, ConfigDict
-from typing import Optional, Any, List, Dict, Literal, Union
+from pydantic import BaseModel, ConfigDict
+from typing import Optional, List, Literal
 
-from app.proposal.schemas import ProposalDto
-
+from common.schemas import SessionSummary
 
 MessageRole = Literal[
     "user",
@@ -37,15 +36,14 @@ class ChatMessageDto(BaseModel):
     )
 
 
-class ChatSessionSummary(BaseModel):
-    id: str
-    project_key: str
-    story_key: Optional[str] = None
-    created_at: str
-
+class ChatSessionSummary(SessionSummary):
     model_config = ConfigDict(
         extra="ignore",
     )
+
+
+class ChatSessionDto(ChatSessionSummary):
+    messages: List[ChatMessageDto] = []
 
 
 class MessageChunk(BaseModel):

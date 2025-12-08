@@ -34,9 +34,8 @@ class ChatSession(Base):
     __tablename__ = "chat_sessions"
 
     id = Column(String(64), primary_key=True, default=uuid_generator)
-    user_id = Column(
-        String(64), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
-    )
+
+    key = Column(String(64), nullable=False, index=True)
 
     connection_id = Column(
         String(64),
@@ -62,8 +61,6 @@ class ChatSession(Base):
         back_populates="chat_session",
         cascade="all, delete-orphan",
     )
-
-    user = relationship("User", back_populates="chat_sessions")
 
     # Index project key and story key for faster retrieval
     __table_args__ = (

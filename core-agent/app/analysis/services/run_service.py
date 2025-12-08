@@ -1,4 +1,4 @@
-from app.analysis.agents.schemas import DefectByLlm, WorkItemMinimal
+from app.analysis.agents.schemas import DefectByLlm, WorkItemMinimal, DefectInput
 from app.analysis.agents.input_schemas import (
     ContextInput,
     Documentation,
@@ -7,19 +7,22 @@ from app.analysis.agents.input_schemas import (
 from app.analysis.agents.story.all import (
     run_analysis as run_user_stories_analysis_all,
     run_analysis_async as run_user_stories_analysis_all_async,
+    stream_analysis as stream_user_stories_analysis_all,
 )
 from app.analysis.agents.story.target import (
     run_analysis as run_user_stories_analysis_target,
     run_analysis_async as run_user_stories_analysis_target_async,
+    stream_analysis as stream_user_stories_analysis_target,
 )
-from app.analysis.agents.proposal_generator.graph import generate_proposals
+from app.analysis.agents.proposal.graph import generate_proposals
 from app.analysis.models import (
     Analysis,
+    AnalysisType,
     AnalysisStatus,
     Defect,
     DefectSeverity,
     DefectType,
-    DefectWorkItemId,
+    DefectStoryKey,
 )
 from app.integrations import get_platform_service
 from app.proposal.services import ProposalService
@@ -28,60 +31,19 @@ from app.proposal.schemas import CreateProposalRequest, ProposeStoryRequest
 
 from html2text import html2text
 from sqlalchemy.orm import Session
+from sqlalchemy import func, select
 
 
 import time
 import traceback
 from datetime import datetime
-from typing import List
+from typing import List, Optional, Literal
 
 from app.settings.models import Settings
+from common.database import uuid_generator
 
 
-def get_default_context_input(
-    db: Session, connection_id: str, project_key: str
-) -> ContextInput:
-    settings = (
-        db.query(Settings)
-        .filter(
-            Settings.connection_id == connection_id,
-            Settings.project_key == project_key,
-        )
-        .first()
-    )
-    if not settings:
-        return ContextInput()
-
-    return ContextInput(
-        documentation=Documentation(
-            product_vision=settings.product_vision,
-            product_scope=settings.product_scope,
-            sprint_goals=settings.current_sprint_goals,
-            glossary=settings.glossary,
-            constraints=settings.constraints,
-            additional_docs=settings.additional_docs,
-        ),
-        llm_context=LlmContext(
-            guidelines=settings.llm_guidelines,
-        ),
-    )
-
-
-def _convert_llm_defects(defects: List[DefectByLlm]):
-    return [
-        Defect(
-            type=DefectType(defect.type.upper()),
-            severity=DefectSeverity(defect.severity.upper()),
-            explanation=defect.explanation,
-            confidence=defect.confidence,
-            suggested_fix=defect.suggested_fix,
-            work_item_ids=[DefectWorkItemId(key=key) for key in defect.work_item_keys],
-        )
-        for defect in defects
-    ]
-
-
-class DefectRunService:
+class AnalysisRunService:
     def __init__(self, db: Session):
         self.db = db
 
@@ -96,9 +58,55 @@ class DefectRunService:
         self.db.add(analysis)
         self.db.commit()
 
-    def _finish_analysis(self, analysis: Analysis, status: AnalysisStatus):
+    def _get_default_context_input(
+        self, connection_id: str, project_key: str
+    ) -> ContextInput:
+        settings = (
+            self.db.query(Settings)
+            .filter(
+                Settings.connection_id == connection_id,
+                Settings.project_key == project_key,
+            )
+            .first()
+        )
+        if not settings:
+            return None
+
+        # Return None if all the fields are empty
+        if not any(
+            [
+                settings.product_vision,
+                settings.product_scope,
+                settings.current_sprint_goals,
+                settings.glossary,
+                settings.constraints,
+                settings.additional_docs,
+                settings.llm_guidelines,
+            ]
+        ):
+            return None
+
+        return ContextInput(
+            documentation=Documentation(
+                product_vision=settings.product_vision,
+                product_scope=settings.product_scope,
+                sprint_goals=settings.current_sprint_goals,
+                glossary=settings.glossary,
+                constraints=settings.constraints,
+                additional_docs=settings.additional_docs,
+            ),
+            llm_context=LlmContext(
+                guidelines=settings.llm_guidelines,
+            ),
+        )
+
+    def _finish_analysis(
+        self, analysis: Analysis, status: AnalysisStatus, error_msg: str = None
+    ):
         analysis.status = status
         analysis.ended_at = datetime.now()
+        if error_msg:
+            analysis.error_message = error_msg
         self.db.commit()
 
     def _fetch_issues(
@@ -117,6 +125,35 @@ class DefectRunService:
             max_results=50,
             expand_rendered_fields=True,
         )
+
+    def _count_defects(self, connection_id: str, project_key: str) -> int:
+        stmt = (
+            select(func.count(Defect.id))
+            .join(Analysis)
+            .filter(
+                Analysis.connection_id == connection_id,
+                Analysis.project_key == project_key,
+            )
+        )
+
+        return self.db.execute(stmt).scalar_one()
+
+    def _convert_llm_defects(
+        self, defects: List[DefectByLlm], connection_id: str, project_key: str
+    ) -> List[Defect]:
+        count = self._count_defects(connection_id, project_key)
+        return [
+            Defect(
+                key=f"{project_key}-DEF-{count + idx + 1}",
+                type=DefectType(defect.type.upper()),
+                severity=DefectSeverity(defect.severity.upper()),
+                explanation=defect.explanation,
+                confidence=defect.confidence,
+                suggested_fix=defect.suggested_fix,
+                story_keys=[DefectStoryKey(key=key) for key in defect.story_keys],
+            )
+            for idx, defect in enumerate(defects)
+        ]
 
     # ---------------------------
     # ANALYZE ALL USER STORIES
@@ -139,19 +176,19 @@ class DefectRunService:
                 for i in issues
             ]
 
-            context_input = get_default_context_input(
-                db=self.db,
+            context_input = self._get_default_context_input(
                 connection_id=analysis.connection_id,
                 project_key=analysis.project_key,
             )
             existing_defects = [
-                DefectByLlm(
+                DefectInput(
+                    id=d.key,
                     type=d.type.value,
                     severity=d.severity.value,
                     explanation=d.explanation,
                     confidence=d.confidence,
                     suggested_fix=d.suggested_fix,
-                    work_item_keys=[w.key for w in d.work_item_ids],
+                    story_keys=[w.key for w in d.story_keys],
                 )
                 for d in self.db.query(Defect)
                 .join(Analysis)
@@ -166,7 +203,9 @@ class DefectRunService:
                 context_input=context_input,
                 existing_defects=existing_defects,
             )
-            analysis.defects = _convert_llm_defects(defects)
+            analysis.defects = self._convert_llm_defects(
+                defects, analysis.connection_id, analysis.project_key
+            )
             print(
                 "User stories analysis completed in:",
                 (time.perf_counter() - start) * 1000,
@@ -195,15 +234,19 @@ class DefectRunService:
                 for i in issues
             ]
 
-            context_input = get_default_context_input(analysis.project_key)
+            context_input = self._get_default_context_input(
+                connection_id=analysis.connection_id,
+                project_key=analysis.project_key,
+            )
             existing_defects = [
-                DefectByLlm(
+                DefectInput(
+                    id=d.key,
                     type=d.type.value,
                     severity=d.severity.value,
                     explanation=d.explanation,
                     confidence=d.confidence,
                     suggested_fix=d.suggested_fix,
-                    work_item_keys=[w.key for w in d.work_item_ids],
+                    story_keys=[w.key for w in d.story_keys],
                 )
                 for d in self.db.query(Defect)
                 .join(Analysis)
@@ -218,7 +261,9 @@ class DefectRunService:
                 context_input=context_input,
                 existing_defects=existing_defects,
             )
-            analysis.defects = _convert_llm_defects(defects)
+            analysis.defects = self._convert_llm_defects(
+                defects, analysis.connection_id, analysis.project_key
+            )
             print(
                 "User stories analysis (async) completed in:",
                 (time.perf_counter() - start) * 1000,
@@ -234,8 +279,9 @@ class DefectRunService:
     # ANALYZE TARGET STORY (sync + async)
     # ---------------------------
 
-    def analyze_target_user_story(self, analysis_id: str, target_key: str):
+    def analyze_target_user_story(self, analysis_id: str):
         analysis = self._get_analysis_or_raise(analysis_id)
+        target_key = analysis.story_key
         try:
             self._start_analysis(analysis)
 
@@ -256,23 +302,23 @@ class DefectRunService:
             if not target:
                 raise ValueError(f"Target user story {target_key} not found")
 
-            context_input = get_default_context_input(
-                db=self.db,
+            context_input = self._get_default_context_input(
                 connection_id=analysis.connection_id,
                 project_key=analysis.project_key,
             )
             existing_defects = [
-                DefectByLlm(
+                DefectInput(
+                    id=d.key,
                     type=d.type.value,
                     severity=d.severity.value,
                     explanation=d.explanation,
                     confidence=d.confidence,
                     suggested_fix=d.suggested_fix,
-                    work_item_keys=[w.key for w in d.work_item_ids],
+                    story_keys=[w.key for w in d.story_keys],
                 )
                 for d in self.db.query(Defect)
-                .join(DefectWorkItemId)
-                .filter(DefectWorkItemId.key == target_key, Defect.solved == False)
+                .join(DefectStoryKey)
+                .filter(DefectStoryKey.key == target_key, Defect.solved == False)
                 .distinct()
             ]
 
@@ -284,7 +330,9 @@ class DefectRunService:
                 existing_defects=existing_defects,
             )
 
-            analysis.defects = _convert_llm_defects(defects)
+            analysis.defects = self._convert_llm_defects(
+                defects, analysis.connection_id, analysis.project_key
+            )
             print(
                 "Target story analysis completed in:",
                 (time.perf_counter() - start) * 1000,
@@ -296,8 +344,9 @@ class DefectRunService:
             traceback.print_exc()
             self._finish_analysis(analysis, AnalysisStatus.FAILED)
 
-    async def analyze_target_user_story_async(self, analysis_id: str, target_key: str):
+    async def analyze_target_user_story_async(self, analysis_id: str):
         analysis = self._get_analysis_or_raise(analysis_id)
+        target_key = analysis.story_key
         try:
             self._start_analysis(analysis)
 
@@ -317,19 +366,20 @@ class DefectRunService:
             if not target:
                 raise ValueError(f"Target user story {target_key} not found")
 
-            context_input = get_default_context_input(analysis.project_key)
+            context_input = self._get_default_context_input(analysis.project_key)
             existing_defects = [
-                DefectByLlm(
+                DefectInput(
+                    id=d.key,
                     type=d.type.value,
                     severity=d.severity.value,
                     explanation=d.explanation,
                     confidence=d.confidence,
                     suggested_fix=d.suggested_fix,
-                    work_item_keys=[w.key for w in d.work_item_ids],
+                    story_keys=[w.key for w in d.story_keys],
                 )
                 for d in self.db.query(Defect)
-                .join(DefectWorkItemId)
-                .filter(DefectWorkItemId.key == target_key, Defect.solved == False)
+                .join(DefectStoryKey)
+                .filter(DefectStoryKey.key == target_key, Defect.solved == False)
                 .distinct()
             ]
 
@@ -341,7 +391,9 @@ class DefectRunService:
                 existing_defects=existing_defects,
             )
 
-            analysis.defects = _convert_llm_defects(defects)
+            analysis.defects = self._convert_llm_defects(
+                defects, analysis.connection_id, analysis.project_key
+            )
             print(
                 "Target story analysis (async) completed in:",
                 (time.perf_counter() - start) * 1000,
@@ -352,6 +404,190 @@ class DefectRunService:
         except Exception:
             traceback.print_exc()
             self._finish_analysis(analysis, AnalysisStatus.FAILED)
+
+    async def stream_target_user_story_analysis(
+        self,
+        connection_id: str,
+        project_key: str,
+        analysis_type: Literal["TARGETED", "ALL"],
+        target_key: Optional[str] = None,
+    ):
+        analysis_id = uuid_generator()
+        analysis = Analysis(
+            id=analysis_id,
+            project_key=project_key,
+            type=AnalysisType(analysis_type),
+            status=AnalysisStatus.PENDING,
+            connection_id=connection_id,
+            started_at=datetime.now(),
+            story_key=target_key,
+        )
+
+        self.db.add(analysis)
+        self.db.commit()
+        try:
+            self._start_analysis(analysis)
+
+            yield {
+                "status": "IN_PROGRESS",
+                "message": "Fetching issues...",
+                "id": analysis_id,
+            }
+
+            issues = self._fetch_issues(
+                analysis.project_key, ["Story"], analysis.connection_id
+            )
+            user_stories = []
+            target = None
+            for i in issues:
+                wi = WorkItemMinimal(
+                    key=i.key,
+                    title=i.fields.summary,
+                    description=html2text(i.rendered_fields.description or ""),
+                )
+                (target := wi) if wi.key == target_key else user_stories.append(wi)
+
+            if not target:
+                raise ValueError(f"Target user story {target_key} not found")
+
+            yield {"message": "Running analysis..."}
+            context_input = self._get_default_context_input(
+                connection_id=connection_id,
+                project_key=project_key,
+            )
+            existing_defects = [
+                DefectInput(
+                    id=d.key,
+                    type=d.type.value,
+                    severity=d.severity.value,
+                    explanation=d.explanation,
+                    confidence=d.confidence,
+                    suggested_fix=d.suggested_fix,
+                    story_keys=[w.key for w in d.story_keys],
+                )
+                for d in self.db.query(Defect)
+                .join(DefectStoryKey)
+                .filter(DefectStoryKey.key == target_key, Defect.solved == False)
+                .distinct()
+            ]
+
+            start = time.perf_counter()
+            for step in stream_user_stories_analysis_target(
+                user_stories=user_stories,
+                target_user_story=target,
+                context_input=context_input,
+                existing_defects=existing_defects,
+            ):
+                if "data" in step:
+                    defects = step["data"]
+                    analysis.defects = self._convert_llm_defects(
+                        defects, analysis.connection_id, analysis.project_key
+                    )
+                else:
+                    yield step
+            print(
+                "Target story analysis (async) completed in:",
+                (time.perf_counter() - start) * 1000,
+                "ms",
+            )
+
+            self._finish_analysis(analysis, AnalysisStatus.DONE)
+            yield {"status": "DONE"}
+        except Exception as e:
+            traceback.print_exc()
+            error_msg = str(e)
+            self._finish_analysis(analysis, AnalysisStatus.FAILED, error_msg=error_msg)
+            yield {"status": "FAILED", "message": error_msg}
+
+    async def stream_all_user_stories_analysis(
+        self,
+        connection_id: str,
+        project_key: str,
+        analysis_type: Literal["TARGETED", "ALL"],
+    ):
+        analysis_id = uuid_generator()
+        analysis = Analysis(
+            id=analysis_id,
+            project_key=project_key,
+            type=AnalysisType(analysis_type),
+            status=AnalysisStatus.PENDING,
+            connection_id=connection_id,
+            started_at=datetime.now(),
+        )
+
+        self.db.add(analysis)
+        self.db.commit()
+
+        try:
+            self._start_analysis(analysis)
+
+            yield {
+                "status": "IN_PROGRESS",
+                "message": "Fetching issues...",
+                "id": analysis_id,
+            }
+
+            issues = self._fetch_issues(
+                analysis.project_key, ["Story"], analysis.connection_id
+            )
+            user_stories = [
+                WorkItemMinimal(
+                    key=i.key,
+                    title=i.fields.summary,
+                    description=html2text(i.rendered_fields.description or ""),
+                )
+                for i in issues
+            ]
+
+            yield {"message": "Running analysis...", "id": analysis_id}
+            context_input = self._get_default_context_input(
+                connection_id=connection_id,
+                project_key=project_key,
+            )
+            existing_defects = [
+                DefectInput(
+                    id=d.key,
+                    type=d.type.value,
+                    severity=d.severity.value,
+                    explanation=d.explanation,
+                    confidence=d.confidence,
+                    suggested_fix=d.suggested_fix,
+                    story_keys=[w.key for w in d.story_keys],
+                )
+                for d in self.db.query(Defect)
+                .join(Analysis)
+                .filter(
+                    Defect.solved == False, Analysis.project_key == analysis.project_key
+                )
+            ]
+
+            start = time.perf_counter()
+            for step in stream_user_stories_analysis_all(
+                user_stories=user_stories,
+                context_input=context_input,
+                existing_defects=existing_defects,
+            ):
+                if "data" in step:
+                    defects = step["data"]
+                    analysis.defects = self._convert_llm_defects(
+                        defects, analysis.connection_id, analysis.project_key
+                    )
+                else:
+                    step["id"] = analysis_id
+                    yield step
+            print(
+                "All user stories analysis (async) completed in:",
+                (time.perf_counter() - start) * 1000,
+                "ms",
+            )
+
+            self._finish_analysis(analysis, AnalysisStatus.DONE)
+            yield {"status": "DONE", "id": analysis_id}
+        except Exception as e:
+            traceback.print_exc()
+            error_msg = str(e)
+            self._finish_analysis(analysis, AnalysisStatus.FAILED, error_msg=error_msg)
+            yield {"status": "FAILED", "message": error_msg, "id": analysis_id}
 
     def generate_proposals(self, analysis_id: str):
         """Generate proposals for the given analysis.
@@ -364,23 +600,26 @@ class DefectRunService:
         analysis = self._get_analysis_or_raise(analysis_id)
         involved_story_keys = set()
         defects = []
-
+        defect_key_id_map = {}
         for d in analysis.defects:
-            keys = [w.key for w in d.work_item_ids]
+            if d.solved:
+                continue
+            keys = [w.key for w in d.story_keys]
             involved_story_keys.update(keys)
             defects.append(
-                DefectByLlm(
+                DefectInput(
+                    id=d.key,
                     type=d.type.value,
                     severity=d.severity.value,
                     explanation=d.explanation,
                     confidence=d.confidence,
                     suggested_fix=d.suggested_fix,
-                    work_item_keys=keys,
+                    story_keys=keys,
                 )
             )
+            defect_key_id_map[d.key] = d.id
 
-        context_input = get_default_context_input(
-            db=self.db,
+        context_input = self._get_default_context_input(
             connection_id=analysis.connection_id,
             project_key=analysis.project_key,
         )
@@ -413,24 +652,30 @@ class DefectRunService:
         )
 
         proposal_service = ProposalService(db=self.db)
-        proposal_ids = []
-        for p in proposals:
-            proposal_req = CreateProposalRequest(
-                connection_id=analysis.connection_id,
-                source="ANALYSIS",
-                session_id=analysis.id,
-                project_key=analysis.project_key,
-                stories=[
-                    ProposeStoryRequest(
-                        key=s.key,
-                        type=s.type,
-                        summary=s.summary,
-                        description=s.description,
-                        explanation=s.explanation,
-                    )
-                    for s in p.contents
-                ],
-            )
-            proposal_ids.append(proposal_service.create_proposal(proposal_req))
+
+        proposal_ids = proposal_service.create_proposals(
+            proposal_requests=[
+                CreateProposalRequest(
+                    connection_id=analysis.connection_id,
+                    source="ANALYSIS",
+                    session_id=analysis.id,
+                    project_key=analysis.project_key,
+                    stories=[
+                        ProposeStoryRequest(
+                            key=s.story_key,
+                            type=s.type,
+                            summary=s.summary,
+                            description=s.description,
+                            explanation=s.explanation,
+                        )
+                        for s in p.contents
+                    ],
+                    target_defect_ids=[
+                        defect_key_id_map[k] for k in p.target_defect_ids or []
+                    ],
+                )
+                for p in proposals
+            ]
+        )
 
         return proposal_ids

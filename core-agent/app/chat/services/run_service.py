@@ -6,7 +6,7 @@ from langchain_core.messages import (
     AIMessageChunk,
 )
 
-from ..agents.agent import chat_with_agent, stream_with_agent
+from ..agents.agent import stream_with_agent
 
 from ..models import (
     ChatSession,
@@ -66,7 +66,6 @@ class ChatService:
         cache = {}
 
         try:
-            print("Preparing history messages for agent...")
             history_messages = []
             for msg in session.messages:
                 if msg.role == SenderRole.USER:
@@ -108,12 +107,12 @@ class ChatService:
                     msg_chunk.content = chunk.content
                     yield_after = ChatService._additional_from_tool_msg(chunk)
 
-                yield {"type": "message", "data": msg_chunk.model_dump_json()}
+                yield {"type": "message", "data": msg_chunk.model_dump()}
 
                 if yield_after:
                     data = yield_after[1]
                     if isinstance(data, MessageChunk):
-                        data = data.model_dump_json()
+                        data = data.model_dump()
                     print(
                         f"Yielding additional data of type {yield_after[0]}, content: {data}"
                     )
@@ -144,7 +143,7 @@ class ChatService:
                 content=f"An error occurred during chat processing: {str(e)}",
                 role="error",
             )
-            yield {"type": "message", "data": err_chunk.model_dump_json()}
+            yield {"type": "message", "data": err_chunk.model_dump()}
             cache[err_id] = {
                 "data": err_chunk,
                 "created_at": datetime.now(),
@@ -157,9 +156,9 @@ class ChatService:
     def _additional_from_tool_msg(tool_msg: ToolMessage):
         try:
             match tool_msg.name:
-                case "propose_creating_stories" | "propose_modifying_stories":
+                case "propose_creating_stories" | "propose_updating_stories":
                     payload = json.loads(tool_msg.content)
-                    return "proposal", payload["propose_id"]
+                    return "proposal", payload["proposal_id"]
                 case "show_analysis_progress_in_chat":
                     payload = json.loads(tool_msg.content)
                     return "message", MessageChunk(
@@ -170,7 +169,10 @@ class ChatService:
                 case _:
                     return None
 
-        except:
+        except Exception as e:
+            print(f"Error processing tool message: {e}")
+            print("While processing tool message:", tool_msg)
+            traceback.print_exc()
             return None
 
     def persist_messages(self, session_id: str):

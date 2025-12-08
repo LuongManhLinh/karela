@@ -1,11 +1,13 @@
 from typing import List, Literal, Optional
 from pydantic import BaseModel, ConfigDict
 
+from common.schemas import SessionSummary
+
 
 class ProposalContentDto(BaseModel):
     id: str
-    type: Literal["CREATE", "UPDATE", "UNKNOWN"]
-    key: Optional[str]  # The key of the User Story (Jira Issue)
+    type: Literal["CREATE", "UPDATE", "DELETE", "UNKNOWN"]
+    story_key: Optional[str]  # The key of the User Story (Jira Issue)
     summary: Optional[str]
     description: Optional[str]
     explanation: Optional[str]
@@ -16,12 +18,21 @@ class ProposalContentDto(BaseModel):
     )
 
 
-class ProposalDto(BaseModel):
+class ProposalSummary(BaseModel):
     id: str
-    source: Literal["CHAT", "ANALYSIS"]
+    key: str
     session_id: str
     project_key: str
     created_at: str
+
+    model_config = ConfigDict(
+        extra="ignore",
+    )
+
+
+class ProposalDto(ProposalSummary):
+    source: Literal["CHAT", "ANALYSIS"]
+    target_defect_keys: Optional[List[str]] = None
     contents: List[ProposalContentDto]
 
     model_config = ConfigDict(
@@ -45,3 +56,9 @@ class CreateProposalRequest(BaseModel):
     session_id: str
     project_key: str
     stories: List[ProposeStoryRequest]
+    target_defect_ids: Optional[List[str]] = None
+
+
+class SessionsHavingProposals(BaseModel):
+    analysis_sessions: List[SessionSummary]
+    chat_sessions: List[SessionSummary]

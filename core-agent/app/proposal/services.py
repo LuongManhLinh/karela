@@ -1,19 +1,27 @@
 from typing import List, Literal
-from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy.orm import Session, selectinload
+from sqlalchemy import func, select
 
 
 from .models import (
     Proposal,
     ProposalContent,
+    ProposalDefect,
     ProposalType,
     StoryVersion,
     ProposalSource,
 )
-from .schemas import CreateProposalRequest, ProposalDto, ProposalContentDto
+from .schemas import (
+    CreateProposalRequest,
+    ProposalDto,
+    ProposalContentDto,
+    SessionsHavingProposals,
+)
 from app.integrations import get_platform_service
 from app.integrations.jira.schemas import IssuesCreateRequest
+from app.analysis.services.defect_service import DefectService
 from common.database import uuid_generator
+from common.schemas import SessionSummary
 from utils.markdown_adf_bridge import md_to_adf, adf_to_md
 
 
@@ -33,7 +41,7 @@ class ProposalService:
         for story in proposal_request.stories:
             content = ProposalContent(
                 type=ProposalType(story.type),
-                key=story.key,
+                story_key=story.key,
                 summary=story.summary,
                 description=story.description,
                 explanation=story.explanation,
@@ -43,13 +51,27 @@ class ProposalService:
         id = uuid_generator()
         source = ProposalSource(proposal_request.source)
 
+        stmt = select(func.count(Proposal.id)).filter(
+            Proposal.connection_id == proposal_request.connection_id,
+            Proposal.project_key == proposal_request.project_key,
+        )
+
+        proposal_count = self.db.execute(stmt).scalar_one()
+
         proposal = Proposal(
             id=id,
+            key=f"{proposal_request.project_key}-PRS-{proposal_count + 1}",
             connection_id=proposal_request.connection_id,
             source=source,
             project_key=proposal_request.project_key,
             contents=contents,
         )
+
+        if proposal_request.target_defect_ids:
+            proposal.proposal_defects = [
+                ProposalDefect(defect_id=defect_id)
+                for defect_id in proposal_request.target_defect_ids
+            ]
 
         if source == ProposalSource.CHAT:
             proposal.chat_session_id = proposal_request.session_id
@@ -60,6 +82,22 @@ class ProposalService:
         self.db.commit()
 
         return id
+
+    def create_proposals(
+        self, proposal_requests: List[CreateProposalRequest]
+    ) -> List[str]:
+        """Creates multiple proposals with their contents.
+
+        Args:
+            proposal_requests (List[CreateProposalRequest]): The list of proposal creation requests.
+        Returns:
+            List[str]: The list of IDs of the created proposals.
+        """
+        created_ids = []
+        for proposal_request in proposal_requests:
+            proposal_id = self.create_proposal(proposal_request)
+            created_ids.append(proposal_id)
+        return created_ids
 
     def accept_proposal(self, proposal_id: str):
         """Applies all the contents of the proposal to the platform.
@@ -189,7 +227,7 @@ class ProposalService:
         if content.type == ProposalType.UPDATE:
             latest_version = (
                 self.db.query(StoryVersion)
-                .filter(StoryVersion.key == content.key)
+                .filter(StoryVersion.key == content.story_key)
                 .order_by(StoryVersion.version.desc())
                 .first()
             )
@@ -197,7 +235,7 @@ class ProposalService:
             if latest_version:
                 version = latest_version.version + 1
             new_version = StoryVersion(
-                key=content.key,
+                key=content.story_key,
                 version=version,
                 summary=content.summary,
                 description=content.description,
@@ -206,7 +244,7 @@ class ProposalService:
 
             platform_service.update_issue(
                 connection_id=connection_id,
-                issue_key=content.key,
+                issue_key=content.story_key,
                 summary=content.summary,
                 description=content.description,
             )
@@ -247,10 +285,28 @@ class ProposalService:
         self.db.add(proposal)
         self.db.commit()
 
-    @staticmethod
-    def _get_proposal_dto(proposal: Proposal) -> ProposalDto:
+    def reject_proposal_content(self, proposal_content_id: str):
+        """Marks a single proposal content as rejected.
+
+        Args:
+            proposal_content_id (str): The ID of the proposal content to reject.
+        """
+        content = (
+            self.db.query(ProposalContent)
+            .filter(ProposalContent.id == proposal_content_id)
+            .first()
+        )
+        if not content:
+            raise ValueError(f"ProposalContent with id {proposal_content_id} not found")
+
+        content.accepted = False
+        self.db.add(content)
+        self.db.commit()
+
+    def _get_proposal_dto(self, proposal: Proposal) -> ProposalDto:
         return ProposalDto(
             id=proposal.id,
+            key=proposal.key,
             source=proposal.source.value,
             session_id=(
                 proposal.chat_session_id
@@ -263,7 +319,7 @@ class ProposalService:
                 ProposalContentDto(
                     id=content.id,
                     type=content.type.value,
-                    key=content.key,
+                    story_key=content.story_key,
                     summary=content.summary,
                     description=content.description,
                     explanation=content.explanation,
@@ -271,6 +327,13 @@ class ProposalService:
                 )
                 for content in proposal.contents
             ],
+            target_defect_keys=(
+                DefectService(self.db).get_defect_keys_by_ids(
+                    [pd.defect_id for pd in proposal.proposal_defects]
+                )
+                if proposal.proposal_defects
+                else None
+            ),
         )
 
     def get_proposal(self, proposal_id: str) -> ProposalDto:
@@ -298,17 +361,58 @@ class ProposalService:
         proposals = query.all()
         return [self._get_proposal_dto(proposal) for proposal in proposals]
 
-    def get_proposals_by_connection(self, connection_id: str) -> List[ProposalDto]:
+    def get_sessions_having_proposals(
+        self, connection_id: str
+    ) -> SessionsHavingProposals:
         """Retrieves all proposals for a given connection ID.
         Args:
             connection_id (str): The connection ID.
         """
         proposals = (
-            self.db.query(Proposal)
-            .filter(Proposal.connection_id == connection_id)
+            self.db.execute(
+                select(Proposal)
+                .filter(Proposal.connection_id == connection_id)
+                .options(
+                    selectinload(Proposal.analysis),
+                    selectinload(Proposal.chat_session),
+                )
+            )
+            .unique()
+            .scalars()
             .all()
         )
-        return [self._get_proposal_dto(proposal) for proposal in proposals]
+
+        analysis_sessions = []
+        chat_sessions = []
+
+        for proposal in proposals:
+            src = proposal.source
+            if src == ProposalSource.ANALYSIS and proposal.analysis:
+                analysis = proposal.analysis
+                analysis_sessions.append(
+                    SessionSummary(
+                        id=analysis.id,
+                        key=analysis.key,
+                        project_key=analysis.project_key,
+                        created_at=analysis.created_at.isoformat(),
+                    )
+                )
+            elif src == ProposalSource.CHAT and proposal.chat_session:
+                chat_session = proposal.chat_session
+                chat_sessions.append(
+                    SessionSummary(
+                        id=chat_session.id,
+                        key=chat_session.key,
+                        project_key=chat_session.project_key,
+                        story_key=chat_session.story_key,
+                        created_at=chat_session.created_at.isoformat(),
+                    )
+                )
+
+        return SessionsHavingProposals(
+            analysis_sessions=analysis_sessions,
+            chat_sessions=chat_sessions,
+        )
 
     def revert_applied_proposal(self, proposal_id: str):
         """Reverts all accepted contents of the proposal.
@@ -378,7 +482,7 @@ class ProposalService:
 
         latest_version = (
             self.db.query(StoryVersion)
-            .filter(StoryVersion.key == content.key)
+            .filter(StoryVersion.key == content.story_key)
             .order_by(StoryVersion.version.desc())
             .first()
         )
@@ -386,7 +490,7 @@ class ProposalService:
             previous_version = (
                 self.db.query(StoryVersion)
                 .filter(
-                    StoryVersion.key == content.key,
+                    StoryVersion.key == content.story_key,
                     StoryVersion.version == latest_version.version - 1,
                 )
                 .first()

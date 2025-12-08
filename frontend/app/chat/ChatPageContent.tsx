@@ -22,7 +22,7 @@ import {
   Skeleton,
   useTheme,
 } from "@mui/material";
-import { Send, ExpandMore } from "@mui/icons-material";
+import { Send, ExpandLess } from "@mui/icons-material";
 import { MessageBubble } from "@/components/chat/MessageBubble";
 import { ErrorMessage } from "@/components/chat/ErrorMessage";
 import { FunctionCallMessage } from "@/components/chat/FunctionCallMessage";
@@ -33,10 +33,7 @@ import { proposalService } from "@/services/proposalService";
 import { ErrorSnackbar } from "@/components/ErrorSnackbar";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import { useRouter } from "next/navigation";
-import {
-  WorkspaceShell,
-  WorkspaceSessionItem,
-} from "@/components/WorkspaceShell";
+import { WorkspaceShell } from "@/components/WorkspaceShell";
 import type {
   ProposalDto,
   ProposalContentDto,
@@ -52,9 +49,9 @@ import type {
 import type { JiraConnectionDto } from "@/types/integration";
 import { userService } from "@/services/userService";
 import { ProposalCard } from "@/components/proposals/ProposalCard";
+import { SessionItem } from "@/components/SessionList";
 
-const WS_BASE_URL =
-  process.env.NEXT_PUBLIC_WS_BASE_URL || "ws://localhost:8000/api/v1/chat/";
+const WS_BASE_URL = "ws://localhost:8000/api/v1/chat/";
 
 const MemoizedTextField = React.memo(TextField);
 
@@ -68,6 +65,7 @@ const ChatSection: React.FC<{
       sx={{
         display: "flex",
         gap: 1,
+        alignItems: "center",
         scrollbarColor: "#6b6b6b transparent",
         scrollbarWidth: "thin",
         "&::-webkit-scrollbar": {
@@ -109,7 +107,7 @@ const ChatSection: React.FC<{
           disableUnderline: true,
           style: {
             paddingBottom: 0,
-            paddingTop: 8,
+            paddingTop: 0,
           },
         }}
       />
@@ -406,19 +404,9 @@ const ChatPageContent: React.FC = () => {
     async (sessionId: string) => {
       try {
         const response = await chatService.getChatSession(sessionId);
-        const summary =
-          sessions.find((session) => session.id === sessionId) ||
-          currentSession;
-        const hydratedSession: ChatSessionDto = {
-          id: summary?.id || sessionId,
-          project_key: summary?.project_key || projectKey,
-          story_key: summary?.story_key || "",
-          created_at: summary?.created_at || new Date().toISOString(),
-          messages: response.data || [],
-        };
-        setCurrentSession(hydratedSession);
-        setProjectKey(hydratedSession.project_key);
-        setMessages(response.data || []);
+        setCurrentSession(response.data);
+        setProjectKey(response.data?.project_key || "");
+        setMessages(response.data?.messages || []);
         await fetchSessionProposals(sessionId);
       } catch (err: any) {
         const errorMessage =
@@ -437,6 +425,7 @@ const ChatPageContent: React.FC = () => {
   const handleNewChat = () => {
     setCurrentSession({
       id: "",
+      key: "",
       project_key: projectKey,
       story_key: storyKey === "None" ? "" : storyKey,
       created_at: new Date().toISOString(),
@@ -595,10 +584,7 @@ const ChatPageContent: React.FC = () => {
             const parsed = JSON.parse(event.data);
 
             if (parsed.type === "message") {
-              const chunkData =
-                typeof parsed.data === "string"
-                  ? (JSON.parse(parsed.data) as MessageChunk)
-                  : (parsed.data as MessageChunk);
+              const chunkData = parsed.data as MessageChunk;
               handleMessageChunk(chunkData);
             } else if (parsed.type === "session_id") {
               const newSessionId = parsed.data;
@@ -738,12 +724,10 @@ const ChatPageContent: React.FC = () => {
     [currentSession?.id, fetchSessionProposals]
   );
 
-  const sessionItems = useMemo<WorkspaceSessionItem[]>(() => {
+  const sessionItems = useMemo<SessionItem[]>(() => {
     return sessions.map((session) => ({
       id: session.id,
-      title: session.story_key
-        ? `${session.project_key} · ${session.story_key}`
-        : session.project_key,
+      title: session.key,
       subtitle: new Date(session.created_at).toLocaleString(),
     }));
   }, [sessions]);
@@ -764,7 +748,6 @@ const ChatPageContent: React.FC = () => {
         sx={{
           flex: 1,
           overflow: "auto",
-          p: 2,
           display: "flex",
           alignContent: "center",
           justifyContent: "center",
@@ -795,7 +778,7 @@ const ChatPageContent: React.FC = () => {
               sx={{
                 display: "flex",
                 justifyContent: "center",
-                alignItems: "center",
+                alignItems: "flex-start",
                 height: "100%",
               }}
             >
@@ -831,68 +814,86 @@ const ChatPageContent: React.FC = () => {
               )}
 
               <div ref={messagesEndRef} />
-              <Box sx={{ height: "128px" }} />
+              <Box sx={{ height: 200 }} />
             </>
           )}
         </Box>
       </Box>
 
-      <Paper
-        elevation={4}
+      <Box
         sx={{
-          p: 2,
           width: "60%",
           zIndex: 10,
           position: "absolute",
           bottom: 16,
-          borderRadius: 2,
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         {(loadingProposals || sessionProposals.length > 0) && (
-          <Box sx={{ p: 2, bgcolor: "background.paper", mb: 2 }}>
-            <Accordion
-              expanded={proposalExpanded}
-              onChange={() => setProposalExpanded(!proposalExpanded)}
-            >
-              <AccordionSummary expandIcon={<ExpandMore />}>
-                <Typography variant="h6">
-                  Change Proposals ({sessionProposals.length})
+          <Accordion
+            expanded={proposalExpanded}
+            onChange={() => setProposalExpanded(!proposalExpanded)}
+            sx={{
+              width: "90%",
+              marginX: "auto",
+              "&.Mui-expanded": {
+                marginY: "0",
+                marginX: "auto",
+              },
+              // The optional fix for the line/shadow:
+
+              borderRadius: 1,
+              boxShadow: "none",
+              backgroundColor: theme.palette.background.paper,
+            }}
+          >
+            <AccordionSummary expandIcon={<ExpandLess />}>
+              <Typography variant="body1">
+                Change Proposals ({sessionProposals.length})
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              {loadingProposals ? (
+                <Skeleton
+                  variant="rectangular"
+                  height={120}
+                  sx={{ borderRadius: 2 }}
+                />
+              ) : sessionProposals.length === 0 ? (
+                <Typography color="text.secondary">
+                  No proposals yet in this session.
                 </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                {loadingProposals ? (
-                  <Skeleton
-                    variant="rectangular"
-                    height={120}
-                    sx={{ borderRadius: 2 }}
-                  />
-                ) : sessionProposals.length === 0 ? (
-                  <Typography color="text.secondary">
-                    No proposals yet in this session.
-                  </Typography>
-                ) : (
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-                  >
-                    {sessionProposals.map((proposal) => (
-                      <ProposalCard
-                        key={proposal.id}
-                        proposal={proposal}
-                        onProposalAction={handleProposalAction}
-                        onProposalContentAction={handleProposalContentAction}
-                      />
-                    ))}
-                  </Box>
-                )}
-              </AccordionDetails>
-            </Accordion>
-          </Box>
+              ) : (
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  {sessionProposals.map((proposal) => (
+                    <ProposalCard
+                      key={proposal.id}
+                      proposal={proposal}
+                      onProposalAction={handleProposalAction}
+                      onProposalContentAction={handleProposalContentAction}
+                    />
+                  ))}
+                </Box>
+              )}
+            </AccordionDetails>
+          </Accordion>
         )}
-        <ChatSection
-          sendMessage={handleSendMessage}
-          disabled={connecting || !currentSession}
-        />
-      </Paper>
+        <Paper
+          elevation={4}
+          sx={{
+            p: 2,
+            mt: 0,
+            borderRadius: 2.5,
+          }}
+        >
+          <ChatSection
+            sendMessage={handleSendMessage}
+            disabled={connecting || !currentSession}
+          />
+        </Paper>
+      </Box>
+
       <ErrorSnackbar
         open={showError}
         message={error}
@@ -906,14 +907,20 @@ const ChatPageContent: React.FC = () => {
       connections={connections}
       selectedConnection={selectedConnection}
       onConnectionChange={onConnectionChange}
-      selectedProjectKey={projectKey}
-      projectKeys={projectKeys}
-      onProjectKeyChange={onProjectKeyChange}
-      selectedStoryKey={storyKey}
-      storyKeys={storyKeys}
-      onStoryKeyChange={onStoryKeyChange}
-      onSessionFormSubmit={handleNewChat}
-      sessionSubmitLabel="New Chat"
+      projectOptions={{
+        options: projectKeys,
+        onChange: onProjectKeyChange,
+        selectedOption: projectKey,
+      }}
+      storyOptions={{
+        options: storyKeys,
+        onChange: onStoryKeyChange,
+        selectedOption: storyKey,
+      }}
+      submitAction={{
+        label: "New Chat",
+        onClick: handleNewChat,
+      }}
       sessions={sessionItems}
       selectedSessionId={currentSession?.id}
       onSelectSession={handleSelectSession}
@@ -923,8 +930,8 @@ const ChatPageContent: React.FC = () => {
       sessionListLabel="Chat Sessions"
       rightChildren={messagesPanel}
       headerText="Chat"
-      headerProjectKey={currentSession?.project_key}
-      headerStoryKey={currentSession?.story_key}
+      headerProjectKey={currentSession?.project_key || ""}
+      headerStoryKey={currentSession?.story_key || ""}
       appBarTransparent
     />
   );

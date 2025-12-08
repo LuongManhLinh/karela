@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import APIRouter, HTTPException, Depends, WebSocket, WebSocketDisconnect
 from fastapi import Depends, HTTPException
 from typing import List
@@ -71,12 +72,11 @@ async def websocket_chat(
         if not session_id:
             # Create new chat session
             session_id = data_service.create_chat_session(
-                user_id=user_id,
                 connection_id=connection_id,
                 project_key=project_key,
                 story_key=story_key,
             )
-        print(f"WS connected: user_id={user_id}, session_id={session_id}")
+        print(f"WS connected: session_id={session_id}")
 
         # Always send session ID back
         await websocket.send_json({"type": "session_id", "data": session_id})
@@ -108,15 +108,15 @@ async def list_chat_sessions(
     if user_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     sessions: List[ChatSessionSummary] = service.list_chat_sessions(
-        user_id, connection_id=connection_id
+        connection_id=connection_id
     )
     return BasicResponse(data=sessions)
 
 
 @router.get("/{session_id}")
-async def get_session_messages(
+async def get_session_detail(
     session_id: str,
     service: ChatDataService = Depends(get_chat_data_service),
 ):
-    messages = service.get_messages_in_session(session_id=session_id)
-    return BasicResponse(data=messages)
+    dto = service.get_chat_session(session_id=session_id)
+    return BasicResponse(data=dto)

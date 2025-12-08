@@ -6,7 +6,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import BaseMessage
 from pydantic import BaseModel
 import random
-from typing import Callable, Iterator, List, Dict, Any
+from typing import Callable, Iterator, List, Dict, Any, Literal
 
 from utils.json_processor import schema_without_titles
 from .dynamic_llm import LogCallback
@@ -19,10 +19,12 @@ class GenimiDynamicAgent:
         model_name: str,
         temperature: float,
         api_keys: list[str],
-        response_mime_type: str = "text/plain",
+        response_mime_type: Literal[
+            "application/json", "text/plain", "text/x.enum"
+        ] = "text/plain",
         response_schema: BaseModel = None,
         tools: list = [],
-        middleware=[],
+        middleware: list = [],
         max_retries=3,
         retry_delay_ms=1000,
         errors_to_retry=None,
@@ -64,24 +66,6 @@ class GenimiDynamicAgent:
         self.model.google_api_key = self.api_keys[self._api_key_index]
         print(f"Rotated to API key index: {self._api_key_index}")
 
-    def _run_with_retries(self, fn, *args, **kwargs):
-        attempts = 0
-        print("Current API key index:", self._api_key_index)
-        while attempts < self.max_retries:
-            try:
-                return fn(*args, **kwargs)
-            except Exception as e:
-                attempts += 1
-                print(f"Error on attempt {attempts}: {e}")
-                if (
-                    attempts >= self.max_retries
-                    or self.errors_to_retry is not None
-                    and not isinstance(e, self.errors_to_retry)
-                ):
-                    raise
-                self._rotate_api_key()
-        raise RuntimeError("Max retries exceeded")
-
     def invoke(self, messages: List[BaseMessage] | List[Dict], *args, **kwargs):
         return self._run_with_retries(
             self.agent.invoke,
@@ -90,7 +74,7 @@ class GenimiDynamicAgent:
             **kwargs,
         )
 
-    def _run_stream_with_retries(self, fn, *args, **kwargs) -> Iterator:
+    def _run_with_retries(self, fn, *args, **kwargs):
         attempts = 0
         last_exception = None
 
@@ -117,16 +101,26 @@ class GenimiDynamicAgent:
     def stream(
         self, messages: List[BaseMessage] | List[Dict], *args, **kwargs
     ) -> Iterator:
-        stream_gen = self._run_stream_with_retries(
-            self.agent.stream,
-            {"messages": messages},
-            *args,
-            **kwargs,
-        )
+        # stream_gen = self._run_stream_with_retries(
+        #     self.agent.stream,
+        #     {"messages": messages},
+        #     *args,
+        #     **kwargs,
+        # )
 
-        # stream the chunks while handling mid-stream failure
-        for chunk in stream_gen:
-            yield chunk
+        def stream_gen():
+            try:
+                for chunk in self.agent.stream(
+                    {"messages": messages},
+                    *args,
+                    **kwargs,
+                ):
+                    yield chunk
+            except Exception as e:
+                print("Error while streaming:", e)
+                raise e
+
+        return self._run_with_retries(stream_gen)
 
 
 class OpenRouterDynamicAgent:

@@ -2,8 +2,12 @@ import apiClient from "./api";
 import type { BasicResponse } from "@/types";
 import type {
   AnalysisSummary,
-  AnalysisDetailDto,
-  AnalysisRunRequest,
+  AnalysisDto,
+  RunAnalysisRequest,
+  AnalysesStatusesResponse as AnalysisStatusesResponse,
+  AnalysesStatusesRequest as AnalysisStatusesRequest,
+  DefectDto,
+  RunAnalysisResponse,
 } from "@/types/analysis";
 
 export const analysisService = {
@@ -18,9 +22,18 @@ export const analysisService = {
 
   getAnalysisDetails: async (
     analysisId: string
-  ): Promise<BasicResponse<AnalysisDetailDto>> => {
-    const response = await apiClient.get<BasicResponse<AnalysisDetailDto>>(
+  ): Promise<BasicResponse<AnalysisDto>> => {
+    const response = await apiClient.get<BasicResponse<AnalysisDto>>(
       `/analyses/${analysisId}`
+    );
+    return response.data;
+  },
+
+  getDefectsForAnalysis: async (
+    analysisId: string
+  ): Promise<BasicResponse<DefectDto[]>> => {
+    const response = await apiClient.get<BasicResponse<DefectDto[]>>(
+      `/analyses/${analysisId}/defects`
     );
     return response.data;
   },
@@ -28,9 +41,9 @@ export const analysisService = {
   runAnalysis: async (
     connectionId: string,
     projectKey: string,
-    data: AnalysisRunRequest
-  ): Promise<BasicResponse<string>> => {
-    const response = await apiClient.post<BasicResponse<string>>(
+    data: RunAnalysisRequest
+  ): Promise<BasicResponse<RunAnalysisResponse>> => {
+    const response = await apiClient.post<BasicResponse<RunAnalysisResponse>>(
       `/analyses/connections/${connectionId}/${projectKey}`,
       data
     );
@@ -62,6 +75,23 @@ export const analysisService = {
     const response = await apiClient.post<BasicResponse>(
       `/analyses/${analysisId}/generate-proposals`
     );
+    return response.data;
+  },
+
+  rerunAnalysis: async (analysisId: string): Promise<BasicResponse<string>> => {
+    const response = await apiClient.post<BasicResponse<string>>(
+      `/analyses/${analysisId}/rerun`
+    );
+    return response.data;
+  },
+  getAnalysisStatuses: async (
+    analysisIds: string[]
+  ): Promise<BasicResponse<AnalysisStatusesResponse>> => {
+    const response = await apiClient.post<
+      BasicResponse<AnalysisStatusesResponse>
+    >(`/analyses/statuses`, {
+      analysis_ids: analysisIds,
+    } as AnalysisStatusesRequest);
     return response.data;
   },
 };

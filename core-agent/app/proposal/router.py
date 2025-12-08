@@ -1,3 +1,4 @@
+import traceback
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 
@@ -109,16 +110,14 @@ async def get_proposals_by_session(
 @router.get("/connections/{connection_id}")
 async def get_proposals_by_connection(
     connection_id: str,
-    jwt_payload: dict = Depends(get_jwt_payload),
     service: ProposalService = Depends(get_proposal_service),
 ):
     """Get all proposals for a connection."""
     try:
-        proposals: List[ProposalDto] = service.get_proposals_by_connection(
-            connection_id
-        )
-        return BasicResponse(data=proposals)
+        dto = service.get_sessions_having_proposals(connection_id)
+        return BasicResponse(data=dto)
     except ValueError as e:
+        traceback.print_exc()
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

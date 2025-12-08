@@ -1,35 +1,56 @@
-export interface AnalysisSummary {
-  id: string;
-  status?: string;
-  type?: string;
-  project_key?: string;
-  story_key?: string;
-  started_at?: string;
+import { SessionSummary } from ".";
+
+export type AnalysisStatus =
+  | "PENDING"
+  | "IN_PROGRESS"
+  | "DONE"
+  | "FAILED"
+  | "UNKNOWN";
+export type AnalysisType = "ALL" | "TARGETED";
+export type DefectSeverity = "LOW" | "MEDIUM" | "HIGH" | "UNKNOWN";
+export type DefectType =
+  | "CONFLICT"
+  | "DUPLICATION"
+  | "OUT_OF_SCOPE"
+  | "IRRELEVANCE"
+  | "UNKNOWN";
+
+export interface AnalysisSummary extends SessionSummary {
+  status: AnalysisStatus;
+  type: AnalysisType;
   ended_at?: string;
 }
 
 export interface DefectDto {
   id: string;
-  type?: string;
-  severity?: string;
+  key: string;
+  type?: DefectType;
+  severity?: DefectSeverity;
   explanation?: string;
   confidence?: number;
   suggested_fix?: string;
   solved?: boolean;
-  work_item_keys?: string[];
-}
-
-export interface AnalysisDetailDto extends AnalysisSummary {
-  defects: DefectDto[];
+  story_keys?: string[];
 }
 
 export interface AnalysisDto extends AnalysisSummary {
-  story_key?: string;
-  error_message?: string;
-  defects?: DefectDto[];
+  defects: DefectDto[];
 }
 
-export interface AnalysisRunRequest {
+export interface RunAnalysisRequest {
   analysis_type?: "ALL" | "TARGETED";
   target_story_key?: string;
 }
+
+export interface RunAnalysisResponse {
+  id: string;
+  key: string;
+}
+
+export interface AnalysesStatusesRequest {
+  analysis_ids: string[];
+}
+
+export type AnalysesStatusesResponse = {
+  [key: string]: AnalysisStatus;
+};

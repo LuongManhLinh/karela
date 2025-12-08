@@ -12,8 +12,6 @@ def get_platform_service(db: Session, connection_id: str):
         .first()
     )
 
-    print(f"Detected platform: {platform}")
-
     if platform is None:
         raise ValueError(f"Connection not found for id: {connection_id}")
 

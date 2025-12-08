@@ -198,8 +198,8 @@ export default function ProfilePage() {
                     display: "flex",
                     alignItems: "center",
                     gap: 2,
-                    p: 2.5,
-                    borderRadius: 2,
+                    p: 2,
+                    borderRadius: 1,
                     bgcolor: "background.paper",
                     transition: "all 0.2s",
                     "&:hover": {

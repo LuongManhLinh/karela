@@ -1,10 +1,18 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+  useCallback,
+} from "react";
 import { Box, Button, Stack, Typography, Divider } from "@mui/material";
 
-import { WorkspaceShell } from "@/components/WorkspaceShell";
-import { SessionItem } from "@/components/SessionList";
+import {
+  WorkspaceShell,
+  WorkspaceSessionItem,
+} from "@/components/WorkspaceShell";
 import { analysisService } from "@/services/analysisService";
 import { proposalService } from "@/services/proposalService";
 import { userService } from "@/services/userService";
@@ -18,7 +26,6 @@ import type {
   ProposalActionFlag,
 } from "@/types/proposal";
 import type { JiraConnectionDto } from "@/types/integration";
-import StoryChip from "@/components/StoryChip";
 import DefectCard from "@/components/analysis/DefectCard";
 
 const getStatusColor = (status?: string) => {
@@ -35,6 +42,8 @@ const getStatusColor = (status?: string) => {
       return "default";
   }
 };
+
+const WS_BASE_URL = "ws://localhost:8000/api/v1/analyses/";
 
 const AnalysisPageContent: React.FC = () => {
   const [connections, setConnections] = useState<JiraConnectionDto[]>([]);
@@ -56,66 +65,39 @@ const AnalysisPageContent: React.FC = () => {
   const [loadingSessions, setLoadingSessions] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [loadingProposals, setLoadingProposals] = useState(false);
+  const [runningAnalysis, setRunningAnalysis] = useState(false);
   const [generatingProposals, setGeneratingProposals] = useState(false);
   const [error, setError] = useState("");
   const [showError, setShowError] = useState(false);
 
-  // Polling to check status of running analyses
-  const [pollingIds, setPollingIds] = useState<string[]>([]);
+  // WebSocket state
+  const [connecting, setConnecting] = useState(false);
+  const [streamingAnalysisId, setStreamingAnalysisId] = useState<string | null>(
+    null
+  );
+  const [streamingStatus, setStreamingStatus] = useState<string | null>(null);
+  const [streamingMessage, setStreamingMessage] = useState<string>("");
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     void loadConnections();
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (pollingIds.length > 0) {
-        console.log("Polling analysis statuses for IDs:", pollingIds);
-        analysisService.getAnalysisStatuses(pollingIds).then((response) => {
-          const updatedStatuses = response.data || {};
-          console.log("Updated statuses:", updatedStatuses);
-          const stillPollingIds: string[] = [];
-          let needRefresh = false;
-
-          const updatedSummaries = summaries.map((summary) => {
-            const newStatus = updatedStatuses[summary.id];
-
-            if (newStatus) {
-              if (newStatus === "IN_PROGRESS" || newStatus === "PENDING") {
-                stillPollingIds.push(summary.id);
-              } else if (
-                newStatus === "DONE" &&
-                summary.id === selectedAnalysisId
-              ) {
-                // If the analysis just completed and is selected, reload its details
-                void handleSelectAnalysis(summary.id);
-              }
-              if (summary.status !== newStatus) {
-                needRefresh = true;
-                return { ...summary, status: newStatus } as AnalysisSummary;
-              }
-            }
-            return summary;
-          });
-
-          if (needRefresh) {
-            setSummaries(updatedSummaries);
-          }
-          setPollingIds(stillPollingIds);
-
-          console.log("Still polling IDs:", stillPollingIds);
-        });
-      }
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [pollingIds]);
-
-  useEffect(() => {
     if (selectedConnection) {
       void loadSummaries(selectedConnection.id);
     }
   }, [selectedConnection]);
+
+  // Cleanup WebSocket on unmount
+  useEffect(() => {
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+    };
+  }, []);
 
   const loadConnections = async () => {
     setLoadingConnections(true);
@@ -175,14 +157,7 @@ const AnalysisPageContent: React.FC = () => {
       if (response.data) {
         setSummaries(response.data);
         if (response.data.length > 0) {
-          // Set polling if there are running analyses
-          const runningIds = response.data
-            .filter(
-              (summary) =>
-                summary.status === "IN_PROGRESS" || summary.status === "PENDING"
-            )
-            .map((summary) => summary.id);
-          setPollingIds(runningIds);
+          void handleSelectAnalysis(response.data[0].id);
         } else {
           setSelectedAnalysisDetail(null);
           setSelectedAnalysisId(null);
@@ -202,9 +177,8 @@ const AnalysisPageContent: React.FC = () => {
     setAnalysisProposals([]);
     try {
       const response = await analysisService.getAnalysisDetails(analysisId);
-      setSelectedAnalysisDetail(response.data || null);
-
       if (response.data) {
+        setSelectedAnalysisDetail(response.data);
         await fetchAnalysisProposals(analysisId);
       }
     } catch (err: any) {
@@ -232,43 +206,159 @@ const AnalysisPageContent: React.FC = () => {
     await loadStoryKeys(selectedConnection!.id, projKey);
   };
 
+  const connectWebSocket = useCallback(
+    (
+      connId: string,
+      projKey: string,
+      analysisType: "ALL" | "TARGETED",
+      targetStoryKey?: string
+    ) => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("No authentication token found");
+        setShowError(true);
+        return;
+      }
+
+      // Close existing WebSocket if any
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+
+      setConnecting(true);
+      setError("");
+      setStreamingAnalysisId(null);
+      setStreamingStatus("PENDING");
+      setStreamingMessage("Initializing analysis...");
+
+      try {
+        const ws = new WebSocket(WS_BASE_URL);
+        wsRef.current = ws;
+
+        ws.onopen = () => {
+          console.log("WebSocket connected");
+          // Send initialization message
+          const initMessage: any = {
+            token,
+            connection_id: connId,
+            project_key: projKey,
+            analysis_type: analysisType,
+            target_story_key: targetStoryKey || null,
+          };
+
+          ws.send(JSON.stringify(initMessage));
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const chunk = JSON.parse(event.data);
+            console.log("Received chunk:", chunk);
+
+            // Handle analysis ID (sent first)
+            if (chunk.id && !streamingAnalysisId) {
+              console.log("Setting streaming analysis ID:", chunk.id);
+              setStreamingAnalysisId(chunk.id);
+              setSelectedAnalysisId(chunk.id);
+
+              // Add new analysis to summaries list
+              setSummaries((prev) => {
+                const exists = prev.some((s) => s.id === chunk.id);
+                if (exists) return prev;
+
+                const newSummary: AnalysisSummary = {
+                  id: chunk.id,
+                  project_key: projKey,
+                  story_key: targetStoryKey,
+                  type: analysisType,
+                  status: chunk.status || "PENDING",
+                  created_at: new Date().toISOString(),
+                };
+                return [newSummary, ...prev];
+              });
+            }
+
+            // Handle status update
+            if (chunk.status) {
+              console.log("Updating status:", chunk.status);
+              setStreamingStatus(chunk.status);
+
+              // Update status in summaries
+              const analysisId = chunk.id || streamingAnalysisId;
+              if (analysisId) {
+                setSummaries((prev) =>
+                  prev.map((s) =>
+                    s.id === analysisId ? { ...s, status: chunk.status } : s
+                  )
+                );
+              }
+            }
+
+            // Handle message update
+            if (chunk.message) {
+              console.log("Updating message:", chunk.message);
+              setStreamingMessage(chunk.message);
+            }
+          } catch (err) {
+            console.error("Failed to parse WebSocket message:", err);
+          }
+        };
+
+        ws.onerror = (error) => {
+          console.error("WebSocket error:", error);
+          setError("WebSocket connection error");
+          setShowError(true);
+          setConnecting(false);
+        };
+
+        ws.onclose = () => {
+          console.log("WebSocket closed");
+          setConnecting(false);
+          wsRef.current = null;
+
+          // Fetch final analysis details if we have an ID
+          if (streamingAnalysisId) {
+            console.log(
+              "Fetching final analysis details:",
+              streamingAnalysisId
+            );
+            void handleSelectAnalysis(streamingAnalysisId);
+            void loadSummaries(connId);
+          }
+
+          // Clear streaming state
+          setStreamingAnalysisId(null);
+          setStreamingStatus(null);
+          setStreamingMessage("");
+        };
+      } catch (err) {
+        console.error("Error connecting to analysis WebSocket:", err);
+        setError(
+          (err as Error).message || "Failed to connect to analysis server"
+        );
+        setShowError(true);
+        setConnecting(false);
+      }
+    },
+    [streamingAnalysisId, handleSelectAnalysis, loadSummaries]
+  );
+
   const handleRunAnalysis = async () => {
     if (!selectedConnection) return;
+    setRunningAnalysis(true);
     setError("");
 
-    try {
-      const analysisType = storyKey !== "None" ? "TARGETED" : "ALL";
-      const targetStoryKey = storyKey !== "None" ? storyKey : undefined;
-      const result = await analysisService.runAnalysis(
-        selectedConnection!.id,
-        projectKey,
-        {
-          analysis_type: analysisType,
-          target_story_key: targetStoryKey,
-        }
-      );
-      const { id, key } = result.data!;
-      setSummaries((prev) => {
-        return [
-          {
-            id,
-            key,
-            status: "PENDING",
-            type: analysisType,
-            project_key: projectKey,
-            story_key: targetStoryKey,
-            created_at: new Date().toISOString(),
-          } as AnalysisSummary,
-          ...prev,
-        ];
-      });
-      setPollingIds((prev) => [...prev, id]);
-    } catch (err: any) {
-      const errorMessage =
-        err.response?.data?.detail || "Failed to start analysis";
-      setError(errorMessage);
-      setShowError(true);
-    }
+    const analysisType = storyKey !== "None" ? "TARGETED" : "ALL";
+    const targetStoryKey = storyKey !== "None" ? storyKey : undefined;
+
+    // Use WebSocket instead of REST API
+    connectWebSocket(
+      selectedConnection.id,
+      projectKey,
+      analysisType,
+      targetStoryKey
+    );
+
+    setRunningAnalysis(false);
   };
 
   const handleMarkSolved = async (defectId: string, solved: boolean) => {
@@ -356,59 +446,35 @@ const AnalysisPageContent: React.FC = () => {
     }
   };
 
-  const handleRerunAnalysis = async () => {
-    if (!selectedConnection || !selectedAnalysisId) return;
-    setError("");
+  const sessionItems = useMemo<WorkspaceSessionItem[]>(() => {
+    return summaries.map((summary) => {
+      // If this is the currently streaming analysis, use streaming status
+      const isStreaming = summary.id === streamingAnalysisId;
+      const displayStatus = isStreaming
+        ? streamingStatus || summary.status
+        : summary.status;
 
-    try {
-      await analysisService.rerunAnalysis(selectedAnalysisId);
-      setSummaries((prev) => {
-        return prev.map((summary) => {
-          if (summary.id === selectedAnalysisId) {
-            return { ...summary, status: "IN_PROGRESS" };
-          }
-          return summary;
-        });
-      });
-      setPollingIds((prev) => [...prev, selectedAnalysisId]);
-    } catch (err: any) {
-      const errorMessage =
-        err.response?.data?.detail || "Failed to rerun analysis";
-      setError(errorMessage);
-      setShowError(true);
-    }
-  };
-
-  const sessionItems = useMemo<SessionItem[]>(() => {
-    return summaries.map((summary) => ({
-      id: summary.id,
-      title: summary.key,
-      subtitle: summary.created_at
-        ? new Date(summary.created_at).toLocaleString()
-        : undefined,
-      chips: [
-        summary.type ? { label: summary.type, color: "default" } : undefined,
-        summary.status
-          ? { label: summary.status, color: getStatusColor(summary.status) }
+      return {
+        id: summary.id,
+        title: summary.story_key
+          ? `${summary.project_key || "Project"} · ${summary.story_key}`
+          : summary.project_key || summary.type || summary.id,
+        subtitle: summary.created_at
+          ? new Date(summary.created_at).toLocaleString()
           : undefined,
-      ].filter(Boolean) as Array<{ label: string; color?: any }>,
-      running: summary.status === "IN_PROGRESS" || summary.status === "PENDING",
-    }));
-  }, [summaries]);
-
-  const rerunButton = () => {
-    const running =
-      selectedAnalysisId !== null && pollingIds.includes(selectedAnalysisId);
-    return (
-      <Button
-        variant="contained"
-        onClick={handleRerunAnalysis}
-        disabled={running}
-      >
-        {running ? "Analysis Running..." : "Rerun Analysis"}
-      </Button>
-    );
-  };
+        chips: [
+          summary.type ? { label: summary.type, color: "default" } : undefined,
+          displayStatus
+            ? { label: displayStatus, color: getStatusColor(displayStatus) }
+            : undefined,
+        ].filter(Boolean) as Array<{ label: string; color?: any }>,
+        running:
+          displayStatus === "IN_PROGRESS" ||
+          displayStatus === "PENDING" ||
+          isStreaming,
+      };
+    });
+  }, [summaries, streamingAnalysisId, streamingStatus]);
 
   const detailsContent = (
     <Box
@@ -420,6 +486,7 @@ const AnalysisPageContent: React.FC = () => {
         width: "100%",
         height: "100%",
         position: "relative",
+        p: 2,
       }}
     >
       <Box
@@ -436,6 +503,17 @@ const AnalysisPageContent: React.FC = () => {
         <Box sx={{ width: "70%", py: 2 }}>
           {loadingDetails ? (
             <LoadingSpinner />
+          ) : streamingAnalysisId && connecting ? (
+            // Show streaming progress
+            <Box sx={{ textAlign: "center", py: 4 }}>
+              <LoadingSpinner />
+              <Typography variant="h6" sx={{ mt: 2 }}>
+                {streamingStatus || "Running Analysis..."}
+              </Typography>
+              <Typography color="text.secondary" sx={{ mt: 1 }}>
+                {streamingMessage}
+              </Typography>
+            </Box>
           ) : selectedAnalysisDetail ? (
             <Stack spacing={3}>
               <Stack spacing={2}>
@@ -447,17 +525,28 @@ const AnalysisPageContent: React.FC = () => {
                   sx={{ mb: 2 }}
                 >
                   <Typography variant="h6">Defects</Typography>
-                  {rerunButton()}
+                  <Button
+                    variant="contained"
+                    onClick={handleGenerateProposals}
+                    disabled={
+                      generatingProposals ||
+                      selectedAnalysisDetail.status === "IN_PROGRESS"
+                    }
+                  >
+                    {generatingProposals
+                      ? "Generating..."
+                      : "Generate from defects"}
+                  </Button>
                 </Stack>
                 {selectedAnalysisDetail.defects.length === 0 ? (
-                  <Typography color="text.secondary">
+                  <Typography textAlign="center">
                     No defects found in this analysis.
                   </Typography>
                 ) : (
                   selectedAnalysisDetail.defects.map((defect) => (
                     <DefectCard
-                      key={defect.id}
                       defect={defect}
+                      key={defect.id}
                       onMarkSolved={handleMarkSolved}
                     />
                   ))
@@ -505,7 +594,6 @@ const AnalysisPageContent: React.FC = () => {
                   </Stack>
                 )}
               </Box>
-              <Box sx={{ height: 100 }} />
             </Stack>
           ) : (
             <Box
@@ -521,6 +609,7 @@ const AnalysisPageContent: React.FC = () => {
               </Typography>
             </Box>
           )}
+          <Box sx={{ height: 100 }} />
         </Box>
       </Box>
       <ErrorSnackbar
@@ -536,20 +625,14 @@ const AnalysisPageContent: React.FC = () => {
       connections={connections}
       selectedConnection={selectedConnection}
       onConnectionChange={handleConnectionChange}
-      projectOptions={{
-        options: projectKeys,
-        onChange: handleProjectKeyChange,
-        selectedOption: projectKey,
-      }}
-      storyOptions={{
-        options: storyKeys,
-        onChange: setStoryKey,
-        selectedOption: storyKey,
-      }}
-      submitAction={{
-        label: "Run Analysis",
-        onClick: handleRunAnalysis,
-      }}
+      selectedProjectKey={projectKey}
+      projectKeys={projectKeys}
+      onProjectKeyChange={handleProjectKeyChange}
+      selectedStoryKey={storyKey}
+      storyKeys={storyKeys}
+      onStoryKeyChange={setStoryKey}
+      onSessionFormSubmit={handleRunAnalysis}
+      sessionSubmitLabel="Run Analysis"
       sessions={sessionItems}
       selectedSessionId={selectedAnalysisId}
       onSelectSession={handleSelectAnalysis}

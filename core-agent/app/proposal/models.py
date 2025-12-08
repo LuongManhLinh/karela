@@ -32,6 +32,8 @@ class Proposal(Base):
 
     id = Column(String(64), primary_key=True, default=uuid_generator)
 
+    key = Column(String(64), nullable=True, index=True)
+
     source = Column(
         SqlEnum(ProposalSource),
         nullable=False,
@@ -73,6 +75,32 @@ class Proposal(Base):
         lazy="joined",
     )
 
+    proposal_defects = relationship(
+        "ProposalDefect",
+        back_populates="proposal",
+        cascade="all, delete-orphan",
+        lazy="joined",
+    )
+
+
+class ProposalDefect(Base):
+    __tablename__ = "proposal_defects"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    proposal_id = Column(
+        String(64),
+        ForeignKey("proposals.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    defect_id = Column(
+        String(64),
+        ForeignKey("defects.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    proposal = relationship("Proposal", back_populates="proposal_defects")
+
 
 class ProposalType(Enum):
     CREATE = "CREATE"
@@ -97,7 +125,7 @@ class ProposalContent(Base):
         nullable=False,
         index=True,
     )
-    key = Column(
+    story_key = Column(
         String(32), nullable=True, index=True, default=None
     )  # The key of the User Story (Jira Issue). None for CREATE proposals
     summary = Column(Text, nullable=True)

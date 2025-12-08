@@ -8,7 +8,6 @@ from .integrations.jira.router import router as jira_router
 
 
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from common.database import Base, engine
 
