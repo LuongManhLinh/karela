@@ -4,8 +4,8 @@ import type { Metadata } from "next";
 import ChatPageContent from "./ChatPageContent";
 
 export const metadata: Metadata = {
-  title: "RatSnake Chat",
-  description: "RatSnake Chat page description",
+  title: "Karela Chat",
+  description: "Karela Chat page description",
 };
 
 export default function ChatPage() {

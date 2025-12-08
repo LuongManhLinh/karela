@@ -1,4 +1,4 @@
-# ratsnake
+# Karela
 
 Scrum Requirement Engineering Assistance
 

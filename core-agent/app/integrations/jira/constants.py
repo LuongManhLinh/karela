@@ -1,1 +1,1 @@
-DEFAULT_SETTINGS_KEY = "ratsnake-companion-settings"
+DEFAULT_SETTINGS_KEY = "karela-companion-settings"

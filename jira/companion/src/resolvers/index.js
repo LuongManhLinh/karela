@@ -155,7 +155,7 @@ resolver.define("postChatMessage", async ({ payload }) => {
   return result;
 });
 
-const PROP_KEY = "ratsnake-companion-settings";
+const PROP_KEY = "karela-companion-settings";
 
 resolver.define("getProjectSettings", async ({ payload }) => {
   const { projectId } = payload;

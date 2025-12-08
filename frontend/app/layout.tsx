@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RatSnake",
-  description: "Ratsnake Core Agent Frontend",
+  title: "Karela",
+  description: "Karela Core Agent Frontend",
 };
 
 export default function RootLayout({

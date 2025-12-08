@@ -10,7 +10,7 @@ class DatabaseConfig:
     PORT = os.getenv("DB_PORT", "3306")
     USER = os.getenv("DB_USER", "root")
     PASSWORD = os.getenv("DB_PASSWORD", "root")
-    DATABASE = os.getenv("DB_NAME", "ratsnake")
+    DATABASE = os.getenv("DB_NAME", "karela")
     DATA_SOURCE = f"mysql+pymysql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
 
 

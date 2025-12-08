@@ -1,15 +1,15 @@
 modules:
   jira:projectPage:
-    - key: ratsnake-companion-project-page
+    - key: karela-companion-project-page
       resource: main
       resolver:
         function: resolver
       render: native
       title: Analyzer
-      icon: https://raw.githubusercontent.com/LuongManhLinh/assets/main/ratsnake-icon.svg
+      icon: https://raw.githubusercontent.com/LuongManhLinh/assets/main/karela-icon.svg
 
   jira:projectSettingsPage:
-    - key: ratsnake-companion-project-settings-page
+    - key: karela-companion-project-settings-page
       resource: settings
       resolver:
         function: resolver
@@ -17,12 +17,12 @@ modules:
       title: Companion Settings
 
   jira:issuePanel:
-    - key: ratsnake-companion-chat-panel
+    - key: karela-companion-chat-panel
       resource: chat-panel
       resolver:
         function: resolver
       title: Chat
-      icon: https://raw.githubusercontent.com/LuongManhLinh/assets/main/ratsnake-icon.svg
+      icon: https://raw.githubusercontent.com/LuongManhLinh/assets/main/karela-icon.svg
       render: native
 
   function:
@@ -47,7 +47,7 @@ permissions:
   external:
     fetch:
       backend:
-        - address: "https://ratsnake.lmlinh.com"
+        - address: "https://karela.lmlinh.com"
 app:
   runtime:
     name: nodejs22.x

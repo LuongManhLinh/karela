@@ -100,7 +100,7 @@ export default function RegisterPage() {
         />
         <Typography variant="h5" fontWeight="bold">
           {" "}
-          RatSnake
+          Karela
         </Typography>
       </Box>
       <Container component="main" maxWidth="xs">

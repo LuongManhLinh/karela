@@ -1,1 +1,1 @@
-export const BACKEND_URL = "https://ratsnake.lmlinh.com/api/v1";
+export const BACKEND_URL = "https://karela.lmlinh.com/api/v1";

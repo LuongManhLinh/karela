@@ -29,7 +29,7 @@ const ActionPanel = ({
         <Icon
           glyph="ai-chat"
           color="color.icon.accent.purple"
-          label="RatSnake"
+          label="karela"
           size="large"
         />
         <Stack>

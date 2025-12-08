@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import ProposalPageContent from "./layout";
 
 export const metadata: Metadata = {
-  title: "RatSnake Proposals",
+  title: "Karela Proposals",
   description: "Manage generated proposals",
 };
 
