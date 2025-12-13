@@ -28,6 +28,7 @@ import type {
   UpdateSettingsRequest,
 } from "@/types/settings";
 import type { JiraConnectionDto } from "@/types/integration";
+import { getToken } from "@/utils/jwt_utils";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -52,7 +53,7 @@ export default function SettingsPage() {
   const [llmGuidelines, setLlmGuidelines] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = getToken();
     if (!token) {
       router.push("/login");
       return;
@@ -233,18 +234,13 @@ export default function SettingsPage() {
   return (
     <Layout
       appBarLeftContent={
-        <Stack direction={"row"} alignItems="center" spacing={2}>
-          <Typography variant="h5" fontWeight="bold">
-            Settings
-          </Typography>
+        <Stack direction={"row"} alignItems="center" spacing={2} py={2}>
+          <Typography variant="h5">Settings</Typography>
         </Stack>
       }
+      appBarTransparent
     >
       <Container maxWidth="md" sx={{ mt: 4, mb: 4, overflowY: "auto" }}>
-        <Typography variant="h4" gutterBottom>
-          Settings
-        </Typography>
-
         <Paper
           elevation={2}
           sx={{
@@ -255,7 +251,7 @@ export default function SettingsPage() {
           }}
         >
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-            Connection & Projectasfasdfffffffffff
+            Connection & Projects
           </Typography>
           <Stack spacing={2}>
             <FormControl fullWidth margin="normal" required>

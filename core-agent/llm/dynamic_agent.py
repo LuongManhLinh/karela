@@ -1,40 +1,80 @@
-from langchain.agents import create_agent, AgentState
+from langchain.agents import create_agent
 from langchain.agents.structured_output import ProviderStrategy
-from langchain_core.chat_history import BaseChatMessageHistory
+from langchain.agents.middleware import ModelRetryMiddleware
 from langchain_google_genai.chat_models import ChatGoogleGenerativeAI
-from langchain_openai import ChatOpenAI
 from langchain_core.messages import BaseMessage
 from pydantic import BaseModel
 import random
-from typing import Callable, Iterator, List, Dict, Any, Literal
+from typing import Iterator, List, Dict, Literal, Callable, Optional
 
 from utils.json_processor import schema_without_titles
-from .dynamic_llm import LogCallback
+
+
+class APIKeyRotationMiddleware:
+    """Middleware to rotate API keys on retries."""
+
+    def __init__(self, api_keys: List[str], model: ChatGoogleGenerativeAI):
+        self.api_keys = api_keys
+        self.model = model
+        self._current_index = random.randint(0, len(api_keys) - 1)
+
+    def __call__(self, exception: Exception) -> str:
+        """Rotate to next API key and return error message."""
+        self._current_index = (self._current_index + 1) % len(self.api_keys)
+        self.model.google_api_key = self.api_keys[self._current_index]
+        print(f"Rotated to API key index: {self._current_index}")
+        return f"Retrying with different API key after error: {str(exception)}"
 
 
 class GenimiDynamicAgent:
+    """
+    Enhanced dynamic agent using LangChain's ModelRetryMiddleware for robust error handling.
+    Supports dynamic prompts via middleware and automatic API key rotation.
+    """
+
     def __init__(
         self,
-        system_prompt: str,
+        system_prompt: str | Callable,
         model_name: str,
         temperature: float,
-        api_keys: list[str],
+        api_keys: List[str],
         response_mime_type: Literal[
             "application/json", "text/plain", "text/x.enum"
         ] = "text/plain",
-        response_schema: BaseModel = None,
-        tools: list = [],
-        middleware: list = [],
-        max_retries=3,
-        retry_delay_ms=1000,
-        errors_to_retry=None,
+        response_schema: Optional[BaseModel] = None,
+        tools: List = None,
+        middleware: List = None,
+        max_retries: int = 3,
+        initial_delay: float = 1.0,
+        max_delay: float = 60.0,
+        backoff_factor: float = 2.0,
+        retry_on: tuple = (Exception,),
     ):
+        """
+        Initialize GenimiDynamicAgent with ModelRetryMiddleware.
+
+        Args:
+            system_prompt: Static string or dynamic prompt middleware function
+            model_name: Gemini model name
+            temperature: Model temperature
+            api_keys: List of API keys for rotation
+            response_mime_type: Response format
+            response_schema: Pydantic schema for structured output
+            tools: List of tools for the agent
+            middleware: Additional middleware functions
+            max_retries: Maximum retry attempts (default: 3)
+            initial_delay: Initial delay before first retry in seconds (default: 1.0)
+            max_delay: Maximum delay between retries (default: 60.0)
+            backoff_factor: Exponential backoff multiplier (default: 2.0)
+            retry_on: Tuple of exceptions to retry on
+        """
         if not api_keys or len(api_keys) == 0:
             raise ValueError("At least one API key must be provided")
 
         self.api_keys = api_keys
         self._api_key_index = random.randint(0, len(api_keys) - 1)
 
+        # Initialize model
         self.model = ChatGoogleGenerativeAI(
             model=model_name,
             temperature=temperature,
@@ -43,158 +83,66 @@ class GenimiDynamicAgent:
             response_schema=(
                 schema_without_titles(response_schema) if response_schema else None
             ),
-            max_retries=1,
+            max_retries=0,  # Disable model-level retries, use middleware instead
         )
 
+        # Setup middleware
+        middleware_list = middleware or []
+
+        # Add API key rotation on failure
+        api_rotation = APIKeyRotationMiddleware(api_keys, self.model)
+
+        # Add retry middleware with exponential backoff and API key rotation
+        retry_middleware = ModelRetryMiddleware(
+            max_retries=max_retries,
+            retry_on=retry_on,
+            on_failure=api_rotation,
+            backoff_factor=backoff_factor,
+            initial_delay=initial_delay,
+            max_delay=max_delay,
+            jitter=True,
+        )
+
+        middleware_list.insert(0, retry_middleware)
+
+        # Create agent with middleware
         self.agent = create_agent(
             model=self.model,
             system_prompt=system_prompt,
-            tools=tools,
-            middleware=middleware,
+            tools=tools or [],
+            middleware=middleware_list,
             response_format=(
                 ProviderStrategy(response_schema) if response_schema else None
             ),
         )
 
-        self.max_retries = max_retries
-        self.retry_delay_ms = retry_delay_ms
-        self.errors_to_retry = errors_to_retry
         self.response_schema = response_schema
 
-    def _rotate_api_key(self):
-        self._api_key_index = (self._api_key_index + 1) % len(self.api_keys)
-        self.model.google_api_key = self.api_keys[self._api_key_index]
-        print(f"Rotated to API key index: {self._api_key_index}")
-
     def invoke(self, messages: List[BaseMessage] | List[Dict], *args, **kwargs):
-        return self._run_with_retries(
-            self.agent.invoke,
-            {"messages": messages},
-            *args,
-            **kwargs,
-        )
+        """
+        Invoke the agent with automatic retry and API key rotation.
 
-    def _run_with_retries(self, fn, *args, **kwargs):
-        attempts = 0
-        last_exception = None
+        Args:
+            messages: Input messages
 
-        while attempts < self.max_retries:
-            try:
-                # return a *fresh generator* every attempt
-                return fn(*args, **kwargs)
-            except Exception as e:
-                attempts += 1
-                last_exception = e
-                print(f"[Stream Error] Attempt {attempts}: {e}")
-
-                if (
-                    attempts >= self.max_retries
-                    or self.errors_to_retry is not None
-                    and not isinstance(e, self.errors_to_retry)
-                ):
-                    raise last_exception
-
-                self._rotate_api_key()
-
-        raise RuntimeError("Max retries exceeded in stream")
+        Returns:
+            Agent response with structured output if schema provided
+        """
+        return self.agent.invoke({"messages": messages}, *args, **kwargs)
 
     def stream(
         self, messages: List[BaseMessage] | List[Dict], *args, **kwargs
     ) -> Iterator:
-        # stream_gen = self._run_stream_with_retries(
-        #     self.agent.stream,
-        #     {"messages": messages},
-        #     *args,
-        #     **kwargs,
-        # )
+        """
+        Stream agent responses with automatic retry.
 
-        def stream_gen():
-            try:
-                for chunk in self.agent.stream(
-                    {"messages": messages},
-                    *args,
-                    **kwargs,
-                ):
-                    yield chunk
-            except Exception as e:
-                print("Error while streaming:", e)
-                raise e
+        Args:
+            messages: Input messages
 
-        return self._run_with_retries(stream_gen)
+        Yields:
+            Response chunks
+        """
+        stream_gen = self.agent.stream({"messages": messages}, *args, **kwargs)
 
-
-class OpenRouterDynamicAgent:
-    def __init__(
-        self,
-        system_prompt: str,
-        model_name: str,
-        temperature: float,
-        api_keys: list[str],
-        response_mime_type: str = "text/plain",
-        response_schema: BaseModel = None,
-        tools: list = [],
-        middleware=[],
-        max_retries=3,
-        retry_delay_ms=1000,
-        errors_to_retry=None,
-    ):
-        if not api_keys or len(api_keys) == 0:
-            raise ValueError("At least one API key must be provided")
-
-        self.api_keys = api_keys
-        self._api_key_index = random.randint(0, len(api_keys) - 1)
-
-        self.model = ChatOpenAI(
-            name=model_name,
-            openai_api_key=api_keys[self._api_key_index],
-            base_url="https://openrouter.ai/api/v1",
-            temperature=temperature,
-        )
-
-        if response_schema:
-            self.model.with_structured_output = response_schema
-
-        self.agent = create_agent(
-            model=self.model,
-            system_prompt=system_prompt,
-            tools=tools,
-            middleware=middleware,
-            response_format=(
-                ProviderStrategy(response_schema) if response_schema else None
-            ),
-        )
-
-        self.max_retries = max_retries
-        self.retry_delay_ms = retry_delay_ms
-        self.errors_to_retry = errors_to_retry
-        self.response_schema = response_schema
-
-    def _rotate_api_key(self):
-        self._api_key_index = (self._api_key_index + 1) % len(self.api_keys)
-        self.model.google_api_key = self.api_keys[self._api_key_index]
-        print(f"Rotated to API key index: {self._api_key_index}")
-
-    def _run_with_retries(self, fn, *args, **kwargs):
-        attempts = 0
-        while attempts < self.max_retries:
-            try:
-                return fn(*args, **kwargs)
-            except Exception as e:
-                attempts += 1
-                print(f"Error on attempt {attempts}: {e}")
-                if (
-                    attempts >= self.max_retries
-                    or self.errors_to_retry is not None
-                    and not isinstance(e, self.errors_to_retry)
-                ):
-                    raise
-                self._rotate_api_key()
-        raise RuntimeError("Max retries exceeded")
-
-    def invoke(self, messages: List[BaseMessage] | List[Dict], *args, **kwargs):
-        return self._run_with_retries(
-            self.agent.invoke,
-            {"messages": messages},
-            *args,
-            **kwargs,
-        )
+        for chunk in stream_gen:
+            yield chunk

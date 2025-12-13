@@ -1,11 +1,11 @@
+import { getToken } from "@/utils/jwt_utils";
 import apiClient from "./api";
 
 export const jiraService = {
   startOAuth: async (): Promise<void> => {
     // This endpoint returns a RedirectResponse from the backend
     // We need to make a GET request with JWT token and extract the redirect URL
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const token = typeof window !== "undefined" ? getToken() : null;
     if (!token) {
       throw new Error("No authentication token found");
     }

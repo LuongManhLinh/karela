@@ -17,7 +17,6 @@ from .schemas import (
 )
 from common.schemas import BasicResponse
 from .tasks import analyze_all_user_stories, analyze_target_user_story
-from common.redis_app import task_queue
 
 router = APIRouter()
 
@@ -85,9 +84,9 @@ async def run_analysis(
         )
 
         if run_req.analysis_type == "ALL":
-            task_queue.enqueue(analyze_all_user_stories, analysis_id)
+            analyze_all_user_stories(analysis_id)
         elif run_req.analysis_type == "TARGETED":
-            task_queue.enqueue(analyze_target_user_story, analysis_id)
+            analyze_target_user_story(analysis_id)
         else:
             raise HTTPException(status_code=400, detail="Unsupported analysis type")
 
@@ -159,9 +158,9 @@ async def rerun_analysis(
         raise HTTPException(status_code=404, detail="Analysis not found")
     try:
         if analysis.type.value == "ALL":
-            task_queue.enqueue(analyze_all_user_stories, analysis_id)
+            analyze_all_user_stories(analysis_id)
         elif analysis.type.value == "TARGETED":
-            task_queue.enqueue(analyze_target_user_story, analysis_id)
+            analyze_target_user_story(analysis_id)
         else:
             raise HTTPException(
                 status_code=400, detail=f"Unsupported analysis type {analysis.type}"

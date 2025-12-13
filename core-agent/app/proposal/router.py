@@ -6,7 +6,7 @@ from app.auth_factory import get_jwt_payload
 from app.service_factory import get_proposal_service
 
 from common.schemas import BasicResponse
-from .schemas import ProposalDto
+from .schemas import ProposalContentEditRequest, ProposalDto
 from .services import ProposalService
 
 router = APIRouter()
@@ -36,14 +36,15 @@ async def proposal_action(
         else:
             raise HTTPException(status_code=400, detail="Invalid flag value")
     except ValueError as e:
+        traceback.print_exc()
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/contents/{proposal_content_id}/{flag}")
 async def proposal_content_action(
-    proposal_id: str,
     proposal_content_id: str,
     flag: int,
     jwt_payload: dict = Depends(get_jwt_payload),
@@ -63,8 +64,10 @@ async def proposal_content_action(
         else:
             raise HTTPException(status_code=400, detail="Invalid flag value")
     except ValueError as e:
+        traceback.print_exc()
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -115,9 +118,32 @@ async def get_proposals_by_connection(
     """Get all proposals for a connection."""
     try:
         dto = service.get_sessions_having_proposals(connection_id)
+        print("Number of analyses with proposals:", len(dto.analysis_sessions))
+        print("Number of chats with proposals:", len(dto.chat_sessions))
         return BasicResponse(data=dto)
     except ValueError as e:
         traceback.print_exc()
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.put("/contents/{proposal_content_id}")
+async def edit_proposal_content(
+    proposal_content_id: str,
+    edit_req: ProposalContentEditRequest,
+    jwt_payload: dict = Depends(get_jwt_payload),
+    service: ProposalService = Depends(get_proposal_service),
+):
+    """Edit the summary and/or description of a proposal content."""
+    try:
+        service.edit_proposal_content(
+            proposal_content_id,
+            summary=edit_req.summary,
+            description=edit_req.description,
+        )
+        return BasicResponse(detail="Proposal content edited successfully")
+    except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

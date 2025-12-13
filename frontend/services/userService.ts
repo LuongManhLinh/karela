@@ -49,9 +49,11 @@ export const userService = {
     return response.data;
   },
 
-  getProjectKeys: async (connId: string): Promise<BasicResponse<string[]>> => {
+  getProjectKeys: async (
+    connectionIdOrName: string
+  ): Promise<BasicResponse<string[]>> => {
     const response = await apiClient.get<BasicResponse<string[]>>(
-      `/users/connections/${connId}/projects`
+      `/users/connections/${connectionIdOrName}/projects`
     );
     return response.data;
   },
@@ -63,6 +65,11 @@ export const userService = {
     const response = await apiClient.get<BasicResponse<string[]>>(
       `/users/connections/${connId}/projects/${projectKey}/issues`
     );
+    return response.data;
+  },
+
+  refreshData: async (): Promise<BasicResponse> => {
+    const response = await apiClient.post<BasicResponse>("/users/refresh-data");
     return response.data;
   },
 };

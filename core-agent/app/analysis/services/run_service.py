@@ -1,20 +1,18 @@
 from app.analysis.agents.schemas import DefectByLlm, WorkItemMinimal, DefectInput
-from app.analysis.agents.input_schemas import (
-    ContextInput,
+from common.agents.input_schemas import (
     Documentation,
-    LlmContext,
 )
-from app.analysis.agents.story.all import (
+from app.analysis.agents.all import (
     run_analysis as run_user_stories_analysis_all,
     run_analysis_async as run_user_stories_analysis_all_async,
     stream_analysis as stream_user_stories_analysis_all,
 )
-from app.analysis.agents.story.target import (
+from app.analysis.agents.target import (
     run_analysis as run_user_stories_analysis_target,
     run_analysis_async as run_user_stories_analysis_target_async,
     stream_analysis as stream_user_stories_analysis_target,
 )
-from app.analysis.agents.proposal.graph import generate_proposals
+from app.proposal.agents.graph import generate_proposals
 from app.analysis.models import (
     Analysis,
     AnalysisType,
@@ -40,6 +38,7 @@ from datetime import datetime
 from typing import List, Optional, Literal
 
 from app.settings.models import Settings
+from common.agents.input_schemas import ContextInput, LlmContext
 from common.database import uuid_generator
 
 
@@ -114,7 +113,7 @@ class AnalysisRunService:
     ):
         return get_platform_service(
             db=self.db, connection_id=connection_id
-        ).search_issues(
+        ).fetch_issues(
             connection_id=connection_id,
             jql=f"project = '{project_key}' AND issuetype in ({', '.join(issue_types)}) ORDER BY created ASC",
             fields=[
@@ -618,6 +617,9 @@ class AnalysisRunService:
                 )
             )
             defect_key_id_map[d.key] = d.id
+        if not defects:
+            print("No unsolved defects found for analysis:", analysis_id)
+            return []
 
         context_input = self._get_default_context_input(
             connection_id=analysis.connection_id,
@@ -628,7 +630,7 @@ class AnalysisRunService:
             db=self.db, connection_id=analysis.connection_id
         )
 
-        jira_issues = jira_service.search_issues(
+        jira_issues = jira_service.fetch_issues(
             connection_id=analysis.connection_id,
             jql=f"project = '{analysis.project_key}' AND key in ({', '.join(involved_story_keys)}) AND issuetype in (Story)",
             fields=["summary", "description"],

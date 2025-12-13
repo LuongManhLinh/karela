@@ -1,18 +1,6 @@
-from sqlalchemy import (
-    Column,
-    String,
-    ForeignKey,
-    Enum as SqlEnum,
-    Text,
-    text,
-    JSON,
-)
-from sqlalchemy.dialects.mysql import DATETIME
-from sqlalchemy.orm import relationship
-from enum import Enum
-from uuid import uuid4
+from sqlalchemy import Column, String, ForeignKey, Text, JSON, DateTime
 
-from common.database import Base, uuid_generator
+from common.database import Base, uuid_generator, utcnow
 
 
 class Settings(Base):
@@ -34,9 +22,9 @@ class Settings(Base):
 
     llm_guidelines = Column(Text, nullable=True)
 
-    last_updated = Column(
-        DATETIME(fsp=2),
-        server_default=text("CURRENT_TIMESTAMP(2)"),
-        nullable=False,
-        onupdate=text("CURRENT_TIMESTAMP(2)"),
-    )
+    created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+    # On update event
+    def before_update_listener(mapper, connection, target):
+        target.updated_at = utcnow()

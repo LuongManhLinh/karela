@@ -10,12 +10,14 @@ import {
   Box,
   Link as MuiLink,
   Alert,
+  useTheme,
 } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { userService } from "@/services/userService";
 import { ErrorSnackbar } from "@/components/ErrorSnackbar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { getToken, saveToken } from "@/utils/jwt_utils";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,11 +27,13 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [showError, setShowError] = useState(false);
 
+  const theme = useTheme();
+
   useEffect(() => {
     // Check if already logged in
-    const token = localStorage.getItem("token");
+    const token = getToken();
     if (token) {
-      router.push("/chat");
+      router.push("/analysis");
     }
   }, [router]);
 
@@ -37,6 +41,7 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setShowError(false);
 
     try {
       const response = await userService.authenticate({
@@ -45,9 +50,9 @@ export default function LoginPage() {
       });
 
       if (response.data) {
-        localStorage.setItem("token", response.data);
+        saveToken(response.data);
 
-        router.push("/chat");
+        router.push("/analysis");
       }
     } catch (err: any) {
       const errorMessage =
@@ -67,7 +72,6 @@ export default function LoginPage() {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         p: 2,
         gap: 2,
       }}

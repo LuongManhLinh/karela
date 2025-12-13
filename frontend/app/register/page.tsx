@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { userService } from "@/services/userService";
 import { ErrorSnackbar } from "@/components/ErrorSnackbar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { getToken } from "@/utils/jwt_utils";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -28,7 +29,7 @@ export default function RegisterPage() {
 
   useEffect(() => {
     // Check if already logged in
-    const token = localStorage.getItem("token");
+    const token = getToken();
     if (token) {
       router.push("/chat");
     }
@@ -76,7 +77,6 @@ export default function RegisterPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         p: 2,
         gap: 2,
       }}

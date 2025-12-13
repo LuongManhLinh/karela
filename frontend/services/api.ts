@@ -1,3 +1,4 @@
+import { getToken, removeToken } from "@/utils/jwt_utils";
 import axios, { AxiosInstance } from "axios";
 
 const API_BASE_URL =
@@ -15,7 +16,7 @@ const apiClient: AxiosInstance = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem("token");
+      const token = getToken();
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -34,7 +35,7 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       // Unauthorized - clear token and redirect to login
       if (typeof window !== "undefined") {
-        localStorage.removeItem("token");
+        removeToken();
         window.location.href = "/login";
       }
     }

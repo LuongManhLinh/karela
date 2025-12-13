@@ -24,7 +24,7 @@ const HeaderContent: React.FC<HeaderContentProps> = ({
       }}
     >
       <Typography
-        variant="h6"
+        variant="h5"
         component="div"
         sx={{ userSelect: "none", whiteSpace: "nowrap" }}
       >

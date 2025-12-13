@@ -126,7 +126,7 @@ class IssueUpdate(BaseModel):
     )
 
 
-class IssuesCreateRequest(BaseModel):
+class CreateIssuesRequest(BaseModel):
     issue_updates: List[IssueUpdate] = Field(default_factory=list, alias="issueUpdates")
 
 
@@ -160,6 +160,31 @@ class JiraConnectionDto(BaseModel):
     name: Optional[str] = None
     url: Optional[str] = None
     avatar_url: Optional[str] = None
+
+    model_config = ConfigDict(
+        extra="ignore",
+    )
+
+
+class ProjectIssueKeysDto(BaseModel):
+    project_key: str
+    issue_keys: List[str] = Field(default_factory=list)
+
+
+class StoryDto(BaseModel):
+    id: str
+    key: str
+    summary: Optional[str] = None
+    description: Optional[str] = None
+
+    model_config = ConfigDict(
+        extra="ignore",
+    )
+
+
+class CreateStoryRequest(BaseModel):
+    summary: str
+    description: Optional[str] = Field(default=None, description="Markdown supported")
 
     model_config = ConfigDict(
         extra="ignore",

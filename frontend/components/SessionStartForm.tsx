@@ -7,6 +7,7 @@ import {
   Box,
   Autocomplete,
   Typography,
+  CircularProgress,
 } from "@mui/material";
 import { OpenInNew } from "@mui/icons-material";
 import { LoadingSpinner } from "./LoadingSpinner";
@@ -35,7 +36,9 @@ export interface SessionStartFormProps {
   projectKeyOptions?: StringOptions;
   storyKeyOptions?: StringOptions;
   submitAction?: SubmitAction;
-  loading?: boolean;
+  loadingConnections?: boolean;
+  loadingProjectKeys?: boolean;
+  loadingStoryKeys?: boolean;
 }
 
 export const SessionStartForm: React.FC<SessionStartFormProps> = ({
@@ -45,7 +48,9 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
   projectKeyOptions,
   storyKeyOptions,
   submitAction,
-  loading,
+  loadingConnections,
+  loadingProjectKeys,
+  loadingStoryKeys,
 }) => {
   if (connections.length === 0) {
     // No connnections available, add a link to /profile to set up connections
@@ -63,14 +68,14 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
         <Box>
           <Link
             href="/profile"
-            style={{ color: "white", textDecoration: "underline" }}
+            style={{ color: "primary", textDecoration: "underline" }}
           >
             Set up connection
+            <OpenInNew
+              fontSize="small"
+              sx={{ verticalAlign: "middle", ml: 0.5 }}
+            />
           </Link>
-          <OpenInNew
-            fontSize="small"
-            sx={{ verticalAlign: "middle", ml: 0.5 }}
-          />
         </Box>
       </Box>
     );
@@ -91,7 +96,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
         }}
         getOptionLabel={(option) => option.name || option.id}
         isOptionEqualToValue={(option, value) => option.id === value.id}
-        disabled={loading}
+        disabled={loadingConnections}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -100,7 +105,14 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
             margin="normal"
             InputProps={{
               ...params.InputProps,
-              startAdornment: selectedConnection ? (
+              startAdornment: loadingConnections ? (
+                <CircularProgress
+                  size={20}
+                  sx={{
+                    mx: 1,
+                  }}
+                />
+              ) : selectedConnection ? (
                 <Box
                   component="img"
                   src={selectedConnection.avatar_url}
@@ -114,11 +126,13 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
         renderOption={(props, option) => (
           <li {...props} key={option.id}>
             <Box sx={{ display: "flex", alignItems: "center" }}>
-              <img
+              <Box
                 src={option.avatar_url}
+                component="img"
                 alt="icon"
-                style={{ width: 20, height: 20, marginRight: 10 }}
+                sx={{ width: 20, height: 20, mx: 1 }}
               />
+
               {option.name || option.id}
             </Box>
           </li>
@@ -140,7 +154,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
           onChange={(event, newValue) => {
             projectKeyOptions.onChange(newValue || "");
           }}
-          disabled={loading}
+          disabled={loadingConnections}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -148,6 +162,17 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
               required
               margin="normal"
               sx={{ minWidth: 120 }}
+              InputProps={{
+                ...params.InputProps,
+                startAdornment: loadingProjectKeys ? (
+                  <CircularProgress
+                    size={20}
+                    sx={{
+                      mx: 1,
+                    }}
+                  />
+                ) : null,
+              }}
             />
           )}
           filterOptions={(options, { inputValue }) => {
@@ -167,13 +192,24 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
           onChange={(event, newValue) => {
             storyKeyOptions.onChange(newValue || "");
           }}
-          disabled={loading}
+          disabled={loadingConnections}
           renderInput={(params) => (
             <TextField
               {...params}
               label={storyKeyOptions.label || "Story Key (Optional)"}
               margin="normal"
               sx={{ minWidth: 150 }}
+              InputProps={{
+                ...params.InputProps,
+                startAdornment: loadingStoryKeys ? (
+                  <CircularProgress
+                    size={20}
+                    sx={{
+                      mx: 1,
+                    }}
+                  />
+                ) : null,
+              }}
             />
           )}
           filterOptions={(options, { inputValue }) => {
@@ -191,7 +227,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
           variant="contained"
           fullWidth
           sx={{ mt: 2 }}
-          disabled={loading || submitAction.disabled}
+          disabled={loadingConnections || submitAction.disabled}
           onClick={submitAction.onClick}
         >
           {submitAction.label}

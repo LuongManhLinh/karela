@@ -2,6 +2,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from uuid import uuid4
+from datetime import datetime, timezone
 
 from common.configs import DatabaseConfig
 
@@ -21,3 +22,7 @@ def get_db():
 
 def uuid_generator():
     return str(uuid4())
+
+
+def utcnow():
+    return datetime.now(timezone.utc)

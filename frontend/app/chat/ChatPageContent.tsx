@@ -50,6 +50,7 @@ import type { JiraConnectionDto } from "@/types/integration";
 import { userService } from "@/services/userService";
 import { ProposalCard } from "@/components/proposals/ProposalCard";
 import { SessionItem } from "@/components/SessionList";
+import { getToken } from "@/utils/jwt_utils";
 
 const WS_BASE_URL = "ws://localhost:8000/api/v1/chat/";
 
@@ -229,7 +230,7 @@ const ChatPageContent: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = getToken();
     if (!token) {
       router.push("/login");
     }
@@ -474,8 +475,6 @@ const ChatPageContent: React.FC = () => {
           created_at: new Date().toISOString(),
         };
 
-        console.log("Adding new message to history:", newMsg);
-
         return [...prev, newMsg];
       });
 
@@ -544,7 +543,7 @@ const ChatPageContent: React.FC = () => {
       storyKey?: string,
       sessionId?: string
     ) => {
-      const token = localStorage.getItem("token");
+      const token = getToken();
       if (!token) {
         setError("No authentication token found");
         setShowError(true);
@@ -738,6 +737,7 @@ const ChatPageContent: React.FC = () => {
         flexGrow: 1,
         display: "flex",
         flexDirection: "column",
+        justifyContent: messages.length === 0 ? "center" : "flex-start",
         alignItems: "center",
         width: "100%",
         height: "100%",
@@ -746,13 +746,14 @@ const ChatPageContent: React.FC = () => {
     >
       <Box
         sx={{
-          flex: 1,
           overflow: "auto",
           display: "flex",
+          flexDirection: "column",
           alignContent: "center",
+          alignItems: "center",
           justifyContent: "center",
           width: "100%",
-          height: "100%",
+          // height: "100%",
           scrollbarColor: "#6b6b6b transparent",
           scrollbarWidth: "auto",
           "&::-webkit-scrollbar": {
@@ -778,11 +779,10 @@ const ChatPageContent: React.FC = () => {
               sx={{
                 display: "flex",
                 justifyContent: "center",
-                alignItems: "flex-start",
-                height: "100%",
+                alignItems: "center",
               }}
             >
-              <Typography color="text.secondary" variant="h5">
+              <Typography color="text.secondary" variant="h4">
                 {currentSession
                   ? "No messages in this session"
                   : "Select a session or start a new chat"}
@@ -823,9 +823,20 @@ const ChatPageContent: React.FC = () => {
       <Box
         sx={{
           width: "60%",
-          zIndex: 10,
-          position: "absolute",
-          bottom: 16,
+          mt: 2,
+          ...(currentSession && messages.length > 0
+            ? {
+                zIndex: 10,
+                position: "absolute",
+                bottom: 16,
+              }
+            : {
+                display: "flex",
+                flexDirection: "column",
+                // height: "100%",
+                // // position: "relative",
+                // backgroundColor: "transparent",
+              }),
           alignItems: "center",
           justifyContent: "center",
         }}
@@ -885,6 +896,8 @@ const ChatPageContent: React.FC = () => {
             p: 2,
             mt: 0,
             borderRadius: 2.5,
+            flexShrink: 0,
+            width: "100%",
           }}
         >
           <ChatSection

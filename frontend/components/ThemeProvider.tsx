@@ -47,7 +47,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
       mode,
       primary: {
         main: "#667eea",
-        light: "#8b9ef0",
+        light: "#b0bcf4ff",
         dark: "#4a5fd4",
       },
       secondary: {
@@ -55,6 +55,17 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
         light: "#9268b8",
         dark: "#5a3788",
       },
+      tertiary: {
+        main: mode === "light" ? "#ffb547" : "#ffcc80",
+        light: mode === "light" ? "#ffd280" : "#ffe0b2",
+        dark: mode === "light" ? "#e69a2c" : "#ffb74d",
+      },
+      successDark: {
+        main: mode === "light" ? "#2f855a" : "#38a169",
+        light: mode === "light" ? "#38a169" : "#48bb78",
+        dark: mode === "light" ? "#276749" : "#2f855a",
+      },
+
       success: {
         main: mode === "light" ? "#48bb78" : "#68d391",
         light: mode === "light" ? "#68d391" : "#9ae6b4",
@@ -77,15 +88,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
     shape: {
       borderRadius: 16,
     },
-    shadows: [
-      "none",
-      "0 2px 8px rgba(0, 0, 0, 0.08)",
-      "0 4px 16px rgba(0, 0, 0, 0.12)",
-      "0 8px 24px rgba(0, 0, 0, 0.16)",
-      "0 12px 32px rgba(0, 0, 0, 0.20)",
-      "0 20px 60px rgba(0, 0, 0, 0.15)",
-      ...Array(19).fill("none"),
-    ],
     components: {
       MuiButton: {
         styleOverrides: {
@@ -102,19 +104,19 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
           contained: {
             background:
               mode === "light"
-                ? "linear-gradient(135deg,rgb(179, 188, 236) 0%,rgb(183, 146, 224) 100%)"
-                : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                ? "linear-gradient(135deg, #E8F0FF 0%, #F5ECFF 100%)" // Very Pale Blue and Purple for Black Text
+                : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", // Original Dark Theme
             "&:hover": {
               background:
                 mode === "light"
-                  ? "linear-gradient(135deg, #5a6fd8 0%, #6a3f92 100%)"
-                  : "linear-gradient(135deg, #5a6fd8 0%, #6a3f92 100%)",
+                  ? "linear-gradient(135deg, #AAB8FF 0%, #D4BBFF 100%)" // Mid-tone for black text
+                  : "linear-gradient(135deg, #7A90FF 0%, #8C6AFF 100%)", // Brighter tone for white text
             },
             ":disabled": {
               background:
                 mode === "light"
-                  ? "linear-gradient(135deg,rgb(125, 143, 234) 0%,rgb(193, 149, 233) 100%)"
-                  : "linear-gradient(135deg,rgb(48, 60, 118) 0%,rgb(58, 35, 80) 100%)",
+                  ? "linear-gradient(135deg, #F0F4FF 0%, #FAF6FF 100%)" // Extremely pale/faded for black text
+                  : "linear-gradient(135deg, #445699 0%, #503E6B 100%)", // Darker/Muted for white text
             },
             color: mode === "light" ? "#1a202c" : "#f7fafc",
           },

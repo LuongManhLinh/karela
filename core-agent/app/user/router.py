@@ -100,9 +100,9 @@ def get_user_connections(
     return BasicResponse(data=connections)
 
 
-@router.get("/connections/{connection_id}/projects")
+@router.get("/connections/{connection_id_or_name}/projects")
 def get_project_keys(
-    connection_id: str,
+    connection_id_or_name: str,
     service: JiraService = Depends(get_jira_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
@@ -111,7 +111,9 @@ def get_project_keys(
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         return BasicResponse(
-            data=service.fetch_project_keys(connection_id=connection_id)
+            data=service.fetch_project_keys(
+                user_id=user_id, connection_id_or_name=connection_id_or_name
+            )
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -136,3 +138,19 @@ def get_story_keys(
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.post("/refresh-data")
+def refresh_jira_data(
+    service: JiraService = Depends(get_jira_service),
+    jwt_payload=Depends(get_jwt_payload),
+):
+    user_id = jwt_payload.get("sub")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+    try:
+        service.refresh_data_for_user(user_id=user_id)
+        return BasicResponse(detail="Jira data refreshed successfully")
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))

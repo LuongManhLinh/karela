@@ -1,9 +1,9 @@
-from sqlalchemy import Column, String, ForeignKey, Text
+from sqlalchemy import Column, String, ForeignKey, Text, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mysql import BINARY, LONGBLOB
 
 
-from common.database import Base, uuid_generator
+from common.database import Base, uuid_generator, utcnow
 
 
 class JiraConnection(Base):
@@ -28,31 +28,54 @@ class JiraConnection(Base):
         index=True,
     )
 
+    created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
+
     user = relationship("User", back_populates="jira_connections")
 
+    projects = relationship(
+        "JiraProject", back_populates="connection", cascade="all, delete-orphan"
+    )
 
-#     cloud_infos = relationship(
-#         "JiraCloudInfo",
-#         back_populates="connection",
-#         uselist=False,
-#         cascade="all, delete-orphan",
-#     )
+    # On update event
+    def before_update_listener(mapper, connection, target):
+        target.updated_at = utcnow()
 
 
-# class JiraCloudInfo(Base):
-#     __tablename__ = "jira_cloud_info"
+class JiraProject(Base):
+    __tablename__ = "jira_projects"
 
-#     id = Column(String(64), primary_key=True)
-#     name = Column(String(128), nullable=True)
-#     url = Column(String(256), nullable=True)
-#     scopes = Column(ARRAY(String(64)), nullable=True)
-#     avatar_url = Column(String(256), nullable=True)
+    id = Column(String(64), primary_key=True, default=uuid_generator)
+    key = Column(String(32), nullable=False)
+    name = Column(String(128), nullable=True)
 
-#     connection_id = Column(
-#         String(64),
-#         ForeignKey("jira_connections.id", ondelete="CASCADE"),
-#         nullable=False,
-#         index=True,
-#     )
+    connection_id = Column(
+        String(64),
+        ForeignKey("jira_connections.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
 
-#     connection = relationship("JiraConnection", back_populates="cloud_info")
+    connection = relationship("JiraConnection", back_populates="projects")
+
+    stories = relationship(
+        "JiraStory", back_populates="project", cascade="all, delete-orphan"
+    )
+
+
+class JiraStory(Base):
+    __tablename__ = "jira_stories"
+
+    id = Column(String(64), primary_key=True, default=uuid_generator)
+    key = Column(String(32), nullable=False)
+    summary = Column(String(256), nullable=True)
+    description = Column(Text, nullable=True)
+
+    project_id = Column(
+        String(64),
+        ForeignKey("jira_projects.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    project = relationship("JiraProject", back_populates="stories")

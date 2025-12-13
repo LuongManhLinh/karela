@@ -22,6 +22,7 @@ import type { UserConnections } from "@/types/user";
 import type { JiraConnectionDto } from "@/types/integration";
 import type { UserDto } from "@/types/user";
 import { Add, Link as LinkIcon } from "@mui/icons-material";
+import { getToken } from "@/utils/jwt_utils";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -39,7 +40,7 @@ export default function ProfilePage() {
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = getToken();
     if (!token) {
       router.push("/login");
       return;
@@ -140,12 +141,11 @@ export default function ProfilePage() {
   return (
     <Layout
       appBarLeftContent={
-        <Stack direction={"row"} alignItems="center" spacing={2}>
-          <Typography variant="h5" fontWeight="bold">
-            Profile
-          </Typography>
+        <Stack direction={"row"} alignItems="center" spacing={2} py={2}>
+          <Typography variant="h5">Profile</Typography>
         </Stack>
       }
+      appBarTransparent={true}
     >
       <Container maxWidth="md" sx={{ mt: 4, mb: 4, overflowY: "auto" }}>
         <Paper
@@ -185,9 +185,20 @@ export default function ProfilePage() {
             bgcolor: "background.paper",
           }}
         >
-          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-            Jira Connections
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{ fontWeight: 600, flexGrow: 1 }}
+            >
+              Jira Connections
+            </Typography>
+          </Box>
           <Stack spacing={2}>
             {connections && connections.jira_connections.length > 0 ? (
               connections.jira_connections.map((conn: JiraConnectionDto) => (

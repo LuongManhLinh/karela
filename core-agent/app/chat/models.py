@@ -5,15 +5,13 @@ from sqlalchemy import (
     Enum as SqlEnum,
     Index,
     Text,
-    asc,
     text,
+    DateTime,
 )
-from sqlalchemy.dialects.mysql import DATETIME
 from sqlalchemy.orm import relationship
 from enum import Enum
-from uuid import uuid4
 
-from common.database import Base, uuid_generator
+from common.database import Base, uuid_generator, utcnow
 
 
 class SenderRole(Enum):
@@ -46,9 +44,7 @@ class ChatSession(Base):
     project_key = Column(String(32), nullable=False, index=True)
     # If not null, the chat session is associated with a specific story
     story_key = Column(String(32), nullable=True, index=True)
-    created_at = Column(
-        DATETIME(fsp=2), server_default=text("CURRENT_TIMESTAMP(2)"), nullable=False
-    )
+    created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
 
     # user = relationship("User", back_populates="sessions")
     messages = relationship(
@@ -83,8 +79,8 @@ class Message(Base):
     content = Column(Text, nullable=False)
 
     created_at = Column(
-        DATETIME(fsp=2),
-        server_default=text("CURRENT_TIMESTAMP(2)"),
+        DateTime(timezone=True),
+        default=utcnow,
         nullable=False,
         index=True,
     )

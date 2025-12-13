@@ -56,7 +56,6 @@ agent = GenimiDynamicAgent(
     temperature=GeminiConfig.GEMINI_API_CHAT_TEMPERATURE,
     api_keys=GeminiConfig.GEMINI_API_KEYS,
     max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
-    retry_delay_ms=GeminiConfig.GEMINI_API_RETRY_DELAY_MS,
     tools=[get_personal_info, get_average_salary],
 )
 

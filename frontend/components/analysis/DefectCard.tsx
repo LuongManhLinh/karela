@@ -117,7 +117,7 @@ const DefectCard: React.FC<DefectCardProps> = ({ defect, onMarkSolved }) => {
               flexWrap="wrap"
             >
               <Typography variant="body1" sx={{ mt: 1 }}>
-                Work Items:
+                Related Stories:
               </Typography>
               <Box
                 sx={{

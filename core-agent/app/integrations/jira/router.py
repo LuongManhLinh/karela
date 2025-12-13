@@ -1,7 +1,6 @@
 # router.py
 from fastapi import APIRouter, Request, Depends, HTTPException
 from fastapi.responses import FileResponse
-from sqlalchemy.orm import Session
 import httpx
 import traceback
 

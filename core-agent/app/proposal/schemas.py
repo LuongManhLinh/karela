@@ -62,3 +62,8 @@ class CreateProposalRequest(BaseModel):
 class SessionsHavingProposals(BaseModel):
     analysis_sessions: List[SessionSummary]
     chat_sessions: List[SessionSummary]
+
+
+class ProposalContentEditRequest(BaseModel):
+    summary: Optional[str] = None
+    description: Optional[str] = None

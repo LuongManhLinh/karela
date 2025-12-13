@@ -37,6 +37,8 @@ const ProposalPageContent: React.FC = () => {
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
     null
   );
+  const [selectedSessionSource, setSelectedSessionSource] =
+    useState<ProposalSource | null>(null);
   const [proposals, setProposals] = useState<ProposalDto[]>([]);
 
   const [error, setError] = useState("");
@@ -98,6 +100,7 @@ const ProposalPageContent: React.FC = () => {
     source: ProposalSource
   ) => {
     setSelectedSessionId(sessionId);
+    setSelectedSessionSource(source);
     try {
       setLoadingProposals(true);
       const res = await proposalService.getProposalsBySession(
@@ -138,7 +141,7 @@ const ProposalPageContent: React.FC = () => {
     if (!content.id) return;
     try {
       await proposalService.actOnProposalContent(proposalId, content.id, flag);
-      await loadSessions(selectedConnection!.id);
+      await handleSelectSession(selectedSessionId!, selectedSessionSource!);
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.detail || "Failed to update proposal content";
@@ -204,7 +207,7 @@ const ProposalPageContent: React.FC = () => {
                   proposal={proposal}
                   onProposalAction={handleProposalAction}
                   onProposalContentAction={handleProposalContentAction}
-                  defaultExpanded={proposals.length === 1}
+                  defaultExpanded={proposals.length > 1}
                 />
               ))}
             </Stack>
@@ -234,7 +237,7 @@ const ProposalPageContent: React.FC = () => {
             selectedConnection={selectedConnection}
             connections={connections}
             onConnectionChange={handleConnectionChange}
-            loading={loadingConnections}
+            loadingConnections={loadingConnections}
           />
           <Divider sx={{ my: 2 }} />
           <Typography

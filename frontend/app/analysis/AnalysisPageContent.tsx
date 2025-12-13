@@ -53,6 +53,8 @@ const AnalysisPageContent: React.FC = () => {
   const [analysisProposals, setAnalysisProposals] = useState<ProposalDto[]>([]);
 
   const [loadingConnections, setLoadingConnections] = useState(true);
+  const [loadingProjectKeys, setLoadingProjectKeys] = useState(false);
+  const [loadingStoryKeys, setLoadingStoryKeys] = useState(false);
   const [loadingSessions, setLoadingSessions] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [loadingProposals, setLoadingProposals] = useState(false);
@@ -139,6 +141,7 @@ const AnalysisPageContent: React.FC = () => {
 
   const loadProjectKeys = async (connId: string) => {
     try {
+      setLoadingProjectKeys(true);
       const response = await userService.getProjectKeys(connId);
       if (response.data) {
         setProjectKeys(response.data);
@@ -153,11 +156,14 @@ const AnalysisPageContent: React.FC = () => {
       }
     } catch (err) {
       console.error("Failed to load project keys:", err);
+    } finally {
+      setLoadingProjectKeys(false);
     }
   };
 
   const loadStoryKeys = async (connId: string, projKey: string) => {
     try {
+      setLoadingStoryKeys(true);
       const response = await userService.getIssueKeys(connId, projKey);
       if (response.data) {
         setStoryKeys(["None", ...response.data]);
@@ -165,6 +171,8 @@ const AnalysisPageContent: React.FC = () => {
       }
     } catch (err) {
       console.error("Failed to load story keys:", err);
+    } finally {
+      setLoadingStoryKeys(false);
     }
   };
 
@@ -555,6 +563,8 @@ const AnalysisPageContent: React.FC = () => {
       onSelectSession={handleSelectAnalysis}
       loadingSessions={loadingSessions}
       loadingConnections={loadingConnections}
+      loadingProjectKeys={loadingProjectKeys}
+      loadingStoryKeys={loadingStoryKeys}
       emptyStateText="No analyses yet"
       sessionListLabel="Analyses"
       rightChildren={detailsContent}

@@ -13,16 +13,16 @@ from .prompts import RESOLVER_SYSTEM_PROMPT, RESOLVER_TOOL_SELECTOR_SYSTEM_PROMP
 from .tools import tools
 
 
-tool_selector_middleware = LLMToolSelectorMiddleware(
-    model=ChatGoogleGenerativeAI(
-        model="gemini-2.0-flash-lite",
-        temperature=0,
-        google_api_key=GeminiConfig.GEMINI_API_KEYS[-1],
-        max_retries=3,
-    ),
-    system_prompt=RESOLVER_TOOL_SELECTOR_SYSTEM_PROMPT,
-    max_tools=3,
-)
+# tool_selector_middleware = LLMToolSelectorMiddleware(
+#     model=ChatGoogleGenerativeAI(
+#         model="gemini-2.0-flash-lite",
+#         temperature=0,
+#         google_api_key=GeminiConfig.GEMINI_API_KEYS[-1],
+#         max_retries=3,
+#     ),
+#     system_prompt=RESOLVER_TOOL_SELECTOR_SYSTEM_PROMPT,
+#     max_tools=3,
+# )
 
 
 agent = GenimiDynamicAgent(
@@ -33,7 +33,6 @@ agent = GenimiDynamicAgent(
     # middleware=[tool_selector_middleware],
     api_keys=GeminiConfig.GEMINI_API_KEYS,
     max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
-    retry_delay_ms=GeminiConfig.GEMINI_API_RETRY_DELAY_MS,
 )
 
 

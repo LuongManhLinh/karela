@@ -33,3 +33,8 @@ export interface SessionsHavingProposals {
   analysis_sessions: SessionSummary[];
   chat_sessions: SessionSummary[];
 }
+
+export interface ProposalContentEditRequest {
+  summary?: string;
+  description?: string;
+}

@@ -5,6 +5,7 @@ import type {
   SessionsHavingProposals,
   ProposalDto,
   ProposalSource,
+  ProposalContentEditRequest,
 } from "@/types/proposal";
 
 export const proposalService = {
@@ -60,6 +61,17 @@ export const proposalService = {
       {
         params: { proposal_id: proposalId },
       }
+    );
+    return response.data;
+  },
+
+  editProposalContent: async (
+    proposalContentId: string,
+    request: ProposalContentEditRequest
+  ): Promise<BasicResponse> => {
+    const response = await apiClient.put<BasicResponse>(
+      `/proposals/contents/${proposalContentId}`,
+      request
     );
     return response.data;
   },

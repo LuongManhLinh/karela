@@ -11,9 +11,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from common.database import Base, engine
 
-Base.metadata.create_all(bind=engine)
 
-app = FastAPI(root_path="/api/v1")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    yield
+    # Shutdown code here
+
+
+app = FastAPI(root_path="/api/v1", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -28,13 +34,6 @@ app.include_router(chat_router, prefix="/chat")
 app.include_router(proposal_router, prefix="/proposals")
 app.include_router(user_router, prefix="/users")
 app.include_router(settings_router, prefix="/settings")
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Startup code here
-    yield
-    # Shutdown code here
 
 
 @app.get("/health")

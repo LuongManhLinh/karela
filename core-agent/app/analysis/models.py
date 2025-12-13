@@ -10,13 +10,12 @@ from sqlalchemy import (
     Text,
     text,
     JSON,
+    DateTime,
 )
-from sqlalchemy.dialects.mysql import DATETIME
 from sqlalchemy.orm import relationship
 from enum import Enum
-from uuid import uuid4
 
-from common.database import Base, uuid_generator
+from common.database import Base, uuid_generator, utcnow
 
 
 class AnalysisType(Enum):
@@ -90,11 +89,11 @@ class Analysis(Base):
     story_key = Column(String(32), nullable=True, index=True)  # For targeted analyses
     status = Column(SqlEnum(AnalysisStatus), nullable=False)
     created_at = Column(
-        DATETIME(fsp=2),
-        server_default=text("CURRENT_TIMESTAMP(2)"),
+        DateTime(timezone=True),
+        default=utcnow,
         nullable=False,
     )
-    ended_at = Column(DATETIME(fsp=2), nullable=True)
+    ended_at = Column(DateTime(timezone=True), nullable=True)
 
     error_message = Column(Text, nullable=True)
 

@@ -1,6 +1,8 @@
-from typing import List, Optional, Dict, Any, Set
+from typing import List, Optional, Any, Set
 
 from pydantic import BaseModel, Field, ConfigDict
+
+from common.agents.input_schemas import ContextInput
 
 from .schemas import (
     WorkItemMinimal,
@@ -9,37 +11,6 @@ from .schemas import (
     WorkItemWithRef,
     DefectByLlm,
 )
-
-
-class Documentation(BaseModel):
-    product_vision: Optional[str] = None
-    product_scope: Optional[str] = None
-    sprint_goals: Optional[str] = None
-    glossary: Optional[str] = None
-    constraints: Optional[str] = None
-    additional_docs: Optional[Dict[str, str]] = None
-
-    model_config = ConfigDict(
-        extra="ignore",
-    )
-
-
-class LlmContext(BaseModel):
-    guidelines: Optional[str] = None
-    additional_context: Optional[Dict[str, Any]] = None
-
-    model_config = ConfigDict(
-        extra="ignore",
-    )
-
-
-class ContextInput(BaseModel):
-    documentation: Optional[Documentation] = None
-    llm_context: Optional[LlmContext] = None
-
-    model_config = ConfigDict(
-        extra="ignore",
-    )
 
 
 class DetectDefectSingleTypeInput(BaseModel):

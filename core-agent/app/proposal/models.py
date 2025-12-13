@@ -1,5 +1,5 @@
 from enum import Enum
-from common.database import Base, uuid_generator
+from common.database import Base, uuid_generator, utcnow
 
 
 from sqlalchemy import (
@@ -11,9 +11,10 @@ from sqlalchemy import (
     String,
     Text,
     text,
+    DateTime,
 )
-from sqlalchemy.dialects.mysql import DATETIME
 from sqlalchemy.orm import relationship
+from datetime import datetime
 
 
 class ProposalSource(Enum):
@@ -61,9 +62,7 @@ class Proposal(Base):
 
     project_key = Column(String(32), nullable=False, index=True)
 
-    created_at = Column(
-        DATETIME(fsp=2), server_default=text("CURRENT_TIMESTAMP(2)"), nullable=False
-    )
+    created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
 
     chat_session = relationship("ChatSession", back_populates="proposals")
     analysis = relationship("Analysis", back_populates="proposals")
@@ -147,11 +146,9 @@ class StoryVersion(Base):
     __tablename__ = "story_versions"
 
     id = Column(String(64), primary_key=True, default=uuid_generator)
-    key = Column(String(32), nullable=False, unique=True, index=True)
+    key = Column(String(32), nullable=False, index=True)
     version = Column(Integer, nullable=False, default=0)
     summary = Column(Text, nullable=True)
     description = Column(Text, nullable=True)
-
-    created_at = Column(
-        DATETIME(fsp=2), server_default=text("CURRENT_TIMESTAMP(2)"), nullable=False
-    )
+    created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
+    action = Column(SqlEnum(ProposalType), nullable=False)

@@ -18,11 +18,10 @@ from .schemas import (
     SessionsHavingProposals,
 )
 from app.integrations import get_platform_service
-from app.integrations.jira.schemas import IssuesCreateRequest
+from app.integrations.jira.schemas import CreateStoryRequest
 from app.analysis.services.defect_service import DefectService
 from common.database import uuid_generator
 from common.schemas import SessionSummary
-from utils.markdown_adf_bridge import md_to_adf, adf_to_md
 
 
 class ProposalService:
@@ -99,72 +98,40 @@ class ProposalService:
             created_ids.append(proposal_id)
         return created_ids
 
-    def accept_proposal(self, proposal_id: str):
-        """Applies all the contents of the proposal to the platform.
-            Creates a version for each updated story.
-            The UNKNOWN type contents are ignored.
-        Args:
-            proposal_id (str): The ID of the proposal to accept.
-        Returns:
-            Tuple[List[str], List[str]]: A tuple containing two lists:
-                - The list of created issue keys.
-                - The list of updated issue keys.
-        """
-        proposal = self.db.query(Proposal).filter(Proposal.id == proposal_id).first()
-        if not proposal:
-            raise ValueError(f"Proposal with id {proposal_id} not found")
-
-        connection_id = proposal.connection_id
-        project_key = proposal.project_key
-
-        platform_service = get_platform_service(db=self.db, connection_id=connection_id)
-
-        create_contents = []
-        update_keys = []
-        content_lookup = {}  # For update and delete operations
-        for content in proposal.contents:
-            if content.type == ProposalType.CREATE:
-                create_contents.append(content)
-            elif content.type == ProposalType.UPDATE:
-                update_keys.append(content.key)
-                content_lookup[content.key] = content
-
-        # Create new issues
-        created_keys = platform_service.create_issues(
-            issues=IssuesCreateRequest(
-                **{
-                    "issueUpdates": [
-                        {
-                            "fields": {
-                                "project": {"key": project_key},
-                                "summary": content.summary,
-                                "description": md_to_adf(content.description),
-                                "issuetype": {"name": "Story"},
-                            }
-                        }
-                        for content in create_contents
-                    ]
-                }
+    def _accept_proposal_contents(
+        self,
+        connection_id,
+        project_key: str,
+        contents: List[ProposalContent],
+    ):
+        num_created = 0
+        num_updated = 0
+        num_deleted = 0
+        try:
+            platform_service = get_platform_service(
+                db=self.db, connection_id=connection_id
             )
-        )
-
-        # Update existing issues
-        if update_keys:
-            # Search for existing issues to back up their versions before modification
-            issues = platform_service.search_issues(
-                jql=f'project="{project_key}" AND key IN ({",".join(update_keys)}) AND issuetype="Story"',
-                fields=["Summary", "Description"],
-                max_results=len(update_keys),
-                expand_rendered_fields=False,
-            )
-
-            # Query latest versions from WorkItemVersion table
+            create_contents = []
+            update_keys = []
+            delete_keys = []
+            content_lookup = {}  # For update and delete operations
+            for content in contents:
+                key = content.story_key
+                if content.type == ProposalType.CREATE:
+                    create_contents.append(content)
+                elif content.type == ProposalType.UPDATE:
+                    update_keys.append(key)
+                    content_lookup[key] = content
+                elif content.type == ProposalType.DELETE:
+                    delete_keys.append(key)
+                    content_lookup[key] = content
+                    # Query the latest version
             sub = (
                 self.db.query(
                     StoryVersion.key,
                     func.max(StoryVersion.version).label("latest_version"),
                 )
-                .filter(StoryVersion.key.in_(update_keys))
+                .filter(StoryVersion.key.in_([*update_keys, *delete_keys]))
                 .group_by(StoryVersion.key)
                 .subquery()
             )
@@ -179,32 +146,122 @@ class ProposalService:
             )
 
             version_lookup = {v.key: v for v in rows}
-            for issue in issues:
-                existing_version = version_lookup.get(issue.key)
-                version = 0
-                if existing_version:
-                    version = existing_version.version + 1
-                new_version = StoryVersion(
-                    key=issue.key,
-                    version=version,
-                    summary=issue.fields.summary,
-                    description=adf_to_md(issue.fields.description),
-                )
-                self.db.add(new_version)
 
-                content = content_lookup.get(issue.key)
-                platform_service.update_issue(
+            # Create new issues
+            if create_contents:
+                created_keys = platform_service.create_stories(
                     connection_id=connection_id,
-                    issue_key=issue.key,
-                    summary=content.summary,
-                    description=content.description,
+                    project_key=project_key,
+                    stories=[
+                        CreateStoryRequest(
+                            summary=content.summary,
+                            description=content.description,
+                        )
+                        for content in create_contents
+                    ],
                 )
+
+                num_created = len(create_contents)
+
+            # Update existing issues
+            if update_keys:
+                # Search for existing issues to back up their versions before modification
+                existing_stories = platform_service.get_stories(
+                    connection_id=connection_id,
+                    project_key=project_key,
+                    issue_keys=update_keys,
+                )
+
+                for story_dto in existing_stories:
+                    existing_version = version_lookup.get(story_dto.key)
+                    version = 0
+                    if existing_version:
+                        version = existing_version.version + 1
+                    new_version = StoryVersion(
+                        id=story_dto.id,
+                        key=story_dto.key,
+                        version=version,
+                        summary=story_dto.fields.summary,
+                        description=story_dto.fields.description,
+                        action=ProposalType.UPDATE,
+                    )
+                    self.db.add(new_version)
+
+                    content = content_lookup.get(story_dto.key)
+                    platform_service.update_issue(
+                        connection_id=connection_id,
+                        issue_key=story_dto.key,
+                        summary=content.summary,
+                        description=content.description,
+                    )
+                    num_updated += 1
+
+            # Delete issues
+            if delete_keys:
+                platform_service.delete_issues(
+                    connection_id=connection_id,
+                    issue_keys=delete_keys,
+                )
+
+                for key in delete_keys:
+                    existing_version = version_lookup.get(key)
+                    version = 0
+                    if existing_version:
+                        version = existing_version.version + 1
+                    new_version = StoryVersion(
+                        key=key,
+                        version=version,
+                        summary="",
+                        description="",
+                        action=ProposalType.DELETE,
+                    )
+                    self.db.add(new_version)
+                    num_deleted += 1
+            for content in contents:
+                content.accepted = True
+                self.db.add(content)
+            self.db.commit()
+        except Exception as e:
+            self.db.rollback()
+            raise e
+
+        return num_created, num_updated, num_deleted
+
+    def accept_proposal(self, proposal_id: str):
+        """Applies all the contents of the proposal to the platform.
+            Creates a version for each updated story.
+            The UNKNOWN type contents are ignored.
+        Args:
+            proposal_id (str): The ID of the proposal to accept.
+        Returns:
+            Tuple[List[str], List[str]]: A tuple containing two lists:
+                - The list of created issue keys.
+                - The list of updated issue keys.
+        """
+        proposal = (
+            self.db.execute(
+                select(Proposal)
+                .where(Proposal.id == proposal_id)
+                .options(selectinload(Proposal.contents))
+            )
+            .unique()
+            .scalar_one_or_none()
+        )
+        if not proposal:
+            raise ValueError(f"Proposal with id {proposal_id} not found")
+
+        connection_id = proposal.connection_id
+        project_key = proposal.project_key
+
+        self._accept_proposal_contents(
+            connection_id=connection_id,
+            project_key=project_key,
+            contents=proposal.contents,
+        )
 
         proposal.accepted = True
         self.db.add(proposal)
         self.db.commit()
-
-        return created_keys, update_keys
 
     def accept_proposal_content(self, proposal_content_id: str):
         """Applies a single proposal content to the platform.
@@ -220,55 +277,14 @@ class ProposalService:
         )
         if not content:
             raise ValueError(f"ProposalContent with id {proposal_content_id} not found")
-
-        connection_id = content.proposal.connection_id
-        platform_service = get_platform_service(db=self.db, connection_id=connection_id)
-
-        if content.type == ProposalType.UPDATE:
-            latest_version = (
-                self.db.query(StoryVersion)
-                .filter(StoryVersion.key == content.story_key)
-                .order_by(StoryVersion.version.desc())
-                .first()
-            )
-            version = 0
-            if latest_version:
-                version = latest_version.version + 1
-            new_version = StoryVersion(
-                key=content.story_key,
-                version=version,
-                summary=content.summary,
-                description=content.description,
-            )
-            self.db.add(new_version)
-
-            platform_service.update_issue(
-                connection_id=connection_id,
-                issue_key=content.story_key,
-                summary=content.summary,
-                description=content.description,
-            )
-        elif content.type == ProposalType.CREATE:
-            platform_service.create_issues(
-                issues=IssuesCreateRequest(
-                    **{
-                        "issueUpdates": [
-                            {
-                                "fields": {
-                                    "project": {"key": content.proposal.project_key},
-                                    "summary": content.summary,
-                                    "description": md_to_adf(content.description),
-                                    "issuetype": {"name": "Story"},
-                                }
-                            }
-                        ]
-                    }
-                )
-            )
-
-        content.accepted = True
-        self.db.add(content)
-        self.db.commit()
+        proposal = content.proposal
+        connection_id = proposal.connection_id
+        project_key = proposal.project_key
+        self._accept_proposal_contents(
+            connection_id=connection_id,
+            project_key=project_key,
+            contents=[content],
+        )
 
     def reject_proposal(self, proposal_id: str):
         """Marks all contents of the proposal as rejected.
@@ -368,51 +384,110 @@ class ProposalService:
         Args:
             connection_id (str): The connection ID.
         """
-        proposals = (
-            self.db.execute(
-                select(Proposal)
-                .filter(Proposal.connection_id == connection_id)
-                .options(
-                    selectinload(Proposal.analysis),
-                    selectinload(Proposal.chat_session),
-                )
+        # Import here to avoid circular dependencies
+        from app.analysis.models import Analysis
+        from app.chat.models import ChatSession
+
+        # Query distinct analysis sessions that have proposals
+        analysis_sessions = (
+            self.db.query(Analysis)
+            .join(Proposal, Proposal.analysis_session_id == Analysis.id)
+            .filter(
+                Proposal.connection_id == connection_id,
+                Proposal.source == ProposalSource.ANALYSIS,
+                Analysis.connection_id == connection_id,
             )
-            .unique()
-            .scalars()
+            .distinct()
             .all()
         )
 
-        analysis_sessions = []
-        chat_sessions = []
-
-        for proposal in proposals:
-            src = proposal.source
-            if src == ProposalSource.ANALYSIS and proposal.analysis:
-                analysis = proposal.analysis
-                analysis_sessions.append(
-                    SessionSummary(
-                        id=analysis.id,
-                        key=analysis.key,
-                        project_key=analysis.project_key,
-                        created_at=analysis.created_at.isoformat(),
-                    )
-                )
-            elif src == ProposalSource.CHAT and proposal.chat_session:
-                chat_session = proposal.chat_session
-                chat_sessions.append(
-                    SessionSummary(
-                        id=chat_session.id,
-                        key=chat_session.key,
-                        project_key=chat_session.project_key,
-                        story_key=chat_session.story_key,
-                        created_at=chat_session.created_at.isoformat(),
-                    )
-                )
+        # Query distinct chat sessions that have proposals
+        chat_sessions = (
+            self.db.query(ChatSession)
+            .join(Proposal, Proposal.chat_session_id == ChatSession.id)
+            .filter(
+                Proposal.connection_id == connection_id,
+                Proposal.source == ProposalSource.CHAT,
+                ChatSession.connection_id == connection_id,
+            )
+            .distinct()
+            .all()
+        )
 
         return SessionsHavingProposals(
-            analysis_sessions=analysis_sessions,
-            chat_sessions=chat_sessions,
+            analysis_sessions=[
+                SessionSummary(
+                    id=analysis.id,
+                    key=analysis.key,
+                    project_key=analysis.project_key,
+                    created_at=analysis.created_at.isoformat(),
+                )
+                for analysis in analysis_sessions
+            ],
+            chat_sessions=[
+                SessionSummary(
+                    id=chat.id,
+                    key=chat.key,
+                    project_key=chat.project_key,
+                    story_key=chat.story_key,
+                    created_at=chat.created_at.isoformat(),
+                )
+                for chat in chat_sessions
+            ],
         )
+
+    def _revert_applied_proposal_contents(
+        self,
+        connection_id,
+        contents: List[ProposalContent],
+    ):
+        try:
+            platform_service = get_platform_service(
+                db=self.db, connection_id=connection_id
+            )
+
+            for content in contents:
+                if content.accepted is not True:
+                    continue
+                latest_version = (
+                    self.db.query(StoryVersion)
+                    .filter(StoryVersion.key == content.key)
+                    .order_by(StoryVersion.version.desc())
+                    .first()
+                )
+                if latest_version:
+                    match latest_version.action:
+                        case ProposalType.UPDATE:
+                            platform_service.update_issue(
+                                connection_id=connection_id,
+                                issue_key=latest_version.key,
+                                summary=latest_version.summary,
+                                description=latest_version.description,
+                            )
+                        case ProposalType.CREATE:
+                            platform_service.delete_issue(
+                                connection_id=connection_id,
+                                issue_key=latest_version.key,
+                            )
+                        case ProposalType.DELETE:
+                            platform_service.create_stories(
+                                connection_id=connection_id,
+                                project_key=content.proposal.project_key,
+                                stories=[
+                                    CreateStoryRequest(
+                                        summary=latest_version.summary,
+                                        description=latest_version.description,
+                                    )
+                                ],
+                            )
+                    self.db.delete(latest_version)
+
+                content.accepted = None  # Mark as pending again
+                self.db.add(content)
+            self.db.commit()
+        except Exception as e:
+            self.db.rollback()
+            raise e
 
     def revert_applied_proposal(self, proposal_id: str):
         """Reverts all accepted contents of the proposal.
@@ -425,37 +500,11 @@ class ProposalService:
             raise ValueError(f"Proposal with id {proposal_id} not found")
 
         connection_id = proposal.connection_id
-        platform_service = get_platform_service(db=self.db, connection_id=connection_id)
 
-        for content in proposal.contents:
-            # Only revert accepted updates
-            if content.type != ProposalType.UPDATE or content.accepted is not True:
-                continue
-            latest_version = (
-                self.db.query(StoryVersion)
-                .filter(StoryVersion.key == content.key)
-                .order_by(StoryVersion.version.desc())
-                .first()
-            )
-            if latest_version and latest_version.version > 0:
-                previous_version = (
-                    self.db.query(StoryVersion)
-                    .filter(
-                        StoryVersion.key == content.key,
-                        StoryVersion.version == latest_version.version - 1,
-                    )
-                    .first()
-                )
-                if previous_version:
-                    platform_service.update_issue(
-                        connection_id=connection_id,
-                        issue_key=latest_version.key,
-                        summary=previous_version.summary,
-                        description=previous_version.description,
-                    )
-            content.accepted = None  # Mark as pending again
-        self.db.add(proposal)
-        self.db.commit()
+        self._revert_applied_proposal_contents(
+            connection_id=connection_id,
+            contents=proposal.contents,
+        )
 
     def revert_applied_proposal_content(self, proposal_content_id: str):
         """Reverts a single accepted proposal content.
@@ -471,37 +520,46 @@ class ProposalService:
         if not content:
             raise ValueError(f"ProposalContent with id {proposal_content_id} not found")
 
-        if content.type != ProposalType.UPDATE or content.accepted is not True:
+        if content.accepted is not True:
             raise ValueError(
                 f"ProposalContent with id {proposal_content_id} is not an accepted UPDATE"
             )
 
         proposal = content.proposal
         connection_id = proposal.connection_id
-        platform_service = get_platform_service(db=self.db, connection_id=connection_id)
+        self._revert_applied_proposal_contents(
+            connection_id=connection_id,
+            contents=[content],
+        )
 
-        latest_version = (
-            self.db.query(StoryVersion)
-            .filter(StoryVersion.key == content.story_key)
-            .order_by(StoryVersion.version.desc())
+    def edit_proposal_content(
+        self,
+        proposal_content_id: str,
+        summary: str | None,
+        description: str | None,
+    ):
+        """Edits a proposal content's summary and/or description.
+        Args:
+            proposal_content_id (str): The ID of the proposal content to edit.
+            summary (str | None): The new summary. If None, the summary is not changed.
+            description (str | None): The new description. If None, the description is not changed.
+        """
+        if not summary and not description:
+            raise ValueError("At least one of summary or description must be provided")
+        content = (
+            self.db.query(ProposalContent)
+            .filter(ProposalContent.id == proposal_content_id)
             .first()
         )
-        if latest_version and latest_version.version >= 0:
-            previous_version = (
-                self.db.query(StoryVersion)
-                .filter(
-                    StoryVersion.key == content.story_key,
-                    StoryVersion.version == latest_version.version - 1,
-                )
-                .first()
-            )
-            if previous_version:
-                platform_service.update_issue(
-                    connection_id=connection_id,
-                    issue_key=latest_version.key,
-                    summary=previous_version.summary,
-                    description=previous_version.description,
-                )
-        content.accepted = None  # Mark as pending again
-        self.db.add(proposal)
+        if not content:
+            raise ValueError(f"ProposalContent with id {proposal_content_id} not found")
+        if content.type not in [ProposalType.CREATE, ProposalType.UPDATE]:
+            raise Exception("Only CREATE and UPDATE proposal contents can be edited")
+
+        if summary:
+            content.summary = summary
+        if description:
+            content.description = description
+
+        self.db.add(content)
         self.db.commit()

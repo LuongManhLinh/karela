@@ -5,12 +5,24 @@ from typing import Optional, List, Callable
 from langgraph.graph import StateGraph
 from langgraph.runtime import Runtime
 
-from ...schemas import WorkItemMinimal, DefectByLlm, DefectInput
+from ..schemas import WorkItemMinimal, DefectByLlm, DefectInput
 from llm.dynamic_agent import GenimiDynamicAgent
-from .schemas import CrossCheckInput, SingleCheckInput
-from ...output_schemas import DetectDefectOutput
-from ...input_schemas import ContextInput
-from .prompts import CROSS_CHECK_SYSTEM_PROMPT, SINGLE_CHECK_SYSTEM_PROMPT
+from .schemas import (
+    CrossCheckInput,
+    SingleCheckInput,
+    ValidateDefectsInput,
+    ValidateDefectsOutput,
+    FilterDefectsInput,
+    FilterDefectsOutput,
+)
+from ..output_schemas import DetectDefectOutput
+from common.agents.input_schemas import ContextInput
+from .prompts import (
+    CROSS_CHECK_SYSTEM_PROMPT,
+    SINGLE_CHECK_SYSTEM_PROMPT,
+    DEFECT_VALIDATOR_SYSTEM_PROMPT,
+    DEFECT_FILTER_SYSTEM_PROMPT,
+)
 from common.configs import GeminiConfig
 
 
@@ -18,6 +30,8 @@ class State(TypedDict):
     done_adapter: bool
     done_cross_check: bool
     done_single_check: bool
+    done_validation: bool
+    done_filtering: bool
     done_signing: bool
 
 
@@ -35,6 +49,7 @@ potential_cross_defects = ["CONFLICT", "DUPLICATION"]
 potential_single_defects = ["OUT_OF_SCOPE", "IRRELEVANCE"]
 
 
+# Agent for cross-checking target story against competitors
 cross_check_agent = GenimiDynamicAgent(
     system_prompt=CROSS_CHECK_SYSTEM_PROMPT,
     model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
@@ -43,9 +58,9 @@ cross_check_agent = GenimiDynamicAgent(
     response_schema=DetectDefectOutput,
     api_keys=GeminiConfig.GEMINI_API_KEYS,
     max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
-    retry_delay_ms=GeminiConfig.GEMINI_API_RETRY_DELAY_MS,
 )
 
+# Agent for single-story defect checking
 single_check_agent = GenimiDynamicAgent(
     system_prompt=SINGLE_CHECK_SYSTEM_PROMPT,
     model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
@@ -54,7 +69,28 @@ single_check_agent = GenimiDynamicAgent(
     response_mime_type="application/json",
     api_keys=GeminiConfig.GEMINI_API_KEYS,
     max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
-    retry_delay_ms=GeminiConfig.GEMINI_API_RETRY_DELAY_MS,
+)
+
+# Agent for validating detected defects
+validator_agent = GenimiDynamicAgent(
+    system_prompt=DEFECT_VALIDATOR_SYSTEM_PROMPT,
+    model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
+    temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    response_mime_type="application/json",
+    response_schema=ValidateDefectsOutput,
+    api_keys=GeminiConfig.GEMINI_API_KEYS,
+    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+)
+
+# Agent for filtering defects
+filter_agent = GenimiDynamicAgent(
+    system_prompt=DEFECT_FILTER_SYSTEM_PROMPT,
+    model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
+    temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    response_mime_type="application/json",
+    response_schema=FilterDefectsOutput,
+    api_keys=GeminiConfig.GEMINI_API_KEYS,
+    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
 )
 
 
@@ -147,23 +183,130 @@ def cross_check_node(state: State, runtime: Runtime[Context]) -> dict:
     return {"done_cross_check": True}
 
 
+def defect_validator_node(state: State, runtime: Runtime[Context]) -> dict:
+    """Validate detected defects for correctness and quality."""
+    target = runtime.context.get("target")
+    work_items = runtime.context.get("work_items", [])
+    context_input = runtime.context.get("context_input", None)
+    defects = runtime.context.get("defects", [])
+
+    print(
+        f"""
+{"-"*100}
+| Defect Validator Node
+| State: {state}
+| Target: {target.key if target else None}
+| Number of defects to validate: {len(defects)}
+{"-"*100}
+"""
+    )
+
+    if not defects:
+        print("No defects to validate, skipping validation.")
+        return {"done_validation": True}
+
+    validator_input = ValidateDefectsInput(
+        target_user_story=target,
+        user_stories=work_items,
+        defects=defects,
+        context_input=context_input,
+    )
+
+    output: ValidateDefectsOutput = validator_agent.invoke(
+        HumanMessage(
+            content="Please validate these detected defects:\n"
+            + validator_input.model_dump_json(indent=2)
+        )
+    )["structured_response"]
+
+    # Apply validation results
+    validated_defects = []
+    for validation in output.validations:
+        idx = validation.defect_index
+        if idx < len(defects):
+            defect = defects[idx]
+
+            if validation.status == "VALID":
+                validated_defects.append(defect)
+            elif validation.status == "NEEDS_CLARIFICATION":
+                # Apply corrections if suggested
+                if validation.suggested_severity:
+                    defect.severity = validation.suggested_severity
+                if validation.suggested_explanation:
+                    defect.explanation = validation.suggested_explanation
+                validated_defects.append(defect)
+            # INVALID defects are not added (filtered out)
+
+            print(f"Defect {idx}: {validation.status} - {validation.reasoning}")
+
+    # Update context with validated defects
+    runtime.context["defects"] = validated_defects
+    print(
+        f"Validated defects: {len(validated_defects)}/{len(defects)} passed validation"
+    )
+
+    return {"done_validation": True}
+
+
+def defect_filter_node(state: State, runtime: Runtime[Context]) -> dict:
+    """Filter defects to show only high-value, actionable items."""
+    defects = runtime.context.get("defects", [])
+
+    print(
+        f"""
+{"-"*100}
+| Defect Filter Node
+| State: {state}
+| Number of defects to filter: {len(defects)}
+{"-"*100}
+"""
+    )
+
+    if not defects:
+        print("No defects to filter, skipping filtering.")
+        return {"done_filtering": True}
+
+    filter_input = FilterDefectsInput(defects=defects)
+
+    output: FilterDefectsOutput = filter_agent.invoke(
+        HumanMessage(
+            content="Please filter these defects to show only valuable ones:\n"
+            + filter_input.model_dump_json(indent=2)
+        )
+    )["structured_response"]
+
+    # Apply filtering results
+    filtered_defects = []
+    for decision in output.filter_decisions:
+        idx = decision.defect_index
+        if idx < len(defects) and decision.should_include:
+            filtered_defects.append(defects[idx])
+            print(f"Defect {idx}: INCLUDED - {decision.reasoning}")
+        else:
+            print(f"Defect {idx}: EXCLUDED - {decision.reasoning}")
+
+    # Update context with filtered defects
+    runtime.context["defects"] = filtered_defects
+    print(f"Filtered defects: {len(filtered_defects)}/{len(defects)} included")
+
+    return {"done_filtering": True}
+
+
 def defect_signer_node(state: State, runtime: Runtime[Context]) -> dict:
+    """Final node that delivers the processed defects."""
     defects = runtime.context.get("defects", [])
     on_done = runtime.context.get("on_done")
-    defects_as_json_str = (
-        "[\n"
-        + ",\n".join([defect.model_dump_json(indent=2) for defect in defects])
-        + "\n]"
-    )
+
     print(
         f"""
 {"-"*100}
 | Defect Signer Node
 | State: {state}
-| Number of defects to sign: {len(defects)}
+| Number of final defects: {len(defects)}
 {"-"*100}
 """
     )
+
     if on_done:
         on_done(defects)
 
@@ -171,22 +314,33 @@ def defect_signer_node(state: State, runtime: Runtime[Context]) -> dict:
 
 
 def build_graph():
+    """Build the complete defect detection workflow with validation and filtering."""
     graph = StateGraph(state_schema=State, context_schema=Context)
 
+    # Add all nodes
     graph.add_node("defect_adapter", defect_adapter_node)
     graph.add_node("single_check", single_check_node)
     graph.add_node("cross_check", cross_check_node)
+    graph.add_node("defect_validator", defect_validator_node)
+    graph.add_node("defect_filter", defect_filter_node)
     graph.add_node("defect_signer", defect_signer_node)
 
+    # Set entry point
     graph.set_entry_point("defect_adapter")
 
+    # Parallel detection phase
     graph.add_edge("defect_adapter", "single_check")
     graph.add_edge("defect_adapter", "cross_check")
 
-    graph.add_edge("single_check", "defect_signer")
-    graph.add_edge("cross_check", "defect_signer")
+    # Sequential validation and filtering phase
+    graph.add_edge("single_check", "defect_validator")
+    graph.add_edge("cross_check", "defect_validator")
+    graph.add_edge("defect_validator", "defect_filter")
+    graph.add_edge("defect_filter", "defect_signer")
 
+    # Set finish point
     graph.set_finish_point("defect_signer")
+
     return graph.compile()
 
 
@@ -208,10 +362,11 @@ async def run_analysis_async(
     await _compiled.ainvoke(
         State(
             done_adapter=False,
-            done_single_item_check=False,
-            done_cross_type_check=False,
+            done_cross_check=False,
+            done_single_check=False,
+            done_validation=False,
+            done_filtering=False,
             done_signing=False,
-            defects=[],
         ),
         context=Context(
             target=target_user_story,
@@ -219,6 +374,7 @@ async def run_analysis_async(
             context_input=context_input,
             on_done=on_done,
             existing_defects=existing_defects,
+            defects=[],
         ),
         config=RunnableConfig(max_concurrency=3),
     )
@@ -241,8 +397,10 @@ def run_analysis(
     _compiled.invoke(
         State(
             done_adapter=False,
-            done_single_item_check=False,
-            done_cross_type_check=False,
+            done_cross_check=False,
+            done_single_check=False,
+            done_validation=False,
+            done_filtering=False,
             done_signing=False,
         ),
         context=Context(
@@ -260,10 +418,12 @@ def run_analysis(
 
 
 _node_completed_msg = {
-    "defect_adapter": "Checking for defects...",
-    "single_check": "Single Item Check completed.",
-    "cross_check": "Cross Type Check completed.",
-    "defect_signer": "All processes completed.",
+    "defect_adapter": "Initializing defect detection...",
+    "single_check": "Checking target story...",
+    "cross_check": "Checking against competitors...",
+    "defect_validator": "Validating detected defects...",
+    "defect_filter": "Filtering high-value defects...",
+    "defect_signer": "Analysis complete.",
 }
 
 
@@ -279,13 +439,15 @@ def stream_analysis(
         nonlocal res
         res = defects
 
-    yield {"message": "Starting Analysis..."}
+    yield {"message": "Starting defect analysis..."}
 
     for step in _compiled.stream(
         State(
             done_adapter=False,
-            done_single_item_check=False,
-            done_cross_type_check=False,
+            done_cross_check=False,
+            done_single_check=False,
+            done_validation=False,
+            done_filtering=False,
             done_signing=False,
         ),
         context=Context(

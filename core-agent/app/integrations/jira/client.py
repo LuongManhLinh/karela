@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from utils.markdown_adf_bridge import md_to_adf
 from .schemas import (
-    IssuesCreateRequest,
+    CreateIssuesRequest,
     SearchResponse,
     Issue,
     ExchangeAutorizationCodeResponse,
@@ -74,13 +74,18 @@ class JiraClient:
         return resp.json()["access_token"]
 
     @staticmethod
-    def create_issues(cloud_id: str, access_token: str, payload: IssuesCreateRequest):
+    def create_issues(cloud_id: str, access_token: str, payload: CreateIssuesRequest):
         url = API_BASE.format(cloud_id=cloud_id) + "/issue/bulk"
         headers = _get_auth_header(access_token)
         resp = requests.post(
             url, json=payload.model_dump_json(by_alias=True), headers=headers
         )
         resp.raise_for_status()
+        import json
+
+        resp_json = resp.json()
+        print("Jira create issues response JSON:", json.dumps(resp_json, indent=2))
+        return resp_json
 
     @staticmethod
     def search_issues(
@@ -142,6 +147,24 @@ class JiraClient:
             fields["description"] = md_to_adf(description)
         payload = {"fields": fields}
         resp = requests.put(url, json=payload, headers=headers)
+        resp.raise_for_status()
+
+    @staticmethod
+    def delete_issue(
+        cloud_id: str,
+        access_token: str,
+        issue_key: str,
+    ):
+        """Delete an issue by its key
+
+        Args:
+            cloud_id (str): Jira cloud ID
+            access_token (str): OAuth2 access token
+            issue_key (str): Key of the issue to delete
+        """
+        url = API_BASE.format(cloud_id=cloud_id) + f"/issue/{issue_key}"
+        headers = _get_auth_header(access_token)
+        resp = requests.delete(url, headers=headers)
         resp.raise_for_status()
 
     @staticmethod
@@ -219,6 +242,7 @@ class JiraClient:
     def fetch_project_keys(
         cloud_id: str,
         access_token: str,
+        max_results: int = 1000,
     ) -> List[str]:
         """Fetch all project keys from Jira
 
@@ -231,7 +255,7 @@ class JiraClient:
         """
         url = API_BASE.format(cloud_id=cloud_id) + "/project/search"
         params = {
-            "maxResults": "1000",
+            "maxResults": str(max_results),
         }
         resp = requests.get(
             url, headers=_get_auth_header(access_token), params=params, timeout=60
@@ -248,6 +272,43 @@ class JiraClient:
         json_data = resp.json()
         projects = json_data.get("values", [])
         return [project["key"] for project in projects]
+
+    @staticmethod
+    def fetch_projects(
+        cloud_id: str,
+        access_token: str,
+        max_results: int = 1000,
+    ) -> List[dict]:
+        """Fetch all project info from Jira
+
+        Args:
+            cloud_id (str): Jira cloud ID
+            access_token (str): OAuth2 access token
+        Returns:
+            List[dict]: List of project info dictionaries, including id, key and name
+        """
+        url = API_BASE.format(cloud_id=cloud_id) + "/project/search"
+        params = {
+            "maxResults": str(max_results),
+        }
+        resp = requests.get(
+            url, headers=_get_auth_header(access_token), params=params, timeout=60
+        )
+        if not resp.ok:
+            try:
+                detail = resp.text
+            except Exception:
+                detail = ""
+            raise RuntimeError(
+                f"Jira fetch projects failed: {resp.status_code} {resp.reason} {detail}"
+            )
+
+        json_data = resp.json()
+        projects = json_data.get("values", [])
+        return [
+            {"id": project["id"], "key": project["key"], "name": project["name"]}
+            for project in projects
+        ]
 
     @staticmethod
     def fetch_story_keys(

@@ -24,6 +24,8 @@ interface WorkspaceShellProps {
   onSelectSession: (id: string) => void;
   loadingSessions?: boolean;
   loadingConnections?: boolean;
+  loadingProjectKeys?: boolean;
+  loadingStoryKeys?: boolean;
   emptyStateText?: string;
   sessionListLabel?: string;
   rightChildren: React.ReactNode;
@@ -46,6 +48,8 @@ export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
   onSelectSession,
   loadingSessions,
   loadingConnections,
+  loadingProjectKeys,
+  loadingStoryKeys,
   emptyStateText = "No sessions yet",
   sessionListLabel = "Sessions",
   rightChildren,
@@ -73,7 +77,9 @@ export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
             projectKeyOptions={projectOptions}
             storyKeyOptions={storyOptions}
             submitAction={submitAction}
-            loading={loadingConnections}
+            loadingConnections={loadingConnections}
+            loadingProjectKeys={loadingProjectKeys}
+            loadingStoryKeys={loadingStoryKeys}
           />
           <Divider sx={{ my: 2 }} />
           <Typography
