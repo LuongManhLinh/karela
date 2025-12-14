@@ -1,9 +1,9 @@
 import requests
 from typing import List, Optional
 
-from utils.markdown_adf_bridge import md_to_adf
 from .schemas import (
     CreateIssuesRequest,
+    IssueUpdate,
     SearchResponse,
     Issue,
     ExchangeAutorizationCodeResponse,
@@ -77,15 +77,24 @@ class JiraClient:
     def create_issues(cloud_id: str, access_token: str, payload: CreateIssuesRequest):
         url = API_BASE.format(cloud_id=cloud_id) + "/issue/bulk"
         headers = _get_auth_header(access_token)
-        resp = requests.post(
-            url, json=payload.model_dump_json(by_alias=True), headers=headers
-        )
+        headers["Content-Type"] = "application/json"
+        resp = requests.post(url, json=payload.model_dump(), headers=headers)
         resp.raise_for_status()
-        import json
-
         resp_json = resp.json()
-        print("Jira create issues response JSON:", json.dumps(resp_json, indent=2))
+
         return resp_json
+
+    @staticmethod
+    def create_issue(cloud_id: str, access_token: str, payload: IssueUpdate):
+        url = API_BASE.format(cloud_id=cloud_id) + "/issue"
+        headers = _get_auth_header(access_token)
+        headers["Content-Type"] = "application/json"
+        resp = requests.post(url, json=payload.model_dump(), headers=headers)
+        # Log the response for debugging
+        print("Payload:", payload.model_dump_json(indent=2))
+        resp.raise_for_status()
+
+        return resp.json()["key"]
 
     @staticmethod
     def search_issues(
@@ -93,15 +102,16 @@ class JiraClient:
         access_token: str,
         jql: str,
         fields: List[str],
-        max_results: int,
+        max_results: int | None = None,
         expand_rendered_fields: bool = False,
     ) -> SearchResponse:
         url = API_BASE.format(cloud_id=cloud_id) + "/search/jql"
         params = {
             "jql": jql,
             "fields": ",".join(fields) if fields else "*navigable",
-            "maxResults": str(max_results),
         }
+        if max_results is not None:
+            params["maxResults"] = str(max_results)
         if expand_rendered_fields:
             params["expand"] = "renderedFields"
 
@@ -125,7 +135,7 @@ class JiraClient:
         access_token: str,
         issue_key: str,
         summary: Optional[str] = None,
-        description: Optional[str] = None,
+        description: Optional[any] = None,
     ):
         """Update issue summary and/or description
 
@@ -134,17 +144,15 @@ class JiraClient:
             access_token (str): OAuth2 access token
             issue_key (str): Key of the issue to update
             summary (Optional[str], optional): New summary. Defaults to None.
-            description (Optional[str], optional): New description in markdown. Defaults to None.
+            description (Optional[any], optional): New description. Defaults to None.
         """
-        if not summary and not description:
-            raise ValueError("At least one of summary or description must be provided")
         url = API_BASE.format(cloud_id=cloud_id) + f"/issue/{issue_key}"
         headers = _get_auth_header(access_token)
         fields = {}
-        if summary:
+        if summary is not None:
             fields["summary"] = summary
-        if description:
-            fields["description"] = md_to_adf(description)
+        if description is not None:
+            fields["description"] = description
         payload = {"fields": fields}
         resp = requests.put(url, json=payload, headers=headers)
         resp.raise_for_status()
@@ -164,6 +172,7 @@ class JiraClient:
         """
         url = API_BASE.format(cloud_id=cloud_id) + f"/issue/{issue_key}"
         headers = _get_auth_header(access_token)
+        headers["Accept"] = "application/json"
         resp = requests.delete(url, headers=headers)
         resp.raise_for_status()
 

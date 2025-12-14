@@ -33,49 +33,6 @@ class JiraConnection(Base):
 
     user = relationship("User", back_populates="jira_connections")
 
-    projects = relationship(
-        "JiraProject", back_populates="connection", cascade="all, delete-orphan"
-    )
-
     # On update event
     def before_update_listener(mapper, connection, target):
         target.updated_at = utcnow()
-
-
-class JiraProject(Base):
-    __tablename__ = "jira_projects"
-
-    id = Column(String(64), primary_key=True, default=uuid_generator)
-    key = Column(String(32), nullable=False)
-    name = Column(String(128), nullable=True)
-
-    connection_id = Column(
-        String(64),
-        ForeignKey("jira_connections.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-
-    connection = relationship("JiraConnection", back_populates="projects")
-
-    stories = relationship(
-        "JiraStory", back_populates="project", cascade="all, delete-orphan"
-    )
-
-
-class JiraStory(Base):
-    __tablename__ = "jira_stories"
-
-    id = Column(String(64), primary_key=True, default=uuid_generator)
-    key = Column(String(32), nullable=False)
-    summary = Column(String(256), nullable=True)
-    description = Column(Text, nullable=True)
-
-    project_id = Column(
-        String(64),
-        ForeignKey("jira_projects.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-
-    project = relationship("JiraProject", back_populates="stories")

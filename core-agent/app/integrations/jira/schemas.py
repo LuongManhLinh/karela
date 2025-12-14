@@ -127,7 +127,7 @@ class IssueUpdate(BaseModel):
 
 
 class CreateIssuesRequest(BaseModel):
-    issue_updates: List[IssueUpdate] = Field(default_factory=list, alias="issueUpdates")
+    issueUpdates: List[IssueUpdate]
 
 
 class ExchangeAutorizationCodeResponse(BaseModel):

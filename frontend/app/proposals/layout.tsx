@@ -207,7 +207,6 @@ const ProposalPageContent: React.FC = () => {
                   proposal={proposal}
                   onProposalAction={handleProposalAction}
                   onProposalContentAction={handleProposalContentAction}
-                  defaultExpanded={proposals.length > 1}
                 />
               ))}
             </Stack>

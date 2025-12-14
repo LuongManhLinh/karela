@@ -149,27 +149,35 @@ class ProposalService:
 
             # Create new issues
             if create_contents:
-                created_keys = platform_service.create_stories(
-                    connection_id=connection_id,
-                    project_key=project_key,
-                    stories=[
-                        CreateStoryRequest(
-                            summary=content.summary,
-                            description=content.description,
-                        )
-                        for content in create_contents
-                    ],
-                )
+                for content in create_contents:
+                    new_story = CreateStoryRequest(
+                        summary=content.summary,
+                        description=content.description,
+                    )
+                    created_key = platform_service.create_story(
+                        connection_id=connection_id,
+                        project_key=project_key,
+                        story=new_story,
+                    )
+                    num_created += 1
 
-                num_created = len(create_contents)
+                    # Store the created story version
+                    new_version = StoryVersion(
+                        key=created_key,
+                        version=0,
+                        summary=content.summary,
+                        description=content.description,
+                        action=ProposalType.CREATE,
+                    )
+                    self.db.add(new_version)
 
             # Update existing issues
             if update_keys:
                 # Search for existing issues to back up their versions before modification
-                existing_stories = platform_service.get_stories(
+                existing_stories = platform_service.fetch_stories(
                     connection_id=connection_id,
                     project_key=project_key,
-                    issue_keys=update_keys,
+                    story_keys=update_keys,
                 )
 
                 for story_dto in existing_stories:
@@ -181,8 +189,8 @@ class ProposalService:
                         id=story_dto.id,
                         key=story_dto.key,
                         version=version,
-                        summary=story_dto.fields.summary,
-                        description=story_dto.fields.description,
+                        summary=story_dto.summary,
+                        description=story_dto.description,
                         action=ProposalType.UPDATE,
                     )
                     self.db.add(new_version)
@@ -198,24 +206,32 @@ class ProposalService:
 
             # Delete issues
             if delete_keys:
-                platform_service.delete_issues(
+                # Search for existing issues to back up their versions before deletion
+                existing_stories = platform_service.fetch_stories(
                     connection_id=connection_id,
-                    issue_keys=delete_keys,
+                    project_key=project_key,
+                    story_keys=delete_keys,
                 )
 
-                for key in delete_keys:
-                    existing_version = version_lookup.get(key)
+                for story_dto in existing_stories:
+                    existing_version = version_lookup.get(story_dto.key)
                     version = 0
                     if existing_version:
                         version = existing_version.version + 1
                     new_version = StoryVersion(
-                        key=key,
+                        id=story_dto.id,
+                        key=story_dto.key,
                         version=version,
-                        summary="",
-                        description="",
+                        summary=story_dto.summary,
+                        description=story_dto.description,
                         action=ProposalType.DELETE,
                     )
                     self.db.add(new_version)
+
+                    platform_service.delete_issue(
+                        connection_id=connection_id,
+                        issue_key=story_dto.key,
+                    )
                     num_deleted += 1
             for content in contents:
                 content.accepted = True
