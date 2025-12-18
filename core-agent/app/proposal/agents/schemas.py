@@ -36,6 +36,13 @@ class Proposal(BaseModel):
     )
 
 
+class ProposalContextInput(ContextInput):
+    clarifications: Optional[str] = Field(
+        None,
+        description="Additional clarifications provided by stakeholders to aid in proposal generation.",
+    )
+
+
 class ProposalInput(BaseModel):
     """Schema for the input to the proposal generator."""
 
@@ -45,7 +52,7 @@ class ProposalInput(BaseModel):
     defects: List[DefectInput] = Field(
         description="List of identified defects that need to be addressed.",
     )
-    context_input: Optional[ContextInput] = Field(
+    context_input: Optional[ProposalContextInput] = Field(
         None,
         description="Optional contextual information to aid in proposal generation.",
     )

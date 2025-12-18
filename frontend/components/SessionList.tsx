@@ -67,9 +67,9 @@ const SessionList: React.FC<SessionListProps> = ({
               borderRadius: 1,
               "&.Mui-selected": {
                 bgcolor: "primary.main",
-                color: "white",
+                color: "text.primary",
                 "&:hover": {
-                  bgcolor: "primary.dark",
+                  bgcolor: "primary.light",
                 },
               },
               "&:hover": {

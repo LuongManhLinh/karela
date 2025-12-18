@@ -46,8 +46,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
     palette: {
       mode,
       primary: {
-        main: "#667eea",
-        light: "#b0bcf4ff",
+        main: mode === "light" ? "#b5c7faff" : "#667eea",
+        light: "#93a2e3ff",
         dark: "#4a5fd4",
       },
       secondary: {

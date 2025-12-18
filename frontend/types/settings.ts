@@ -10,7 +10,7 @@ export interface SettingsDto {
   glossary?: string;
   additional_docs?: Record<string, any>;
   llm_guidelines?: string;
-  last_updated: string;
+  updated_at: string;
 }
 
 export interface CreateSettingsRequest {

@@ -31,7 +31,7 @@ class SettingsService:
             glossary=settings.glossary,
             additional_docs=settings.additional_docs,
             llm_guidelines=settings.llm_guidelines,
-            last_updated=settings.last_updated,
+            updated_at=settings.updated_at,
         )
 
     def list_settings_by_connection(self, connection_id: str) -> List[SettingsDto]:
@@ -51,7 +51,7 @@ class SettingsService:
                 glossary=s.glossary,
                 additional_docs=s.additional_docs,
                 llm_guidelines=s.llm_guidelines,
-                last_updated=s.last_updated,
+                updated_at=s.last_updated,
             )
             for s in settings_list
         ]
@@ -95,7 +95,7 @@ class SettingsService:
             glossary=settings.glossary,
             additional_docs=settings.additional_docs,
             llm_guidelines=settings.llm_guidelines,
-            last_updated=settings.last_updated,
+            updated_at=settings.updated_at,
         )
 
     def update_settings(
@@ -145,7 +145,7 @@ class SettingsService:
             glossary=settings.glossary,
             additional_docs=settings.additional_docs,
             llm_guidelines=settings.llm_guidelines,
-            last_updated=settings.last_updated,
+            updated_at=settings.last_updated,
         )
 
     def delete_settings(self, connection_id: str, project_key: str) -> None:

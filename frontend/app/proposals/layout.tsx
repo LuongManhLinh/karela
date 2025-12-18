@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Box, Divider, Stack, Typography } from "@mui/material";
+import { Box, Divider, Stack, Typography, Button } from "@mui/material";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
 
-import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { userService } from "@/services/userService";
 import { proposalService } from "@/services/proposalService";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -21,6 +21,7 @@ import { DoubleLayout } from "@/components/Layout";
 import { SessionStartForm } from "@/components/SessionStartForm";
 import SessionList, { SessionItem } from "@/components/SessionList";
 import HeaderContent from "@/components/HeaderContent";
+import { downloadAsJson } from "@/utils/export_utils";
 
 const ProposalPageContent: React.FC = () => {
   const [connections, setConnections] = useState<JiraConnectionDto[]>([]);
@@ -170,6 +171,20 @@ const ProposalPageContent: React.FC = () => {
     }));
   }, [sessions]);
 
+  const handleExportProposals = () => {
+    if (proposals.length === 0) return;
+    const selectedSessionKey = sessions
+      ? selectedSessionSource === "ANALYSIS"
+        ? sessions.analysis_sessions.find((s) => s.id === selectedSessionId)
+            ?.key
+        : sessions.chat_sessions.find((s) => s.id === selectedSessionId)?.key
+      : selectedSessionId;
+    const filename = `proposals_${selectedSessionSource?.toLowerCase()}_${selectedSessionKey}_${
+      new Date().toISOString().split("T")[0]
+    }`;
+    downloadAsJson(proposals, filename);
+  };
+
   const proposalsContent = (
     <Box
       sx={{
@@ -201,6 +216,19 @@ const ProposalPageContent: React.FC = () => {
             </Typography>
           ) : (
             <Stack spacing={2}>
+              {proposals.length > 0 && (
+                <Box
+                  sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}
+                >
+                  <Button
+                    variant="outlined"
+                    startIcon={<FileDownloadIcon />}
+                    onClick={handleExportProposals}
+                  >
+                    Export to JSON
+                  </Button>
+                </Box>
+              )}
               {proposals.map((proposal) => (
                 <ProposalCard
                   key={proposal.id}

@@ -1,7 +1,7 @@
 from llm.dynamic_agent import GenimiDynamicAgent
 from langchain.agents.middleware import LLMToolSelectorMiddleware
-from langchain_core.runnables.config import RunnableConfig
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.agents.middleware import dynamic_prompt, ModelRequest
+
 from sqlalchemy.orm import Session
 from dataclasses import dataclass
 
@@ -9,7 +9,7 @@ from common.configs import GeminiConfig
 from app.chat.services import ChatDataService
 from app.proposal.services import ProposalService
 from app.analysis.services import AnalysisDataService, DefectService
-from .prompts import RESOLVER_SYSTEM_PROMPT, RESOLVER_TOOL_SELECTOR_SYSTEM_PROMPT
+from .prompts import SYSTEM_PROMPT
 from .tools import tools
 
 
@@ -25,12 +25,22 @@ from .tools import tools
 # )
 
 
+@dynamic_prompt
+def user_context_prompt(request: ModelRequest) -> str:
+    """Generate system prompt based on user role."""
+    project_key = request.runtime.context.project_key
+    story_key = request.runtime.context.story_key
+    return SYSTEM_PROMPT.format(
+        context=f"Project Key: {project_key}\nStory Key: {story_key or 'N/A'}"
+    )
+
+
 agent = GenimiDynamicAgent(
-    system_prompt=RESOLVER_SYSTEM_PROMPT,
+    system_prompt=SYSTEM_PROMPT,
     model_name=GeminiConfig.GEMINI_API_CHAT_MODEL,
     temperature=GeminiConfig.GEMINI_API_CHAT_TEMPERATURE,
     tools=tools,
-    # middleware=[tool_selector_middleware],
+    middleware=[user_context_prompt],
     api_keys=GeminiConfig.GEMINI_API_KEYS,
     max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
 )
@@ -41,11 +51,8 @@ class Context:
     session_id: str
     connection_id: str
     project_key: str
-    chat_data_service: ChatDataService
-    proposal_service: ProposalService
-    analysis_data_service: AnalysisDataService
-    defect_service: DefectService
     story_key: str = None
+    db_session: Session = None
 
 
 def chat_with_agent(
@@ -75,10 +82,7 @@ def chat_with_agent(
             connection_id=connection_id,
             project_key=project_key,
             story_key=story_key,
-            chat_data_service=ChatDataService(db_session),
-            proposal_service=ProposalService(db_session),
-            analysis_data_service=AnalysisDataService(db_session),
-            defect_service=DefectService(db_session),
+            db_session=db_session,
         ),
     )
 
@@ -112,10 +116,7 @@ def stream_with_agent(
             connection_id=connection_id,
             project_key=project_key,
             story_key=story_key,
-            chat_data_service=ChatDataService(db_session),
-            proposal_service=ProposalService(db_session),
-            analysis_data_service=AnalysisDataService(db_session),
-            defect_service=DefectService(db_session),
+            db_session=db_session,
         ),
         stream_mode="messages",
     ):

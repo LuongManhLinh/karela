@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 from typing import List, Optional
 
 
-from ..models import Defect, DefectStoryKey
+from ..models import Analysis, Defect, DefectStoryKey
 from ..schemas import DefectDto
 
 
@@ -12,6 +13,9 @@ class DefectService:
 
     def get_defects_by_ids(self, ids: list[str]) -> list[Defect]:
         return self.db.query(Defect).filter(Defect.id.in_(ids)).all()
+
+    def get_defects_by_keys(self, keys: list[str]) -> list[Defect]:
+        return self.db.query(Defect).filter(Defect.key.in_(keys)).all()
 
     def get_defect_keys_by_ids(self, ids: list[str]) -> list[str]:
         return [
@@ -27,11 +31,18 @@ class DefectService:
         self.db.add(defect)
         self.db.commit()
 
-    def get_defects_by_story_key(self, key: str) -> List[DefectDto]:
+    def get_defects_by_story_key(
+        self, connection_id, project_key, key: str
+    ) -> List[DefectDto]:
         defects = (
             self.db.query(Defect)
-            .join(DefectStoryKey)
+            .join(DefectStoryKey, Defect.id == DefectStoryKey.defect_id)
+            .join(Analysis, Defect.analysis_id == Analysis.id)
             .filter(DefectStoryKey.key == key)
+            .filter(
+                Analysis.connection_id == connection_id,
+                Analysis.project_key == project_key,
+            )
             .all()
         )
 
@@ -45,7 +56,7 @@ class DefectService:
                 confidence=defect.confidence,
                 suggested_fix=defect.suggested_fix,
                 solved=defect.solved,
-                story_keys=[work_item.work_item_id for work_item in defect.story_keys],
+                story_keys=[story_key_item.key for story_key_item in defect.story_keys],
             )
             for defect in defects
         ]

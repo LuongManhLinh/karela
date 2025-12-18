@@ -361,21 +361,22 @@ const ChatPageContent: React.FC = () => {
     []
   );
 
-  const handleIncomingProposal = useCallback(
-    async (proposalId: string) => {
+  const handleIncomingProposals = useCallback(
+    async (proposalIds: string[]) => {
       try {
-        const response = await proposalService.getProposal(proposalId);
-        const proposal = response.data;
-        if (!proposal) {
-          return;
+        const fetchedProposals: ProposalDto[] = [];
+        for (const proposalId of proposalIds) {
+          const response = await proposalService.getProposal(proposalId);
+          const proposal = response.data;
+          if (!proposal) {
+            continue;
+          }
+          if (currentSession?.id && proposal.session_id !== currentSession.id) {
+            continue;
+          }
+          fetchedProposals.push(proposal);
         }
-        if (currentSession?.id && proposal.session_id !== currentSession.id) {
-          return;
-        }
-        setSessionProposals((prev) => {
-          const filtered = prev.filter((p) => p.id !== proposal.id);
-          return [proposal, ...filtered];
-        });
+        setSessionProposals((prev) => [...prev, ...fetchedProposals]);
       } catch (err) {
         console.error("Failed to fetch proposal:", err);
       }
@@ -600,7 +601,7 @@ const ChatPageContent: React.FC = () => {
                 // Don't reload session immediately - let streaming finish
               }
             } else if (parsed.type === "proposal" && parsed.data) {
-              handleIncomingProposal(parsed.data);
+              handleIncomingProposals(parsed.data);
             }
           } catch (err) {
             console.error("Failed to parse WebSocket message:", err);
@@ -636,7 +637,7 @@ const ChatPageContent: React.FC = () => {
       loadSessions,
       currentSession?.id,
       fetchSessionProposals,
-      handleIncomingProposal,
+      handleIncomingProposals,
     ]
   );
 
@@ -751,7 +752,7 @@ const ChatPageContent: React.FC = () => {
           flexDirection: "column",
           alignContent: "center",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "flex-start",
           width: "100%",
           // height: "100%",
           scrollbarColor: "#6b6b6b transparent",
@@ -843,40 +844,68 @@ const ChatPageContent: React.FC = () => {
       >
         {(loadingProposals || sessionProposals.length > 0) && (
           <Accordion
+            square={false}
             expanded={proposalExpanded}
             onChange={() => setProposalExpanded(!proposalExpanded)}
             sx={{
               width: "90%",
+
               marginX: "auto",
+              overflow: "hidden",
               "&.Mui-expanded": {
                 marginY: "0",
                 marginX: "auto",
+                // borderRadius: 0,
+                // borderTopLeftRadius: 1,
+                // borderTopRightRadius: 1,
               },
+
+              // borderRadius: 0,
               // The optional fix for the line/shadow:
 
-              borderRadius: 1,
+              // borderTopLeftRadius: 1,
+              // borderTopRightRadius: 1,
+              "&:before": {
+                display: "none", // Hides the default MUI divider line
+              },
               boxShadow: "none",
-              backgroundColor: theme.palette.background.paper,
             }}
           >
-            <AccordionSummary expandIcon={<ExpandLess />}>
+            <AccordionSummary
+              expandIcon={<ExpandLess />}
+              // sx={{ borderRadius: 0 }}
+            >
               <Typography variant="body1">
-                Change Proposals ({sessionProposals.length})
+                Proposals ({sessionProposals.length})
               </Typography>
             </AccordionSummary>
-            <AccordionDetails>
+            <AccordionDetails
+              sx={{
+                maxHeight: 600,
+                overflowY: "auto",
+                scrollbarColor: "#6b6b6b transparent",
+                scrollbarWidth: "auto",
+              }}
+            >
               {loadingProposals ? (
                 <Skeleton
                   variant="rectangular"
                   height={120}
-                  sx={{ borderRadius: 2 }}
+                  sx={{ borderRadius: 1 }}
                 />
               ) : sessionProposals.length === 0 ? (
                 <Typography color="text.secondary">
                   No proposals yet in this session.
                 </Typography>
               ) : (
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                    bgcolor: "transparent",
+                  }}
+                >
                   {sessionProposals.map((proposal) => (
                     <ProposalCard
                       key={proposal.id}

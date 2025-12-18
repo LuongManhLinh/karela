@@ -13,7 +13,7 @@ class SettingsDto(BaseModel):
     glossary: Optional[str] = None
     additional_docs: Optional[Dict[str, Any]] = None
     llm_guidelines: Optional[str] = None
-    last_updated: datetime
+    updated_at: datetime
 
 
 class CreateSettingsRequest(BaseModel):
@@ -38,5 +38,3 @@ class UpdateSettingsRequest(BaseModel):
     llm_guidelines: Optional[str] = None
 
     model_config = ConfigDict(extra="forbid")
-
-

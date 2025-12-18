@@ -88,6 +88,7 @@ async def websocket_chat(
         ):
             print(f"Sending chunk: {chunk_dict['data']}")
             await websocket.send_json(chunk_dict)
+            await asyncio.sleep(0.1)  # Yield to event loop
 
     except WebSocketDisconnect:
         print("WS disconnected")
@@ -119,4 +120,6 @@ async def get_session_detail(
     service: ChatDataService = Depends(get_chat_data_service),
 ):
     dto = service.get_chat_session(session_id=session_id)
+    for message in dto.messages:
+        print(f"Message: {message.role} - {message.content[:30]}...")
     return BasicResponse(data=dto)

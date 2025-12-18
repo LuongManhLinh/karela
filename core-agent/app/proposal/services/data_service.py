@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import func, select
 
 
-from .models import (
+from ..models import (
     Proposal,
     ProposalContent,
     ProposalDefect,
@@ -11,12 +11,13 @@ from .models import (
     StoryVersion,
     ProposalSource,
 )
-from .schemas import (
+from ..schemas import (
     CreateProposalRequest,
     ProposalDto,
     ProposalContentDto,
     SessionsHavingProposals,
 )
+
 from app.integrations import get_platform_service
 from app.integrations.jira.schemas import CreateStoryRequest
 from app.analysis.services.defect_service import DefectService
@@ -34,7 +35,7 @@ class ProposalService:
         Args:
             proposal_request (CreateProposalRequest): The proposal creation request.
         Returns:
-            str: The ID of the created proposal.
+            str: The key of the created proposal.
         """
         contents = []
         for story in proposal_request.stories:
@@ -47,7 +48,6 @@ class ProposalService:
             )
             contents.append(content)
 
-        id = uuid_generator()
         source = ProposalSource(proposal_request.source)
 
         stmt = select(func.count(Proposal.id)).filter(
@@ -57,9 +57,9 @@ class ProposalService:
 
         proposal_count = self.db.execute(stmt).scalar_one()
 
+        key = f"{proposal_request.project_key}-PRS-{proposal_count + 1}"
         proposal = Proposal(
-            id=id,
-            key=f"{proposal_request.project_key}-PRS-{proposal_count + 1}",
+            key=key,
             connection_id=proposal_request.connection_id,
             source=source,
             project_key=proposal_request.project_key,
@@ -80,7 +80,7 @@ class ProposalService:
         self.db.add(proposal)
         self.db.commit()
 
-        return id
+        return key
 
     def create_proposals(
         self, proposal_requests: List[CreateProposalRequest]
@@ -90,13 +90,13 @@ class ProposalService:
         Args:
             proposal_requests (List[CreateProposalRequest]): The list of proposal creation requests.
         Returns:
-            List[str]: The list of IDs of the created proposals.
+            List[str]: The list of keys of the created proposals.
         """
-        created_ids = []
+        created_keys = []
         for proposal_request in proposal_requests:
-            proposal_id = self.create_proposal(proposal_request)
-            created_ids.append(proposal_id)
-        return created_ids
+            proposal_key = self.create_proposal(proposal_request)
+            created_keys.append(proposal_key)
+        return created_keys
 
     def _accept_proposal_contents(
         self,
@@ -368,11 +368,18 @@ class ProposalService:
             ),
         )
 
-    def get_proposal(self, proposal_id: str) -> ProposalDto:
-        """Retrieves a proposal by its ID."""
-        proposal = self.db.query(Proposal).filter(Proposal.id == proposal_id).first()
+    def get_proposal(self, proposal_id_or_key: str) -> ProposalDto:
+        """Retrieves a proposal by its ID or key."""
+        proposal = (
+            self.db.query(Proposal)
+            .filter(
+                (Proposal.id == proposal_id_or_key)
+                | (Proposal.key == proposal_id_or_key)
+            )
+            .first()
+        )
         if not proposal:
-            raise ValueError(f"Proposal with id {proposal_id} not found")
+            raise ValueError(f"Proposal with id {proposal_id_or_key} not found")
         return self._get_proposal_dto(proposal)
 
     def get_proposals_by_session(
@@ -414,6 +421,7 @@ class ProposalService:
                 Analysis.connection_id == connection_id,
             )
             .distinct()
+            .order_by(Analysis.created_at.desc())
             .all()
         )
 
@@ -427,6 +435,7 @@ class ProposalService:
                 ChatSession.connection_id == connection_id,
             )
             .distinct()
+            .order_by(ChatSession.created_at.desc())
             .all()
         )
 

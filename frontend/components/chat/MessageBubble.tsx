@@ -14,7 +14,6 @@ interface MessageBubbleProps {
 }
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
-  const theme = useTheme();
   const isUser = message.role === "user";
   const isAgent = message.role === "agent";
 
@@ -76,7 +75,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
         sx={{
           display: "flex",
           justifyContent: "flex-start",
-          mb: 4,
+          mb: 2,
         }}
       >
         <Box

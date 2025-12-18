@@ -1,7 +1,8 @@
 from langchain_core.runnables import RunnableConfig
 from langchain_core.messages import HumanMessage
 from typing_extensions import TypedDict
-from typing import Optional, List, Callable
+from typing import Optional, List, Callable, Annotated
+import operator
 from langgraph.graph import StateGraph
 from langgraph.runtime import Runtime
 
@@ -23,6 +24,12 @@ from .prompts import (
     DEFECT_VALIDATOR_SYSTEM_PROMPT,
     DEFECT_FILTER_SYSTEM_PROMPT,
 )
+from .fake_history import (
+    CROSS_CHECK_FAKE_HISTORY,
+    SINGLE_CHECK_FAKE_HISTORY,
+    VALIDATOR_FAKE_HISTORY,
+    FILTER_FAKE_HISTORY,
+)
 from common.configs import GeminiConfig
 
 
@@ -33,6 +40,10 @@ class State(TypedDict):
     done_validation: bool
     done_filtering: bool
     done_signing: bool
+    # Use reducer for parallel accumulation
+    raw_defects: Annotated[List[DefectByLlm], operator.add]
+    # Final processed defects
+    defects: List[DefectByLlm]
 
 
 class Context(TypedDict):
@@ -42,11 +53,9 @@ class Context(TypedDict):
     context_input: ContextInput
     existing_defects: List[DefectInput] = []
 
-    defects: List[DefectByLlm] = []
-
 
 potential_cross_defects = ["CONFLICT", "DUPLICATION"]
-potential_single_defects = ["OUT_OF_SCOPE", "IRRELEVANCE"]
+potential_single_defects = ["OUT_OF_SCOPE", "AMBIGUITY"]
 
 
 # Agent for cross-checking target story against competitors
@@ -117,12 +126,12 @@ def single_check_node(state: State, runtime: Runtime[Context]) -> dict:
         f"""
 {"-"*100}
 | Single Check Node
-| State: {state}
 | Target: {target}
 | Having Context Input: {context_input is not None}
 {"-"*100}
 """
     )
+    detected = []
     if target and context_input:
         # Filter existing defects for single check, keeping only those have type
         existing_defects = runtime.context.get("existing_defects", [])
@@ -136,16 +145,20 @@ def single_check_node(state: State, runtime: Runtime[Context]) -> dict:
             context_input=context_input,
             existing_defects=filtered_existing_defects,
         )
-        output: DetectDefectOutput = single_check_agent.invoke(
+
+        messages = SINGLE_CHECK_FAKE_HISTORY + [
             HumanMessage(
                 content="Here is the input data:\n"
                 + input_data.model_dump_json(indent=2)
             )
-        )["structured_response"]
+        ]
 
-        runtime.context.get("defects").extend(output.defects or [])
+        output: DetectDefectOutput = single_check_agent.invoke(messages)["structured_response"]
 
-    return {"done_single_check": True}
+        if output.defects:
+            detected = output.defects
+
+    return {"done_single_check": True, "raw_defects": detected}
 
 
 def cross_check_node(state: State, runtime: Runtime[Context]) -> dict:
@@ -154,12 +167,12 @@ def cross_check_node(state: State, runtime: Runtime[Context]) -> dict:
         f"""
 {"-"*100}
 | Cross Check Node
-| State: {state}
 | Number of work items to check: {len(work_items)}
 {"-"*100}
 """
     )
 
+    detected = []
     if work_items:
         existing_defects = runtime.context.get("existing_defects", [])
         filtered_existing_defects = [
@@ -172,15 +185,20 @@ def cross_check_node(state: State, runtime: Runtime[Context]) -> dict:
             user_stories=work_items,
             existing_defects=filtered_existing_defects,
         )
-        output: DetectDefectOutput = cross_check_agent.invoke(
+
+        messages = CROSS_CHECK_FAKE_HISTORY + [
             HumanMessage(
                 content="Here is the input data:\n"
                 + input_data.model_dump_json(indent=2)
             )
-        )["structured_response"]
+        ]
 
-        runtime.context.get("defects").extend(output.defects or [])
-    return {"done_cross_check": True}
+        output: DetectDefectOutput = cross_check_agent.invoke(messages)["structured_response"]
+
+        if output.defects:
+            detected = output.defects
+    
+    return {"done_cross_check": True, "raw_defects": detected}
 
 
 def defect_validator_node(state: State, runtime: Runtime[Context]) -> dict:
@@ -188,13 +206,15 @@ def defect_validator_node(state: State, runtime: Runtime[Context]) -> dict:
     target = runtime.context.get("target")
     work_items = runtime.context.get("work_items", [])
     context_input = runtime.context.get("context_input", None)
-    defects = runtime.context.get("defects", [])
+    # Read from raw_defects
+    defects = state.get("raw_defects", [])
+    # Sort defects to ensure deterministic order for the validator
+    defects.sort(key=lambda x: (x.type, sorted(x.story_keys)))
 
     print(
         f"""
 {"-"*100}
 | Defect Validator Node
-| State: {state}
 | Target: {target.key if target else None}
 | Number of defects to validate: {len(defects)}
 {"-"*100}
@@ -203,7 +223,7 @@ def defect_validator_node(state: State, runtime: Runtime[Context]) -> dict:
 
     if not defects:
         print("No defects to validate, skipping validation.")
-        return {"done_validation": True}
+        return {"done_validation": True, "defects": []}
 
     validator_input = ValidateDefectsInput(
         target_user_story=target,
@@ -212,12 +232,14 @@ def defect_validator_node(state: State, runtime: Runtime[Context]) -> dict:
         context_input=context_input,
     )
 
-    output: ValidateDefectsOutput = validator_agent.invoke(
+    messages = VALIDATOR_FAKE_HISTORY + [
         HumanMessage(
             content="Please validate these detected defects:\n"
             + validator_input.model_dump_json(indent=2)
         )
-    )["structured_response"]
+    ]
+
+    output: ValidateDefectsOutput = validator_agent.invoke(messages)["structured_response"]
 
     # Apply validation results
     validated_defects = []
@@ -239,24 +261,21 @@ def defect_validator_node(state: State, runtime: Runtime[Context]) -> dict:
 
             print(f"Defect {idx}: {validation.status} - {validation.reasoning}")
 
-    # Update context with validated defects
-    runtime.context["defects"] = validated_defects
     print(
         f"Validated defects: {len(validated_defects)}/{len(defects)} passed validation"
     )
 
-    return {"done_validation": True}
+    return {"done_validation": True, "defects": validated_defects}
 
 
 def defect_filter_node(state: State, runtime: Runtime[Context]) -> dict:
     """Filter defects to show only high-value, actionable items."""
-    defects = runtime.context.get("defects", [])
+    defects = state.get("defects", [])
 
     print(
         f"""
 {"-"*100}
 | Defect Filter Node
-| State: {state}
 | Number of defects to filter: {len(defects)}
 {"-"*100}
 """
@@ -264,16 +283,18 @@ def defect_filter_node(state: State, runtime: Runtime[Context]) -> dict:
 
     if not defects:
         print("No defects to filter, skipping filtering.")
-        return {"done_filtering": True}
+        return {"done_filtering": True, "defects": []}
 
     filter_input = FilterDefectsInput(defects=defects)
 
-    output: FilterDefectsOutput = filter_agent.invoke(
+    messages = FILTER_FAKE_HISTORY + [
         HumanMessage(
             content="Please filter these defects to show only valuable ones:\n"
             + filter_input.model_dump_json(indent=2)
         )
-    )["structured_response"]
+    ]
+
+    output: FilterDefectsOutput = filter_agent.invoke(messages)["structured_response"]
 
     # Apply filtering results
     filtered_defects = []
@@ -286,22 +307,20 @@ def defect_filter_node(state: State, runtime: Runtime[Context]) -> dict:
             print(f"Defect {idx}: EXCLUDED - {decision.reasoning}")
 
     # Update context with filtered defects
-    runtime.context["defects"] = filtered_defects
     print(f"Filtered defects: {len(filtered_defects)}/{len(defects)} included")
 
-    return {"done_filtering": True}
+    return {"done_filtering": True, "defects": filtered_defects}
 
 
 def defect_signer_node(state: State, runtime: Runtime[Context]) -> dict:
     """Final node that delivers the processed defects."""
-    defects = runtime.context.get("defects", [])
+    defects = state.get("defects", [])
     on_done = runtime.context.get("on_done")
 
     print(
         f"""
 {"-"*100}
 | Defect Signer Node
-| State: {state}
 | Number of final defects: {len(defects)}
 {"-"*100}
 """
@@ -367,6 +386,8 @@ async def run_analysis_async(
             done_validation=False,
             done_filtering=False,
             done_signing=False,
+            raw_defects=[],
+            defects=[],
         ),
         context=Context(
             target=target_user_story,
@@ -374,7 +395,6 @@ async def run_analysis_async(
             context_input=context_input,
             on_done=on_done,
             existing_defects=existing_defects,
-            defects=[],
         ),
         config=RunnableConfig(max_concurrency=3),
     )
@@ -402,6 +422,8 @@ def run_analysis(
             done_validation=False,
             done_filtering=False,
             done_signing=False,
+            raw_defects=[],
+            defects=[],
         ),
         context=Context(
             target=target_user_story,
@@ -409,7 +431,6 @@ def run_analysis(
             context_input=context_input,
             on_done=on_done,
             existing_defects=existing_defects,
-            defects=[],
         ),
         config=RunnableConfig(max_concurrency=3),
     )
@@ -449,6 +470,8 @@ def stream_analysis(
             done_validation=False,
             done_filtering=False,
             done_signing=False,
+            raw_defects=[],
+            defects=[],
         ),
         context=Context(
             target=target_user_story,
@@ -456,7 +479,6 @@ def stream_analysis(
             context_input=context_input,
             on_done=on_done,
             existing_defects=existing_defects,
-            defects=[],
         ),
         config=RunnableConfig(max_concurrency=3, stream=True),
     ):

@@ -71,15 +71,15 @@ async def proposal_content_action(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/{proposal_id}")
+@router.get("/{proposal_id_or_key}")
 async def get_proposal(
-    proposal_id: str,
+    proposal_id_or_key: str,
     jwt_payload: dict = Depends(get_jwt_payload),
     service: ProposalService = Depends(get_proposal_service),
 ):
     """Get a proposal by its ID."""
     try:
-        proposal: ProposalDto = service.get_proposal(proposal_id)
+        proposal: ProposalDto = service.get_proposal(proposal_id_or_key)
         return BasicResponse(data=proposal)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

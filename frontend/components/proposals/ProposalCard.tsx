@@ -338,6 +338,7 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
             <Card
               key={content.id || `${proposal.id}-${index}`}
               variant="outlined"
+              elevation={0}
             >
               <CardContent>
                 <Stack

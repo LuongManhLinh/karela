@@ -17,7 +17,7 @@ class DatabaseConfig:
 class GeminiConfig:
     GEMINI_API_KEYS = os.getenv("GEMINI_API_KEYS", "").split(",")
     GEMINI_API_DEFECT_TEMPERATURE = float(
-        os.getenv("GEMINI_API_DEFECT_TEMPERATURE", "0.1")
+        os.getenv("GEMINI_API_DEFECT_TEMPERATURE", "0")
     )
     GEMINI_API_DEFECT_MODEL = os.getenv("GEMINI_API_DEFECT_MODEL", "gemini-2.0-flash")
     GEMINI_API_CHAT_TEMPERATURE = float(os.getenv("GEMINI_API_CHAT_TEMPERATURE", "0.7"))

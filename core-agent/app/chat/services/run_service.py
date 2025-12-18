@@ -79,7 +79,6 @@ class ChatService:
             history_messages.append(HumanMessage(content=user_message))
             project_key = session.project_key
             story_key = session.story_key
-            print("Starting streaming response from agent...")
             for chunk, _ in stream_with_agent(
                 messages=history_messages,
                 session_id=session_id,
@@ -97,6 +96,7 @@ class ChatService:
                 if isinstance(chunk, AIMessageChunk):
                     fn_call = chunk.additional_kwargs.get("function_call")
                     if fn_call:
+                        print("Function call detected in chunk: ", fn_call)
                         msg_chunk.role = "agent_function_call"
                         msg_chunk.content = fn_call.get("name")
                     else:
@@ -113,9 +113,6 @@ class ChatService:
                     data = yield_after[1]
                     if isinstance(data, MessageChunk):
                         data = data.model_dump()
-                    print(
-                        f"Yielding additional data of type {yield_after[0]}, content: {data}"
-                    )
                     yield {"type": yield_after[0], "data": data}
 
                 stored_chunk = cache.get(msg_chunk.id)
@@ -156,10 +153,10 @@ class ChatService:
     def _additional_from_tool_msg(tool_msg: ToolMessage):
         try:
             match tool_msg.name:
-                case "propose_creating_stories" | "propose_updating_stories":
+                case "update_stories" | "create_stories" | "run_proposal_generation":
                     payload = json.loads(tool_msg.content)
-                    return "proposal", payload["proposal_id"]
-                case "show_analysis_progress_in_chat":
+                    return "proposal", payload["proposal_keys"]
+                case "run_defect_analysis":
                     payload = json.loads(tool_msg.content)
                     return "message", MessageChunk(
                         id=tool_msg.tool_call_id,

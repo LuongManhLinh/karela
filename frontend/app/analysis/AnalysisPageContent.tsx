@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { Box, Button, Stack, Typography, Divider } from "@mui/material";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
 
 import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { SessionItem } from "@/components/SessionList";
@@ -20,6 +21,7 @@ import type {
 import type { JiraConnectionDto } from "@/types/integration";
 import StoryChip from "@/components/StoryChip";
 import DefectCard from "@/components/analysis/DefectCard";
+import { downloadAsJson } from "@/utils/export_utils";
 
 const getStatusColor = (status?: string) => {
   switch (status) {
@@ -404,6 +406,15 @@ const AnalysisPageContent: React.FC = () => {
     }));
   }, [summaries]);
 
+  const handleExportDefects = () => {
+    if (!selectedAnalysisDetail || selectedAnalysisDetail.defects.length === 0)
+      return;
+    const filename = `defects_${selectedAnalysisDetail.key}_${
+      new Date().toISOString().split("T")[0]
+    }`;
+    downloadAsJson(selectedAnalysisDetail.defects, filename);
+  };
+
   const rerunButton = () => {
     const running =
       selectedAnalysisId !== null && pollingIds.includes(selectedAnalysisId);
@@ -455,7 +466,18 @@ const AnalysisPageContent: React.FC = () => {
                   sx={{ mb: 2 }}
                 >
                   <Typography variant="h6">Defects</Typography>
-                  {rerunButton()}
+                  <Stack direction="row" spacing={2}>
+                    {selectedAnalysisDetail.defects.length > 0 && (
+                      <Button
+                        variant="outlined"
+                        startIcon={<FileDownloadIcon />}
+                        onClick={handleExportDefects}
+                      >
+                        Export to JSON
+                      </Button>
+                    )}
+                    {rerunButton()}
+                  </Stack>
                 </Stack>
                 {selectedAnalysisDetail.defects.length === 0 ? (
                   <Typography color="text.secondary">

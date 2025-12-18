@@ -199,7 +199,7 @@ class JiraService:
                     "project": {"key": project_key},
                     "summary": story.summary,
                     "description": md_to_adf(story.description),
-                    "issuetype": {"name": "Task"},
+                    "issuetype": {"name": "Story"},
                 }
             }
         )

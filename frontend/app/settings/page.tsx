@@ -314,7 +314,7 @@ export default function SettingsPage() {
                 color="text.secondary"
                 sx={{ mb: 2, display: "block" }}
               >
-                Last updated: {new Date(settings.last_updated).toLocaleString()}
+                Last updated: {new Date(settings.updated_at).toLocaleString()}
               </Typography>
             )}
             {loading ? (

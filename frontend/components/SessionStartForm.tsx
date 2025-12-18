@@ -13,6 +13,7 @@ import { OpenInNew } from "@mui/icons-material";
 import { LoadingSpinner } from "./LoadingSpinner";
 import type { JiraConnectionDto } from "@/types/integration";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export interface StringOptions {
   options: string[];
@@ -52,6 +53,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
   loadingProjectKeys,
   loadingStoryKeys,
 }) => {
+  const router = useRouter();
   if (connections.length === 0) {
     // No connnections available, add a link to /profile to set up connections
     return (
@@ -66,16 +68,17 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
           No Connections Available
         </Typography>
         <Box>
-          <Link
-            href="/profile"
-            style={{ color: "primary", textDecoration: "underline" }}
+          <Typography
+            variant="body1"
+            sx={{ mb: 1, textDecoration: "underline", cursor: "pointer" }}
+            onClick={() => router.push("/profile")}
           >
             Set up connection
             <OpenInNew
               fontSize="small"
               sx={{ verticalAlign: "middle", ml: 0.5 }}
             />
-          </Link>
+          </Typography>
         </Box>
       </Box>
     );

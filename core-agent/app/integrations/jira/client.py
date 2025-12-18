@@ -81,8 +81,8 @@ class JiraClient:
         resp = requests.post(url, json=payload.model_dump(), headers=headers)
         resp.raise_for_status()
         resp_json = resp.json()
-
-        return resp_json
+        created_issues = resp_json.get("issues", [])
+        return [issue["key"] for issue in created_issues]
 
     @staticmethod
     def create_issue(cloud_id: str, access_token: str, payload: IssueUpdate):
@@ -91,7 +91,6 @@ class JiraClient:
         headers["Content-Type"] = "application/json"
         resp = requests.post(url, json=payload.model_dump(), headers=headers)
         # Log the response for debugging
-        print("Payload:", payload.model_dump_json(indent=2))
         resp.raise_for_status()
 
         return resp.json()["key"]
