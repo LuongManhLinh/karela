@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { userService } from "@/services/userService";
+import { useLoginMutation } from "@/hooks/queries/useUserQueries";
 import { ErrorSnackbar } from "@/components/ErrorSnackbar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { getToken, saveToken } from "@/utils/jwt_utils";
@@ -23,7 +23,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { mutateAsync: login, isPending: isLoginPending } = useLoginMutation();
   const [error, setError] = useState("");
   const [showError, setShowError] = useState(false);
 
@@ -39,19 +39,17 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
     setShowError(false);
 
     try {
-      const response = await userService.authenticate({
+      const response = await login({
         username_or_email: username,
         password,
       });
 
       if (response.data) {
         saveToken(response.data);
-
         router.push("/analysis");
       }
     } catch (err: any) {
@@ -59,8 +57,6 @@ export default function LoginPage() {
         err.response?.data?.detail || "Login failed. Please try again.";
       setError(errorMessage);
       setShowError(true);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -129,7 +125,7 @@ export default function LoginPage() {
               autoFocus
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              disabled={loading}
+              disabled={isLoginPending}
             />
             <TextField
               margin="normal"
@@ -142,17 +138,17 @@ export default function LoginPage() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
+              disabled={isLoginPending}
             />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={loading}
-            >
-              {loading ? <LoadingSpinner size={24} /> : "Sign In"}
-            </Button>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+                disabled={isLoginPending}
+              >
+                {isLoginPending ? <LoadingSpinner size={24} /> : "Sign In"}
+              </Button>
             <Box textAlign="center">
               <Link href="/register" passHref>
                 <MuiLink component="span" variant="body2">

@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { userService } from "@/services/userService";
+import { useRegisterMutation } from "@/hooks/queries/useUserQueries";
 import { ErrorSnackbar } from "@/components/ErrorSnackbar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { getToken } from "@/utils/jwt_utils";
@@ -23,7 +23,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { mutateAsync: register, isPending: isRegisterPending } = useRegisterMutation();
   const [error, setError] = useState("");
   const [showError, setShowError] = useState(false);
 
@@ -51,10 +51,9 @@ export default function RegisterPage() {
       return;
     }
 
-    setLoading(true);
 
     try {
-      await userService.register({
+      await register({
         username,
         email: email || undefined,
         password,
@@ -66,7 +65,7 @@ export default function RegisterPage() {
       setError(errorMessage);
       setShowError(true);
     } finally {
-      setLoading(false);
+      // Loading handled by mutation
     }
   };
 
@@ -134,7 +133,7 @@ export default function RegisterPage() {
               autoFocus
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              disabled={loading}
+              disabled={isRegisterPending}
             />
             <TextField
               margin="normal"
@@ -146,7 +145,7 @@ export default function RegisterPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              disabled={loading}
+              disabled={isRegisterPending}
             />
             <TextField
               margin="normal"
@@ -159,7 +158,7 @@ export default function RegisterPage() {
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
+              disabled={isRegisterPending}
             />
             <TextField
               margin="normal"
@@ -171,16 +170,16 @@ export default function RegisterPage() {
               id="confirmPassword"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              disabled={loading}
+              disabled={isRegisterPending}
             />
             <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              disabled={loading}
+              disabled={isRegisterPending}
             >
-              {loading ? <LoadingSpinner size={24} /> : "Sign Up"}
+              {isRegisterPending ? <LoadingSpinner size={24} /> : "Sign Up"}
             </Button>
             <Box textAlign="center">
               <Link href="/login" passHref>

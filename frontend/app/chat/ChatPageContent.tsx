@@ -47,10 +47,14 @@ import type {
   MessageChunk,
 } from "@/types/chat";
 import type { JiraConnectionDto } from "@/types/integration";
-import { userService } from "@/services/userService";
 import { ProposalCard } from "@/components/proposals/ProposalCard";
 import { SessionItem } from "@/components/SessionList";
 import { getToken } from "@/utils/jwt_utils";
+import { useQueryClient } from "@tanstack/react-query";
+import { useUserConnectionsQuery, useProjectKeysQuery, useIssueKeysQuery } from "@/hooks/queries/useUserQueries";
+import { useChatSessionsQuery, useChatSessionQuery, CHAT_KEYS } from "@/hooks/queries/useChatQueries";
+import { useSessionProposalsQuery, useActOnProposalMutation, useActOnProposalContentMutation } from "@/hooks/queries/useProposalQueries";
+import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 
 const WS_BASE_URL = "ws://localhost:8000/api/v1/chat/";
 
@@ -135,16 +139,34 @@ const ChatPageContent: React.FC = () => {
   const [currentSession, setCurrentSession] = useState<ChatSessionDto | null>(
     null
   );
-  const [connections, setConnections] = useState<JiraConnectionDto[]>([]);
-  const [loadingConnections, setLoadingConnections] = useState<boolean>(true);
-  const [selectedConnection, setSelectedConnnection] =
-    useState<JiraConnectionDto | null>(null);
+  // Global State (Zustand)
+  const { 
+    selectedConnectionId, setSelectedConnectionId,
+    selectedProjectKey, setSelectedProjectKey,
+    selectedStoryKey, setSelectedStoryKey 
+  } = useWorkspaceStore();
 
-  const [projectKeys, setProjectKeys] = useState<string[]>([]);
-  const [projectKey, setProjectKey] = useState("");
+  // Queries
+  const queryClient = useQueryClient();
+  const { data: connectionsData, isLoading: isConnectionsLoading } = useUserConnectionsQuery();
+  
+  // Find full connection object from ID
+  const connections = connectionsData?.data?.jira_connections || [];
+  const selectedConnection = connections.find(c => c.id === selectedConnectionId) || null;
 
-  const [storyKeys, setStoryKeys] = useState<string[]>([]);
-  const [storyKey, setStoryKey] = useState("");
+  const { data: projectKeysData } = useProjectKeysQuery(selectedConnectionId || undefined);
+  const { data: sessionsData, isLoading: isSessionsLoading } = useChatSessionsQuery(selectedConnectionId || undefined);
+  
+  // Ensure projectKey is valid string for queries even if null in store
+  const projectKey = selectedProjectKey || "";
+  const { data: storyKeysData } = useIssueKeysQuery(selectedConnectionId || undefined, projectKey);
+  
+  const projectKeys = projectKeysData?.data || [];
+  const storyKeys = storyKeysData?.data ? ["None", ...storyKeysData.data] : [];
+  const storyKey = selectedStoryKey || "None"; // UI uses "None" string usage in some places logic?
+  // In `loadStoryKeys` previously we prepended "None". Now `storyKeys` has "None".
+  // `storyKey` state was "None" or value.
+  
   const [messages, setMessages] = useState<ChatMessageDto[]>([]);
   const [sessionProposals, setSessionProposals] = useState<ProposalDto[]>([]);
   const [loadingProposals, setLoadingProposals] = useState(false);
@@ -225,9 +247,34 @@ const ChatPageContent: React.FC = () => {
     };
   }, [streamingId, bufferUpdateTrigger]);
 
+  // Initialize connection if none selected or invalid
   useEffect(() => {
-    loadConnections();
-  }, []);
+    if (connections.length > 0) {
+        if (!selectedConnectionId || !connections.find(c => c.id === selectedConnectionId)) {
+            setSelectedConnectionId(connections[0].id);
+        }
+    }
+  }, [connections, selectedConnectionId, setSelectedConnectionId]);
+  
+  // Initialize project key
+  useEffect(() => {
+    // If we have keys but no selection (or selection invalid), select first
+    if (projectKeys.length > 0) {
+        if (!selectedProjectKey || !projectKeys.includes(selectedProjectKey)) {
+             setSelectedProjectKey(projectKeys[0]);
+        }
+    } else if (projectKeys.length === 0 && selectedProjectKey) {
+        // Clear selection if no keys
+        setSelectedProjectKey(null);
+    }
+  }, [projectKeys, selectedProjectKey, setSelectedProjectKey]);
+  
+  // Initialize sessions
+  useEffect(() => {
+    if (sessionsData?.data) {
+        setSessions(sessionsData.data);
+    }
+  }, [sessionsData]);
 
   useEffect(() => {
     const token = getToken();
@@ -269,71 +316,20 @@ const ChatPageContent: React.FC = () => {
     };
   }, []);
 
-  const loadConnections = async () => {
-    setLoadingConnections(true);
-    try {
-      const response = await userService.getUserConnections();
-      if (response.data) {
-        const jiraConnections = response.data.jira_connections || [];
-        setConnections(jiraConnections);
-        if (jiraConnections.length > 0) {
-          const firstConn = jiraConnections[0];
-          setSelectedConnnection(firstConn);
-          await onConnectionChange(firstConn);
-        }
-      }
-    } catch (err) {
-      console.error("Failed to load connections:", err);
-    } finally {
-      setLoadingConnections(false);
-    }
-  };
-
   const onConnectionChange = async (conn: JiraConnectionDto) => {
-    setSelectedConnnection(conn);
-    setCurrentSession(null);
+    setSelectedConnectionId(conn.id);
+    // Zustand handles dependent resets (project, story)
     setMessages([]);
     setSessionProposals([]);
-    await loadSessions(conn.id);
-    await loadProjectKeys(conn.id);
+    setCurrentSession(null);
   };
 
-  const loadProjectKeys = async (connId: string) => {
-    try {
-      const response = await userService.getProjectKeys(connId);
-      if (response.data) {
-        setProjectKeys(response.data);
-        if (response.data.length > 0) {
-          setProjectKey(response.data[0]);
-          await loadStoryKeys(connId, response.data[0]);
-        }
-      }
-    } catch (err) {
-      console.error("Failed to load project keys:", err);
-    }
-  };
-
-  const onProjectKeyChange = async (projKey: string) => {
-    setProjectKey(projKey);
-    setStoryKey("");
-    setStoryKeys([]);
-    await loadStoryKeys(selectedConnection!.id, projKey);
-  };
-
-  const loadStoryKeys = async (connId: string, projKey: string) => {
-    try {
-      const response = await userService.getIssueKeys(connId, projKey);
-      if (response.data) {
-        setStoryKeys(["None", ...response.data]);
-        setStoryKey("None");
-      }
-    } catch (err) {
-      console.error("Failed to load story keys:", err);
-    }
+  const onProjectKeyChange = (projKey: string) => {
+    setSelectedProjectKey(projKey);
   };
 
   const onStoryKeyChange = (sKey: string) => {
-    setStoryKey(sKey);
+    setSelectedStoryKey(sKey === "None" ? null : sKey);
   };
 
   const fetchSessionProposals = useCallback(
@@ -388,26 +384,16 @@ const ChatPageContent: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const loadSessions = useCallback(async (connId: string) => {
-    setLoadingSessions(true);
-    try {
-      const response = await chatService.listChatSessions(connId);
-      if (response.data) {
-        setSessions(response.data);
-      }
-    } catch (err: any) {
-      console.error("Failed to load sessions:", err);
-    } finally {
-      setLoadingSessions(false);
-    }
-  }, []);
+  // Sessions loading handled by query
 
   const loadSession = useCallback(
     async (sessionId: string) => {
       try {
         const response = await chatService.getChatSession(sessionId);
         setCurrentSession(response.data);
-        setProjectKey(response.data?.project_key || "");
+        if (response.data?.project_key) {
+             setSelectedProjectKey(response.data.project_key);
+        }
         setMessages(response.data?.messages || []);
         await fetchSessionProposals(sessionId);
       } catch (err: any) {
@@ -596,7 +582,7 @@ const ChatPageContent: React.FC = () => {
                       id: newSessionId,
                     } as ChatSessionDto)
                 );
-                loadSessions(connId);
+                queryClient.invalidateQueries({ queryKey: CHAT_KEYS.sessions(connId) });
                 fetchSessionProposals(newSessionId);
                 // Don't reload session immediately - let streaming finish
               }
@@ -634,7 +620,6 @@ const ChatPageContent: React.FC = () => {
     [
       handleMessageChunk,
       commitStreamingMessage,
-      loadSessions,
       currentSession?.id,
       fetchSessionProposals,
       handleIncomingProposals,
@@ -642,12 +627,14 @@ const ChatPageContent: React.FC = () => {
   );
 
   const handleSendMessage = async (userMessage: string) => {
-    if (!userMessage.trim() || !selectedConnection || !projectKey) {
+    if (!userMessage.trim() || !selectedConnectionId || !projectKey) {
       return;
     }
 
     const messageToSend = userMessage.trim();
 
+    const storyKeyToUse = selectedStoryKey || undefined;
+    
     // Add user message to UI immediately
     const userMsg: ChatMessageDto = {
       id: Date.now().toString(),
@@ -658,10 +645,10 @@ const ChatPageContent: React.FC = () => {
     setMessages((prev) => [...prev, userMsg]);
 
     connectWebSocket(
-      selectedConnection.id,
+      selectedConnectionId,
       projectKey,
       messageToSend,
-      storyKey || undefined,
+      storyKeyToUse,
       currentSession?.id || undefined
     );
   };
@@ -967,7 +954,7 @@ const ChatPageContent: React.FC = () => {
       selectedSessionId={currentSession?.id}
       onSelectSession={handleSelectSession}
       loadingSessions={loadingSessions}
-      loadingConnections={loadingConnections}
+      loadingConnections={isConnectionsLoading}
       emptyStateText="No chat sessions found"
       sessionListLabel="Chat Sessions"
       rightChildren={messagesPanel}

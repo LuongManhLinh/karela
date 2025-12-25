@@ -18,7 +18,7 @@ redis
 argon2-cffi
 PyJWT
 
-nltk
-sentence-transformers
-torch
+# nltk
+# sentence-transformers
+# torch
 python-dotenv

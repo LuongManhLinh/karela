@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Box, CircularProgress, Typography } from "@mui/material";
 
-export default function OAuthCallbackPage() {
+function OAuthCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -41,6 +41,14 @@ export default function OAuthCallbackPage() {
         Completing Jira connection...
       </Typography>
     </Box>
+  );
+}
+
+export default function OAuthCallbackPage() {
+  return (
+    <Suspense fallback={<CircularProgress />}>
+      <OAuthCallbackContent />
+    </Suspense>
   );
 }
 

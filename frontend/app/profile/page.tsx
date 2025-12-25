@@ -13,7 +13,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { Layout } from "@/components/Layout";
-import { userService } from "@/services/userService";
+import { useCurrentUserQuery, useUserConnectionsQuery, useChangePasswordMutation } from "@/hooks/queries/useUserQueries";
 import { jiraService } from "@/services/jiraService";
 import { ErrorSnackbar } from "@/components/ErrorSnackbar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -26,54 +26,24 @@ import { getToken } from "@/utils/jwt_utils";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [user, setUser] = useState<UserDto | null>(null);
-  const [connections, setConnections] = useState<UserConnections | null>(null);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [changingPassword, setChangingPassword] = useState(false);
+  
+  const { data: userData, isLoading: isUserLoading } = useCurrentUserQuery();
+  const { data: connectionsData, isLoading: isConnectionsLoading } = useUserConnectionsQuery();
+  const { mutateAsync: changePassword, isPending: isChangingPassword } = useChangePasswordMutation();
+
+  const user = userData?.data;
+  const connections = connectionsData?.data;
+  const loading = isUserLoading || isConnectionsLoading;
   const [connectingJira, setConnectingJira] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showError, setShowError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  useEffect(() => {
-    const token = getToken();
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
-    loadUser();
-  }, [router]);
-
-  const loadUser = async () => {
-    try {
-      const [userResponse, connectionsResponse] = await Promise.all([
-        userService.getCurrentUser(),
-        userService.getUserConnections(),
-      ]);
-
-      if (userResponse.data) {
-        setUser(userResponse.data);
-      }
-
-      if (connectionsResponse.data) {
-        setConnections(connectionsResponse.data);
-      }
-    } catch (err: any) {
-      if (err.response?.status === 401) {
-        router.push("/login");
-      } else {
-        setError("Failed to load user information");
-        setShowError(true);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Load user data handles via React Query hooks automatically
 
   const handleConnectJira = async () => {
     setConnectingJira(true);
@@ -108,10 +78,8 @@ export default function ProfilePage() {
       return;
     }
 
-    setChangingPassword(true);
-
     try {
-      await userService.changePassword({
+      await changePassword({
         old_password: oldPassword,
         new_password: newPassword,
       });
@@ -125,8 +93,6 @@ export default function ProfilePage() {
         err.response?.data?.detail || "Failed to change password";
       setError(errorMessage);
       setShowError(true);
-    } finally {
-      setChangingPassword(false);
     }
   };
 
@@ -287,7 +253,7 @@ export default function ProfilePage() {
                 type="password"
                 value={oldPassword}
                 onChange={(e) => setOldPassword(e.target.value)}
-                disabled={changingPassword}
+                disabled={isChangingPassword}
               />
               <TextField
                 fullWidth
@@ -297,7 +263,7 @@ export default function ProfilePage() {
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                disabled={changingPassword}
+                disabled={isChangingPassword}
               />
               <TextField
                 fullWidth
@@ -307,14 +273,14 @@ export default function ProfilePage() {
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                disabled={changingPassword}
+                disabled={isChangingPassword}
               />
               <Button
                 type="submit"
                 variant="contained"
-                disabled={changingPassword}
+                disabled={isChangingPassword}
               >
-                {changingPassword ? (
+                {isChangingPassword ? (
                   <LoadingSpinner size={24} />
                 ) : (
                   "Change Password"
@@ -339,7 +305,7 @@ export default function ProfilePage() {
             <Button
               type="submit"
               variant="contained"
-              disabled={changingPassword}
+              disabled={isChangingPassword}
               onClick={() => router.push("/settings")}
               fullWidth
             >
