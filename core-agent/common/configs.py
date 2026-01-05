@@ -51,3 +51,12 @@ class RedisConfig:
 class AuthConfig:
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "")
     AES_KEY = base64.b64decode(os.getenv("AES_KEY", ""))
+
+
+class VectorStoreConfig:
+    PERSIST_DIRECTORY = os.getenv(
+        "VECTORSTORE_PERSIST_DIRECTORY", "./chroma_langchain_db"
+    )
+    COLLECTION_NAME = os.getenv("VECTORSTORE_COLLECTION_NAME", "karela_collection")
+    HOST = os.getenv("VECTORSTORE_HOST", "localhost")
+    PORT = int(os.getenv("VECTORSTORE_PORT", "8888"))

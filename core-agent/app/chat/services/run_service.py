@@ -98,7 +98,22 @@ class ChatService:
                     if fn_call:
                         print("Function call detected in chunk: ", fn_call)
                         msg_chunk.role = "agent_function_call"
-                        msg_chunk.content = fn_call.get("name")
+                        # fn_name = fn_call.get("name", "UNKNOWN_FUNCTION")
+                        print("Function call content: ", fn_call)
+                        fn_name = fn_call.get("name", "UNKNOWN_FUNCTION")
+                        arg_dict = fn_call.get("arguments", {})
+                        if isinstance(arg_dict, str):
+                            try:
+                                arg_dict = json.loads(arg_dict)
+                            except:
+                                arg_dict = {}
+                        msg_chunk.content = json.dumps(
+                            {
+                                "function_name": fn_name,
+                                "arguments": arg_dict,
+                            },
+                            indent=2,
+                        )
                     else:
                         msg_chunk.role = "agent"
                         msg_chunk.content = chunk.content

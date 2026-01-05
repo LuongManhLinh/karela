@@ -34,7 +34,7 @@ export const CollapsibleMessage: React.FC<CollapsibleMessageProps> = ({
         expanded={expanded}
         onChange={() => setExpanded(!expanded)}
         sx={{
-          borderRadius: 2,
+          // borderRadius: 2,
           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
           "&:before": {
             display: "none",
@@ -51,10 +51,7 @@ export const CollapsibleMessage: React.FC<CollapsibleMessageProps> = ({
             />
           }
           sx={{
-            borderRadius: expanded ? "8px 8px 0 0" : "8px",
-            "&:hover": {
-              bgcolor: theme.palette.mode === "light" ? "#f1f3f5" : "#2d3748",
-            },
+            borderRadius: 2,
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>

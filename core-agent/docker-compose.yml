@@ -18,5 +18,17 @@ services:
     volumes:
       - redis_data:/data
 
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: karela_chroma
+    ports:
+      - "8888:8000"
+    environment:
+      - CHROMA_DB_IMPL=duckdb+parquet
+      - CHROMA_SERVER_ALLOW_RESET=True
+    volumes:
+      - ./chroma_data:/data/chromadb
+
 volumes:
   redis_data:
+  chroma_data:

@@ -6,35 +6,8 @@ from app.proposal.services import ProposalService, ProposalRunService
 from app.proposal.schemas import CreateProposalRequest, ProposeStoryRequest
 from app.analysis.services import AnalysisDataService, DefectService
 from app.integrations.jira.services import JiraService
+from app.integrations.jira.vectorstore import JiraVectorStore
 from app.analysis.tasks import analyze_target_user_story
-
-from llm.dynamic_agent import GenimiDynamicAgent
-from common.configs import GeminiConfig
-from langchain.messages import HumanMessage
-from pydantic import BaseModel
-
-
-class FilteredStoriesResponse(BaseModel):
-    stories: list[dict]
-
-
-# A lightweight model for keywords filtering, a temp placeholder for vector DB or embedding model
-keyword_filter_agent = GenimiDynamicAgent(
-    system_prompt="""You are a **Keyword Filter** specialized in filtering user stories based on keywords.
-
-## Responsibilities
-1. Given a list of user stories and a set of keywords, filter out the stories that are not relevant to the keywords.
-
-## Output Format
-- Return a JSON array of relevant user stories, including their key, summary, and description.
-""",
-    model_name="gemini-2.0-flash-lite",
-    temperature=0,
-    api_keys=GeminiConfig.GEMINI_API_KEYS,
-    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
-    response_mime_type="application/json",
-    response_schema=FilteredStoriesResponse,
-)
 
 
 @tool
@@ -46,6 +19,7 @@ def search_stories_by_keywords(keywords: str, runtime: ToolRuntime) -> str:
 
     Returns:
         str: A JSON string containing: the list of matching user stories or an error message.
+            Disclaimer: results are based on similarity search and may not be exact matches.
     """
     print(
         f"""
@@ -68,27 +42,17 @@ def search_stories_by_keywords(keywords: str, runtime: ToolRuntime) -> str:
                 {"error": f"{item_name} not found. Cannot retrieve stories."},
                 indent=2,
             )
-    story_service = JiraService(db_session)
 
-    stories = story_service.fetch_stories(
-        connection_id=connection_id, project_key=project_key
+    vector_store = JiraVectorStore()
+    stories = vector_store.retrieve_similar_stories(
+        connection_id=connection_id,
+        project_key=project_key,
+        query=keywords,
+        k=10,
+        min_similarity=0.25,
     )
 
-    stories_to_filter = json.dumps(
-        {"stories": [story.model_dump() for story in stories]}, indent=2
-    )
-    resp = keyword_filter_agent.invoke(
-        messages=[
-            HumanMessage(
-                content="Stories to filter:\n"
-                + stories_to_filter
-                + "\n\nKeywords: "
-                + keywords
-            )
-        ],
-        stream_mode="values",
-    )["structured_response"]
-    return resp.model_dump_json(indent=2)
+    return json.dumps({"stories": [story.model_dump() for story in stories]}, indent=2)
 
 
 @tool

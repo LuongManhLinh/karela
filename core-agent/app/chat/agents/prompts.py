@@ -20,7 +20,8 @@ SYSTEM_PROMPT = """You are a **Discovery Coach** specialized in **software requi
 
 ### Backlog QA
 - Retrieve unknown stories using tools
-- If retrieved stories are not relevant to the keywords, filter them out
+- Retrieved stories MAY NOT be exact matches because they are found via similarity search
+- You need to filter unwanted stories yourself
 - **Summarize** content unless exact details requested
 
 ### Defect Analysis

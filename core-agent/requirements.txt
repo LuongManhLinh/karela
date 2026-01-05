@@ -10,6 +10,7 @@ langchain
 langgraph
 langchain-google-genai
 langchain-openai
+langchain-chroma
 pydantic
 pymysql
 html2text

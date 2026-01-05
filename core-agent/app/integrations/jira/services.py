@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from typing import List, Optional
 
 from utils.markdown_adf_bridge.markdown_adf_bridge import md_to_adf, adf_to_md
@@ -9,7 +9,7 @@ from common.schemas import Platform
 from common.database import uuid_generator
 from app.integrations.models import Connection
 from .client import JiraClient
-from .models import JiraConnection
+from .models import JiraConnection, JiraProject, JiraStory
 from .schemas import (
     StoryDto,
     CreateIssuesRequest,
@@ -19,10 +19,13 @@ from .schemas import (
     CreateStoryRequest,
 )
 
+from .vectorstore import JiraVectorStore
+
 
 class JiraService:
     def __init__(self, db: Session):
         self.db = db
+        self.vector_store = JiraVectorStore()
 
     def save_connection(self, user_id: str, code: str):
         exchange_resp = JiraClient.exchange_authorization_code(
@@ -65,6 +68,8 @@ class JiraService:
 
             self.db.add(existing_connection)
             self.db.commit()
+
+            self._on_connection_update(existing_connection)
             return 2
 
         jira_conn_id = uuid_generator()
@@ -89,6 +94,8 @@ class JiraService:
         )
         self.db.add_all([jira_connection, connection])
         self.db.commit()
+
+        self._on_connection_update(jira_connection)
 
         return 1
 
@@ -175,12 +182,17 @@ class JiraService:
             ]
         )
 
-        return self._exec_refreshing_access_token(
+        created_keys = self._exec_refreshing_access_token(
             connection,
             JiraClient.create_issues,
             cloud_id=connection.cloud_id,
             payload=payload,
         )
+
+        if created_keys:
+            self._on_stories_create(connection_id, project_key, created_keys)
+
+        return created_keys
 
     def create_story(
         self, connection_id: str, project_key: str, story: CreateStoryRequest
@@ -204,12 +216,17 @@ class JiraService:
             }
         )
 
-        return self._exec_refreshing_access_token(
+        story_key = self._exec_refreshing_access_token(
             connection,
             JiraClient.create_issue,
             cloud_id=connection.cloud_id,
             payload=payload,
         )
+
+        # Update local data, vector store, and Jira
+        self._on_stories_create(connection_id, project_key, [story_key])
+
+        return story_key
 
     def fetch_issues(
         self,
@@ -218,8 +235,9 @@ class JiraService:
         fields: List[str],
         max_results: int | None = None,
         expand_rendered_fields: bool = False,
+        local: bool = True,
     ) -> List[Issue]:
-        """Fetch issues directly from Jira based on JQL query
+        """Fetch issues from local cache or Jira based on JQL query
 
         Args:
             connection_id (str): Jira connection ID
@@ -227,6 +245,7 @@ class JiraService:
             fields (List[str]): List of fields to fetch
             max_results (int): Maximum number of results to fetch
             expand_rendered_fields (bool): Whether to expand rendered fields
+            local (bool): Fetch from local cache (True) or from Jira (False). Defaults to True.
         Returns:
             List[Issue]: List of fetched issues
         """
@@ -237,6 +256,10 @@ class JiraService:
         )
         if not connection:
             raise ValueError("Connection not found")
+
+        if local:
+            # TODO: support JQL parsing for local cache; currently return empty list
+            return []
 
         response = self._exec_refreshing_access_token(
             connection,
@@ -255,17 +278,65 @@ class JiraService:
         project_key: str,
         story_keys: List[str] | None = None,
         max_results: int | None = None,
+        local: bool = True,
     ) -> List[StoryDto]:
-        """Fetch story issues from Jira for a specific project
+        """Fetch story issues from local cache or Jira for a specific project
 
         Args:
             connection_id (str): Jira connection ID
             project_key (str): The project key to fetch stories from
-            issue_keys (List[str], optional): Specific issue keys to fetch. Defaults to None.
+            story_keys (List[str], optional): Specific issue keys to fetch. Defaults to None.
             max_results (int, optional): Maximum number of results to fetch. Defaults to None.
+            local (bool): Fetch from local cache (True) or from Jira (False). Defaults to True.
         Returns:
             List[StoryDto]: List of fetched story issues
         """
+        if local:
+            # Fetch from local database
+            connection = (
+                self.db.query(JiraConnection)
+                .filter(JiraConnection.id == connection_id)
+                .first()
+            )
+            if not connection:
+                raise ValueError("Connection not found")
+
+            # Get project
+            project = (
+                self.db.query(JiraProject)
+                .filter(
+                    JiraProject.jira_connection_id == connection_id,
+                    JiraProject.key == project_key,
+                )
+                .first()
+            )
+            if not project:
+                return []
+
+            # Get stories
+            query = self.db.query(JiraStory).filter(
+                JiraStory.jira_project_id == project.id
+            )
+
+            if story_keys:
+                query = query.filter(JiraStory.key.in_(story_keys))
+
+            if max_results:
+                query = query.limit(max_results)
+
+            stories = query.all()
+
+            return [
+                StoryDto(
+                    id=story.id,
+                    key=story.key,
+                    summary=story.summary,
+                    description=story.description,
+                )
+                for story in stories
+            ]
+
+        # Fetch from Jira
         issues = self.fetch_issues(
             connection_id=connection_id,
             jql=f'project = "{project_key}" AND issuetype = Story'
@@ -273,6 +344,7 @@ class JiraService:
             fields=["summary", "description", "priority"],
             max_results=max_results,
             expand_rendered_fields=False,
+            local=False,
         )
 
         return [
@@ -295,7 +367,19 @@ class JiraService:
         issue_key: str,
         fields: List[str],
         expand_rendered_fields: bool = False,
+        local: bool = True,
     ) -> Issue:
+        """Fetch a single issue from local cache or Jira
+
+        Args:
+            connection_id (str): Jira connection ID
+            issue_key (str): The issue key to fetch
+            fields (List[str]): List of fields to fetch
+            expand_rendered_fields (bool): Whether to expand rendered fields
+            local (bool): Fetch from local cache (True) or from Jira (False). Defaults to True.
+        Returns:
+            Issue: The fetched issue
+        """
         connection = (
             self.db.query(JiraConnection)
             .filter(JiraConnection.id == connection_id)
@@ -303,6 +387,29 @@ class JiraService:
         )
         if not connection:
             raise ValueError("Connection not found")
+
+        if local:
+            # Fetch from local database
+            story = (
+                self.db.query(JiraStory)
+                .join(JiraProject)
+                .filter(
+                    JiraProject.jira_connection_id == connection_id,
+                    JiraStory.key == issue_key,
+                )
+                .first()
+            )
+            if story:
+                # Convert to Issue object for consistency
+                return Issue(
+                    id=story.id,
+                    key=story.key,
+                    fields={
+                        "summary": story.summary,
+                        "description": story.description,
+                    },
+                )
+            return None
 
         response = self._exec_refreshing_access_token(
             connection,
@@ -338,6 +445,17 @@ class JiraService:
             description=md_to_adf(description) if description else None,
         )
 
+        # Get project key from the issue
+        project = (
+            self.db.query(JiraProject)
+            .join(JiraStory)
+            .filter(JiraStory.key == issue_key)
+            .first()
+        )
+        if project:
+            # Update local data and vector store
+            self._on_stories_update(connection_id, project.key, [issue_key])
+
     def delete_issue(self, connection_id: str, issue_key: str):
         connection = (
             self.db.query(JiraConnection)
@@ -347,12 +465,25 @@ class JiraService:
         if not connection:
             raise ValueError("Connection not found")
 
+        # Get project key and story before deletion
+        story = (
+            self.db.query(JiraStory)
+            .join(JiraProject)
+            .filter(JiraStory.key == issue_key)
+            .first()
+        )
+        project_key = story.jira_project.key if story else None
+
         self._exec_refreshing_access_token(
             connection,
             JiraClient.delete_issue,
             cloud_id=connection.cloud_id,
             issue_key=issue_key,
         )
+
+        # Update local data and vector store
+        if project_key:
+            self._on_stories_delete(connection_id, project_key, [issue_key])
 
     def get_project_settings(
         self,
@@ -475,3 +606,256 @@ class JiraService:
             cloud_id=connection.cloud_id,
             project_key=project_key,
         )
+
+    def _on_connection_update(self, connection: JiraConnection):
+        """Fetch projects and stories from Jira and cache them locally, including vector store"""
+        try:
+            # Clear existing projects and stories for this connection
+            self.db.query(JiraProject).filter(
+                JiraProject.jira_connection_id == connection.id
+            ).delete()
+            self.db.commit()
+
+            # Fetch all projects from Jira
+            print("Fetching projects from Jira...")
+            projects_data = self._exec_refreshing_access_token(
+                connection,
+                JiraClient.fetch_projects,
+                cloud_id=connection.cloud_id,
+            )
+
+            # Save projects and fetch stories for each
+            for project_data in projects_data:
+                print("Processing project:", project_data["key"])
+                jira_project = JiraProject(
+                    id=project_data.get("id", uuid_generator()),
+                    key=project_data["key"],
+                    name=project_data["name"],
+                    jira_connection_id=connection.id,
+                )
+                self.db.add(jira_project)
+                self.db.flush()
+
+                project_stories: list[StoryDto] = []
+
+                # Fetch stories for this project
+                issues = self.fetch_issues(
+                    connection_id=connection.id,
+                    jql=f'project = "{project_data["key"]}" AND issuetype = Story',
+                    fields=["summary", "description"],
+                    local=False,
+                )
+
+                # Save stories locally
+                for issue in issues:
+                    description_md = (
+                        adf_to_md(issue.fields.description)
+                        if issue.fields.description
+                        else None
+                    )
+                    jira_story = JiraStory(
+                        id=issue.id or uuid_generator(),
+                        key=issue.key,
+                        summary=issue.fields.summary,
+                        description=description_md,
+                        jira_project_id=jira_project.id,
+                    )
+                    self.db.add(jira_story)
+                    project_stories.append(
+                        StoryDto(
+                            id=jira_story.id,
+                            key=issue.key,
+                            summary=issue.fields.summary,
+                            description=description_md,
+                        )
+                    )
+
+                # Push this project's stories to vector store
+                if project_stories:
+                    print("Persisting stories to vector store...")
+                    self.vector_store.add_stories(
+                        connection_id=connection.id,
+                        project_key=project_data["key"],
+                        stories=project_stories,
+                    )
+
+            self.db.commit()
+
+        except Exception as e:
+            self.db.rollback()
+            print(f"Error updating connection: {e}")
+            raise
+
+    def _on_stories_create(
+        self, connection_id: str, project_key: str, story_ids_or_keys: List[str]
+    ):
+        """Handle story creation: save to local DB and vector store"""
+        try:
+            # Get connection
+            connection = (
+                self.db.query(JiraConnection)
+                .filter(JiraConnection.id == connection_id)
+                .first()
+            )
+            if not connection:
+                return
+
+            # Get project
+            project = (
+                self.db.query(JiraProject)
+                .filter(
+                    JiraProject.jira_connection_id == connection_id,
+                    JiraProject.key == project_key,
+                )
+                .first()
+            )
+            if not project:
+                return
+
+            to_vector: list[StoryDto] = []
+
+            for story_identifier in story_ids_or_keys:
+                issue = self.fetch_issue(
+                    connection_id=connection_id,
+                    issue_key=story_identifier,
+                    fields=["summary", "description"],
+                    local=False,
+                )
+                if not issue:
+                    continue
+
+                description_md = (
+                    adf_to_md(issue.fields.description)
+                    if issue.fields.description
+                    else None
+                )
+                jira_story = JiraStory(
+                    key=issue.key,
+                    summary=issue.fields.summary,
+                    description=description_md,
+                    jira_project_id=project.id,
+                )
+                self.db.add(jira_story)
+                to_vector.append(
+                    StoryDto(
+                        id=jira_story.id,
+                        key=issue.key,
+                        summary=issue.fields.summary,
+                        description=description_md,
+                    )
+                )
+
+            self.db.commit()
+
+            if to_vector:
+                self.vector_store.add_stories(
+                    connection_id=connection_id,
+                    project_key=project_key,
+                    stories=to_vector,
+                )
+
+        except Exception as e:
+            self.db.rollback()
+            print(f"Error creating story: {e}")
+            raise
+
+    def _on_stories_update(
+        self, connection_id: str, project_key: str, story_ids_or_keys: List[str]
+    ):
+        """Handle story update: update local DB and vector store"""
+        try:
+            stories = (
+                self.db.query(JiraStory)
+                .join(JiraProject)
+                .filter(
+                    JiraProject.jira_connection_id == connection_id,
+                    JiraProject.key == project_key,
+                    or_(
+                        JiraStory.key.in_(story_ids_or_keys),
+                        JiraStory.id.in_(story_ids_or_keys),
+                    ),
+                )
+                .all()
+            )
+            if not stories:
+                return
+
+            to_vector: list[StoryDto] = []
+
+            for story in stories:
+                issue = self.fetch_issue(
+                    connection_id=connection_id,
+                    issue_key=story.key,
+                    fields=["summary", "description"],
+                    local=False,
+                )
+                if not issue:
+                    continue
+
+                description_md = (
+                    adf_to_md(issue.fields.description)
+                    if issue.fields.description
+                    else None
+                )
+                story.summary = issue.fields.summary
+                story.description = description_md
+
+                to_vector.append(
+                    StoryDto(
+                        id=story.id,
+                        key=story.key,
+                        summary=issue.fields.summary,
+                        description=description_md,
+                    )
+                )
+
+            self.db.commit()
+
+            if to_vector:
+                self.vector_store.update_stories(
+                    connection_id=connection_id,
+                    project_key=project_key,
+                    stories=to_vector,
+                )
+
+        except Exception as e:
+            self.db.rollback()
+            print(f"Error updating story: {e}")
+            raise
+
+    def _on_stories_delete(
+        self, connection_id: str, project_key: str, story_ids_or_keys: List[str]
+    ):
+        """Handle story deletion: remove from local DB and vector store"""
+        try:
+            # Get the story from local DB
+            stories = (
+                self.db.query(JiraStory)
+                .join(JiraProject)
+                .filter(
+                    JiraProject.jira_connection_id == connection_id,
+                    JiraProject.key == project_key,
+                    or_(
+                        JiraStory.key.in_(story_ids_or_keys),
+                        JiraStory.id.in_(story_ids_or_keys),
+                    ),
+                )
+                .all()
+            )
+
+            ids_to_delete = []
+            for story in stories:
+                self.db.delete(story)
+                ids_to_delete.append(story.id)
+            self.db.commit()
+
+            self.vector_store.remove_stories(
+                connection_id=connection_id,
+                project_key=project_key,
+                story_ids=ids_to_delete,
+            )
+
+        except Exception as e:
+            self.db.rollback()
+            print(f"Error deleting story: {e}")
+            raise

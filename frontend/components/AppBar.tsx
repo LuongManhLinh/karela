@@ -64,8 +64,9 @@ export const MyAppBar: React.FC<{
               sx={{
                 px: 1,
                 py: 0.4,
-                bgcolor:
-                  pathname === page.href ? "action.selected" : "transparent",
+                bgcolor: pathname.includes(page.href)
+                  ? "action.selected"
+                  : "transparent",
               }}
             >
               {page.name}

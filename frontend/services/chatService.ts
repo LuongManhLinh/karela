@@ -2,11 +2,20 @@ import apiClient from "./api";
 import type { BasicResponse } from "@/types";
 import type {
   ChatSessionSummary,
-  ChatMessageDto,
   ChatSessionDto,
+  ChatSessionCreateRequest,
 } from "@/types/chat";
 
 export const chatService = {
+  createChatSession: async (
+    request: ChatSessionCreateRequest
+  ): Promise<BasicResponse<string>> => {
+    const response = await apiClient.post<BasicResponse<string>>(
+      "/chat/",
+      request
+    );
+    return response.data;
+  },
   listChatSessions: async (
     connectionId: string
   ): Promise<BasicResponse<ChatSessionSummary[]>> => {

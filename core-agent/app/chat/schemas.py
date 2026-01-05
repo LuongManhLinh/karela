@@ -17,7 +17,6 @@ MessageRole = Literal[
 class ChatSessionCreateRequest(BaseModel):
     connection_id: str
     project_key: str
-    user_message: str
     story_key: Optional[str] = None
 
     model_config = ConfigDict(

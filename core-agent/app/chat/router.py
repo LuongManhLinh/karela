@@ -10,9 +10,7 @@ from app.service_factory import (
     get_chat_service,
 )
 from .services import ChatDataService, ChatService
-from .schemas import (
-    ChatSessionSummary,
-)
+from .schemas import ChatSessionSummary, ChatSessionCreateRequest
 from common.schemas import BasicResponse
 from utils.security_utils import verify_jwt
 
@@ -23,10 +21,11 @@ router = APIRouter()
 async def websocket_chat(
     websocket: WebSocket,
     chat_service: ChatService = Depends(get_chat_service),
-    data_service: ChatDataService = Depends(get_chat_data_service),
 ):
+    print("Waiting for WS connection...")
     await websocket.accept()
 
+    print("WS connected, waiting for init message...")
     try:
         # First message MUST contain user auth + optional session
         raw = await websocket.receive_text()
@@ -50,36 +49,17 @@ async def websocket_chat(
             await websocket.close(code=4401, reason="Malformed token")
             return
 
-        connection_id = init.get("connection_id")
-        if not connection_id:
-            await websocket.close(code=4401, reason="Connection ID missing")
-            return
-
-        project_key = init.get("project_key")
-        if not project_key:
-            await websocket.close(code=4401, reason="Project key missing")
-            return
-
         user_message = init.get("user_message")
         if not user_message:
             await websocket.close(code=4401, reason="Message missing")
             return
 
-        story_key = init.get("story_key")
-
         session_id = init.get("session_id")
 
         if not session_id:
-            # Create new chat session
-            session_id = data_service.create_chat_session(
-                connection_id=connection_id,
-                project_key=project_key,
-                story_key=story_key,
-            )
+            await websocket.close(code=4404, reason="Session ID missing")
+            return
         print(f"WS connected: session_id={session_id}")
-
-        # Always send session ID back
-        await websocket.send_json({"type": "session_id", "data": session_id})
 
         print(f"Received message: {user_message}")
 
@@ -97,6 +77,19 @@ async def websocket_chat(
         await websocket.close()
         if session_id:
             chat_service.persist_messages(session_id=session_id)
+
+
+@router.post("/")
+async def create_chat_session(
+    request_body: ChatSessionCreateRequest,
+    service: ChatDataService = Depends(get_chat_data_service),
+):
+    session_id = service.create_chat_session(
+        connection_id=request_body.connection_id,
+        project_key=request_body.project_key,
+        story_key=request_body.story_key,
+    )
+    return BasicResponse(data=session_id)
 
 
 @router.get("/")
@@ -120,6 +113,4 @@ async def get_session_detail(
     service: ChatDataService = Depends(get_chat_data_service),
 ):
     dto = service.get_chat_session(session_id=session_id)
-    for message in dto.messages:
-        print(f"Message: {message.role} - {message.content[:30]}...")
     return BasicResponse(data=dto)
