@@ -68,8 +68,10 @@ export const userService = {
     return response.data;
   },
 
-  refreshData: async (): Promise<BasicResponse> => {
-    const response = await apiClient.post<BasicResponse>("/users/refresh-data");
+  deleteConnection: async (connectionId: string): Promise<BasicResponse> => {
+    const response = await apiClient.delete<BasicResponse>(
+      `/users/connections/${connectionId}`
+    );
     return response.data;
   },
 };

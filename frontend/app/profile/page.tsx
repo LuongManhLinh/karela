@@ -11,9 +11,19 @@ import {
   Stack,
   Alert,
   CircularProgress,
+  IconButton,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  useTheme,
 } from "@mui/material";
 import { Layout } from "@/components/Layout";
-import { useCurrentUserQuery, useUserConnectionsQuery, useChangePasswordMutation } from "@/hooks/queries/useUserQueries";
+import {
+  useCurrentUserQuery,
+  useUserConnectionsQuery,
+  useChangePasswordMutation,
+} from "@/hooks/queries/useUserQueries";
 import { jiraService } from "@/services/jiraService";
 import { ErrorSnackbar } from "@/components/ErrorSnackbar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -21,18 +31,36 @@ import { useRouter } from "next/navigation";
 import type { UserConnections } from "@/types/user";
 import type { JiraConnectionDto } from "@/types/integration";
 import type { UserDto } from "@/types/user";
-import { Add, Link as LinkIcon } from "@mui/icons-material";
+import {
+  Add,
+  Link as LinkIcon,
+  MoreVert,
+  Edit,
+  Delete,
+} from "@mui/icons-material";
 import { getToken } from "@/utils/jwt_utils";
+import { userService } from "@/services/userService";
 
 export default function ProfilePage() {
   const router = useRouter();
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedConnectionId, setSelectedConnectionId] = useState<
+    string | null
+  >(null);
+  const menuOpen = Boolean(menuAnchorEl);
+
   const { data: userData, isLoading: isUserLoading } = useCurrentUserQuery();
-  const { data: connectionsData, isLoading: isConnectionsLoading } = useUserConnectionsQuery();
-  const { mutateAsync: changePassword, isPending: isChangingPassword } = useChangePasswordMutation();
+  const {
+    data: connectionsData,
+    isLoading: isConnectionsLoading,
+    refetch: refetchConnections,
+  } = useUserConnectionsQuery();
+
+  const { mutateAsync: changePassword, isPending: isChangingPassword } =
+    useChangePasswordMutation();
 
   const user = userData?.data;
   const connections = connectionsData?.data;
@@ -43,7 +71,35 @@ export default function ProfilePage() {
   const [showError, setShowError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  const theme = useTheme();
+
   // Load user data handles via React Query hooks automatically
+
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLElement>,
+    connectionId: string
+  ) => {
+    setMenuAnchorEl(event.currentTarget);
+    setSelectedConnectionId(connectionId);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+    setSelectedConnectionId(null);
+  };
+
+  const handleUpdateConnection = () => {
+    console.log("Update connection:", selectedConnectionId);
+    handleMenuClose();
+  };
+
+  const handleDeleteConnection = () => {
+    userService.deleteConnection(selectedConnectionId!).then(() => {
+      // Optionally, you can refetch the connections or update the state to reflect the deletion
+      refetchConnections();
+    });
+    handleMenuClose();
+  };
 
   const handleConnectJira = async () => {
     setConnectingJira(true);
@@ -177,12 +233,7 @@ export default function ProfilePage() {
                     gap: 2,
                     p: 2,
                     borderRadius: 1,
-                    bgcolor: "background.paper",
-                    transition: "all 0.2s",
-                    "&:hover": {
-                      elevation: 2,
-                      transform: "translateY(-2px)",
-                    },
+                    border: `1.5px solid ${theme.palette.divider}`,
                   }}
                 >
                   {conn.avatar_url && (
@@ -203,7 +254,9 @@ export default function ProfilePage() {
                       </Typography>
                     )}
                   </Box>
-                  <LinkIcon color="action" />
+                  <IconButton onClick={(e) => handleMenuOpen(e, conn.id)}>
+                    <MoreVert />
+                  </IconButton>
                 </Paper>
               ))
             ) : (
@@ -228,6 +281,39 @@ export default function ProfilePage() {
                 "Connect Jira Account"
               )}
             </Button>
+            <Menu
+              anchorEl={menuAnchorEl}
+              open={menuOpen}
+              onClose={handleMenuClose}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "right",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              slotProps={{
+                paper: {
+                  sx: {
+                    bgcolor: "background.default",
+                  },
+                },
+              }}
+            >
+              <MenuItem onClick={handleUpdateConnection}>
+                <ListItemIcon>
+                  <Edit fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Update</ListItemText>
+              </MenuItem>
+              <MenuItem onClick={handleDeleteConnection}>
+                <ListItemIcon>
+                  <Delete fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Delete</ListItemText>
+              </MenuItem>
+            </Menu>
           </Stack>
         </Paper>
 

@@ -127,18 +127,7 @@ const ChatDetailPage: React.FC = () => {
           justifyContent: "center",
         }}
       >
-        <Paper
-          elevation={4}
-          sx={{
-            p: 2,
-            mt: 0,
-            borderRadius: 2.5,
-            flexShrink: 0,
-            width: "100%",
-          }}
-        >
-          <ChatSection sendMessage={handleSendMessage} disabled={false} />
-        </Paper>
+        <ChatSection sendMessage={handleSendMessage} disabled={false} />
       </Box>
       <ErrorSnackbar
         open={showError}

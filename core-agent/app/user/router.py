@@ -140,8 +140,9 @@ def get_story_keys(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.post("/refresh-data")
-def refresh_jira_data(
+@router.delete("/connections/{connection_id}")
+def delete_connection(
+    connection_id: str,
     service: JiraService = Depends(get_jira_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
@@ -149,8 +150,10 @@ def refresh_jira_data(
     if user_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
-        service.refresh_data_for_user(user_id=user_id)
-        return BasicResponse(detail="Jira data refreshed successfully")
-    except Exception as e:
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+        service.delete_connection(user_id=user_id, connection_id=connection_id)
+        return BasicResponse(detail="Connection deleted successfully")
+
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))

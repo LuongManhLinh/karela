@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, Text, Enum as SqlEnum, Integer
-from common.database import Base, uuid_generator
+from common.database import Base
 from common.schemas import Platform
 
 

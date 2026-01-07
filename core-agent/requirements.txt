@@ -1,4 +1,3 @@
-weaviate-client
 pandas
 requests
 tqdm
@@ -18,8 +17,10 @@ rq
 redis
 argon2-cffi
 PyJWT
+cryptography
 
 # nltk
 # sentence-transformers
 # torch
 python-dotenv
+gherlint

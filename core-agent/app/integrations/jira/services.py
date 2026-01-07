@@ -22,6 +22,11 @@ from .schemas import (
 from .vectorstore import JiraVectorStore
 
 
+AC_ISSUE_TYPE_NAME = "Gherkin Test"
+AC_ISSUE_TYPE_DESCRIPTION = "Issue type for Gherkin acceptance criteria"
+AC_ISSUE_TYPE_LEVEL = "subtask"
+
+
 class JiraService:
     def __init__(self, db: Session):
         self.db = db
@@ -69,7 +74,10 @@ class JiraService:
             self.db.add(existing_connection)
             self.db.commit()
 
-            self._on_connection_update(existing_connection)
+            # self._on_connection_update(existing_connection)
+            issue_type_id = self._create_ac_issue_type(existing_connection)
+            print("Created AC issue type with ID:", issue_type_id)
+            self._update_issue_type_for_connection(existing_connection, issue_type_id)
             return 2
 
         jira_conn_id = uuid_generator()
@@ -96,6 +104,8 @@ class JiraService:
         self.db.commit()
 
         self._on_connection_update(jira_connection)
+        issue_type_id = self._create_ac_issue_type(jira_connection)
+        self._update_issue_type_for_connection(jira_connection, issue_type_id)
 
         return 1
 
@@ -555,7 +565,9 @@ class JiraService:
         self.db.delete(connection)
         self.db.commit()
 
-    def fetch_project_keys(self, user_id: str, connection_id_or_name: str) -> List[str]:
+    def fetch_project_keys(
+        self, user_id: str, connection_id_or_name: str, local: bool = True
+    ) -> List[str]:
         """Fetch all project keys from Jira
 
         Args:
@@ -573,8 +585,20 @@ class JiraService:
             )
             .first()
         )
+
         if not connection:
             raise ValueError("Connection not found")
+
+        if local:
+            if not connection:
+                raise ValueError("Connection not found")
+
+            projects = (
+                self.db.query(JiraProject.key)
+                .filter(JiraProject.jira_connection_id == connection.id)
+                .all()
+            )
+            return [project.key for project in projects]
 
         return self._exec_refreshing_access_token(
             connection,
@@ -582,7 +606,9 @@ class JiraService:
             cloud_id=connection.cloud_id,
         )
 
-    def fetch_story_keys(self, connection_id: str, project_key: str) -> List[str]:
+    def fetch_story_keys(
+        self, connection_id: str, project_key: str, local: bool = True
+    ) -> List[str]:
         """Fetch all story issue keys for a specific project
 
         Args:
@@ -599,6 +625,25 @@ class JiraService:
         )
         if not connection:
             raise ValueError("Connection not found")
+
+        if local:
+            project = (
+                self.db.query(JiraProject.id)
+                .filter(
+                    JiraProject.jira_connection_id == connection_id,
+                    JiraProject.key == project_key,
+                )
+                .first()
+            )
+            if not project:
+                raise ValueError(f"Project {project_key} not found")
+
+            stories = (
+                self.db.query(JiraStory.key)
+                .filter(JiraStory.jira_project_id == project.id)
+                .all()
+            )
+            return [story.key for story in stories]
 
         return self._exec_refreshing_access_token(
             connection,
@@ -628,7 +673,7 @@ class JiraService:
             for project_data in projects_data:
                 print("Processing project:", project_data["key"])
                 jira_project = JiraProject(
-                    id=project_data.get("id", uuid_generator()),
+                    id=project_data["id"],
                     key=project_data["key"],
                     name=project_data["name"],
                     jira_connection_id=connection.id,
@@ -684,6 +729,21 @@ class JiraService:
         except Exception as e:
             self.db.rollback()
             print(f"Error updating connection: {e}")
+            raise
+
+    def _update_issue_type_for_connection(
+        self, connection: JiraConnection, issue_type_id: str
+    ):
+        print("Updating 'AC' issue type for all projects in the connection...")
+        try:
+            self._exec_refreshing_access_token(
+                connection=connection,
+                func=JiraClient.add_issue_type_to_activated_schemes,
+                cloud_id=connection.cloud_id,
+                issue_type_id=issue_type_id,
+            )
+        except Exception as e:
+            print(f"Error adding issue type to projects: {e}")
             raise
 
     def _on_stories_create(
@@ -859,3 +919,60 @@ class JiraService:
             self.db.rollback()
             print(f"Error deleting story: {e}")
             raise
+
+    def _create_ac_issue_type(self, connection: JiraConnection):
+        """Create 'AC' issue type in Jira if it doesn't exist"""
+        try:
+            print("Creating 'AC' issue type in Jira...")
+            issue_type_id = self._exec_refreshing_access_token(
+                connection=connection,
+                func=JiraClient.create_issue_type,
+                cloud_id=connection.cloud_id,
+                name=AC_ISSUE_TYPE_NAME,
+                description=AC_ISSUE_TYPE_DESCRIPTION,
+                level=AC_ISSUE_TYPE_LEVEL,
+            )
+            print("Created 'AC' issue type with ID:", issue_type_id)
+            return issue_type_id
+        except Exception as e:
+            if "409" in str(e):
+                print("'AC' issue type already exists.")
+                issue_type_id = self._exec_refreshing_access_token(
+                    connection=connection,
+                    func=JiraClient.get_issue_type_by_name,
+                    cloud_id=connection.cloud_id,
+                    name=AC_ISSUE_TYPE_NAME,
+                )
+                if issue_type_id is None:
+                    raise ValueError("Failed to retrieve existing 'AC' issue type ID")
+
+                return issue_type_id
+            else:
+                print(f"Error creating 'AC' issue type: {e}")
+                raise
+
+    def delete_connection(self, user_id: str, connection_id: str):
+        jira_connection = (
+            self.db.query(JiraConnection)
+            .filter(JiraConnection.id == connection_id)
+            .first()
+        )
+        if not jira_connection:
+            raise ValueError("Connection not found")
+
+        if jira_connection.user_id != user_id:
+            raise PermissionError(
+                "User does not have permission to delete this connection"
+            )
+
+        self.db.delete(jira_connection)
+
+        connection = (
+            self.db.query(Connection)
+            .filter(Connection.platform_connection_id == connection_id)
+            .first()
+        )
+
+        self.db.delete(connection)
+
+        self.db.commit()

@@ -669,18 +669,8 @@ const ChatDetailPage: React.FC = () => {
             </AccordionDetails>
           </Accordion>
         )}
-        <Paper
-          elevation={4}
-          sx={{
-            p: 2,
-            mt: 0,
-            borderRadius: 2.5,
-            flexShrink: 0,
-            width: "100%",
-          }}
-        >
-          <ChatSection sendMessage={handleSendMessage} disabled={connecting} />
-        </Paper>
+
+        <ChatSection sendMessage={handleSendMessage} disabled={connecting} />
       </Box>
 
       <ErrorSnackbar
