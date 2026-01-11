@@ -13,6 +13,7 @@ import { ChatSection } from "@/components/chat/ChatSection";
 import { useWaitingMessageStore } from "@/store/useWaitingMessageStore";
 import { ErrorSnackbar } from "@/components/ErrorSnackbar";
 import { useState } from "react";
+import { scrollBarSx } from "@/constants/scrollBarSx";
 
 const ChatDetailPage: React.FC = () => {
   const { selectedConnectionId, selectedProjectKey, selectedStoryKey } =
@@ -36,7 +37,7 @@ const ChatDetailPage: React.FC = () => {
       connection_id: selectedConnectionId,
       project_key: selectedProjectKey,
       story_key:
-        selectedStoryKey && selectedStoryKey !== "None"
+        selectedStoryKey && selectedStoryKey !== "none"
           ? selectedStoryKey
           : undefined,
     });
@@ -78,23 +79,7 @@ const ChatDetailPage: React.FC = () => {
           justifyContent: "flex-start",
           width: "100%",
           // height: "100%",
-          scrollbarColor: "#6b6b6b transparent",
-          scrollbarWidth: "auto",
-          "&::-webkit-scrollbar": {
-            width: "10px",
-            height: "10px",
-          },
-          "&::-webkit-scrollbar-track": {
-            backgroundColor: "#2b2b2b",
-            borderRadius: "4px",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            backgroundColor: "#6b6b6b",
-            borderRadius: "4px",
-          },
-          "&::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: "#555",
-          },
+          ...scrollBarSx,
         }}
       >
         <Box sx={{ width: "60%" }}>

@@ -106,22 +106,10 @@ class AnalysisRunService:
             analysis.error_message = error_msg
         self.db.commit()
 
-    def _fetch_issues(
-        self, project_key: str, issue_types: List[str], connection_id: str
-    ):
+    def _fetch_stories(self, connection_id: str, project_key: str):
         return get_platform_service(
             db=self.db, connection_id=connection_id
-        ).fetch_issues(
-            connection_id=connection_id,
-            jql=f"project = '{project_key}' AND issuetype in ({', '.join(issue_types)}) ORDER BY created ASC",
-            fields=[
-                "summary",
-                "description",
-                "issuetype",
-            ],
-            max_results=50,
-            expand_rendered_fields=True,
-        )
+        ).fetch_stories(connection_id=connection_id, project_key=project_key)
 
     def _count_defects(self, connection_id: str, project_key: str) -> int:
         stmt = (
@@ -167,16 +155,17 @@ class AnalysisRunService:
         try:
             self._start_analysis(analysis)
 
-            issues = self._fetch_issues(
-                analysis.project_key, ["Story"], analysis.connection_id
+            stories = self._fetch_stories(
+                connection_id=analysis.connection_id,
+                project_key=analysis.project_key,
             )
-            user_stories = [
+            normalized_stories = [
                 WorkItemMinimal(
                     key=i.key,
                     title=i.fields.summary,
                     description=html2text(i.rendered_fields.description or ""),
                 )
-                for i in issues
+                for i in stories
             ]
 
             context_input = self._get_default_context_input(
@@ -209,7 +198,7 @@ class AnalysisRunService:
 
             start = time.perf_counter()
             defects = run_user_stories_analysis_all(
-                user_stories=user_stories,
+                user_stories=normalized_stories,
                 context_input=context_input,
                 existing_defects=existing_defects,
             )
@@ -241,22 +230,32 @@ class AnalysisRunService:
         try:
             self._start_analysis(analysis)
 
-            issues = self._fetch_issues(
-                analysis.project_key, ["Story"], analysis.connection_id
+            stories = self._fetch_stories(
+                connection_id=analysis.connection_id,
+                project_key=analysis.project_key,
             )
 
-            user_stories = []
+            normalized_stories = []
             target = None
-            for i in issues:
+            for i in stories:
                 wi = WorkItemMinimal(
                     key=i.key,
                     title=i.fields.summary,
                     description=html2text(i.rendered_fields.description or ""),
                 )
-                (target := wi) if wi.key == target_key else user_stories.append(wi)
+                (
+                    (target := wi)
+                    if wi.key == target_key
+                    else normalized_stories.append(wi)
+                )
 
             if not target:
-                raise ValueError(f"Target user story {target_key} not found")
+                self._finish_analysis(
+                    analysis,
+                    AnalysisStatus.FAILED,
+                    error_msg=f"Target user story {target_key} not found",
+                )
+                return
 
             context_input = self._get_default_context_input(
                 connection_id=analysis.connection_id,
@@ -287,7 +286,7 @@ class AnalysisRunService:
             start = time.perf_counter()
             defects = run_user_stories_analysis_target(
                 target_user_story=target,
-                user_stories=user_stories,
+                user_stories=normalized_stories,
                 context_input=context_input,
                 existing_defects=existing_defects,
             )
@@ -336,18 +335,23 @@ class AnalysisRunService:
                 "id": analysis_id,
             }
 
-            issues = self._fetch_issues(
-                analysis.project_key, ["Story"], analysis.connection_id
+            stories = self._fetch_stories(
+                connection_id=connection_id,
+                project_key=project_key,
             )
-            user_stories = []
+            normalized_stories = []
             target = None
-            for i in issues:
+            for i in stories:
                 wi = WorkItemMinimal(
                     key=i.key,
                     title=i.fields.summary,
                     description=html2text(i.rendered_fields.description or ""),
                 )
-                (target := wi) if wi.key == target_key else user_stories.append(wi)
+                (
+                    (target := wi)
+                    if wi.key == target_key
+                    else normalized_stories.append(wi)
+                )
 
             if not target:
                 raise ValueError(f"Target user story {target_key} not found")
@@ -375,7 +379,7 @@ class AnalysisRunService:
 
             start = time.perf_counter()
             for step in stream_user_stories_analysis_target(
-                user_stories=user_stories,
+                user_stories=normalized_stories,
                 target_user_story=target,
                 context_input=context_input,
                 existing_defects=existing_defects,
@@ -429,16 +433,17 @@ class AnalysisRunService:
                 "id": analysis_id,
             }
 
-            issues = self._fetch_issues(
-                analysis.project_key, ["Story"], analysis.connection_id
+            stories = self._fetch_stories(
+                connection_id=connection_id,
+                project_key=project_key,
             )
-            user_stories = [
+            normalized_stories = [
                 WorkItemMinimal(
                     key=i.key,
                     title=i.fields.summary,
                     description=html2text(i.rendered_fields.description or ""),
                 )
-                for i in issues
+                for i in stories
             ]
 
             yield {"message": "Running analysis...", "id": analysis_id}
@@ -465,7 +470,7 @@ class AnalysisRunService:
 
             start = time.perf_counter()
             for step in stream_user_stories_analysis_all(
-                user_stories=user_stories,
+                user_stories=normalized_stories,
                 context_input=context_input,
                 existing_defects=existing_defects,
             ):

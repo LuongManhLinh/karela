@@ -22,6 +22,7 @@ import {
 } from "@/hooks/queries/useProposalQueries";
 
 import { useParams } from "next/navigation";
+import { scrollBarSx } from "@/constants/scrollBarSx";
 
 const AnalysisDetailPage: React.FC = () => {
   const { id } = useParams();
@@ -165,8 +166,7 @@ const AnalysisDetailPage: React.FC = () => {
           width: "100%",
           display: "flex",
           justifyContent: "center",
-          scrollbarColor: "#6b6b6b transparent",
-          scrollbarWidth: "auto",
+          ...scrollBarSx,
         }}
       >
         <Box sx={{ width: "70%", py: 2 }}>

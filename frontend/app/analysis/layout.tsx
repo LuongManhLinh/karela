@@ -4,11 +4,15 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { SessionItem } from "@/components/SessionList";
-import type { JiraConnectionDto } from "@/types/integration";
+import type {
+  JiraConnectionDto,
+  ProjectDto,
+  StorySummary,
+} from "@/types/integration";
 import {
   useUserConnectionsQuery,
   useProjectKeysQuery,
-  useIssueKeysQuery,
+  useStoryKeysQuery,
 } from "@/hooks/queries/useUserQueries";
 import {
   useAnalysisSummariesQuery,
@@ -18,6 +22,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { useRouter } from "next/navigation";
+import { NONE_STORY_SUMMARY } from "@/constants/selectable";
 
 const getStatusColor = (status?: string) => {
   switch (status) {
@@ -49,6 +54,10 @@ const AnalysisPageLayout: React.FC<AnalysisPageLayoutProps> = ({
     setSelectedProjectKey,
     selectedStoryKey,
     setSelectedStoryKey,
+    headerProjectKey,
+    setHeaderProjectKey,
+    headerStoryKey,
+    setHeaderStoryKey,
   } = useWorkspaceStore();
 
   // Connections & Projects Hooks
@@ -58,15 +67,23 @@ const AnalysisPageLayout: React.FC<AnalysisPageLayoutProps> = ({
   const selectedConnection =
     connections.find((c) => c.id === selectedConnectionId) || null;
 
-  const { data: projectKeysData, isLoading: isProjectKeysLoading } =
+  const { data: projectDtosData, isLoading: isProjectDtosLoading } =
     useProjectKeysQuery(selectedConnectionId || undefined);
-  const projectKeys = projectKeysData?.data || [];
-  const projectKey = selectedProjectKey || "";
+  const projectDtos = projectDtosData?.data || [];
+  const selectedProjectDto =
+    projectDtos.find((p) => p.key === selectedProjectKey) || null;
 
-  const { data: storyKeysData, isLoading: isStoryKeysLoading } =
-    useIssueKeysQuery(selectedConnectionId || undefined, projectKey);
-  const storyKeys = storyKeysData?.data ? ["None", ...storyKeysData.data] : [];
-  const storyKey = selectedStoryKey || "None";
+  const { data: storySummariesData, isLoading: isStorySummariesLoading } =
+    useStoryKeysQuery(
+      selectedConnectionId || undefined,
+      selectedProjectDto?.key || undefined
+    );
+  const storySummaries = storySummariesData?.data
+    ? [NONE_STORY_SUMMARY, ...storySummariesData.data]
+    : [];
+  const selectedStorySummary =
+    storySummaries.find((s) => s.key === selectedStoryKey) ||
+    NONE_STORY_SUMMARY;
 
   // Analysis Hooks
   const { data: summariesData, isLoading: isSummariesLoading } =
@@ -74,8 +91,6 @@ const AnalysisPageLayout: React.FC<AnalysisPageLayoutProps> = ({
   const summaries = summariesData?.data || [];
 
   const analysisIdRef = useRef<string | null>(null);
-  const [headerProjectKey, setHeaderProjectKey] = useState<string>("");
-  const [headerStoryKey, setHeaderStoryKey] = useState<string>("");
 
   // Polling
   const [pollingIds, setPollingIds] = useState<string[]>([]);
@@ -106,14 +121,17 @@ const AnalysisPageLayout: React.FC<AnalysisPageLayoutProps> = ({
 
   // Initialize project key
   useEffect(() => {
-    if (projectKeys.length > 0) {
-      if (!selectedProjectKey || !projectKeys.includes(selectedProjectKey)) {
-        setSelectedProjectKey(projectKeys[0]);
+    if (projectDtos.length > 0) {
+      if (
+        !selectedProjectKey ||
+        !projectDtos.find((p) => p.key === selectedProjectKey)
+      ) {
+        setSelectedProjectKey(projectDtos[0].key);
       }
-    } else if (projectKeys.length === 0 && selectedProjectKey) {
+    } else if (projectDtos.length === 0 && selectedProjectKey) {
       setSelectedProjectKey(null);
     }
-  }, [projectKeys, selectedProjectKey, setSelectedProjectKey]);
+  }, [projectDtos, selectedProjectKey, setSelectedProjectKey]);
 
   // Handle polling updates
   useEffect(() => {
@@ -168,18 +186,29 @@ const AnalysisPageLayout: React.FC<AnalysisPageLayoutProps> = ({
     analysisIdRef.current = null;
   };
 
-  const handleProjectKeyChange = (projKey: string) => {
-    setSelectedProjectKey(projKey);
+  const handleProjectChange = (proj: ProjectDto | null) => {
+    setSelectedProjectKey(proj ? proj.key : null);
+  };
+
+  const handleStoryChange = (story: StorySummary | null) => {
+    setSelectedStoryKey(story ? story.key : null);
   };
 
   const handleRunAnalysis = async () => {
     if (!selectedConnectionId) return;
     try {
-      const analysisType = storyKey !== "None" ? "TARGETED" : "ALL";
-      const targetStoryKey = storyKey !== "None" ? storyKey : undefined;
+      const analysisType =
+        selectedStorySummary.key !== "none" ? "TARGETED" : "ALL";
+      const targetStoryKey =
+        selectedStorySummary.key !== "none"
+          ? selectedStorySummary.key
+          : undefined;
+      if (!selectedProjectDto) {
+        throw new Error("No project selected");
+      }
       await runAnalysis({
         connectionId: selectedConnectionId,
-        projectKey,
+        projectKey: selectedProjectDto.key,
         data: {
           analysis_type: analysisType,
           target_story_key: targetStoryKey,
@@ -226,14 +255,14 @@ const AnalysisPageLayout: React.FC<AnalysisPageLayoutProps> = ({
       selectedConnection={selectedConnection}
       onConnectionChange={handleConnectionChange}
       projectOptions={{
-        options: projectKeys,
-        onChange: handleProjectKeyChange,
-        selectedOption: projectKey,
+        options: projectDtos,
+        onChange: handleProjectChange,
+        selectedOption: selectedProjectDto,
       }}
       storyOptions={{
-        options: storyKeys,
-        onChange: (k) => setSelectedStoryKey(k === "None" ? null : k),
-        selectedOption: storyKey,
+        options: storySummaries,
+        onChange: handleStoryChange,
+        selectedOption: selectedStorySummary,
       }}
       submitAction={{
         label: "Run Analysis",
@@ -244,8 +273,8 @@ const AnalysisPageLayout: React.FC<AnalysisPageLayoutProps> = ({
       onSelectSession={handleSelectAnalysis}
       loadingSessions={isSummariesLoading}
       loadingConnections={isConnectionsLoading}
-      loadingProjectKeys={isProjectKeysLoading}
-      loadingStoryKeys={isStoryKeysLoading}
+      loadingProjectKeys={isProjectDtosLoading}
+      loadingStoryKeys={isStorySummariesLoading}
       emptyStateText="No analyses yet"
       sessionListLabel="Analyses"
       rightChildren={children}

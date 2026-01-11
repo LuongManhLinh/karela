@@ -1,5 +1,6 @@
 import apiClient from "./api";
 import type { BasicResponse } from "@/types";
+import { ProjectDto, StorySummary } from "@/types/integration";
 import type { UserConnections } from "@/types/user";
 import type {
   RegisterUserRequest,
@@ -49,20 +50,20 @@ export const userService = {
     return response.data;
   },
 
-  getProjectKeys: async (
+  getProjects: async (
     connectionIdOrName: string
-  ): Promise<BasicResponse<string[]>> => {
-    const response = await apiClient.get<BasicResponse<string[]>>(
+  ): Promise<BasicResponse<ProjectDto[]>> => {
+    const response = await apiClient.get<BasicResponse<ProjectDto[]>>(
       `/users/connections/${connectionIdOrName}/projects`
     );
     return response.data;
   },
 
-  getIssueKeys: async (
+  getStorySummaries: async (
     connId: string,
     projectKey: string
-  ): Promise<BasicResponse<string[]>> => {
-    const response = await apiClient.get<BasicResponse<string[]>>(
+  ): Promise<BasicResponse<StorySummary[]>> => {
+    const response = await apiClient.get<BasicResponse<StorySummary[]>>(
       `/users/connections/${connId}/projects/${projectKey}/issues`
     );
     return response.data;

@@ -5,3 +5,15 @@ export interface JiraConnectionDto {
   url?: string;
   avatar_url?: string;
 }
+
+export interface ProjectDto {
+  id: string;
+  key: string;
+  name?: string;
+}
+
+export interface StorySummary {
+  id: string;
+  key: string;
+  summary?: string;
+}

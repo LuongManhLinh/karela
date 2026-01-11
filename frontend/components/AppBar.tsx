@@ -11,6 +11,7 @@ import {
   EmojiObjects,
   ManageAccounts,
   Settings,
+  Code,
 } from "@mui/icons-material";
 import { useThemeMode } from "./ThemeProvider";
 import { usePathname, useRouter } from "next/navigation";
@@ -22,6 +23,7 @@ const pages = [
   { name: "Proposals", href: "/proposals", icon: <EmojiObjects /> },
   { name: "Settings", href: "/settings", icon: <Settings /> },
   { name: "Profile", href: "/profile", icon: <ManageAccounts /> },
+  { name: "AC Editor", href: "/gherkin-editor", icon: <Code /> },
 ];
 
 export const MyAppBar: React.FC<{

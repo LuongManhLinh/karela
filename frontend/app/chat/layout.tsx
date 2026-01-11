@@ -4,16 +4,22 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { WorkspaceShell } from "@/components/WorkspaceShell";
 import type { ChatSessionSummary } from "@/types/chat";
-import type { JiraConnectionDto } from "@/types/integration";
+import type {
+  JiraConnectionDto,
+  ProjectDto,
+  StorySummary,
+} from "@/types/integration";
 import { SessionItem } from "@/components/SessionList";
 import { getToken } from "@/utils/jwt_utils";
 import {
   useUserConnectionsQuery,
   useProjectKeysQuery,
-  useIssueKeysQuery,
+  useStoryKeysQuery,
 } from "@/hooks/queries/useUserQueries";
 import { useChatSessionsQuery } from "@/hooks/queries/useChatQueries";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
+import { set } from "ace-builds-internal/config";
+import { NONE_STORY_SUMMARY } from "@/constants/selectable";
 
 interface ChatPageLayoutProps {
   children?: React.ReactNode;
@@ -31,6 +37,10 @@ const ChatPageLayout: React.FC<ChatPageLayoutProps> = ({ children }) => {
     setSelectedProjectKey,
     selectedStoryKey,
     setSelectedStoryKey,
+    headerProjectKey,
+    setHeaderProjectKey,
+    headerStoryKey,
+    setHeaderStoryKey,
   } = useWorkspaceStore();
 
   const { data: connectionsData, isLoading: isConnectionsLoading } =
@@ -41,25 +51,28 @@ const ChatPageLayout: React.FC<ChatPageLayoutProps> = ({ children }) => {
   const selectedConnection =
     connections.find((c) => c.id === selectedConnectionId) || null;
 
-  const { data: projectKeysData } = useProjectKeysQuery(
+  const { data: projectDtosData } = useProjectKeysQuery(
     selectedConnectionId || undefined
   );
+  const projectDtos = projectDtosData?.data || [];
+  const selectedProjectDto =
+    projectDtos.find((p) => p.key === selectedProjectKey) || null;
+
   const { data: sessionsData, isLoading: isSessionsLoading } =
     useChatSessionsQuery(selectedConnectionId || undefined);
 
   // Ensure projectKey is valid string for queries even if null in store
-  const projectKey = selectedProjectKey || "";
-  const { data: storyKeysData } = useIssueKeysQuery(
+  const { data: storyKeysData } = useStoryKeysQuery(
     selectedConnectionId || undefined,
-    projectKey
+    selectedProjectDto?.key || undefined
   );
 
-  const projectKeys = projectKeysData?.data || [];
-  const storyKeys = storyKeysData?.data ? ["None", ...storyKeysData.data] : [];
-  const storyKey = selectedStoryKey || "None"; // UI uses "None" string usage in some places logic?
-
-  const [headerProjectKey, setHeaderProjectKey] = useState<string>("");
-  const [headerStoryKey, setHeaderStoryKey] = useState<string>("");
+  const storySummaries = storyKeysData?.data
+    ? [NONE_STORY_SUMMARY, ...storyKeysData.data]
+    : [];
+  const selectedStorySummary =
+    storySummaries.find((s) => s.key === selectedStoryKey) ||
+    NONE_STORY_SUMMARY;
 
   const router = useRouter();
 
@@ -78,15 +91,18 @@ const ChatPageLayout: React.FC<ChatPageLayoutProps> = ({ children }) => {
   // Initialize project key
   useEffect(() => {
     // If we have keys but no selection (or selection invalid), select first
-    if (projectKeys.length > 0) {
-      if (!selectedProjectKey || !projectKeys.includes(selectedProjectKey)) {
-        setSelectedProjectKey(projectKeys[0]);
+    if (projectDtos.length > 0) {
+      if (
+        !selectedProjectKey ||
+        !projectDtos.find((p) => p.key === selectedProjectKey)
+      ) {
+        setSelectedProjectKey(projectDtos[0].key);
       }
-    } else if (projectKeys.length === 0 && selectedProjectKey) {
+    } else if (projectDtos.length === 0 && selectedProjectKey) {
       // Clear selection if no keys
       setSelectedProjectKey(null);
     }
-  }, [projectKeys, selectedProjectKey, setSelectedProjectKey]);
+  }, [projectDtos, selectedProjectKey, setSelectedProjectKey]);
 
   // Initialize sessions
   useEffect(() => {
@@ -106,12 +122,13 @@ const ChatPageLayout: React.FC<ChatPageLayoutProps> = ({ children }) => {
     setSelectedConnectionId(conn.id);
   };
 
-  const onProjectKeyChange = (projKey: string) => {
-    setSelectedProjectKey(projKey);
+  const handleProjectChange = (proj: ProjectDto | null) => {
+    setSelectedProjectKey(proj ? proj.key : null);
+    setSelectedStoryKey(null);
   };
 
-  const onStoryKeyChange = (sKey: string) => {
-    setSelectedStoryKey(sKey === "None" ? null : sKey);
+  const handleStoryChange = (story: StorySummary | null) => {
+    setSelectedStoryKey(story ? story.key : null);
   };
 
   // Sessions loading handled by query
@@ -143,7 +160,7 @@ const ChatPageLayout: React.FC<ChatPageLayoutProps> = ({ children }) => {
       }
     });
     return items;
-  }, [sessions]);
+  }, [sessions, selectedSessionId, setHeaderProjectKey, setHeaderStoryKey]);
 
   return (
     <WorkspaceShell
@@ -151,14 +168,14 @@ const ChatPageLayout: React.FC<ChatPageLayoutProps> = ({ children }) => {
       selectedConnection={selectedConnection}
       onConnectionChange={onConnectionChange}
       projectOptions={{
-        options: projectKeys,
-        onChange: onProjectKeyChange,
-        selectedOption: projectKey,
+        options: projectDtos,
+        onChange: handleProjectChange,
+        selectedOption: selectedProjectDto,
       }}
       storyOptions={{
-        options: storyKeys,
-        onChange: onStoryKeyChange,
-        selectedOption: storyKey,
+        options: storySummaries,
+        onChange: handleStoryChange,
+        selectedOption: selectedStorySummary,
       }}
       submitAction={{
         label: "New Chat",

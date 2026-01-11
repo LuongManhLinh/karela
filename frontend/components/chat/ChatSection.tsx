@@ -1,6 +1,7 @@
 import { Box, IconButton, TextField, Paper } from "@mui/material";
 import React, { useState, useRef } from "react";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import { scrollBarSx } from "@/constants/scrollBarSx";
 
 const MemoizedTextField = React.memo(TextField);
 
@@ -34,23 +35,7 @@ export const ChatSection: React.FC<{
           display: "flex",
           gap: 1,
           alignItems: "center",
-          scrollbarColor: "#6b6b6b transparent",
-          scrollbarWidth: "thin",
-          "&::-webkit-scrollbar": {
-            width: "10px",
-            height: "10px",
-          },
-          "&::-webkit-scrollbar-track": {
-            backgroundColor: "#2b2b2b",
-            borderRadius: "4px",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            backgroundColor: "#6b6b6b",
-            borderRadius: "4px",
-          },
-          "&::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: "#555",
-          },
+          ...scrollBarSx,
           ...sx,
         }}
       >

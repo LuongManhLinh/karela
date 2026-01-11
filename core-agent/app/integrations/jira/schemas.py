@@ -1,10 +1,18 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 from enum import Enum
 from pydantic import BaseModel, Field, ConfigDict
 
 
 class Project(BaseModel):
     key: Optional[str] = None
+
+    model_config = ConfigDict(
+        extra="ignore",
+    )
+
+
+class Parent(BaseModel):
+    key: str
 
     model_config = ConfigDict(
         extra="ignore",
@@ -42,7 +50,7 @@ class Fields(BaseModel):
     description: Optional[Any] = None
     priority: Optional[Priority] = None
     status: Optional[Status] = None
-    issuelinks: Optional[List[Dict[str, Any]]] = None
+    issuelinks: Optional[list[dict[str, Any]]] = None
 
     model_config = ConfigDict(
         extra="ignore",
@@ -73,7 +81,7 @@ class Issue(BaseModel):
 
 class SearchResponse(BaseModel):
     total: Optional[int] = None
-    issues: List[Issue] = Field(default_factory=list)
+    issues: list[Issue] = Field(default_factory=list)
 
     model_config = ConfigDict(
         extra="ignore",
@@ -112,6 +120,7 @@ class IssueUpdateFields(BaseModel):
     issuetype: IssueType
     summary: Optional[str] = None
     description: Optional[Any] = None
+    parent: Optional[Parent] = None
 
     model_config = ConfigDict(
         extra="ignore",
@@ -127,7 +136,7 @@ class IssueUpdate(BaseModel):
 
 
 class CreateIssuesRequest(BaseModel):
-    issueUpdates: List[IssueUpdate]
+    issueUpdates: list[IssueUpdate]
 
 
 class ExchangeAutorizationCodeResponse(BaseModel):
@@ -146,7 +155,7 @@ class JiraCloudInfoResponse(BaseModel):
     id: str
     name: Optional[str] = None
     url: Optional[str] = None
-    scopes: Optional[List[str]] = None
+    scopes: Optional[list[str]] = None
     avatarUrl: Optional[str] = None
 
     model_config = ConfigDict(
@@ -168,7 +177,7 @@ class JiraConnectionDto(BaseModel):
 
 class ProjectIssueKeysDto(BaseModel):
     project_key: str
-    issue_keys: List[str] = Field(default_factory=list)
+    issue_keys: list[str] = Field(default_factory=list)
 
 
 class StoryDto(BaseModel):
@@ -185,6 +194,44 @@ class StoryDto(BaseModel):
 class CreateStoryRequest(BaseModel):
     summary: str
     description: Optional[str] = Field(default=None, description="Markdown supported")
+
+    model_config = ConfigDict(
+        extra="ignore",
+    )
+
+
+class UpdateStoryRequest(BaseModel):
+    key: str
+    summary: Optional[str] = None
+    description: Optional[str] = Field(default=None, description="Markdown supported")
+    model_config = ConfigDict(
+        extra="ignore",
+    )
+
+
+class WebhookCallbackPayload(BaseModel):
+    webhookEvent: str
+    issue: Issue
+    changelog: Optional[dict[str, Any]] = None
+    model_config = ConfigDict(
+        extra="ignore",
+    )
+
+
+class ProjectDto(BaseModel):
+    id: str
+    key: str
+    name: Optional[str] = None
+
+    model_config = ConfigDict(
+        extra="ignore",
+    )
+
+
+class StorySummary(BaseModel):
+    id: str
+    key: str
+    summary: Optional[str] = None
 
     model_config = ConfigDict(
         extra="ignore",

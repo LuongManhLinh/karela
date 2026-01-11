@@ -38,6 +38,8 @@ import { getToken } from "@/utils/jwt_utils";
 import { ChatSection } from "@/components/chat/ChatSection";
 import { useParams } from "next/navigation";
 import { useWaitingMessageStore } from "@/store/useWaitingMessageStore";
+import { useWorkspaceStore } from "@/store/useWorkspaceStore";
+import { scrollBarSx } from "@/constants/scrollBarSx";
 
 const WS_BASE_URL = "ws://localhost:8000/api/v1/chat/";
 
@@ -507,23 +509,7 @@ const ChatDetailPage: React.FC = () => {
           justifyContent: "flex-start",
           width: "100%",
           // height: "100%",
-          scrollbarColor: "#6b6b6b transparent",
-          scrollbarWidth: "auto",
-          "&::-webkit-scrollbar": {
-            width: "10px",
-            height: "10px",
-          },
-          "&::-webkit-scrollbar-track": {
-            backgroundColor: "#2b2b2b",
-            borderRadius: "4px",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            backgroundColor: "#6b6b6b",
-            borderRadius: "4px",
-          },
-          "&::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: "#555",
-          },
+          ...scrollBarSx,
         }}
       >
         <Box sx={{ width: "60%" }}>
@@ -633,8 +619,7 @@ const ChatDetailPage: React.FC = () => {
               sx={{
                 maxHeight: 600,
                 overflowY: "auto",
-                scrollbarColor: "#6b6b6b transparent",
-                scrollbarWidth: "auto",
+                ...scrollBarSx,
               }}
             >
               {loadingProposals ? (

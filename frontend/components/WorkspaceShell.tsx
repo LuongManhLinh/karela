@@ -2,10 +2,14 @@
 import { Box, Divider, Typography } from "@mui/material";
 
 import { DoubleLayout } from "./Layout";
-import type { JiraConnectionDto } from "@/types/integration";
+import type {
+  JiraConnectionDto,
+  ProjectDto,
+  StorySummary,
+} from "@/types/integration";
 import {
   SessionStartForm,
-  StringOptions,
+  SelectableOptions,
   SubmitAction,
 } from "./SessionStartForm";
 import React from "react";
@@ -16,8 +20,8 @@ interface WorkspaceShellProps {
   selectedConnection: JiraConnectionDto | null;
   connections: JiraConnectionDto[];
   onConnectionChange: (connection: JiraConnectionDto) => void;
-  projectOptions?: StringOptions;
-  storyOptions?: StringOptions;
+  projectOptions?: SelectableOptions<ProjectDto>;
+  storyOptions?: SelectableOptions<StorySummary>;
   submitAction?: SubmitAction;
   sessions: SessionItem[];
   selectedSessionId?: string | null;

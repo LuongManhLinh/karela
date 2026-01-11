@@ -7,6 +7,7 @@ import traceback
 from app.service_factory import get_jira_service
 from app.auth_factory import get_jwt_payload
 from .services import JiraService
+from .schemas import WebhookCallbackPayload
 from common.configs import JiraConfig
 from common.schemas import BasicResponse
 
@@ -23,7 +24,7 @@ async def oauth_start(jwt_payload=Depends(get_jwt_payload)):
         "audience": "api.atlassian.com",
         "client_id": JiraConfig.CLIENT_ID,
         "scope": JiraConfig.SCOPES,
-        "redirect_uri": JiraConfig.REDIRECT_URI,
+        "redirect_uri": JiraConfig.OAUTH_URL,
         "response_type": "code",
         "prompt": "consent",
         "state": user_id,
@@ -71,3 +72,29 @@ async def oauth_callback(
 @router.get("/oauth/callback/{css_file}", response_class=FileResponse)
 async def oauth_callback_css(css_file: str):
     return FileResponse(f"resources/pages/{css_file}")
+
+
+@router.post("/webhook/{connection_id}")
+async def jira_webhook(
+    connection_id: str,
+    payload: WebhookCallbackPayload,
+    service: JiraService = Depends(get_jira_service),
+):
+    """Handle incoming Jira webhooks.
+
+    This endpoint is called by Jira when certain events occur, such as issue creation or updates.
+
+    Args:
+        connection_id (str): The ID of the Jira connection.
+        project_id (str): The ID of the Jira project.
+        issue_id (str): The ID of the Jira issue.
+        request (Request): The incoming HTTP request containing the webhook payload.
+        service (JiraService): The Jira service instance.
+    Returns:
+        BasicResponse: A response indicating success or failure of webhook processing.
+    """
+
+    service.handle_webhook(
+        connection_id=connection_id,
+        payload=payload,
+    )

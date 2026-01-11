@@ -101,7 +101,7 @@ def get_user_connections(
 
 
 @router.get("/connections/{connection_id_or_name}/projects")
-def get_project_keys(
+def list_projects(
     connection_id_or_name: str,
     service: JiraService = Depends(get_jira_service),
     jwt_payload=Depends(get_jwt_payload),
@@ -111,7 +111,7 @@ def get_project_keys(
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         return BasicResponse(
-            data=service.fetch_project_keys(
+            data=service.fetch_project_dtos(
                 user_id=user_id, connection_id_or_name=connection_id_or_name
             )
         )
@@ -120,7 +120,7 @@ def get_project_keys(
 
 
 @router.get("/connections/{connection_id}/projects/{project_key}/issues")
-def get_story_keys(
+def list_stories(
     connection_id: str,
     project_key: str,
     service: JiraService = Depends(get_jira_service),
@@ -131,7 +131,7 @@ def get_story_keys(
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         return BasicResponse(
-            data=service.fetch_story_keys(
+            data=service.fetch_story_summaries(
                 connection_id=connection_id,
                 project_key=project_key,
             )

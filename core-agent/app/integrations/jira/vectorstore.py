@@ -118,5 +118,9 @@ class JiraVectorStore:
     def remove_stories(
         self, connection_id: str, project_key: str, story_ids: list[str]
     ):
-        r_filter = {"connection_id": connection_id, "project_key": project_key}
-        self.vector_store.delete(ids=story_ids, where=r_filter)
+        where_op = [
+            {"connection_id": connection_id},
+            {"project_key": project_key},
+        ]
+        where = {"$and": where_op}
+        self.vector_store.delete(ids=story_ids, where=where)

@@ -5,6 +5,7 @@ from .proposal.router import router as proposal_router
 from .user.router import router as user_router
 from .settings.router import router as settings_router
 from .integrations.jira.router import router as jira_router
+from .ac.router import router as ac_router
 
 
 from fastapi import FastAPI
@@ -34,6 +35,7 @@ app.include_router(chat_router, prefix="/chat")
 app.include_router(proposal_router, prefix="/proposals")
 app.include_router(user_router, prefix="/users")
 app.include_router(settings_router, prefix="/settings")
+app.include_router(ac_router, prefix="/ac")
 
 
 @app.get("/health")

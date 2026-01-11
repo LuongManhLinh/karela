@@ -10,10 +10,10 @@ export const USER_KEYS = {
   all: ["user"] as const,
   currentUser: () => [...USER_KEYS.all, "current"] as const,
   connections: () => [...USER_KEYS.all, "connections"] as const,
-  projectKeys: (connectionId: string) =>
+  projects: (connectionId: string) =>
     [...USER_KEYS.all, "projects", connectionId] as const,
-  issueKeys: (connectionId: string, projectKey: string) =>
-    [...USER_KEYS.all, "issues", connectionId, projectKey] as const,
+  storySummaries: (connectionId: string, projectKey: string) =>
+    [...USER_KEYS.all, "stories", connectionId, projectKey] as const,
 };
 
 export const useRegisterMutation = () => {
@@ -58,19 +58,19 @@ export const useUserConnectionsQuery = () => {
 
 export const useProjectKeysQuery = (connectionId: string | undefined) => {
   return useQuery({
-    queryKey: USER_KEYS.projectKeys(connectionId || ""),
-    queryFn: () => userService.getProjectKeys(connectionId!),
+    queryKey: USER_KEYS.projects(connectionId || ""),
+    queryFn: () => userService.getProjects(connectionId!),
     enabled: !!connectionId,
   });
 };
 
-export const useIssueKeysQuery = (
+export const useStoryKeysQuery = (
   connectionId: string | undefined,
   projectKey: string | undefined
 ) => {
   return useQuery({
-    queryKey: USER_KEYS.issueKeys(connectionId || "", projectKey || ""),
-    queryFn: () => userService.getIssueKeys(connectionId!, projectKey!),
+    queryKey: USER_KEYS.storySummaries(connectionId || "", projectKey || ""),
+    queryFn: () => userService.getStorySummaries(connectionId!, projectKey!),
     enabled: !!connectionId && !!projectKey,
   });
 };

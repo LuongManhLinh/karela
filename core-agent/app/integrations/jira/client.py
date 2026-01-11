@@ -396,46 +396,6 @@ class JiraClient:
         return resp.json()["id"]
 
     @staticmethod
-    def __upload_temporary_data(
-        cloud_id: str,
-        access_token: str,
-        file_path: str,
-    ) -> str:
-        """Upload temporary data to Jira and get the temporary data ID
-        Following this cmd: `curl -X POST -u admin:admin -H "X-Atlassian-Token: no-check" -F "avatar=@mynewavatar.png;type=image/png" 'your-domain.atlassian.net{id}/avatar/temporary'`
-
-        Args:
-            cloud_id (str): Jira cloud ID
-            access_token (str): OAuth2 access token
-            file_path (str): Path to the file to upload
-
-        Returns:
-            str: Temporary data ID
-        """
-        url = API_BASE.format(cloud_id=cloud_id) + "/issuetype/avatar/temporary"
-        headers = _get_auth_header(access_token)
-        headers["X-Atlassian-Token"] = "no-check"
-
-        file_extension = file_path.split(".")[-1].lower()
-        match file_extension:
-            case "png":
-                mimetype = "image/png"
-            case "jpg" | "jpeg":
-                mimetype = "image/jpeg"
-            case "gif":
-                mimetype = "image/gif"
-            case _:
-                mimetype = "application/octet-stream"
-
-        with open(file_path, "rb") as f:
-            files = {
-                "avatar": (file_path, f, mimetype),
-            }
-            resp = requests.post(url, headers=headers, files=files)
-        resp.raise_for_status()
-        return resp.json()["id"]
-
-    @staticmethod
     def create_issue_type_avatar(
         cloud_id: str,
         access_token: str,
@@ -551,3 +511,107 @@ class JiraClient:
             if issue_type["name"].lower() == name.lower():
                 return issue_type["id"]
         return None
+
+    @staticmethod
+    def register_webhook(
+        cloud_id: str,
+        access_token: str,
+        url: str,
+        events: List[str],
+    ) -> str:
+        """Register a webhook in Jira
+
+        Args:
+            cloud_id (str): Jira cloud ID
+            access_token (str): OAuth2 access token
+            name (str): Name of the webhook
+            url (str): URL to receive webhook events
+            events (List[str]): List of events to subscribe to
+            jql_filter (Optional[str], optional): JQL filter for the webhook. Defaults to None.
+
+        Returns:
+            str: ID of the registered webhook
+        """
+        # api_url = WEBHOOK_API_BASE.format(cloud_id=cloud_id)
+        api_url = API_BASE.format(cloud_id=cloud_id) + "/webhook"
+        headers = _get_auth_header(access_token)
+        headers["Content-Type"] = "application/json"
+
+        webhooks_payload = {
+            "events": events,
+            "jqlFilter": "project != 'CJtYW5hZ2U6amlyYS1jb25maWd1cmF0aW9uI'",
+        }
+
+        payload = {
+            "url": url,
+            "webhooks": [webhooks_payload],
+        }
+
+        resp = requests.post(api_url, json=payload, headers=headers)
+        resp.raise_for_status()
+        print("Jira webhook registration response:", resp.status_code, resp.text)
+        return resp.json()
+
+    @staticmethod
+    def get_webhooks(
+        cloud_id: str,
+        access_token: str,
+    ) -> List[dict]:
+        """Get all webhooks in Jira
+
+        Args:
+            cloud_id (str): Jira cloud ID
+            access_token (str): OAuth2 access token
+
+        Returns:
+            List[dict]: List of webhooks
+        """
+        api_url = API_BASE.format(cloud_id=cloud_id) + "/webhook"
+        headers = _get_auth_header(access_token)
+        resp = requests.get(api_url, headers=headers)
+        resp.raise_for_status()
+        return resp.json()
+
+    @staticmethod
+    def delete_webhooks(
+        cloud_id: str,
+        access_token: str,
+        webhook_ids: list[str],
+    ):
+        """Delete a webhook in Jira
+
+        Args:
+            cloud_id (str): Jira cloud ID
+            access_token (str): OAuth2 access token
+            webhook_id (str): ID of the webhook to delete
+        """
+        api_url = API_BASE.format(cloud_id=cloud_id) + f"/webhook"
+        headers = _get_auth_header(access_token)
+        payload = {
+            "webhookIds": webhook_ids,
+        }
+        resp = requests.delete(api_url, headers=headers, json=payload)
+        resp.raise_for_status()
+
+    @staticmethod
+    def refresh_webhooks(
+        cloud_id: str,
+        access_token: str,
+        webhook_ids: list[str],
+    ):
+        """Refresh a webhook in Jira by deleting and re-registering it
+
+        Args:
+            cloud_id (str): Jira cloud ID
+            access_token (str): OAuth2 access token
+            webhook_id (str): ID of the webhook to refresh
+            url (str): URL to receive webhook events
+            events (List[str]): List of events to subscribe to
+        """
+        api_url = API_BASE.format(cloud_id=cloud_id) + f"/webhook/refresh"
+        headers = _get_auth_header(access_token)
+        payload = {
+            "webhookIds": webhook_ids,
+        }
+        resp = requests.put(api_url, headers=headers, json=payload)
+        resp.raise_for_status()

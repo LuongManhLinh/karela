@@ -82,6 +82,34 @@ class JiraStory(Base):
 
     jira_project = relationship("JiraProject", back_populates="stories")
 
+    ac = relationship("GherkinAC", back_populates="story", cascade="all, delete-orphan")
+
     # On update event
     def before_update_listener(mapper, connection, target):
         target.updated_at = utcnow()
+
+
+class GherkinAC(Base):
+    __tablename__ = "gherkin_acs"
+
+    id = Column(String(64), primary_key=True, default=uuid_generator)
+    content = Column(Text, nullable=False)
+
+    # Link to Jira Subtask
+    jira_issue_key = Column(String(32), nullable=True)
+
+    # Link to Story
+    jira_story_id = Column(
+        String(64),
+        ForeignKey("jira_stories.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    # Use backref to avoid modifying JiraStory code, but ensure we have access
+    story = relationship("JiraStory", back_populates="ac")
+
+    created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
+    updated_at = Column(
+        DateTime(timezone=True), default=utcnow, nullable=False, onupdate=utcnow
+    )

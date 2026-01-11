@@ -1,9 +1,10 @@
 import json
-import os
 import shutil
 import subprocess
-import sys
 from pathlib import Path
+from typing import Optional
+
+from jira2markdown import convert as jira2md_convert
 
 HERE = Path(__file__).parent.resolve()
 BRIDGE = HERE / "md_adf_bridge.mjs"
@@ -78,3 +79,26 @@ def adf_to_md(adf: dict) -> str:
     """Convert ADF dict -> Markdown string."""
     out = _run_bridge("adf2md", json.dumps(adf))
     return out
+
+
+def jira_markup_to_md(jira_text: str, mention_mapping: Optional[dict] = None) -> str:
+    """
+    Convert Jira markup text -> Markdown string.
+
+    Args:
+        jira_text: Text containing Jira markup syntax
+        mention_mapping: Optional dict mapping Jira internal account IDs to usernames
+                        for converting user mentions like [~accountid:internal-id]
+
+    Returns:
+        Converted Markdown string
+
+    Example:
+        >>> jira_markup_to_md("Some *bold* and _italic_ text")
+        'Some **bold** and _italic_ text'
+        >>> jira_markup_to_md("[Link|https://example.com]")
+        '[Link](https://example.com)'
+    """
+    if mention_mapping is None:
+        mention_mapping = {}
+    return jira2md_convert(jira_text, mention_mapping)

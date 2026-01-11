@@ -12,6 +12,7 @@ import {
   Chip,
   ChipProps,
 } from "@mui/material";
+import { scrollBarSx } from "@/constants/scrollBarSx";
 
 export interface SessionItem {
   id: string;
@@ -53,9 +54,8 @@ const SessionList: React.FC<SessionListProps> = ({
       sx={{
         minHeight: 0,
         overflowY: "auto",
-        scrollbarColor: "#6b6b6b transparent",
-        scrollbarWidth: "auto",
         pr: 1,
+        ...scrollBarSx,
       }}
     >
       {sessions.map((session) => (

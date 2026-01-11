@@ -38,8 +38,10 @@ class OpenRouterConfig:
 class JiraConfig:
     CLIENT_ID = os.getenv("JIRA_CLIENT_ID", "")
     CLIENT_SECRET = os.getenv("JIRA_CLIENT_SECRET", "")
-    REDIRECT_URI = os.getenv("JIRA_REDIRECT_URI", "")
+    OAUTH_URL = os.getenv("JIRA_OAUTH_URL", "")
     SCOPES = os.getenv("JIRA_SCOPES", "")
+    WEBHOOK_EVENTS = os.getenv("JIRA_WEBHOOK_EVENTS", "").split(",")
+    WEBHOOK_URL = os.getenv("JIRA_WEBHOOK_URL", "")
 
 
 class RedisConfig:

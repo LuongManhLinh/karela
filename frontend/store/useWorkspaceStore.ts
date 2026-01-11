@@ -5,11 +5,15 @@ interface WorkspaceState {
   selectedConnectionId: string | null;
   selectedProjectKey: string | null;
   selectedStoryKey: string | null;
+  headerProjectKey: string;
+  headerStoryKey: string;
 
   setSelectedConnectionId: (id: string | null) => void;
   setSelectedProjectKey: (key: string | null) => void;
   setSelectedStoryKey: (key: string | null) => void;
-  
+  setHeaderProjectKey: (key: string) => void;
+  setHeaderStoryKey: (key: string) => void;
+
   // Actions to reset dependent states
   resetSelection: () => void;
 }
@@ -20,12 +24,14 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       selectedConnectionId: null,
       selectedProjectKey: null,
       selectedStoryKey: null,
+      headerProjectKey: "",
+      headerStoryKey: "",
 
       setSelectedConnectionId: (id) =>
         set((state) => ({
           selectedConnectionId: id,
           selectedProjectKey: null, // Reset project when connection changes
-          selectedStoryKey: null,   // Reset story when connection changes
+          selectedStoryKey: null, // Reset story when connection changes
         })),
 
       setSelectedProjectKey: (key) =>
@@ -35,6 +41,8 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         })),
 
       setSelectedStoryKey: (key) => set({ selectedStoryKey: key }),
+      setHeaderProjectKey: (key) => set({ headerProjectKey: key }),
+      setHeaderStoryKey: (key) => set({ headerStoryKey: key }),
 
       resetSelection: () =>
         set({

@@ -4,7 +4,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Box, Divider, Stack, Typography, Button } from "@mui/material";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 
-import { userService } from "@/services/userService";
 import { proposalService } from "@/services/proposalService";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ErrorSnackbar } from "@/components/ErrorSnackbar";
@@ -22,13 +21,20 @@ import { SessionStartForm } from "@/components/SessionStartForm";
 import SessionList, { SessionItem } from "@/components/SessionList";
 import HeaderContent from "@/components/HeaderContent";
 import { downloadAsJson } from "@/utils/export_utils";
+import { scrollBarSx } from "@/constants/scrollBarSx";
+import { useWorkspaceStore } from "@/store/useWorkspaceStore";
+import { useUserConnectionsQuery } from "@/hooks/queries/useUserQueries";
 
 const ProposalPageContent: React.FC = () => {
-  const [connections, setConnections] = useState<JiraConnectionDto[]>([]);
-  const [selectedConnection, setSelectedConnection] =
-    useState<JiraConnectionDto | null>(null);
+  const { selectedConnectionId, setSelectedConnectionId } = useWorkspaceStore();
 
-  const [loadingConnections, setLoadingConnections] = useState(true);
+  const { data: connectionsData, isLoading: isConnectionsLoading } =
+    useUserConnectionsQuery();
+  // Find full connection object from ID
+  const connections = connectionsData?.data?.jira_connections || [];
+  const selectedConnection =
+    connections.find((c) => c.id === selectedConnectionId) || null;
+
   const [loadingProposals, setLoadingProposals] = useState(false);
 
   const [sessions, setSessions] = useState<SessionsHavingProposals | null>(
@@ -46,28 +52,15 @@ const ProposalPageContent: React.FC = () => {
   const [showError, setShowError] = useState(false);
 
   useEffect(() => {
-    void loadConnections();
-  }, []);
-
-  const loadConnections = async () => {
-    setLoadingConnections(true);
-    try {
-      const response = await userService.getUserConnections();
-      if (response.data) {
-        const jiraConnections = response.data.jira_connections || [];
-        setConnections(jiraConnections);
-        if (jiraConnections.length > 0) {
-          const firstConn = jiraConnections[0];
-          setSelectedConnection(firstConn);
-          await loadSessions(firstConn.id);
-        }
+    if (connections.length > 0) {
+      if (
+        !selectedConnectionId ||
+        !connections.find((c) => c.id === selectedConnectionId)
+      ) {
+        setSelectedConnectionId(connections[0].id);
       }
-    } catch (err) {
-      console.error("Failed to load connections:", err);
-    } finally {
-      setLoadingConnections(false);
     }
-  };
+  }, [connections, selectedConnectionId, setSelectedConnectionId]);
 
   const loadSessions = async (connId: string) => {
     if (!connId) return;
@@ -86,7 +79,7 @@ const ProposalPageContent: React.FC = () => {
   };
 
   const handleConnectionChange = async (conn: JiraConnectionDto) => {
-    setSelectedConnection(conn);
+    setSelectedConnectionId(conn.id);
     setSelectedSessionId(null);
     setSessions(null);
     await loadSessions(conn.id);
@@ -194,8 +187,7 @@ const ProposalPageContent: React.FC = () => {
         alignItems: "center",
         width: "100%",
         height: "100%",
-        scrollbarColor: "#6b6b6b transparent",
-        scrollbarWidth: "auto",
+        ...scrollBarSx,
       }}
     >
       <Box
@@ -264,7 +256,7 @@ const ProposalPageContent: React.FC = () => {
             selectedConnection={selectedConnection}
             connections={connections}
             onConnectionChange={handleConnectionChange}
-            loadingConnections={loadingConnections}
+            loadingConnections={isConnectionsLoading}
           />
           <Divider sx={{ my: 2 }} />
           <Typography

@@ -8,17 +8,21 @@ import {
   Autocomplete,
   Typography,
   CircularProgress,
+  Paper,
 } from "@mui/material";
 import { OpenInNew } from "@mui/icons-material";
-import { LoadingSpinner } from "./LoadingSpinner";
-import type { JiraConnectionDto } from "@/types/integration";
-import Link from "next/link";
+import type {
+  JiraConnectionDto,
+  ProjectDto,
+  StorySummary,
+} from "@/types/integration";
 import { useRouter } from "next/navigation";
+import { scrollBarSx } from "@/constants/scrollBarSx";
 
-export interface StringOptions {
-  options: string[];
-  onChange: (value: string) => void;
-  selectedOption: string | null;
+export interface SelectableOptions<T> {
+  options: T[];
+  onChange: (value: T | null) => void;
+  selectedOption: T | null;
   label?: string;
   required?: boolean;
   disabled?: boolean;
@@ -34,8 +38,8 @@ export interface SessionStartFormProps {
   selectedConnection: JiraConnectionDto | null;
   connections: JiraConnectionDto[];
   onConnectionChange: (connection: JiraConnectionDto) => void;
-  projectKeyOptions?: StringOptions;
-  storyKeyOptions?: StringOptions;
+  projectKeyOptions?: SelectableOptions<ProjectDto>;
+  storyKeyOptions?: SelectableOptions<StorySummary>;
   submitAction?: SubmitAction;
   loadingConnections?: boolean;
   loadingProjectKeys?: boolean;
@@ -84,15 +88,36 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
     );
   }
 
+  const getStoryLabel = (story: StorySummary) => {
+    if (story.key === "none") {
+      return story.summary || "(No Story)";
+    } else {
+      return `${story.key} - ${story.summary || ""}`;
+    }
+  };
+
+  const getStoryRenderOptionLabel = (option: StorySummary) => {
+    if (option.key === "none") {
+      return option.summary || "(No Story)";
+    } else {
+      return `${option.key} - ${option.summary || ""}`;
+    }
+  };
+
   return (
     <Box>
       <Autocomplete
+        title={
+          selectedConnection
+            ? selectedConnection.url || selectedConnection.name || ""
+            : ""
+        }
         fullWidth
         options={connections}
         value={
           connections.find((conn) => conn.id === selectedConnection?.id) || null
         }
-        onChange={(event, newValue) => {
+        onChange={(_, newValue) => {
           if (newValue) {
             onConnectionChange(newValue);
           }
@@ -148,16 +173,28 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
             return label.startsWith(searchValue);
           });
         }}
+        slots={{
+          paper: ({ children }) => (
+            <Paper sx={{ ...scrollBarSx, borderRadius: 1 }}>{children}</Paper>
+          ),
+        }}
       />
       {projectKeyOptions && (
         <Autocomplete
+          title={
+            projectKeyOptions.selectedOption
+              ? `${projectKeyOptions.selectedOption.key} - ${projectKeyOptions.selectedOption.name}`
+              : ""
+          }
           fullWidth
           options={projectKeyOptions.options}
           value={projectKeyOptions.selectedOption || null}
-          onChange={(event, newValue) => {
-            projectKeyOptions.onChange(newValue || "");
+          onChange={(_, newValue) => {
+            projectKeyOptions.onChange(newValue || null);
           }}
           disabled={loadingConnections}
+          getOptionLabel={(option) => `${option.key} - ${option.name || ""}`}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -181,21 +218,42 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
           filterOptions={(options, { inputValue }) => {
             if (!inputValue) return options;
             const searchValue = inputValue.toLowerCase();
-            return options.filter((key) =>
-              key.toLowerCase().startsWith(searchValue)
+            return options.filter(
+              (option) =>
+                option.key.toLowerCase().startsWith(searchValue) ||
+                (option.name || "").toLowerCase().startsWith(searchValue)
             );
           }}
+          slots={{
+            paper: ({ children }) => (
+              <Paper sx={{ ...scrollBarSx, borderRadius: 1 }}>{children}</Paper>
+            ),
+          }}
+          renderOption={(props, option) => (
+            <li {...props} key={option.id}>
+              <Typography>
+                {option.key} - {option.name}
+              </Typography>
+            </li>
+          )}
         />
       )}
       {storyKeyOptions && (
         <Autocomplete
+          title={
+            storyKeyOptions.selectedOption
+              ? getStoryLabel(storyKeyOptions.selectedOption)
+              : ""
+          }
           fullWidth
           options={storyKeyOptions.options}
           value={storyKeyOptions.selectedOption || null}
-          onChange={(event, newValue) => {
-            storyKeyOptions.onChange(newValue || "");
+          onChange={(_, newValue) => {
+            storyKeyOptions.onChange(newValue || null);
           }}
           disabled={loadingConnections}
+          getOptionLabel={getStoryLabel}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -218,10 +276,22 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
           filterOptions={(options, { inputValue }) => {
             if (!inputValue) return options;
             const searchValue = inputValue.toLowerCase();
-            return options.filter((key) =>
-              key.toLowerCase().startsWith(searchValue)
+            return options.filter(
+              (option) =>
+                option.key.toLowerCase().startsWith(searchValue) ||
+                (option.summary || "").toLowerCase().startsWith(searchValue)
             );
           }}
+          slots={{
+            paper: ({ children }) => (
+              <Paper sx={{ ...scrollBarSx, borderRadius: 1 }}>{children}</Paper>
+            ),
+          }}
+          renderOption={(props, option) => (
+            <li {...props} key={option.id}>
+              <Typography>{getStoryRenderOptionLabel(option)}</Typography>
+            </li>
+          )}
         />
       )}
       {submitAction && (
