@@ -15,11 +15,10 @@ import {
 import React from "react";
 import SessionList, { SessionItem } from "./SessionList";
 import HeaderContent from "./HeaderContent";
+import { NoConnection } from "./NoConnection";
 
 interface WorkspaceShellProps {
-  selectedConnection: JiraConnectionDto | null;
-  connections: JiraConnectionDto[];
-  onConnectionChange: (connection: JiraConnectionDto) => void;
+  connectionOptions: SelectableOptions<JiraConnectionDto>;
   projectOptions?: SelectableOptions<ProjectDto>;
   storyOptions?: SelectableOptions<StorySummary>;
   submitAction?: SubmitAction;
@@ -41,9 +40,7 @@ interface WorkspaceShellProps {
 }
 
 export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
-  connections,
-  selectedConnection,
-  onConnectionChange,
+  connectionOptions,
   projectOptions,
   storyOptions,
   submitAction,
@@ -74,17 +71,19 @@ export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
             display: "flex",
           }}
         >
-          <SessionStartForm
-            selectedConnection={selectedConnection}
-            connections={connections}
-            onConnectionChange={onConnectionChange}
-            projectKeyOptions={projectOptions}
-            storyKeyOptions={storyOptions}
-            submitAction={submitAction}
-            loadingConnections={loadingConnections}
-            loadingProjectKeys={loadingProjectKeys}
-            loadingStoryKeys={loadingStoryKeys}
-          />
+          {connectionOptions.options.length > 0 ? (
+            <SessionStartForm
+              connectionOptions={connectionOptions}
+              projectOptions={projectOptions}
+              storyOptions={storyOptions}
+              primaryAction={submitAction}
+              loadingConnections={loadingConnections}
+              loadingProjectKeys={loadingProjectKeys}
+              loadingStoryKeys={loadingStoryKeys}
+            />
+          ) : (
+            <NoConnection />
+          )}
           <Divider sx={{ my: 2 }} />
           <Typography
             variant="subtitle2"

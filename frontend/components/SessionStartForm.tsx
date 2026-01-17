@@ -10,19 +10,18 @@ import {
   CircularProgress,
   Paper,
 } from "@mui/material";
-import { OpenInNew } from "@mui/icons-material";
 import type {
   JiraConnectionDto,
   ProjectDto,
   StorySummary,
 } from "@/types/integration";
-import { useRouter } from "next/navigation";
+
 import { scrollBarSx } from "@/constants/scrollBarSx";
 
 export interface SelectableOptions<T> {
   options: T[];
-  onChange: (value: T | null) => void;
   selectedOption: T | null;
+  onChange?: (value: T | null) => void;
   label?: string;
   required?: boolean;
   disabled?: boolean;
@@ -35,59 +34,26 @@ export interface SubmitAction {
 }
 
 export interface SessionStartFormProps {
-  selectedConnection: JiraConnectionDto | null;
-  connections: JiraConnectionDto[];
-  onConnectionChange: (connection: JiraConnectionDto) => void;
-  projectKeyOptions?: SelectableOptions<ProjectDto>;
-  storyKeyOptions?: SelectableOptions<StorySummary>;
-  submitAction?: SubmitAction;
+  connectionOptions?: SelectableOptions<JiraConnectionDto>;
+  projectOptions?: SelectableOptions<ProjectDto>;
+  storyOptions?: SelectableOptions<StorySummary>;
+  primaryAction?: SubmitAction;
+  secondaryAction?: SubmitAction;
   loadingConnections?: boolean;
   loadingProjectKeys?: boolean;
   loadingStoryKeys?: boolean;
 }
 
 export const SessionStartForm: React.FC<SessionStartFormProps> = ({
-  selectedConnection,
-  connections,
-  onConnectionChange,
-  projectKeyOptions,
-  storyKeyOptions,
-  submitAction,
+  connectionOptions,
+  projectOptions,
+  storyOptions,
+  primaryAction,
+  secondaryAction,
   loadingConnections,
   loadingProjectKeys,
   loadingStoryKeys,
 }) => {
-  const router = useRouter();
-  if (connections.length === 0) {
-    // No connnections available, add a link to /profile to set up connections
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="h6" color="error" gutterBottom>
-          No Connections Available
-        </Typography>
-        <Box>
-          <Typography
-            variant="body1"
-            sx={{ mb: 1, textDecoration: "underline", cursor: "pointer" }}
-            onClick={() => router.push("/profile")}
-          >
-            Set up connection
-            <OpenInNew
-              fontSize="small"
-              sx={{ verticalAlign: "middle", ml: 0.5 }}
-            />
-          </Typography>
-        </Box>
-      </Box>
-    );
-  }
-
   const getStoryLabel = (story: StorySummary) => {
     if (story.key === "none") {
       return story.summary || "(No Story)";
@@ -106,91 +72,99 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
 
   return (
     <Box>
-      <Autocomplete
-        title={
-          selectedConnection
-            ? selectedConnection.url || selectedConnection.name || ""
-            : ""
-        }
-        fullWidth
-        options={connections}
-        value={
-          connections.find((conn) => conn.id === selectedConnection?.id) || null
-        }
-        onChange={(_, newValue) => {
-          if (newValue) {
-            onConnectionChange(newValue);
-          }
-        }}
-        getOptionLabel={(option) => option.name || option.id}
-        isOptionEqualToValue={(option, value) => option.id === value.id}
-        disabled={loadingConnections}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Connection"
-            required
-            margin="normal"
-            InputProps={{
-              ...params.InputProps,
-              startAdornment: loadingConnections ? (
-                <CircularProgress
-                  size={20}
-                  sx={{
-                    mx: 1,
-                  }}
-                />
-              ) : selectedConnection ? (
-                <Box
-                  component="img"
-                  src={selectedConnection.avatar_url}
-                  alt="icon"
-                  sx={{ width: 20, height: 20, mx: 1 }}
-                />
-              ) : null,
-            }}
-          />
-        )}
-        renderOption={(props, option) => (
-          <li {...props} key={option.id}>
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Box
-                src={option.avatar_url}
-                component="img"
-                alt="icon"
-                sx={{ width: 20, height: 20, mx: 1 }}
-              />
-
-              {option.name || option.id}
-            </Box>
-          </li>
-        )}
-        filterOptions={(options, { inputValue }) => {
-          if (!inputValue) return options;
-          const searchValue = inputValue.toLowerCase();
-          return options.filter((option) => {
-            const label = (option.name || option.id).toLowerCase();
-            return label.startsWith(searchValue);
-          });
-        }}
-        slots={{
-          paper: ({ children }) => (
-            <Paper sx={{ ...scrollBarSx, borderRadius: 1 }}>{children}</Paper>
-          ),
-        }}
-      />
-      {projectKeyOptions && (
+      {connectionOptions && (
         <Autocomplete
           title={
-            projectKeyOptions.selectedOption
-              ? `${projectKeyOptions.selectedOption.key} - ${projectKeyOptions.selectedOption.name}`
+            connectionOptions.selectedOption
+              ? connectionOptions.selectedOption.url ||
+                connectionOptions.selectedOption.name ||
+                ""
               : ""
           }
           fullWidth
-          options={projectKeyOptions.options}
-          value={projectKeyOptions.selectedOption || null}
+          options={connectionOptions.options}
+          value={
+            connectionOptions.options.find(
+              (conn) => conn.id === connectionOptions.selectedOption?.id
+            ) || null
+          }
           onChange={(_, newValue) => {
-            projectKeyOptions.onChange(newValue || null);
+            if (newValue) {
+              connectionOptions.onChange &&
+                connectionOptions.onChange(newValue);
+            }
+          }}
+          getOptionLabel={(option) => option.name || option.id}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          disabled={loadingConnections}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label={connectionOptions.label || "Connection"}
+              required
+              margin="normal"
+              InputProps={{
+                ...params.InputProps,
+                startAdornment: loadingConnections ? (
+                  <CircularProgress
+                    size={20}
+                    sx={{
+                      mx: 1,
+                    }}
+                  />
+                ) : connectionOptions.selectedOption ? (
+                  <Box
+                    component="img"
+                    src={connectionOptions.selectedOption.avatar_url}
+                    alt="icon"
+                    sx={{ width: 20, height: 20, mx: 1 }}
+                  />
+                ) : null,
+              }}
+            />
+          )}
+          renderOption={(props, option) => (
+            <li {...props} key={option.id}>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  src={option.avatar_url}
+                  component="img"
+                  alt="icon"
+                  sx={{ width: 20, height: 20, mx: 1 }}
+                />
+
+                {option.name || option.id}
+              </Box>
+            </li>
+          )}
+          filterOptions={(options, { inputValue }) => {
+            if (!inputValue) return options;
+            const searchValue = inputValue.toLowerCase();
+            return options.filter((option) => {
+              const label = (option.name || option.id).toLowerCase();
+              return label.startsWith(searchValue);
+            });
+          }}
+          slots={{
+            paper: ({ children }) => (
+              <Paper sx={{ ...scrollBarSx, borderRadius: 1 }}>{children}</Paper>
+            ),
+          }}
+        />
+      )}
+      {projectOptions && (
+        <Autocomplete
+          title={
+            projectOptions.selectedOption
+              ? `${projectOptions.selectedOption.key} - ${projectOptions.selectedOption.name}`
+              : ""
+          }
+          fullWidth
+          options={projectOptions.options}
+          value={projectOptions.selectedOption || null}
+          onChange={(_, newValue) => {
+            projectOptions.onChange &&
+              projectOptions.onChange(newValue || null);
           }}
           disabled={loadingConnections}
           getOptionLabel={(option) => `${option.key} - ${option.name || ""}`}
@@ -198,10 +172,9 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
           renderInput={(params) => (
             <TextField
               {...params}
-              label={projectKeyOptions.label || "Project Key"}
+              label={projectOptions.label || "Project"}
               required
               margin="normal"
-              sx={{ minWidth: 120 }}
               InputProps={{
                 ...params.InputProps,
                 startAdornment: loadingProjectKeys ? (
@@ -210,6 +183,13 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
                     sx={{
                       mx: 1,
                     }}
+                  />
+                ) : projectOptions.selectedOption ? (
+                  <Box
+                    component="img"
+                    src={projectOptions.selectedOption.avatar_url}
+                    alt="icon"
+                    sx={{ width: 20, height: 20, mx: 1 }}
                   />
                 ) : null,
               }}
@@ -231,25 +211,31 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
           }}
           renderOption={(props, option) => (
             <li {...props} key={option.id}>
-              <Typography>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  src={option.avatar_url}
+                  component="img"
+                  alt="icon"
+                  sx={{ width: 20, height: 20, mx: 1 }}
+                />
                 {option.key} - {option.name}
-              </Typography>
+              </Box>
             </li>
           )}
         />
       )}
-      {storyKeyOptions && (
+      {storyOptions && (
         <Autocomplete
           title={
-            storyKeyOptions.selectedOption
-              ? getStoryLabel(storyKeyOptions.selectedOption)
+            storyOptions.selectedOption
+              ? getStoryLabel(storyOptions.selectedOption)
               : ""
           }
           fullWidth
-          options={storyKeyOptions.options}
-          value={storyKeyOptions.selectedOption || null}
+          options={storyOptions.options}
+          value={storyOptions.selectedOption || null}
           onChange={(_, newValue) => {
-            storyKeyOptions.onChange(newValue || null);
+            storyOptions.onChange && storyOptions.onChange(newValue || null);
           }}
           disabled={loadingConnections}
           getOptionLabel={getStoryLabel}
@@ -257,7 +243,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
           renderInput={(params) => (
             <TextField
               {...params}
-              label={storyKeyOptions.label || "Story Key (Optional)"}
+              label={storyOptions.label || "Story"}
               margin="normal"
               sx={{ minWidth: 150 }}
               InputProps={{
@@ -294,18 +280,32 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
           )}
         />
       )}
-      {submitAction && (
-        <Button
-          type="submit"
-          variant="contained"
-          fullWidth
-          sx={{ mt: 2 }}
-          disabled={loadingConnections || submitAction.disabled}
-          onClick={submitAction.onClick}
-        >
-          {submitAction.label}
-        </Button>
-      )}
+      <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
+        {primaryAction && (
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{ mt: 2 }}
+            disabled={loadingConnections || primaryAction.disabled}
+            onClick={primaryAction.onClick}
+          >
+            {primaryAction.label}
+          </Button>
+        )}
+        {secondaryAction && (
+          <Button
+            type="button"
+            variant="outlined"
+            fullWidth
+            sx={{ mt: 2 }}
+            disabled={loadingConnections || secondaryAction.disabled}
+            onClick={secondaryAction.onClick}
+          >
+            {secondaryAction.label}
+          </Button>
+        )}
+      </Box>
     </Box>
   );
 };

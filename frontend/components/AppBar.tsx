@@ -10,20 +10,22 @@ import {
   Analytics,
   EmojiObjects,
   ManageAccounts,
-  Settings,
+  Article,
   Code,
 } from "@mui/icons-material";
 import { useThemeMode } from "./ThemeProvider";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { removeToken } from "@/utils/jwt_utils";
+import { removeToken } from "@/utils/jwtUtils";
+import { useWorkspaceStore } from "@/store/useWorkspaceStore";
+
 const pages = [
   { name: "Analysis", href: "/analysis", icon: <Analytics /> },
   { name: "Chat", href: "/chat", icon: <Assistant /> },
   { name: "Proposals", href: "/proposals", icon: <EmojiObjects /> },
-  { name: "Settings", href: "/settings", icon: <Settings /> },
+  { name: "AC", href: "/ac", icon: <Code /> },
+  { name: "Documentation", href: "/documentation", icon: <Article /> },
   { name: "Profile", href: "/profile", icon: <ManageAccounts /> },
-  { name: "AC Editor", href: "/gherkin-editor", icon: <Code /> },
 ];
 
 export const MyAppBar: React.FC<{
@@ -40,6 +42,8 @@ export const MyAppBar: React.FC<{
   };
 
   const pathname = usePathname();
+
+  const { resetHeaderKeys } = useWorkspaceStore();
 
   return (
     <Box
@@ -63,6 +67,7 @@ export const MyAppBar: React.FC<{
               href={page.href}
               key={page.name}
               startIcon={page.icon}
+              onClick={resetHeaderKeys}
               sx={{
                 px: 1,
                 py: 0.4,

@@ -1,17 +1,18 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import or_, select
+from sqlalchemy import or_
 from typing import List, Optional
 
 from utils.markdown_adf_bridge.markdown_adf_bridge import md_to_adf, adf_to_md
-from utils.security_utils import encrypt_token, decrypt_token
+from utils.security_utils import encrypt_token
 from common.configs import JiraConfig
 from common.schemas import Platform
 from common.database import uuid_generator
-from common.redis_app import task_queue
-from app.integrations.models import Connection
-from .client import JiraClient
-from .models import JiraConnection, JiraProject, JiraStory
-from .schemas import (
+from app.connection.models import Connection
+from .base_service import JiraBaseService
+from ..client import JiraClient
+from ..models import JiraConnection, JiraProject, JiraStory, GherkinAC
+from ..schemas import (
+    ConnectionSyncStatusDto,
     ProjectDto,
     StoryDto,
     CreateIssuesRequest,
@@ -23,22 +24,14 @@ from .schemas import (
     CreateStoryRequest,
     WebhookCallbackPayload,
 )
-
-from .vectorstore import JiraVectorStore
-
-
-AC_ISSUE_TYPE_NAME = "Gherkin Test"
-AC_ISSUE_TYPE_DESCRIPTION = "Issue type for Gherkin acceptance criteria"
-AC_ISSUE_TYPE_LEVEL = "subtask"
+from ..tasks import execute_update_connection
 
 
-class JiraService:
+class JiraService(JiraBaseService):
     def __init__(self, db: Session):
-        self.db = db
-        self.vector_store = JiraVectorStore()
+        super().__init__(db)
 
     def save_connection(self, user_id: str, code: str):
-        print("Saving Jira connection for user_id:", user_id)
         exchange_resp = JiraClient.exchange_authorization_code(
             client_id=JiraConfig.CLIENT_ID,
             client_secret=JiraConfig.CLIENT_SECRET,
@@ -80,7 +73,7 @@ class JiraService:
             self.db.add(existing_connection)
             self.db.commit()
 
-            task_queue.enqueue(self._on_connection_update, existing_connection)
+            execute_update_connection(connection_id=existing_connection.id, new=False)
             return 2
 
         jira_conn_id = uuid_generator()
@@ -106,60 +99,49 @@ class JiraService:
         self.db.add_all([jira_connection, connection])
         self.db.commit()
 
-        def _on_new_connection_setup(jira_connection: JiraConnection):
-            print("Updating Jira connection data...")
-            self._on_connection_update(jira_connection)
-
-            print("Setting up 'AC' issue type...")
-            issue_type_id = self._create_ac_issue_type(jira_connection)
-            self._update_issue_type_for_connection(jira_connection, issue_type_id)
-
-            print("Registering webhooks...")
-            self._register_webhooks(jira_connection)
-
-        task_queue.enqueue(_on_new_connection_setup, jira_connection)
+        execute_update_connection(connection_id=jira_conn_id, new=True)
 
         return 1
 
-    def __refresh_access_token(self, connection: JiraConnection):
-        refresh_token = decrypt_token(
-            connection.refresh_token, connection.refresh_token_iv
+    def __get_connection_and_project(self, connection_id: str, project_key: str):
+        connection_and_project = (
+            self.db.query(JiraConnection, JiraProject)
+            .join(JiraProject, JiraProject.jira_connection_id == JiraConnection.id)
+            .filter(
+                JiraConnection.id == connection_id,
+                JiraProject.key == project_key,
+            )
+            .first()
         )
 
-        new_token = JiraClient.refresh_access_token(
-            client_id=JiraConfig.CLIENT_ID,
-            client_secret=JiraConfig.CLIENT_SECRET,
-            refresh_token=refresh_token,
+        if not connection_and_project:
+            raise ValueError("Connection or Project not found")
+        connection, project = connection_and_project
+
+        return connection, project
+
+    def get_connection_sync_status(
+        self, user_id: str, connection_id_or_name: str
+    ) -> str:
+        connection = (
+            self.db.query(JiraConnection)
+            .filter(
+                JiraConnection.user_id == user_id,
+                (JiraConnection.id == connection_id_or_name)
+                | (JiraConnection.name == connection_id_or_name),
+            )
+            .first()
         )
 
-        encrypted_token, token_iv = encrypt_token(new_token)
-        connection.token = encrypted_token
-        connection.token_iv = token_iv
+        if not connection:
+            raise ValueError("Connection not found")
 
-        self.db.add(connection)
-        self.db.commit()
+        return ConnectionSyncStatusDto(
+            sync_status=connection.sync_status,
+            sync_error=connection.sync_error.value if connection.sync_error else None,
+        )
 
-        return new_token
-
-    def __exec_refreshing_access_token(
-        self,
-        connection: JiraConnection,
-        func,
-        *args,
-        **kwargs,
-    ):
-        try:
-            access_token = decrypt_token(connection.token, connection.token_iv)
-            return func(access_token=access_token, *args, **kwargs)
-        except Exception as e:
-            if "401" in str(e) or "400" in str(e):
-                print("Access token expired, refreshing...")
-                access_token = self.__refresh_access_token(connection)
-                return func(access_token=access_token, *args, **kwargs)
-            else:
-                raise e
-
-    def create_issues(self, connection_id: str, issues: List[IssueUpdate]):
+    def create_issues(self, connection_id: str, issues: List[IssueUpdate]) -> list[str]:
         connection = (
             self.db.query(JiraConnection)
             .filter(JiraConnection.id == connection_id)
@@ -169,7 +151,7 @@ class JiraService:
             raise ValueError("Connection not found")
         payload = CreateIssuesRequest(issueUpdates=issues)
 
-        return self.__exec_refreshing_access_token(
+        return self._exec_refreshing_access_token(
             connection,
             JiraClient.create_issues,
             cloud_id=connection.cloud_id,
@@ -180,23 +162,9 @@ class JiraService:
         self, connection_id: str, project_key: str, stories: List[CreateStoryRequest]
     ):
 
-        connection = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.id == connection_id)
-            .first()
+        connection, project = self.__get_connection_and_project(
+            connection_id, project_key
         )
-        if not connection:
-            raise ValueError("Connection not found")
-        project = (
-            self.db.query(JiraProject)
-            .filter(
-                JiraProject.jira_connection_id == connection_id,
-                JiraProject.key == project_key,
-            )
-            .first()
-        )
-        if not project:
-            raise ValueError("Project not found")
 
         payload = CreateIssuesRequest(
             issueUpdates=[
@@ -214,7 +182,7 @@ class JiraService:
             ]
         )
 
-        created_keys = self.__exec_refreshing_access_token(
+        created_keys = self._exec_refreshing_access_token(
             connection,
             JiraClient.create_issues,
             cloud_id=connection.cloud_id,
@@ -229,24 +197,9 @@ class JiraService:
     def create_story(
         self, connection_id: str, project_key: str, story: CreateStoryRequest
     ):
-        connection = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.id == connection_id)
-            .first()
+        connection, project = self.__get_connection_and_project(
+            connection_id, project_key
         )
-        if not connection:
-            raise ValueError("Connection not found")
-
-        project = (
-            self.db.query(JiraProject)
-            .filter(
-                JiraProject.jira_connection_id == connection_id,
-                JiraProject.key == project_key,
-            )
-            .first()
-        )
-        if not project:
-            raise ValueError("Project not found")
 
         payload = IssueUpdate(
             **{
@@ -259,7 +212,7 @@ class JiraService:
             }
         )
 
-        story_key = self.__exec_refreshing_access_token(
+        story_key = self._exec_refreshing_access_token(
             connection,
             JiraClient.create_issue,
             cloud_id=connection.cloud_id,
@@ -269,50 +222,6 @@ class JiraService:
         # Update local data, vector store, and Jira
         self.__on_stories_create(connection, project, [story_key])
         return story_key
-
-    def fetch_issues(
-        self,
-        connection_id: str,
-        jql: str,
-        fields: List[str],
-        max_results: int | None = None,
-        expand_rendered_fields: bool = False,
-        local: bool = True,
-    ) -> List[Issue]:
-        """Fetch issues from local cache or Jira based on JQL query
-
-        Args:
-            connection_id (str): Jira connection ID
-            jql (str): JQL query string
-            fields (List[str]): List of fields to fetch
-            max_results (int): Maximum number of results to fetch
-            expand_rendered_fields (bool): Whether to expand rendered fields
-            local (bool): Fetch from local cache (True) or from Jira (False). Defaults to True.
-        Returns:
-            List[Issue]: List of fetched issues
-        """
-        connection = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.id == connection_id)
-            .first()
-        )
-        if not connection:
-            raise ValueError("Connection not found")
-
-        if local:
-            # TODO: support JQL parsing for local cache; currently return empty list
-            return []
-
-        response = self.__exec_refreshing_access_token(
-            connection,
-            JiraClient.search_issues,
-            cloud_id=connection.cloud_id,
-            jql=jql,
-            fields=fields,
-            max_results=max_results,
-            expand_rendered_fields=expand_rendered_fields,
-        )
-        return response.issues
 
     def fetch_stories(
         self,
@@ -334,26 +243,7 @@ class JiraService:
             List[StoryDto]: List of fetched story issues
         """
         if local:
-            # Fetch from local database
-            connection = (
-                self.db.query(JiraConnection)
-                .filter(JiraConnection.id == connection_id)
-                .first()
-            )
-            if not connection:
-                raise ValueError("Connection not found")
-
-            # Get project
-            project = (
-                self.db.query(JiraProject)
-                .filter(
-                    JiraProject.jira_connection_id == connection_id,
-                    JiraProject.key == project_key,
-                )
-                .first()
-            )
-            if not project:
-                return []
+            _, project = self.__get_connection_and_project(connection_id, project_key)
 
             # Get stories
             query = self.db.query(JiraStory).filter(
@@ -453,7 +343,7 @@ class JiraService:
                 )
             return None
 
-        response = self.__exec_refreshing_access_token(
+        response = self._exec_refreshing_access_token(
             connection,
             JiraClient.get_issue,
             cloud_id=connection.cloud_id,
@@ -466,19 +356,16 @@ class JiraService:
     def update_issue(
         self,
         connection_id: str,
+        project_key: str,
         issue_key: str,
         summary: Optional[str] = None,
         description: Optional[str] = None,
     ):
-        connection = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.id == connection_id)
-            .first()
+        connection, project = self.__get_connection_and_project(
+            connection_id, project_key
         )
-        if not connection:
-            raise ValueError("Connection not found")
 
-        self.__exec_refreshing_access_token(
+        self._exec_refreshing_access_token(
             connection,
             JiraClient.update_issue,
             cloud_id=connection.cloud_id,
@@ -487,13 +374,6 @@ class JiraService:
             description=md_to_adf(description) if description else None,
         )
 
-        # Get project key from the issue
-        project = (
-            self.db.query(JiraProject)
-            .join(JiraStory)
-            .filter(JiraStory.key == issue_key)
-            .first()
-        )
         if project:
             # Update local data and vector store
             self.__on_stories_update(connection, project, [issue_key])
@@ -513,7 +393,7 @@ class JiraService:
             raise ValueError("Connection not found")
 
         for story_update in story_updates:
-            self.__exec_refreshing_access_token(
+            self._exec_refreshing_access_token(
                 connection,
                 JiraClient.update_issue,
                 cloud_id=connection.cloud_id,
@@ -531,32 +411,19 @@ class JiraService:
             connection, project_key, [su.key for su in story_updates]
         )
 
-    def delete_issue(self, connection_id: str, issue_key: str):
-        connection = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.id == connection_id)
-            .first()
+    def delete_story(self, connection_id: str, project_key: str, story_key: str):
+        connection, project = self.__get_connection_and_project(
+            connection_id, project_key
         )
-        if not connection:
-            raise ValueError("Connection not found")
 
-        # Get project key and story before deletion
-        story = (
-            self.db.query(JiraStory)
-            .join(JiraProject)
-            .filter(JiraStory.key == issue_key)
-            .first()
-        )
-        project_key = story.jira_project.key if story else None
-
-        self.__exec_refreshing_access_token(
+        self._exec_refreshing_access_token(
             connection,
             JiraClient.delete_issue,
             cloud_id=connection.cloud_id,
-            issue_key=issue_key,
+            issue_key=story_key,
         )
 
-        self.__on_stories_delete(connection, project_key, [issue_key])
+        self.__on_stories_delete(connection, project, [story_key])
 
     def get_project_settings(
         self,
@@ -572,7 +439,7 @@ class JiraService:
         if not connection:
             raise ValueError("Connection not found")
 
-        response = self.__exec_refreshing_access_token(
+        response = self._exec_refreshing_access_token(
             connection,
             JiraClient.get_project_settings,
             cloud_id=connection.cloud_id,
@@ -662,22 +529,17 @@ class JiraService:
                 .all()
             )
             return [
-                ProjectDto(id=prod.id, key=prod.key, name=prod.name)
+                ProjectDto(
+                    id=prod.id, key=prod.key, name=prod.name, avatar_url=prod.avatar_url
+                )
                 for prod in projects
             ]
 
-        return [
-            ProjectDto(
-                id=project_dict["id"],
-                key=project_dict["key"],
-                name=project_dict["name"],
-            )
-            for project_dict in self.__exec_refreshing_access_token(
-                connection,
-                JiraClient.fetch_projects,
-                cloud_id=connection.cloud_id,
-            )
-        ]
+        return self._exec_refreshing_access_token(
+            connection,
+            JiraClient.fetch_projects,
+            cloud_id=connection.cloud_id,
+        )
 
     def fetch_story_summaries(
         self, connection_id: str, project_key: str, local: bool = True
@@ -691,25 +553,11 @@ class JiraService:
         Returns:
             List[str]: List of story issue keys
         """
-        connection = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.id == connection_id)
-            .first()
+        connection, project = self.__get_connection_and_project(
+            connection_id, project_key
         )
-        if not connection:
-            raise ValueError("Connection not found")
 
         if local:
-            project = (
-                self.db.query(JiraProject.id)
-                .filter(
-                    JiraProject.jira_connection_id == connection_id,
-                    JiraProject.key == project_key,
-                )
-                .first()
-            )
-            if not project:
-                raise ValueError(f"Project {project_key} not found")
 
             stories = (
                 self.db.query(JiraStory)
@@ -730,122 +578,13 @@ class JiraService:
             )
         ]
 
-    def _on_connection_update(self, connection: JiraConnection):
-        """Fetch projects and stories from Jira and cache them locally, including vector store"""
-        try:
-            # Clear existing projects and stories for this connection
-            self.db.query(JiraProject).filter(
-                JiraProject.jira_connection_id == connection.id
-            ).delete()
-            self.db.commit()
-
-            # Fetch all projects from Jira
-            print("Fetching projects from Jira...")
-            projects_data = self.__exec_refreshing_access_token(
-                connection,
-                JiraClient.fetch_projects,
-                cloud_id=connection.cloud_id,
-            )
-
-            # Save projects and fetch stories for each
-            for project_data in projects_data:
-                print("Processing project:", project_data["key"])
-                jira_project = JiraProject(
-                    id=project_data["id"],
-                    key=project_data["key"],
-                    name=project_data["name"],
-                    jira_connection_id=connection.id,
-                )
-                self.db.add(jira_project)
-                self.db.flush()
-
-                project_stories: list[StoryDto] = []
-
-                # Fetch stories for this project
-                issues = self.fetch_issues(
-                    connection_id=connection.id,
-                    jql=f'project = "{project_data["key"]}" AND issuetype = Story',
-                    fields=["summary", "description"],
-                    local=False,
-                )
-
-                # Save stories locally
-                for issue in issues:
-                    description_md = (
-                        adf_to_md(issue.fields.description)
-                        if issue.fields.description
-                        else None
-                    )
-                    jira_story = JiraStory(
-                        id=issue.id or uuid_generator(),
-                        key=issue.key,
-                        summary=issue.fields.summary,
-                        description=description_md,
-                        jira_project_id=jira_project.id,
-                    )
-                    self.db.add(jira_story)
-                    project_stories.append(
-                        StoryDto(
-                            id=jira_story.id,
-                            key=issue.key,
-                            summary=issue.fields.summary,
-                            description=description_md,
-                        )
-                    )
-
-                # Push this project's stories to vector store
-                if project_stories:
-                    print("Persisting stories to vector store...")
-                    self.vector_store.add_stories(
-                        connection_id=connection.id,
-                        project_key=project_data["key"],
-                        stories=project_stories,
-                    )
-
-            self.db.commit()
-
-        except Exception as e:
-            self.db.rollback()
-            print(f"Error updating connection: {e}")
-            raise
-
-    def _update_issue_type_for_connection(
-        self, connection: JiraConnection, issue_type_id: str
-    ):
-        print("Updating 'AC' issue type for all projects in the connection...")
-        try:
-            self.__exec_refreshing_access_token(
-                connection=connection,
-                func=JiraClient.add_issue_type_to_activated_schemes,
-                cloud_id=connection.cloud_id,
-                issue_type_id=issue_type_id,
-            )
-        except Exception as e:
-            print(f"Error adding issue type to projects: {e}")
-            raise
-
     def _on_stories_create(
         self, connection_id: str, project_key: str, story_keys: List[str]
     ):
         """Handle story creation: save to local DB and vector store"""
-        connection = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.id == connection_id)
-            .first()
+        connection, project = self.__get_connection_and_project(
+            connection_id, project_key
         )
-        if not connection:
-            raise ValueError("Connection not found")
-
-        project = (
-            self.db.query(JiraProject)
-            .filter(
-                JiraProject.jira_connection_id == connection_id,
-                JiraProject.key == project_key,
-            )
-            .first()
-        )
-        if not project:
-            raise ValueError("Project not found")
 
         self.__on_stories_create(
             connection=connection, project=project, story_keys=story_keys
@@ -894,24 +633,9 @@ class JiraService:
         self, connection_id: str, project_key: str, story_keys: List[str]
     ):
         """Handle story update: update local DB and vector store"""
-        connection = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.id == connection_id)
-            .first()
+        connection, project = self.__get_connection_and_project(
+            connection_id, project_key
         )
-        if not connection:
-            raise ValueError("Connection not found")
-
-        project = (
-            self.db.query(JiraProject)
-            .filter(
-                JiraProject.jira_connection_id == connection_id,
-                JiraProject.key == project_key,
-            )
-            .first()
-        )
-        if not project:
-            raise ValueError("Project not found")
 
         self.__on_stories_update(
             connection=connection, project=project, story_keys=story_keys
@@ -969,23 +693,9 @@ class JiraService:
         self, connection_id: str, project_key: str, story_keys: List[str]
     ):
         """Handle story deletion: remove from local DB and vector store"""
-        connection = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.id == connection_id)
-            .first()
+        connection, project = self.__get_connection_and_project(
+            connection_id, project_key
         )
-        if not connection:
-            raise ValueError("Connection not found")
-        project = (
-            self.db.query(JiraProject)
-            .filter(
-                JiraProject.jira_connection_id == connection_id,
-                JiraProject.key == project_key,
-            )
-            .first()
-        )
-        if not project:
-            raise ValueError("Project not found")
         self.__on_stories_delete(
             connection=connection, project=project, story_keys=story_keys
         )
@@ -1027,47 +737,6 @@ class JiraService:
             print(f"Error deleting story: {e}")
             raise
 
-    def _register_webhooks(self, connection: JiraConnection):
-        """Register webhooks for the Jira connection"""
-        self.__exec_refreshing_access_token(
-            connection=connection,
-            func=JiraClient.register_webhook,
-            cloud_id=connection.cloud_id,
-            url=f"{JiraConfig.WEBHOOK_URL}/{connection.id}",
-            events=JiraConfig.WEBHOOK_EVENTS,
-        )
-
-    def _create_ac_issue_type(self, connection: JiraConnection):
-        """Create 'AC' issue type in Jira if it doesn't exist"""
-        try:
-            print("Creating 'AC' issue type in Jira...")
-            issue_type_id = self.__exec_refreshing_access_token(
-                connection=connection,
-                func=JiraClient.create_issue_type,
-                cloud_id=connection.cloud_id,
-                name=AC_ISSUE_TYPE_NAME,
-                description=AC_ISSUE_TYPE_DESCRIPTION,
-                level=AC_ISSUE_TYPE_LEVEL,
-            )
-            print("Created 'AC' issue type with ID:", issue_type_id)
-            return issue_type_id
-        except Exception as e:
-            if "409" in str(e):
-                print("'AC' issue type already exists.")
-                issue_type_id = self.__exec_refreshing_access_token(
-                    connection=connection,
-                    func=JiraClient.get_issue_type_by_name,
-                    cloud_id=connection.cloud_id,
-                    name=AC_ISSUE_TYPE_NAME,
-                )
-                if issue_type_id is None:
-                    raise ValueError("Failed to retrieve existing 'AC' issue type ID")
-
-                return issue_type_id
-            else:
-                print(f"Error creating 'AC' issue type: {e}")
-                raise
-
     def delete_connection(self, user_id: str, connection_id: str):
         jira_connection = (
             self.db.query(JiraConnection)
@@ -1101,25 +770,62 @@ class JiraService:
     ):
         """Handle incoming Jira webhook payloads"""
         print("Received webhook payload:", payload)
-        match payload.webhookEvent:
-            case "jira:issue_created":
-                self._on_stories_create(
-                    connection_id=connection_id,
-                    project_key=payload.issue.fields.project.key,
-                    story_keys=[payload.issue.key],
-                )
-            case "jira:issue_updated":
-                self._on_stories_update(
-                    connection_id=connection_id,
-                    project_key=payload.issue.fields.project.key,
-                    story_keys=[payload.issue.key],
-                )
-            case "jira:issue_deleted":
-                self._on_stories_delete(
-                    connection_id=connection_id,
-                    project_key=payload.issue.fields.project.key,
-                    story_keys=[payload.issue.key],
-                )
+        project_key = payload.issue.fields.project.key
+        if payload.issue.fields.issuetype.name == "Story":
+            match payload.webhookEvent:
+                case "jira:issue_created":
+                    self._on_stories_create(
+                        connection_id=connection_id,
+                        project_key=project_key,
+                        story_keys=[payload.issue.key],
+                    )
+                case "jira:issue_updated":
+                    self._on_stories_update(
+                        connection_id=connection_id,
+                        project_key=project_key,
+                        story_keys=[payload.issue.key],
+                    )
+                case "jira:issue_deleted":
+                    self._on_stories_delete(
+                        connection_id=connection_id,
+                        project_key=project_key,
+                        story_keys=[payload.issue.key],
+                    )
+        else:
+            match payload.webhookEvent:
+                case "jira:issue_created":
+                    self._on_ac_create(
+                        connection_id=connection_id,
+                        project_key=project_key,
+                        story_id=payload.issue.fields.parent.id,
+                        ac_id=payload.issue.id,
+                        summary=payload.issue.fields.summary,
+                        description=(
+                            adf_to_md(payload.issue.fields.description)
+                            if payload.issue.fields.description
+                            else None
+                        ),
+                    )
+                case "jira:issue_updated":
+                    self._on_ac_update(
+                        connection_id=connection_id,
+                        project_key=project_key,
+                        story_id=payload.issue.fields.parent.id,
+                        ac_id=payload.issue.id,
+                        summary=payload.issue.fields.summary,
+                        description=(
+                            adf_to_md(payload.issue.fields.description)
+                            if payload.issue.fields.description
+                            else None
+                        ),
+                    )
+                case "jira:issue_deleted":
+                    self._on_ac_delete(
+                        connection_id=connection_id,
+                        project_key=project_key,
+                        story_id=payload.issue.fields.parent.id,
+                        ac_id=payload.issue.id,
+                    )
 
     def get_webhooks(self, connection_id: str):
         connection = (
@@ -1130,7 +836,7 @@ class JiraService:
         if not connection:
             raise ValueError("Connection not found")
 
-        response = self.__exec_refreshing_access_token(
+        response = self._exec_refreshing_access_token(
             connection,
             JiraClient.get_webhooks,
             cloud_id=connection.cloud_id,
@@ -1146,9 +852,75 @@ class JiraService:
         if not connection:
             raise ValueError("Connection not found")
 
-        self.__exec_refreshing_access_token(
+        self._exec_refreshing_access_token(
             connection,
             JiraClient.delete_webhooks,
             cloud_id=connection.cloud_id,
             webhook_ids=[webhook_id],
         )
+
+    def _on_ac_create(
+        self,
+        connection_id: str,
+        project_key: str,
+        story_id: str,
+        ac_id: str,
+        summary: str,
+        description: str,
+    ):
+        """Handle AC creation: save to local DB and vector store"""
+        ac = GherkinAC(
+            id=ac_id,
+            summary=summary,
+            description=description,
+            jira_story_id=story_id,
+        )
+        self.db.add(ac)
+        self.db.commit()
+
+    def _on_ac_update(
+        self,
+        connection_id: str,
+        project_key: str,
+        story_id: str,
+        ac_id: str,
+        summary: str,
+        description: str,
+    ):
+        """Handle AC creation: save to local DB and vector store"""
+        ac = (
+            self.db.query(GherkinAC)
+            .filter(
+                GherkinAC.id == ac_id,
+            )
+            .first()
+        )
+
+        ac.summary = summary
+        ac.description = description
+        self.db.commit()
+
+    def _on_ac_delete(
+        self,
+        connection_id: str,
+        project_key: str,
+        story_id: str,
+        ac_id: str,
+    ):
+        """Handle AC deletion: remove from local DB and vector store"""
+        ac = (
+            self.db.query(GherkinAC)
+            .join(JiraStory, GherkinAC.jira_story_id == JiraStory.id)
+            .join(JiraProject, JiraStory.jira_project_id == JiraProject.id)
+            .join(JiraConnection, JiraProject.jira_connection_id == JiraConnection.id)
+            .filter(
+                JiraConnection.id == connection_id,
+                JiraProject.key == project_key,
+                JiraStory.id == story_id,
+                GherkinAC.id == ac_id,
+            )
+            .first()
+        )
+
+        self.db.delete(ac)
+        self.db.commit()

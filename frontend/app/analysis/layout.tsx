@@ -90,15 +90,12 @@ const AnalysisPageLayout: React.FC<AnalysisPageLayoutProps> = ({
     useAnalysisSummariesQuery(selectedConnectionId || undefined);
   const summaries = summariesData?.data || [];
 
-  const analysisIdRef = useRef<string | null>(null);
+  const [selectedAnalysisKey, setSelectedAnalysisKey] = useState<string | null>(
+    null
+  );
 
-  // Polling
   const [pollingIds, setPollingIds] = useState<string[]>([]);
-  // We use the query hook for polling, but logic to update pollingIds needs to be handled.
-  // Actually, if we use the hook `useAnalysisStatusesQuery`, it returns data. We need to update our summaries or simply rely on re-fetching summaries?
-  // Re-fetching summaries is easier if we just invalidate `summaries` query when status changes.
-  // But `getStatus` is lightweight.
-  // Let's keep pollingIds state to control which to poll.
+
   const { data: statusesData } = useAnalysisStatusesQuery(pollingIds);
 
   // Mutations
@@ -176,14 +173,14 @@ const AnalysisPageLayout: React.FC<AnalysisPageLayoutProps> = ({
     }
   }, [summaries]);
 
-  const handleSelectAnalysis = async (analysisId: string) => {
-    analysisIdRef.current = analysisId;
-    router.push(`/analysis/${analysisId}`);
+  const handleSelectAnalysis = async (analysisKey: string) => {
+    setSelectedAnalysisKey(analysisKey);
+    router.push(`/analysis/${analysisKey}`);
   };
 
-  const handleConnectionChange = async (conn: JiraConnectionDto) => {
-    setSelectedConnectionId(conn.id);
-    analysisIdRef.current = null;
+  const handleConnectionChange = async (conn: JiraConnectionDto | null) => {
+    setSelectedConnectionId(conn?.id || null);
+    setSelectedAnalysisKey(null);
   };
 
   const handleProjectChange = (proj: ProjectDto | null) => {
@@ -226,7 +223,7 @@ const AnalysisPageLayout: React.FC<AnalysisPageLayoutProps> = ({
     const items: SessionItem[] = [];
     summaries.forEach((summary) => {
       items.push({
-        id: summary.id,
+        id: summary.key,
         title: summary.key,
         subtitle: summary.created_at
           ? new Date(summary.created_at).toLocaleString()
@@ -241,7 +238,7 @@ const AnalysisPageLayout: React.FC<AnalysisPageLayoutProps> = ({
           summary.status === "IN_PROGRESS" || summary.status === "PENDING",
       });
 
-      if (summary.id === analysisIdRef.current) {
+      if (summary.key === selectedAnalysisKey) {
         setHeaderProjectKey(summary.project_key);
         setHeaderStoryKey(summary.story_key || "");
       }
@@ -251,9 +248,11 @@ const AnalysisPageLayout: React.FC<AnalysisPageLayoutProps> = ({
 
   return (
     <WorkspaceShell
-      connections={connections}
-      selectedConnection={selectedConnection}
-      onConnectionChange={handleConnectionChange}
+      connectionOptions={{
+        options: connections,
+        onChange: handleConnectionChange,
+        selectedOption: selectedConnection,
+      }}
       projectOptions={{
         options: projectDtos,
         onChange: handleProjectChange,
@@ -269,7 +268,7 @@ const AnalysisPageLayout: React.FC<AnalysisPageLayoutProps> = ({
         onClick: handleRunAnalysis,
       }}
       sessions={sessionItems}
-      selectedSessionId={analysisIdRef.current}
+      selectedSessionId={selectedAnalysisKey}
       onSelectSession={handleSelectAnalysis}
       loadingSessions={isSummariesLoading}
       loadingConnections={isConnectionsLoading}

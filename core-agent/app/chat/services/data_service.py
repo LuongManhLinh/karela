@@ -14,7 +14,7 @@ from ..schemas import (
 )
 
 from sqlalchemy.orm import Session
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 
 
 from typing import List, Optional
@@ -87,15 +87,22 @@ class ChatDataService:
             for session in sessions
         ]
 
-    def get_chat_session(self, session_id: str) -> ChatSessionDto:
+    def get_chat_session(self, session_id_or_key: str) -> ChatSessionDto:
         session = (
-            self.db.query(ChatSession).filter(ChatSession.id == session_id).first()
+            self.db.query(ChatSession)
+            .filter(
+                or_(
+                    ChatSession.id == session_id_or_key,
+                    ChatSession.key == session_id_or_key,
+                )
+            )
+            .first()
         )
         if not session:
-            raise ValueError(f"Chat session {session_id} not found")
+            raise ValueError(f"Chat session {session_id_or_key} not found")
         messages = (
             self.db.query(Message)
-            .filter(Message.session_id == session_id)
+            .filter(Message.session_id == session.id)
             .order_by(Message.created_at.asc())
             .all()
         )

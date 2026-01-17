@@ -1,3 +1,6 @@
+"use client";
+
+import React, { useState } from "react";
 import { DefectDto } from "@/types/analysis";
 import {
   Box,
@@ -7,6 +10,7 @@ import {
   Chip,
   Stack,
   Typography,
+  Link,
 } from "@mui/material";
 import StoryChip from "../StoryChip";
 import DefectChip from "../DefectChip";
@@ -14,6 +18,7 @@ import DefectChip from "../DefectChip";
 interface DefectCardProps {
   defect: DefectDto;
   onMarkSolved: (defectId: string, flag: boolean) => void;
+  onStoriesClick?: (storyKeys: string[]) => void;
 }
 
 const getSeverityColor = (severity?: string) => {
@@ -29,7 +34,11 @@ const getSeverityColor = (severity?: string) => {
   }
 };
 
-const DefectCard: React.FC<DefectCardProps> = ({ defect, onMarkSolved }) => {
+const DefectCard: React.FC<DefectCardProps> = ({
+  defect,
+  onMarkSolved,
+  onStoriesClick,
+}) => {
   return (
     <Card
       key={defect.id}
@@ -117,7 +126,17 @@ const DefectCard: React.FC<DefectCardProps> = ({ defect, onMarkSolved }) => {
               flexWrap="wrap"
             >
               <Typography variant="body1" sx={{ mt: 1 }}>
-                Related Stories:
+                <Link
+                  component="button"
+                  variant="body1"
+                  onClick={() =>
+                    onStoriesClick && onStoriesClick(defect.story_keys!)
+                  }
+                  sx={{ cursor: "pointer" }}
+                  color="textPrimary"
+                >
+                  Related Stories:
+                </Link>
               </Typography>
               <Box
                 sx={{
@@ -127,7 +146,12 @@ const DefectCard: React.FC<DefectCardProps> = ({ defect, onMarkSolved }) => {
                 }}
               >
                 {defect.story_keys.map((key) => (
-                  <StoryChip storyKey={key} size="small" />
+                  <StoryChip
+                    key={key}
+                    storyKey={key}
+                    size="small"
+                    onClick={() => onStoriesClick && onStoriesClick([key])}
+                  />
                 ))}
               </Box>
             </Stack>

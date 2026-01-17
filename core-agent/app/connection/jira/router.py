@@ -1,6 +1,6 @@
 # router.py
 from fastapi import APIRouter, Request, Depends, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 import httpx
 import traceback
 
@@ -19,7 +19,6 @@ async def oauth_start(jwt_payload=Depends(get_jwt_payload)):
     user_id = jwt_payload.get("sub")
     if user_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
-    print("Starting OAuth flow for user_id:", user_id)
     params = {
         "audience": "api.atlassian.com",
         "client_id": JiraConfig.CLIENT_ID,
@@ -38,35 +37,37 @@ async def oauth_start(jwt_payload=Depends(get_jwt_payload)):
     )
 
 
-@router.get("/oauth/callback", response_class=FileResponse)
+@router.get("/oauth/callback")
 async def oauth_callback(
     request: Request, service: JiraService = Depends(get_jira_service)
 ):
     """Handle the OAuth callback from Jira.
 
     Returns:
-        If successful, return the HTML page in `resources/pages/jira_oauth_success.html`.
-        Otherwise, return the HTML page in `resources/pages/jira_oauth_failure.html`.
+        Redirect to frontend /oauth/callback with status parameter.
     """
     try:
         code = request.query_params.get("code")
         user_id = request.query_params.get("state")
 
-        code = service.save_connection(
+        result_code = service.save_connection(
             user_id=user_id,
             code=code,
         )
-        if code == 1:
-            return FileResponse("resources/pages/jira_oauth_success.html")
-        elif code == 2:
-            return FileResponse("resources/pages/jira_oauth_update.html")
+
+        base_url = "http://localhost:3000/oauth/callback"
+
+        if result_code == 1:
+            return RedirectResponse(f"{base_url}?status=success")
+        elif result_code == 2:
+            return RedirectResponse(f"{base_url}?status=update")
         else:
-            return FileResponse("resources/pages/jira_oauth_failure.html")
+            return RedirectResponse(f"{base_url}?status=failure")
 
     except Exception as e:
         print("Error during Jira OAuth callback:", str(e))
         traceback.print_exc()
-        return FileResponse("resources/pages/jira_oauth_failure.html")
+        return RedirectResponse("http://localhost:3000/oauth/callback?status=failure")
 
 
 @router.get("/oauth/callback/{css_file}", response_class=FileResponse)
@@ -93,6 +94,10 @@ async def jira_webhook(
     Returns:
         BasicResponse: A response indicating success or failure of webhook processing.
     """
+    # import json
+
+    # print("Received payload:", json.dumps(payload, indent=2))
+    # return
 
     service.handle_webhook(
         connection_id=connection_id,

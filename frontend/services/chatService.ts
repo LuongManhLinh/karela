@@ -29,10 +29,10 @@ export const chatService = {
   },
 
   getChatSession: async (
-    sessionId: string
+    sessionIdOrKey: string
   ): Promise<BasicResponse<ChatSessionDto>> => {
     const response = await apiClient.get<BasicResponse<ChatSessionDto>>(
-      `/chat/${sessionId}`
+      `/chat/${sessionIdOrKey}`
     );
     return response.data;
   },

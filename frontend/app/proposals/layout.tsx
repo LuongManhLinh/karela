@@ -78,11 +78,12 @@ const ProposalPageContent: React.FC = () => {
     }
   };
 
-  const handleConnectionChange = async (conn: JiraConnectionDto) => {
-    setSelectedConnectionId(conn.id);
+  const handleConnectionChange = async (conn: JiraConnectionDto | null) => {
+    setSelectedConnectionId(conn?.id || null);
     setSelectedSessionId(null);
     setSessions(null);
-    await loadSessions(conn.id);
+    setProposals([]);
+    if (conn) await loadSessions(conn.id);
   };
 
   const handleRefresh = async () => {
@@ -253,9 +254,11 @@ const ProposalPageContent: React.FC = () => {
           }}
         >
           <SessionStartForm
-            selectedConnection={selectedConnection}
-            connections={connections}
-            onConnectionChange={handleConnectionChange}
+            connectionOptions={{
+              options: connections,
+              selectedOption: selectedConnection,
+              onChange: handleConnectionChange,
+            }}
             loadingConnections={isConnectionsLoading}
           />
           <Divider sx={{ my: 2 }} />

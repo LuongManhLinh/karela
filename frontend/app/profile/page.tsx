@@ -38,8 +38,9 @@ import {
   Edit,
   Delete,
 } from "@mui/icons-material";
-import { getToken } from "@/utils/jwt_utils";
+import { getToken } from "@/utils/jwtUtils";
 import { userService } from "@/services/userService";
+import { JiraConnectionItem } from "@/components/profile/JiraConnectionItem";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -224,45 +225,15 @@ export default function ProfilePage() {
           <Stack spacing={2}>
             {connections && connections.jira_connections.length > 0 ? (
               connections.jira_connections.map((conn: JiraConnectionDto) => (
-                <Paper
+                <JiraConnectionItem
                   key={conn.id}
-                  elevation={1}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 2,
-                    p: 2,
-                    borderRadius: 1,
-                    border: `1.5px solid ${theme.palette.divider}`,
-                  }}
-                >
-                  {conn.avatar_url && (
-                    <Box
-                      component="img"
-                      src={conn.avatar_url}
-                      alt={conn.name || "Jira"}
-                      sx={{ width: 40, height: 40, borderRadius: 1 }}
-                    />
-                  )}
-                  <Box sx={{ flexGrow: 1 }}>
-                    <Typography variant="body1" fontWeight="medium">
-                      {conn.name || "Jira Connection"}
-                    </Typography>
-                    {conn.url && (
-                      <Typography variant="caption" color="text.secondary">
-                        {conn.url}
-                      </Typography>
-                    )}
-                  </Box>
-                  <IconButton onClick={(e) => handleMenuOpen(e, conn.id)}>
-                    <MoreVert />
-                  </IconButton>
-                </Paper>
+                  connection={conn}
+                  onMenuOpen={handleMenuOpen}
+                />
               ))
             ) : (
-              <Typography variant="body2" color="text.secondary" paragraph>
-                No Jira connections found. Connect your Jira account to get
-                started.
+              <Typography variant="body2" color="text.secondary">
+                Connect your Jira account to get started.
               </Typography>
             )}
             <Button

@@ -1,20 +1,14 @@
-export interface GherkinAC {
+export interface ACSummary {
   id: string;
-  content: string;
-  jira_issue_key?: string;
-  jira_story_id: string;
+  key: string;
+  story_key: string;
   created_at: string;
   updated_at: string;
 }
 
-export interface ACCreate {
-  content: string;
-  jira_story_id: string;
-}
-
-export interface ACUpdate {
-  content?: string;
-  jira_issue_key?: string;
+export interface ACDto extends ACSummary {
+  summary: string;
+  description: string;
 }
 
 export interface AISuggestion {
@@ -26,7 +20,7 @@ export interface AISuggestion {
     start_column: number;
     end_row: number;
     end_column: number;
-  };  
+  };
 }
 
 export interface AIResponse {

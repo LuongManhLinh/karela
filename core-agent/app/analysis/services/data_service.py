@@ -12,7 +12,7 @@ from app.analysis.schemas import (
     AnalysisStatusDto,
 )
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 
@@ -88,8 +88,17 @@ class AnalysisDataService:
             for analysis in analyses
         ]
 
-    def get_analysis_details(self, analysis_id: str) -> Optional[AnalysisDto]:
-        analysis = self.db.query(Analysis).filter(Analysis.id == analysis_id).first()
+    def get_analysis_details(self, analysis_id_or_key: str) -> Optional[AnalysisDto]:
+        analysis = (
+            self.db.query(Analysis)
+            .filter(
+                or_(
+                    Analysis.id == analysis_id_or_key,
+                    Analysis.key == analysis_id_or_key,
+                )
+            )
+            .first()
+        )
 
         if not analysis:
             return None

@@ -1,8 +1,11 @@
-from app.integrations.jira.services import JiraService
-from common.database import get_db
+from app.connection.ac.services import ACService
 
-service = JiraService(db=next(get_db()))
-conn_id = "59af2ae6-f7bd-4c9a-85e9-c0c830f2d1ee"
+example_gherkin = """Feature: User Login
+  Scenario: Successful login with valid credentials
+    Given the user is on the login page
+    Whe the user enters valid username and password
+"""
 
-service.delete_webhook(connection_id=conn_id, webhook_id=1)
-service.delete_webhook(connection_id=conn_id, webhook_id=2)
+service = ACService(db=None)
+response = service.lint_ac(example_gherkin)
+print(response)

@@ -23,21 +23,26 @@ import {
 
 import { useParams } from "next/navigation";
 import { scrollBarSx } from "@/constants/scrollBarSx";
+import MultiStoryDetailDialog from "@/components/MultiStoryDetailDialog";
+import { useWorkspaceStore } from "@/store/useWorkspaceStore";
+import ProposalContentDiffDialog from "@/components/proposals/ProposalContentDiffDialog";
 
 const AnalysisDetailPage: React.FC = () => {
   const { id } = useParams();
 
-  const selectedAnalysisId = useMemo(() => {
+  const idOrKey = useMemo(() => {
     return typeof id === "string" ? id : null;
   }, [id]);
 
+  const { selectedConnectionId } = useWorkspaceStore();
+
   const { data: analysisDetailData, isLoading: isDetailsLoading } =
-    useAnalysisDetailsQuery(selectedAnalysisId);
+    useAnalysisDetailsQuery(idOrKey);
   const selectedAnalysisDetail = analysisDetailData?.data || null;
 
   // Proposals
   const { data: proposalsData, isLoading: isProposalsLoading } =
-    useSessionProposalsQuery(selectedAnalysisId || undefined, "ANALYSIS");
+    useSessionProposalsQuery(idOrKey || undefined, "ANALYSIS");
   const analysisProposals = proposalsData?.data || [];
 
   // Mutations
@@ -53,6 +58,33 @@ const AnalysisDetailPage: React.FC = () => {
   const [error, setError] = useState("");
   const [showError, setShowError] = useState(false);
 
+  const [multiStoryDialogOpen, setMultiStoryDialogOpen] = useState(false);
+  const [selectedStoryKeys, setSelectedStoryKeys] = useState<string[]>([]);
+
+  const [diffDialogOpen, setDiffDialogOpen] = useState(false);
+  const [selectedContentForDiff, setSelectedContentForDiff] =
+    useState<ProposalContentDto | null>(null);
+
+  const handleDefectCardStoriesClick = (storyKeys: string[]) => {
+    setSelectedStoryKeys(storyKeys);
+    setMultiStoryDialogOpen(true);
+  };
+
+  const handleCloseMultiStoryDialog = () => {
+    setMultiStoryDialogOpen(false);
+    setSelectedStoryKeys([]);
+  };
+
+  const handleProposalContentClick = (content: ProposalContentDto) => {
+    setSelectedContentForDiff(content);
+    setDiffDialogOpen(true);
+  };
+
+  const handleCloseDiffDialog = () => {
+    setDiffDialogOpen(false);
+    setSelectedContentForDiff(null);
+  };
+
   const handleMarkSolved = async (defectId: string, solved: boolean) => {
     try {
       await markSolved({ defectId, solved });
@@ -65,9 +97,9 @@ const AnalysisDetailPage: React.FC = () => {
   };
 
   const handleGenerateProposals = async () => {
-    if (!selectedAnalysisId) return;
+    if (!idOrKey) return;
     try {
-      await generateProposals(selectedAnalysisId);
+      await generateProposals(idOrKey);
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.detail || "Failed to start proposal generation";
@@ -80,7 +112,7 @@ const AnalysisDetailPage: React.FC = () => {
     proposalId: string,
     flag: ProposalActionFlag
   ) => {
-    if (!selectedAnalysisId) return;
+    if (!idOrKey) return;
     try {
       await actOnProposal({ proposalId, flag });
     } catch (err: any) {
@@ -96,7 +128,7 @@ const AnalysisDetailPage: React.FC = () => {
     content: ProposalContentDto,
     flag: ProposalActionFlag
   ) => {
-    if (!selectedAnalysisId || !content.id) return;
+    if (!idOrKey || !content.id) return;
     try {
       await actOnProposalContent({ proposalId, contentId: content.id, flag });
     } catch (err: any) {
@@ -108,11 +140,11 @@ const AnalysisDetailPage: React.FC = () => {
   };
 
   const handleRerunAnalysis = async () => {
-    if (!selectedAnalysisId) return;
+    if (!idOrKey) return;
     setError("");
 
     try {
-      await rerunAnalysis(selectedAnalysisId);
+      await rerunAnalysis(idOrKey);
       // Invalidation handles state update
     } catch (err: any) {
       const errorMessage =
@@ -137,11 +169,7 @@ const AnalysisDetailPage: React.FC = () => {
       selectedAnalysisDetail?.status === "PENDING" ||
       selectedAnalysisDetail?.status === "IN_PROGRESS";
     return (
-      <Button
-        variant="contained"
-        onClick={handleRerunAnalysis}
-        disabled={selectedAnalysisId !== null}
-      >
+      <Button variant="contained" onClick={handleRerunAnalysis}>
         {running ? "Analysis Running..." : "Rerun Analysis"}
       </Button>
     );
@@ -206,6 +234,7 @@ const AnalysisDetailPage: React.FC = () => {
                       key={defect.id}
                       defect={defect}
                       onMarkSolved={handleMarkSolved}
+                      onStoriesClick={handleDefectCardStoriesClick}
                     />
                   ))
                 )}
@@ -245,6 +274,7 @@ const AnalysisDetailPage: React.FC = () => {
                         proposal={proposal}
                         onProposalAction={handleProposalAction}
                         onProposalContentAction={handleProposalContentAction}
+                        onProposalContentClick={handleProposalContentClick}
                       />
                     ))}
                   </Stack>
@@ -272,6 +302,20 @@ const AnalysisDetailPage: React.FC = () => {
         open={showError}
         message={error}
         onClose={() => setShowError(false)}
+      />
+      <MultiStoryDetailDialog
+        open={multiStoryDialogOpen}
+        onClose={handleCloseMultiStoryDialog}
+        connectionId={selectedConnectionId || ""}
+        projectKey={analysisDetailData?.data?.project_key || ""}
+        storyKeys={selectedStoryKeys}
+      />
+      <ProposalContentDiffDialog
+        open={diffDialogOpen}
+        onClose={handleCloseDiffDialog}
+        content={selectedContentForDiff}
+        connectionId={selectedConnectionId || ""}
+        projectKey={analysisDetailData?.data?.project_key || ""}
       />
     </Box>
   );

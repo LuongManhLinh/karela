@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import { Box, Typography } from "@mui/material";
 
 export const metadata: Metadata = {
-  title: "Karela Analysis",
-  description: "Karela Analyze page description",
+  title: "Analysis",
+  description: "Karela Analysis page description",
 };
 
-export default function ChatPage() {
+export default function AnalysisPage() {
   return (
     <Box
       sx={{

@@ -3,23 +3,19 @@ from typing import Optional, List, Literal
 from datetime import datetime
 
 
-class ACBase(BaseModel):
+class ACCreateRequest(BaseModel):
+    gen_with_ai: bool = False
+
+
+class ACRegenerateRequest(BaseModel):
     content: str
-    jira_story_id: str
+    feedback: Optional[str] = None
 
 
-class ACCreateRequest(ACBase):
-    pass
-
-
-class ACUpdate(BaseModel):
-    content: Optional[str] = None
-    jira_issue_key: Optional[str] = None
-
-
-class ACResponse(ACBase):
+class ACSummary(BaseModel):
     id: str
-    jira_issue_key: Optional[str] = None
+    key: Optional[str] = None
+    story_key: str
     created_at: datetime
     updated_at: datetime
 
@@ -27,18 +23,31 @@ class ACResponse(ACBase):
         from_attributes = True
 
 
+class ACDto(ACSummary):
+    summary: str
+    description: str
+
+
 class AIRequest(BaseModel):
+    story_key: str
     content: str
     cursor_line: int
     cursor_column: int
     context: Optional[str] = None
 
 
+class AISuggestionPosition(BaseModel):
+    start_row: int
+    start_column: int
+    end_row: int
+    end_column: int
+
+
 class AISuggestion(BaseModel):
     new_content: str
     explanation: str
     type: Literal["CREATE", "UPDATE", "DELETE"]
-    position: dict
+    position: AISuggestionPosition
 
 
 class AIResponse(BaseModel):

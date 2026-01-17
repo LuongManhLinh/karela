@@ -1,4 +1,4 @@
-import { getToken } from "@/utils/jwt_utils";
+import { getToken } from "@/utils/jwtUtils";
 import apiClient from "./api";
 
 export const jiraService = {

@@ -12,7 +12,7 @@ from .schemas import (
     UserConnections,
 )
 from .services import UserService
-from app.integrations.jira.services import JiraService
+from app.connection.jira.services import JiraService
 
 router = APIRouter()
 
@@ -85,7 +85,7 @@ def change_password(
 
 
 @router.get("/connections")
-def get_user_connections(
+def list_connections(
     service: UserService = Depends(get_user_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
@@ -119,7 +119,7 @@ def list_projects(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/connections/{connection_id}/projects/{project_key}/issues")
+@router.get("/connections/{connection_id}/projects/{project_key}/stories")
 def list_stories(
     connection_id: str,
     project_key: str,
@@ -157,3 +157,45 @@ def delete_connection(
         raise HTTPException(status_code=404, detail=str(e))
     except PermissionError as e:
         raise HTTPException(status_code=403, detail=str(e))
+
+
+@router.get("/connections/{connection_id}/projects/{project_key}/stories/{story_key}")
+async def get_story_details(
+    connection_id: str,
+    project_key: str,
+    story_key: str,
+    service: JiraService = Depends(get_jira_service),
+    jwt_payload=Depends(get_jwt_payload),
+):
+    user_id = jwt_payload.get("sub")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+    try:
+        story = service.fetch_stories(
+            connection_id=connection_id,
+            project_key=project_key,
+            story_keys=[story_key],
+        )
+        if not story:
+            raise ValueError(f"Story with key {story_key} not found")
+        return BasicResponse(data=story[0])
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.get("/connections/{connection_id}/sync-status")
+def get_connection_sync_status(
+    connection_id: str,
+    service: JiraService = Depends(get_jira_service),
+    jwt_payload=Depends(get_jwt_payload),
+):
+    user_id = jwt_payload.get("sub")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+    try:
+        status_dto = service.get_connection_sync_status(
+            user_id=user_id, connection_id_or_name=connection_id
+        )
+        return BasicResponse(data=status_dto)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))

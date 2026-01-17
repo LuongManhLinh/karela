@@ -15,6 +15,7 @@ import {
   AccordionSummary,
   AccordionDetails,
   Skeleton,
+  CircularProgress,
 } from "@mui/material";
 import { ExpandLess } from "@mui/icons-material";
 import { MessageBubble } from "@/components/chat/MessageBubble";
@@ -34,20 +35,43 @@ import type { ChatMessageDto, MessageRole, MessageChunk } from "@/types/chat";
 
 import { ProposalCard } from "@/components/proposals/ProposalCard";
 
-import { getToken } from "@/utils/jwt_utils";
+import { getToken } from "@/utils/jwtUtils";
 import { ChatSection } from "@/components/chat/ChatSection";
 import { useParams } from "next/navigation";
 import { useWaitingMessageStore } from "@/store/useWaitingMessageStore";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { scrollBarSx } from "@/constants/scrollBarSx";
+import { load } from "ace-builds/src-noconflict/ext-emmet";
 
 const WS_BASE_URL = "ws://localhost:8000/api/v1/chat/";
 
 const ChatDetailPage: React.FC = () => {
   const { id } = useParams();
-  const selectedChatId = id === "string" ? id : String(id);
+  const idOrKey = useMemo(() => {
+    return typeof id === "string" ? id : null;
+  }, [id]);
+
+  if (!idOrKey) {
+    return (
+      <Box
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%",
+          height: "100%",
+        }}
+      >
+        <Typography color="text.secondary" variant="h4">
+          No session selected
+        </Typography>
+      </Box>
+    );
+  }
 
   const [messages, setMessages] = useState<ChatMessageDto[]>([]);
+  const [loadingSession, setLoadingSession] = useState(false);
   const [sessionProposals, setSessionProposals] = useState<ProposalDto[]>([]);
   const [loadingProposals, setLoadingProposals] = useState(false);
 
@@ -82,32 +106,33 @@ const ChatDetailPage: React.FC = () => {
   const initialzed = useRef<boolean>(false);
 
   const loadSession = useCallback(
-    async (sessionId: string) => {
-      console.log("Loading session:", selectedChatId);
-
+    async (sessionKey: string) => {
       try {
-        const response = await chatService.getChatSession(sessionId);
+        setLoadingSession(true);
+        const response = await chatService.getChatSession(sessionKey);
         setMessages(response.data?.messages || []);
-        await fetchSessionProposals(sessionId);
+        await fetchSessionProposals(sessionKey);
       } catch (err: any) {
         const errorMessage =
           err.response?.data?.detail || "Failed to load session";
         setError(errorMessage);
         setShowError(true);
+      } finally {
+        setLoadingSession(false);
       }
     },
-    [selectedChatId]
+    [idOrKey]
   );
 
   useEffect(() => {
-    if (selectedChatId && !initialzed.current) {
-      if (selectedChatId === waitingSessionId && waitingMessage) {
-        console.log("Sending waiting message for session:", selectedChatId);
+    if (idOrKey && !initialzed.current) {
+      if (idOrKey === waitingSessionId && waitingMessage) {
+        console.log("Sending waiting message for session:", idOrKey);
         const messageToSend = waitingMessage.trim();
         resetWaitingMessage();
         handleSendMessage(messageToSend);
       } else {
-        loadSession(selectedChatId);
+        loadSession(idOrKey);
       }
       initialzed.current = true;
     }
@@ -219,7 +244,7 @@ const ChatDetailPage: React.FC = () => {
           if (!proposal) {
             continue;
           }
-          if (proposal.session_id !== selectedChatId) {
+          if (proposal.session_id !== idOrKey) {
             continue;
           }
           fetchedProposals.push(proposal);
@@ -229,7 +254,7 @@ const ChatDetailPage: React.FC = () => {
         console.error("Failed to fetch proposal:", err);
       }
     },
-    [selectedChatId]
+    [idOrKey]
   );
 
   // Commit streaming message to history when stream ends
@@ -274,8 +299,6 @@ const ChatDetailPage: React.FC = () => {
         return [...prev, newMsg];
       });
 
-      console.log("Streaming message committed:", messageId);
-
       // Reset all streaming state
       setStreamingContent("");
       setStreamingRole(null);
@@ -290,8 +313,6 @@ const ChatDetailPage: React.FC = () => {
       //   isCommittingRef.current = false;
       // }, 100);
       isCommittingRef.current = false;
-    } else {
-      console.log("No active streaming message to commit");
     }
   }, [streamingIdRef, streamingRoleRef]);
 
@@ -303,13 +324,10 @@ const ChatDetailPage: React.FC = () => {
 
       // Check if this is a NEW message (different ID from current streaming message)
       if (streamingIdRef.current && streamingIdRef.current !== chunkId) {
-        console.log("New message detected, committing previous message first");
-        // Commit the previous streaming message before starting a new one
         commitStreamingMessage();
       }
 
       if (!streamingIdRef.current || streamingIdRef.current !== chunkId) {
-        console.log("Starting new streaming message:", chunkId);
         streamingIdRef.current = chunkId;
         streamingBufferRef.current = chunkContent;
         displayedLengthRef.current = 0;
@@ -404,7 +422,7 @@ const ChatDetailPage: React.FC = () => {
       }
     },
     [
-      selectedChatId,
+      idOrKey,
       handleMessageChunk,
       commitStreamingMessage,
       fetchSessionProposals,
@@ -427,7 +445,7 @@ const ChatDetailPage: React.FC = () => {
     };
     setMessages((prev) => [...prev, userMsg]);
 
-    connectWebSocket(messageToSend, selectedChatId);
+    connectWebSocket(messageToSend, idOrKey);
   };
 
   const renderMessage = (message: ChatMessageDto) => {
@@ -452,7 +470,7 @@ const ChatDetailPage: React.FC = () => {
     async (proposalId: string, flag: ProposalActionFlag) => {
       try {
         await proposalService.actOnProposal(proposalId, flag);
-        await fetchSessionProposals(selectedChatId);
+        await fetchSessionProposals(idOrKey);
       } catch (err: any) {
         const errorMessage =
           err.response?.data?.detail || "Failed to update proposal";
@@ -460,7 +478,7 @@ const ChatDetailPage: React.FC = () => {
         setShowError(true);
       }
     },
-    [selectedChatId, fetchSessionProposals]
+    [idOrKey, fetchSessionProposals]
   );
 
   const handleProposalContentAction = useCallback(
@@ -475,7 +493,7 @@ const ChatDetailPage: React.FC = () => {
           content.id,
           flag
         );
-        await fetchSessionProposals(selectedChatId);
+        await fetchSessionProposals(idOrKey);
       } catch (err: any) {
         const errorMessage =
           err.response?.data?.detail || "Failed to update proposal content";
@@ -483,22 +501,11 @@ const ChatDetailPage: React.FC = () => {
         setShowError(true);
       }
     },
-    [selectedChatId, fetchSessionProposals]
+    [idOrKey, fetchSessionProposals]
   );
 
-  return (
-    <Box
-      sx={{
-        flexGrow: 1,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: messages.length === 0 ? "center" : "flex-start",
-        alignItems: "center",
-        width: "100%",
-        height: "100%",
-        position: "relative",
-      }}
-    >
+  const chatContent = (
+    <>
       <Box
         sx={{
           overflow: "auto",
@@ -657,6 +664,23 @@ const ChatDetailPage: React.FC = () => {
 
         <ChatSection sendMessage={handleSendMessage} disabled={connecting} />
       </Box>
+    </>
+  );
+
+  return (
+    <Box
+      sx={{
+        flexGrow: 1,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: messages.length === 0 ? "center" : "flex-start",
+        alignItems: "center",
+        width: "100%",
+        height: "100%",
+        position: "relative",
+      }}
+    >
+      {loadingSession ? <CircularProgress /> : chatContent}
 
       <ErrorSnackbar
         open={showError}

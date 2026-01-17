@@ -30,11 +30,12 @@ async def get_analysis_summaries(
     return BasicResponse(data=summaries)
 
 
-@router.get("/{analysis_id}")
+@router.get("/{analysis_id_or_key}")
 async def get_analysis_details(
-    analysis_id: str, service: AnalysisDataService = Depends(get_analysis_data_service)
+    analysis_id_or_key: str,
+    service: AnalysisDataService = Depends(get_analysis_data_service),
 ):
-    detail: AnalysisDto = service.get_analysis_details(analysis_id)
+    detail: AnalysisDto = service.get_analysis_details(analysis_id_or_key)
     if detail is None:
         raise HTTPException(status_code=404, detail="Analysis detail not found")
     return BasicResponse(data=detail)

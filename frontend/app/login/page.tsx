@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 import { useLoginMutation } from "@/hooks/queries/useUserQueries";
 import { ErrorSnackbar } from "@/components/ErrorSnackbar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { getToken, saveToken } from "@/utils/jwt_utils";
+import { getToken, saveToken } from "@/utils/jwtUtils";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -140,15 +140,15 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoginPending}
             />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-                disabled={isLoginPending}
-              >
-                {isLoginPending ? <LoadingSpinner size={24} /> : "Sign In"}
-              </Button>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              disabled={isLoginPending}
+            >
+              {isLoginPending ? <LoadingSpinner size={24} /> : "Sign In"}
+            </Button>
             <Box textAlign="center">
               <Link href="/register" passHref>
                 <MuiLink component="span" variant="body2">

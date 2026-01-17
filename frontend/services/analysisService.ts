@@ -21,10 +21,10 @@ export const analysisService = {
   },
 
   getAnalysisDetails: async (
-    analysisId: string
+    analysisIdOrKey: string
   ): Promise<BasicResponse<AnalysisDto>> => {
     const response = await apiClient.get<BasicResponse<AnalysisDto>>(
-      `/analyses/${analysisId}`
+      `/analyses/${analysisIdOrKey}`
     );
     return response.data;
   },

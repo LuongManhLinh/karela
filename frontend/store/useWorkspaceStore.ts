@@ -16,6 +16,7 @@ interface WorkspaceState {
 
   // Actions to reset dependent states
   resetSelection: () => void;
+  resetHeaderKeys: () => void;
 }
 
 export const useWorkspaceStore = create<WorkspaceState>()(
@@ -49,6 +50,11 @@ export const useWorkspaceStore = create<WorkspaceState>()(
           selectedConnectionId: null,
           selectedProjectKey: null,
           selectedStoryKey: null,
+        }),
+      resetHeaderKeys: () =>
+        set({
+          headerProjectKey: "",
+          headerStoryKey: "",
         }),
     }),
     {

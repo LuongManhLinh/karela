@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getToken } from "@/utils/jwt_utils";
+import { getToken } from "@/utils/jwtUtils";
 
 export default function Home() {
   const router = useRouter();

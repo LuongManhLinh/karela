@@ -10,7 +10,7 @@ import type {
   StorySummary,
 } from "@/types/integration";
 import { SessionItem } from "@/components/SessionList";
-import { getToken } from "@/utils/jwt_utils";
+import { getToken } from "@/utils/jwtUtils";
 import {
   useUserConnectionsQuery,
   useProjectKeysQuery,
@@ -18,7 +18,6 @@ import {
 } from "@/hooks/queries/useUserQueries";
 import { useChatSessionsQuery } from "@/hooks/queries/useChatQueries";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
-import { set } from "ace-builds-internal/config";
 import { NONE_STORY_SUMMARY } from "@/constants/selectable";
 
 interface ChatPageLayoutProps {
@@ -26,7 +25,7 @@ interface ChatPageLayoutProps {
 }
 const ChatPageLayout: React.FC<ChatPageLayoutProps> = ({ children }) => {
   const [sessions, setSessions] = useState<ChatSessionSummary[]>([]);
-  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
+  const [selectedSessionKey, setSelectedSessionKey] = useState<string | null>(
     null
   );
   // Global State (Zustand)
@@ -118,8 +117,8 @@ const ChatPageLayout: React.FC<ChatPageLayoutProps> = ({ children }) => {
     }
   }, [router]);
 
-  const onConnectionChange = async (conn: JiraConnectionDto) => {
-    setSelectedConnectionId(conn.id);
+  const onConnectionChange = async (conn: JiraConnectionDto | null) => {
+    setSelectedConnectionId(conn?.id || null);
   };
 
   const handleProjectChange = (proj: ProjectDto | null) => {
@@ -133,16 +132,15 @@ const ChatPageLayout: React.FC<ChatPageLayoutProps> = ({ children }) => {
 
   // Sessions loading handled by query
 
-  const handleSelectSession = async (sessionId: string) => {
-    console.log("Selecting session:", sessionId);
-    setSelectedSessionId(sessionId);
-    router.push(`/chat/${sessionId}`);
+  const handleSelectSession = async (sessionKey: string) => {
+    setSelectedSessionKey(sessionKey);
+    router.push(`/chat/${sessionKey}`);
   };
 
   const handleNewChat = () => {
     setHeaderProjectKey(selectedProjectKey || "");
     setHeaderStoryKey(selectedStoryKey || "");
-    setSelectedSessionId(null);
+    setSelectedSessionKey(null);
     router.push(`/chat/`);
   };
 
@@ -150,23 +148,25 @@ const ChatPageLayout: React.FC<ChatPageLayoutProps> = ({ children }) => {
     const items: SessionItem[] = [];
     sessions.forEach((session) => {
       items.push({
-        id: session.id,
+        id: session.key,
         title: session.key,
         subtitle: new Date(session.created_at).toLocaleString(),
       });
-      if (session.id === selectedSessionId) {
+      if (session.key === selectedSessionKey) {
         setHeaderProjectKey(session.project_key);
         setHeaderStoryKey(session.story_key || "");
       }
     });
     return items;
-  }, [sessions, selectedSessionId, setHeaderProjectKey, setHeaderStoryKey]);
+  }, [sessions, selectedSessionKey, setHeaderProjectKey, setHeaderStoryKey]);
 
   return (
     <WorkspaceShell
-      connections={connections}
-      selectedConnection={selectedConnection}
-      onConnectionChange={onConnectionChange}
+      connectionOptions={{
+        options: connections,
+        onChange: onConnectionChange,
+        selectedOption: selectedConnection,
+      }}
       projectOptions={{
         options: projectDtos,
         onChange: handleProjectChange,
@@ -182,7 +182,7 @@ const ChatPageLayout: React.FC<ChatPageLayoutProps> = ({ children }) => {
         onClick: handleNewChat,
       }}
       sessions={sessionItems}
-      selectedSessionId={selectedSessionId}
+      selectedSessionId={selectedSessionKey}
       onSelectSession={handleSelectSession}
       loadingSessions={isSessionsLoading}
       loadingConnections={isConnectionsLoading}

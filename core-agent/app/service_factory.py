@@ -2,7 +2,8 @@ from fastapi import Depends
 
 from .analysis.services import AnalysisDataService, AnalysisRunService, DefectService
 from .chat.services import ChatService, ChatDataService
-from .integrations.jira.services import JiraService
+from .connection.jira.services import JiraService
+from .connection.ac.services import ACService
 from .proposal.services import ProposalService
 from .settings.services import SettingsService
 from .user.services import UserService
@@ -43,3 +44,7 @@ def get_user_service(db=Depends(get_db)):
 
 def get_defect_service(db=Depends(get_db)):
     return DefectService(db)
+
+
+def get_ac_service(db=Depends(get_db)):
+    return ACService(db)

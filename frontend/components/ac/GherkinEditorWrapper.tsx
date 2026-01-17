@@ -1,5 +1,11 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import dynamic from "next/dynamic";
 import {
   Box,
@@ -7,10 +13,28 @@ import {
   CircularProgress,
   useTheme,
   Typography,
+  Button,
+  Switch,
+  Tooltip,
+  IconButton,
+  Popover,
+  TextField,
+  PopoverPaper,
 } from "@mui/material";
-import { useACStore } from "@/store/useACStore";
+import { Info as InfoIcon, Try, Try as TryIcon } from "@mui/icons-material";
 import { defineGherkinMode } from "@/utils/ace-gherkin-mode";
 import { defineCustomThemes } from "@/utils/ace-themes";
+import { acService } from "@/services/acService";
+import { AISuggestion } from "@/types/ac";
+import { lintGherkin } from "@/utils/gherkin-linter";
+import {
+  getGherkinEditorTheme,
+  setGherkinEditorTheme,
+} from "@/utils/editorThemeUtils";
+import { ChatSection } from "../chat/ChatSection";
+import { ACChatPopover } from "./ACChatPopover";
+import { connectionService } from "@/services/connectionService";
+import { scrollBarSx } from "@/constants/scrollBarSx";
 
 // Dynamic import of React Ace avoiding SSR issues
 const AceEditor = dynamic(
@@ -40,33 +64,72 @@ const AceEditor = dynamic(
 ) as any;
 
 interface GherkinEditorWrapperProps {
+  storyKey: string;
   initialValue: string;
   readOnly?: boolean;
-  onChange?: (value: string) => void;
+  onSave?: (gherkin: string) => void;
+  onSendFeedback?: (gherkin: string, feedback: string) => void;
 }
 
 const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
+  storyKey,
   initialValue,
   readOnly = false,
-  onChange,
+  onSave,
+  onSendFeedback,
 }) => {
+  const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
+  const [annotations, setAnnotations] = useState<any[]>([]);
+  const [chatOpen, setChatOpen] = useState(false);
+
+  const chatButtonRef = useRef<HTMLButtonElement>(null);
+
+  const fetchSuggestions = useCallback(
+    async (content: string, line: number, col: number) => {
+      try {
+        const res = await acService.getSuggestions(
+          storyKey,
+          content,
+          line,
+          col
+        );
+        setSuggestions(res.suggestions);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    []
+  ); // Dependencies? Likely none if acService is static, otherwise add them
+
+  const clearSuggestions = useCallback(() => setSuggestions([]), []);
+
+  // 2. Wrap lintContent in useCallback
+  const lintContent = useCallback((content: string) => {
+    return;
+    const errors = lintGherkin(content);
+    const newAnnotations = errors.map((err: any) => ({
+      row: err.line - 1,
+      column: err.column || 0,
+      text: err.message,
+      type: "error",
+    }));
+
+    // Optional optimization: Compare lengths or content to avoid unnecessary re-renders
+    setAnnotations(newAnnotations);
+  }, []);
+
   const [value, setValue] = useState(initialValue);
-  const {
-    fetchSuggestions,
-    clearSuggestions,
-    lintContent,
-    annotations,
-    suggestions,
-  } = useACStore();
-  const theme = useTheme();
   const editorInstanceRef = useRef<any>(null);
   const [markers, setMarkers] = useState<any[]>([]);
-  const [activeSuggestion, setActiveSuggestion] = useState<any>(null);
+  const [activeSuggestion, setActiveSuggestion] = useState<AISuggestion | null>(
+    null
+  );
   const [popupPos, setPopupPos] = useState<{
     top: number;
     left: number;
   } | null>(null);
-  const [editorTheme, setEditorTheme] = useState("jira"); // Default theme
+  const [editorTheme, setEditorTheme] = useState(getGherkinEditorTheme());
+  const [aiSuggestionEnabled, setAiSuggestionEnabled] = useState(true);
 
   // We need to track if a CREATE suggestion was just inserted to handle Dismiss
   const insertedSuggestionRef = useRef<{ range: any; text: string } | null>(
@@ -91,7 +154,6 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
 
   const handleChange = (newValue: string) => {
     setValue(newValue);
-    if (onChange) onChange(newValue);
 
     // Only dismiss if the change wasn't caused by accepting/inserting a suggestion
     if (!isInternalChangeRef.current) {
@@ -99,6 +161,14 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
     }
     isInternalChangeRef.current = false;
   };
+
+  const changed = useRef(false);
+  useEffect(() => {
+    const isChanged = async () => initialValue !== value;
+    isChanged().then((res) => {
+      changed.current = res;
+    });
+  }, [value, initialValue]);
 
   // Custom command handling
   useEffect(() => {
@@ -176,6 +246,16 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
           column: s.position.start_column - 1,
         },
         end: { row: s.position.end_row - 1, column: s.position.end_column - 1 },
+      });
+
+      editor.commands.addCommand({
+        name: "saveDocument",
+        bindKey: { win: "Ctrl-Shift-S", mac: "Command-Shift-S" },
+        exec: () => {
+          if (onSave) onSave(value);
+          return true;
+        },
+        readOnly: false,
       });
 
       editor.commands.addCommand({
@@ -258,15 +338,6 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
         type: "text",
         inFront: false,
       });
-
-      if (editorInstanceRef.current) {
-        const editor = editorInstanceRef.current;
-        const coords = editor.renderer.textToScreenCoordinates(
-          s.position.start_row - 1,
-          s.position.start_column - 1
-        );
-        setPopupPos({ top: coords.pageY + 20, left: coords.pageX });
-      }
     } else if (s.type === "DELETE") {
       newMarkers.push({
         startRow: s.position.start_row - 1,
@@ -279,24 +350,66 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
       });
     }
 
+    if (editorInstanceRef.current) {
+      const editor = editorInstanceRef.current;
+      const coords = editor.renderer.textToScreenCoordinates(
+        s.position.start_row - 1,
+        s.position.start_column - 1
+      );
+      setPopupPos({ top: coords.pageY + 20, left: coords.pageX });
+    }
+
     setMarkers(newMarkers);
   }, [suggestions]);
 
   // AI Trigger
+  // 3. Update the AI Trigger Effect
   useEffect(() => {
     const handler = setTimeout(() => {
-      if (editorInstanceRef.current) {
+      if (aiSuggestionEnabled && editorInstanceRef.current) {
         const editor = editorInstanceRef.current;
-        if (editor && editor.getCursorPosition && !suggestions.length) {
+
+        // Ensure we don't fetch if suggestions already exist
+        if (editor && editor.getCursorPosition && suggestions.length === 0) {
           const cursor = editor.getCursorPosition();
           if (value.trim().length > 0) {
             fetchSuggestions(value, cursor.row + 1, cursor.column + 1);
           }
         }
       }
-    }, 1500); // 1.5s pause to trigger AI
+    }, 1500);
+
     return () => clearTimeout(handler);
-  }, [value, fetchSuggestions, suggestions.length]);
+
+    // Add aiSuggestionEnabled to dependencies to avoid stale closures
+  }, [value, fetchSuggestions, suggestions.length, aiSuggestionEnabled]);
+
+  const handleToggleAISuggestions = (checked: boolean) => {
+    if (!changed) {
+      clearSuggestions();
+    }
+    setAiSuggestionEnabled(checked);
+  };
+
+  const handleThemeChange = (theme: string) => {
+    setEditorTheme(theme);
+    setGherkinEditorTheme(theme);
+  };
+
+  const hanldeChatClick = () => {
+    setChatOpen(!chatOpen);
+  };
+
+  const handleSendFeedback = async (feedback: string) => {
+    if (editorInstanceRef.current && onSendFeedback) {
+      const editor = editorInstanceRef.current;
+      const gherkinContent = editor.getValue();
+
+      onSendFeedback(gherkinContent, feedback);
+
+      setChatOpen(false);
+    }
+  };
 
   return (
     <Box
@@ -325,13 +438,22 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
           gap: 2,
         }}
       >
+        <Button
+          variant="outlined"
+          size="small"
+          onClick={() => {
+            if (onSave) onSave(value);
+          }}
+        >
+          Save{changed.current ? "*" : ""}
+        </Button>
         <Box display="flex" alignItems="center" gap={1}>
           <Typography variant="body2" sx={{ fontWeight: "bold" }}>
             Theme:
           </Typography>
           <select
             value={editorTheme}
-            onChange={(e) => setEditorTheme(e.target.value)}
+            onChange={(e) => handleThemeChange(e.target.value)}
             style={{
               padding: "4px",
               borderRadius: "4px",
@@ -368,11 +490,24 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
           </Box>
         </Box>
 
-        <Box flexGrow={1} />
+        <Box display="flex" alignItems="center">
+          <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+            AI Suggestions:
+          </Typography>
+          <Switch
+            checked={aiSuggestionEnabled}
+            onChange={(e) => handleToggleAISuggestions(e.target.checked)}
+            color="primary"
+          />
+        </Box>
 
-        <Typography variant="caption" color="text.secondary">
-          Tab to Accept AI | Shift + Tab to Dismiss
-        </Typography>
+        <Box flexGrow={1} />
+        <IconButton onClick={hanldeChatClick} ref={chatButtonRef}>
+          <TryIcon color="action" />
+        </IconButton>
+        <Tooltip title="Use TAB to accept the AI suggestion, or SHIFT + TAB to dismiss it.">
+          <InfoIcon color="action" />
+        </Tooltip>
       </Box>
 
       {/* Editor Container */}
@@ -431,10 +566,12 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
           }}
           style={{
             fontFamily: "'Fira Code', 'Roboto Mono', monospace",
+            opacity: readOnly ? 0.6 : 1,
+            ...scrollBarSx,
           }}
         />
-        {/* Update Popup */}
-        {activeSuggestion && activeSuggestion.type === "UPDATE" && popupPos && (
+
+        {activeSuggestion && popupPos && (
           <Paper
             elevation={4}
             sx={{
@@ -442,19 +579,33 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
               top: popupPos.top,
               left: popupPos.left,
               zIndex: 1300,
-              p: 1.5,
+              p: 1,
               maxWidth: 400,
               bgcolor: "#fffde7",
-              borderLeft: "4px solid #fbc02d",
+              borderLeftWidth: 4,
+              borderLeftStyle: "solid",
+              borderLeftColor:
+                activeSuggestion.type === "CREATE"
+                  ? "success.main"
+                  : activeSuggestion.type === "DELETE"
+                  ? "error.main"
+                  : "warning.main",
               color: "text.primary",
+              borderRadius: "0 4px 4px 4px",
             }}
           >
-            <Typography
-              variant="caption"
-              sx={{ fontWeight: "bold", display: "block", color: "#f57f17" }}
-            >
-              SUGGESTION (Tab to Apply)
-            </Typography>
+            {activeSuggestion.type === "UPDATE" && (
+              <Typography
+                variant="body1"
+                sx={{
+                  fontFamily: "monospace",
+                  whiteSpace: "pre-wrap",
+                  color: "#000",
+                }}
+              >
+                {activeSuggestion.new_content}
+              </Typography>
+            )}
             <Typography
               variant="body2"
               sx={{
@@ -463,11 +614,21 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
                 color: "#000",
               }}
             >
-              {activeSuggestion.new_content}
+              Reason: {activeSuggestion.explanation}
             </Typography>
           </Paper>
         )}
       </Box>
+
+      <ACChatPopover
+        open={chatOpen}
+        anchorEl={chatButtonRef.current}
+        onClose={() => setChatOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        onSendMessage={handleSendFeedback}
+        title="Regenerate AC"
+      />
     </Box>
   );
 };

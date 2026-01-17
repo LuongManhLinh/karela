@@ -1,4 +1,4 @@
-import { getToken, removeToken } from "@/utils/jwt_utils";
+import { getToken, removeToken } from "@/utils/jwtUtils";
 import axios, { AxiosInstance } from "axios";
 
 const API_BASE_URL =

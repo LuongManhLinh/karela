@@ -6,6 +6,8 @@ from langchain_core.messages import (
     AIMessageChunk,
 )
 
+from app.settings.services import SettingsService
+
 from ..agents.agent import stream_with_agent
 
 from ..models import (
@@ -45,6 +47,7 @@ def _convert_langchain_message_to_orm(message, session_id) -> Message:
 class ChatService:
     def __init__(self, db: Session):
         self.db = db
+        self.settings_service = SettingsService(db=db)
 
     async def stream(self, session_id: str, user_message: str):
         session = (
@@ -86,6 +89,10 @@ class ChatService:
                 db_session=self.db,
                 project_key=project_key,
                 story_key=story_key,
+                context_input=self.settings_service.get_agent_context_input(
+                    connection_id=session.connection_id,
+                    project_key=project_key,
+                ),
             ):
                 msg_chunk = MessageChunk(
                     id=chunk.id,

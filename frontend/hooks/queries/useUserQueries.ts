@@ -5,6 +5,7 @@ import type {
   AuthenticateUserRequest,
   ChangePasswordRequest,
 } from "@/types/user";
+import { connectionService } from "@/services/connectionService";
 
 export const USER_KEYS = {
   all: ["user"] as const,
@@ -14,6 +15,24 @@ export const USER_KEYS = {
     [...USER_KEYS.all, "projects", connectionId] as const,
   storySummaries: (connectionId: string, projectKey: string) =>
     [...USER_KEYS.all, "stories", connectionId, projectKey] as const,
+  syncStatus: (connectionId: string) =>
+    [...USER_KEYS.all, "syncStatus", connectionId] as const,
+};
+
+export const useConnectionSyncStatusQuery = (connectionId: string) => {
+  return useQuery({
+    queryKey: USER_KEYS.syncStatus(connectionId),
+    queryFn: () => connectionService.getConnectionSyncStatus(connectionId),
+    refetchInterval: (query) => {
+      const status = query.state.data?.data?.sync_status;
+      const error = query.state.data?.data?.sync_error;
+      // Poll if not SYNCED and no error
+      if (status && status !== "SYNCED" && !error) {
+        return 1000;
+      }
+      return false;
+    },
+  });
 };
 
 export const useRegisterMutation = () => {
@@ -52,14 +71,14 @@ export const useChangePasswordMutation = () => {
 export const useUserConnectionsQuery = () => {
   return useQuery({
     queryKey: USER_KEYS.connections(),
-    queryFn: () => userService.getUserConnections(),
+    queryFn: () => connectionService.getUserConnections(),
   });
 };
 
 export const useProjectKeysQuery = (connectionId: string | undefined) => {
   return useQuery({
     queryKey: USER_KEYS.projects(connectionId || ""),
-    queryFn: () => userService.getProjects(connectionId!),
+    queryFn: () => connectionService.getProjects(connectionId!),
     enabled: !!connectionId,
   });
 };
@@ -70,7 +89,8 @@ export const useStoryKeysQuery = (
 ) => {
   return useQuery({
     queryKey: USER_KEYS.storySummaries(connectionId || "", projectKey || ""),
-    queryFn: () => userService.getStorySummaries(connectionId!, projectKey!),
+    queryFn: () =>
+      connectionService.getStorySummaries(connectionId!, projectKey!),
     enabled: !!connectionId && !!projectKey,
   });
 };

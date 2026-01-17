@@ -1,5 +1,6 @@
 from app.analysis.agents.schemas import DefectByLlm, WorkItemMinimal, DefectInput
 from app.proposal.services.run_service import ProposalRunService
+from app.settings.services import SettingsService
 from common.agents.input_schemas import (
     Documentation,
 )
@@ -22,7 +23,7 @@ from app.analysis.models import (
     DefectType,
     DefectStoryKey,
 )
-from app.integrations import get_platform_service
+from app.connection import get_platform_service
 
 
 from html2text import html2text
@@ -43,6 +44,7 @@ from common.database import uuid_generator
 class AnalysisRunService:
     def __init__(self, db: Session):
         self.db = db
+        self.settings_service = SettingsService(db=db)
 
     def _get_analysis_or_raise(self, analysis_id: str) -> Analysis:
         analysis = self.db.query(Analysis).filter(Analysis.id == analysis_id).first()
@@ -58,43 +60,8 @@ class AnalysisRunService:
     def _get_default_context_input(
         self, connection_id: str, project_key: str
     ) -> ContextInput:
-        settings = (
-            self.db.query(Settings)
-            .filter(
-                Settings.connection_id == connection_id,
-                Settings.project_key == project_key,
-            )
-            .first()
-        )
-        if not settings:
-            return None
-
-        # Return None if all the fields are empty
-        if not any(
-            [
-                settings.product_vision,
-                settings.product_scope,
-                settings.current_sprint_goals,
-                settings.glossary,
-                # settings.constraints,
-                settings.additional_docs,
-                settings.llm_guidelines,
-            ]
-        ):
-            return None
-
-        return ContextInput(
-            documentation=Documentation(
-                product_vision=settings.product_vision,
-                product_scope=settings.product_scope,
-                sprint_goals=settings.current_sprint_goals,
-                glossary=settings.glossary,
-                # constraints=settings.constraints,
-                additional_docs=settings.additional_docs,
-            ),
-            llm_context=LlmContext(
-                guidelines=settings.llm_guidelines,
-            ),
+        return self.settings_service.get_agent_context_input(
+            connection_id=connection_id, project_key=project_key
         )
 
     def _finish_analysis(
@@ -162,8 +129,8 @@ class AnalysisRunService:
             normalized_stories = [
                 WorkItemMinimal(
                     key=i.key,
-                    title=i.fields.summary,
-                    description=html2text(i.rendered_fields.description or ""),
+                    title=i.summary,
+                    description=i.description or "",
                 )
                 for i in stories
             ]
@@ -239,15 +206,13 @@ class AnalysisRunService:
             target = None
             for i in stories:
                 wi = WorkItemMinimal(
-                    key=i.key,
-                    title=i.fields.summary,
-                    description=html2text(i.rendered_fields.description or ""),
+                    key=i.key, title=i.summary, description=i.description or ""
                 )
-                (
-                    (target := wi)
-                    if wi.key == target_key
-                    else normalized_stories.append(wi)
-                )
+
+                if wi.key == target_key:
+                    target = wi
+                else:
+                    normalized_stories.append(wi)
 
             if not target:
                 self._finish_analysis(
@@ -343,15 +308,13 @@ class AnalysisRunService:
             target = None
             for i in stories:
                 wi = WorkItemMinimal(
-                    key=i.key,
-                    title=i.fields.summary,
-                    description=html2text(i.rendered_fields.description or ""),
+                    key=i.key, title=i.summary, description=i.description or ""
                 )
-                (
-                    (target := wi)
-                    if wi.key == target_key
-                    else normalized_stories.append(wi)
-                )
+
+                if wi.key == target_key:
+                    target = wi
+                else:
+                    normalized_stories.append(wi)
 
             if not target:
                 raise ValueError(f"Target user story {target_key} not found")
@@ -440,8 +403,8 @@ class AnalysisRunService:
             normalized_stories = [
                 WorkItemMinimal(
                     key=i.key,
-                    title=i.fields.summary,
-                    description=html2text(i.rendered_fields.description or ""),
+                    title=i.summary,
+                    description=i.description or "",
                 )
                 for i in stories
             ]

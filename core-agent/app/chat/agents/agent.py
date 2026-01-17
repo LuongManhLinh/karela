@@ -1,3 +1,5 @@
+import json
+from common.agents.input_schemas import ContextInput
 from llm.dynamic_agent import GenimiDynamicAgent
 from langchain.agents.middleware import LLMToolSelectorMiddleware
 from langchain.agents.middleware import dynamic_prompt, ModelRequest
@@ -30,8 +32,12 @@ def user_context_prompt(request: ModelRequest) -> str:
     """Generate system prompt based on user role."""
     project_key = request.runtime.context.project_key
     story_key = request.runtime.context.story_key
+    documentation = request.runtime.context.context_input
+    documentation_text = (
+        f"Documentation: {json.dumps(documentation, indent=2)}" if documentation else ""
+    )
     return SYSTEM_PROMPT.format(
-        context=f"Project Key: {project_key}\nStory Key: {story_key or 'N/A'}"
+        context=f"Project Key: {project_key}\nStory Key: {story_key or 'N/A'}\n{documentation_text}"
     )
 
 
@@ -53,6 +59,7 @@ class Context:
     project_key: str
     story_key: str = None
     db_session: Session = None
+    context_input: ContextInput = None
 
 
 def chat_with_agent(
@@ -62,6 +69,7 @@ def chat_with_agent(
     db_session: Session,
     project_key: str,
     story_key: str = None,
+    context_input: ContextInput = None,
 ) -> dict:
     """Chat with the resolver agent.
 
@@ -83,6 +91,7 @@ def chat_with_agent(
             project_key=project_key,
             story_key=story_key,
             db_session=db_session,
+            context_input=context_input,
         ),
     )
 
@@ -96,6 +105,7 @@ def stream_with_agent(
     db_session: Session,
     project_key: str,
     story_key: str = None,
+    context_input: ContextInput = None,
 ):
     """Chat with the resolver agent with streaming response.
 
@@ -117,6 +127,7 @@ def stream_with_agent(
             project_key=project_key,
             story_key=story_key,
             db_session=db_session,
+            context_input=context_input,
         ),
         stream_mode="messages",
     ):

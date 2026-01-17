@@ -18,8 +18,8 @@ from ..schemas import (
     SessionsHavingProposals,
 )
 
-from app.integrations import get_platform_service
-from app.integrations.jira.schemas import CreateStoryRequest
+from app.connection import get_platform_service
+from app.connection.jira.schemas import CreateStoryRequest
 from app.analysis.services.defect_service import DefectService
 from common.database import uuid_generator
 from common.schemas import SessionSummary
@@ -198,6 +198,7 @@ class ProposalService:
                     content = content_lookup.get(story_dto.key)
                     platform_service.update_issue(
                         connection_id=connection_id,
+                        project_key=project_key,
                         issue_key=story_dto.key,
                         summary=content.summary,
                         description=content.description,
@@ -228,9 +229,10 @@ class ProposalService:
                     )
                     self.db.add(new_version)
 
-                    platform_service.delete_issue(
+                    platform_service.delete_story(
                         connection_id=connection_id,
-                        issue_key=story_dto.key,
+                        project_key=project_key,
+                        story_key=story_dto.key,
                     )
                     num_deleted += 1
             for content in contents:
@@ -464,6 +466,7 @@ class ProposalService:
     def _revert_applied_proposal_contents(
         self,
         connection_id,
+        project_key: str,
         contents: List[ProposalContent],
     ):
         try:
@@ -485,14 +488,16 @@ class ProposalService:
                         case ProposalType.UPDATE:
                             platform_service.update_issue(
                                 connection_id=connection_id,
+                                project_key=project_key,
                                 issue_key=latest_version.key,
                                 summary=latest_version.summary,
                                 description=latest_version.description,
                             )
                         case ProposalType.CREATE:
-                            platform_service.delete_issue(
+                            platform_service.delete_story(
                                 connection_id=connection_id,
-                                issue_key=latest_version.key,
+                                project_key=project_key,
+                                story_key=latest_version.key,
                             )
                         case ProposalType.DELETE:
                             platform_service.create_stories(
@@ -528,6 +533,7 @@ class ProposalService:
 
         self._revert_applied_proposal_contents(
             connection_id=connection_id,
+            project_key=proposal.project_key,
             contents=proposal.contents,
         )
 
@@ -554,6 +560,7 @@ class ProposalService:
         connection_id = proposal.connection_id
         self._revert_applied_proposal_contents(
             connection_id=connection_id,
+            project_key=proposal.project_key,
             contents=[content],
         )
 

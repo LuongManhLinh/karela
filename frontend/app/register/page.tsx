@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 import { useRegisterMutation } from "@/hooks/queries/useUserQueries";
 import { ErrorSnackbar } from "@/components/ErrorSnackbar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { getToken } from "@/utils/jwt_utils";
+import { getToken } from "@/utils/jwtUtils";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -23,7 +23,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const { mutateAsync: register, isPending: isRegisterPending } = useRegisterMutation();
+  const { mutateAsync: register, isPending: isRegisterPending } =
+    useRegisterMutation();
   const [error, setError] = useState("");
   const [showError, setShowError] = useState(false);
 
@@ -50,7 +51,6 @@ export default function RegisterPage() {
       setShowError(true);
       return;
     }
-
 
     try {
       await register({

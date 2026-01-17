@@ -4,58 +4,22 @@ from typing import Literal
 
 from app.analysis.agents.schemas import DefectInput, WorkItemMinimal
 from app.analysis.models import Defect
-from app.integrations import get_platform_service
+from app.connection import get_platform_service
 from app.proposal.schemas import CreateProposalRequest, ProposeStoryRequest
-from app.settings.models import Settings
-from common.agents.input_schemas import Documentation, LlmContext
+from app.settings.services import SettingsService
 
 from ..agents.graph import generate_proposals
-from ..agents.schemas import ProposalContextInput
 from .data_service import ProposalService
 
 
 class ProposalRunService:
     def __init__(self, db: Session):
         self.db = db
+        self.settings_service = SettingsService(db=db)
 
     def _get_default_context_input(self, connection_id: str, project_key: str):
-        settings = (
-            self.db.query(Settings)
-            .filter(
-                Settings.connection_id == connection_id,
-                Settings.project_key == project_key,
-            )
-            .first()
-        )
-        if not settings:
-            return None
-
-        # Return None if all the fields are empty
-        if not any(
-            [
-                settings.product_vision,
-                settings.product_scope,
-                settings.current_sprint_goals,
-                settings.glossary,
-                # settings.constraints,
-                settings.additional_docs,
-                settings.llm_guidelines,
-            ]
-        ):
-            return None
-
-        return ProposalContextInput(
-            documentation=Documentation(
-                product_vision=settings.product_vision,
-                product_scope=settings.product_scope,
-                sprint_goals=settings.current_sprint_goals,
-                glossary=settings.glossary,
-                # constraints=settings.constraints,
-                additional_docs=settings.additional_docs,
-            ),
-            llm_context=LlmContext(
-                guidelines=settings.llm_guidelines,
-            ),
+        return self.settings_service.get_agent_context_input(
+            connection_id=connection_id, project_key=project_key
         )
 
     def _get_proposal_generation_inputs(

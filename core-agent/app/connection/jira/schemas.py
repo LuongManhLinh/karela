@@ -1,9 +1,11 @@
+from datetime import datetime
 from typing import Any, Optional
 from enum import Enum
 from pydantic import BaseModel, Field, ConfigDict
 
 
 class Project(BaseModel):
+    id: Optional[str] = None
     key: Optional[str] = None
 
     model_config = ConfigDict(
@@ -12,7 +14,8 @@ class Project(BaseModel):
 
 
 class Parent(BaseModel):
-    key: str
+    id: Optional[str] = None
+    key: Optional[str] = None
 
     model_config = ConfigDict(
         extra="ignore",
@@ -20,6 +23,7 @@ class Parent(BaseModel):
 
 
 class IssueType(BaseModel):
+    id: Optional[str] = None
     name: Optional[str] = None
 
     model_config = ConfigDict(
@@ -51,6 +55,8 @@ class Fields(BaseModel):
     priority: Optional[Priority] = None
     status: Optional[Status] = None
     issuelinks: Optional[list[dict[str, Any]]] = None
+    created: Optional[datetime] = None
+    parent: Optional[Parent] = None
 
     model_config = ConfigDict(
         extra="ignore",
@@ -222,6 +228,7 @@ class ProjectDto(BaseModel):
     id: str
     key: str
     name: Optional[str] = None
+    avatar_url: Optional[str] = None
 
     model_config = ConfigDict(
         extra="ignore",
@@ -232,6 +239,15 @@ class StorySummary(BaseModel):
     id: str
     key: str
     summary: Optional[str] = None
+
+    model_config = ConfigDict(
+        extra="ignore",
+    )
+
+
+class ConnectionSyncStatusDto(BaseModel):
+    sync_status: Optional[str] = None
+    sync_error: Optional[str] = None
 
     model_config = ConfigDict(
         extra="ignore",

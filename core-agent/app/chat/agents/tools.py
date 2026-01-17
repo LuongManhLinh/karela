@@ -5,8 +5,8 @@ import json
 from app.proposal.services import ProposalService, ProposalRunService
 from app.proposal.schemas import CreateProposalRequest, ProposeStoryRequest
 from app.analysis.services import AnalysisDataService, DefectService
-from app.integrations.jira.services import JiraService
-from app.integrations.jira.vectorstore import JiraVectorStore
+from app.connection.jira.services import JiraService
+from app.connection.jira.vectorstore import JiraVectorStore
 from app.analysis.tasks import analyze_target_user_story
 
 

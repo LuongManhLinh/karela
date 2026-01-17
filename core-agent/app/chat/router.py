@@ -107,10 +107,10 @@ async def list_chat_sessions(
     return BasicResponse(data=sessions)
 
 
-@router.get("/{session_id}")
+@router.get("/{session_id_or_key}")
 async def get_session_detail(
-    session_id: str,
+    session_id_or_key: str,
     service: ChatDataService = Depends(get_chat_data_service),
 ):
-    dto = service.get_chat_session(session_id=session_id)
+    dto = service.get_chat_session(session_id_or_key=session_id_or_key)
     return BasicResponse(data=dto)

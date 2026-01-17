@@ -70,11 +70,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
         main: mode === "light" ? "#48bb78" : "#68d391",
         light: mode === "light" ? "#68d391" : "#9ae6b4",
         dark: mode === "light" ? "#38a169" : "#48bb78",
+        contrastText: "#1a202c",
       },
       error: {
         main: mode === "light" ? "#f56565" : "#fc8181",
         light: mode === "light" ? "#fc8181" : "#f5a5a5",
         dark: mode === "light" ? "#e53e3e" : "#f56565",
+        contrastText: "#1a202c",
       },
       background: {
         default: mode === "light" ? "#f8f9fa" : "#1a202c",

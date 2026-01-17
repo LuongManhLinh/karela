@@ -1,6 +1,11 @@
 import apiClient from "./api";
 import type { BasicResponse } from "@/types";
-import { ProjectDto, StorySummary } from "@/types/integration";
+import {
+  ConnectionSyncStatusDto,
+  ProjectDto,
+  StoryDto,
+  StorySummary,
+} from "@/types/integration";
 import type { UserConnections } from "@/types/user";
 import type {
   RegisterUserRequest,
@@ -39,39 +44,6 @@ export const userService = {
     const response = await apiClient.post<BasicResponse>(
       "/users/change-password",
       data
-    );
-    return response.data;
-  },
-
-  getUserConnections: async (): Promise<BasicResponse<UserConnections>> => {
-    const response = await apiClient.get<BasicResponse<UserConnections>>(
-      "/users/connections"
-    );
-    return response.data;
-  },
-
-  getProjects: async (
-    connectionIdOrName: string
-  ): Promise<BasicResponse<ProjectDto[]>> => {
-    const response = await apiClient.get<BasicResponse<ProjectDto[]>>(
-      `/users/connections/${connectionIdOrName}/projects`
-    );
-    return response.data;
-  },
-
-  getStorySummaries: async (
-    connId: string,
-    projectKey: string
-  ): Promise<BasicResponse<StorySummary[]>> => {
-    const response = await apiClient.get<BasicResponse<StorySummary[]>>(
-      `/users/connections/${connId}/projects/${projectKey}/issues`
-    );
-    return response.data;
-  },
-
-  deleteConnection: async (connectionId: string): Promise<BasicResponse> => {
-    const response = await apiClient.delete<BasicResponse>(
-      `/users/connections/${connectionId}`
     );
     return response.data;
   },

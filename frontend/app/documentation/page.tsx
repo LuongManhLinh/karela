@@ -10,50 +10,63 @@ import {
   Box,
   Stack,
   Alert,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   CircularProgress,
 } from "@mui/material";
 import { Layout } from "@/components/Layout";
 
-import { useUserConnectionsQuery, useProjectKeysQuery } from "@/hooks/queries/useUserQueries";
-import { useSettingsQuery, useCreateSettingsMutation, useUpdateSettingsMutation } from "@/hooks/queries/useSettingsQueries";
+import {
+  useUserConnectionsQuery,
+  useProjectKeysQuery,
+} from "@/hooks/queries/useUserQueries";
+import {
+  useSettingsQuery,
+  useCreateSettingsMutation,
+  useUpdateSettingsMutation,
+} from "@/hooks/queries/useSettingsQueries";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { ErrorSnackbar } from "@/components/ErrorSnackbar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { useRouter } from "next/navigation";
 import type {
-  SettingsDto,
   CreateSettingsRequest,
   UpdateSettingsRequest,
 } from "@/types/settings";
-import type { JiraConnectionDto } from "@/types/integration";
-import { getToken } from "@/utils/jwt_utils";
+import type { JiraConnectionDto, ProjectDto } from "@/types/integration";
+import { scrollBarSx } from "@/constants/scrollBarSx";
+import { SessionStartForm } from "@/components/SessionStartForm";
 
-export default function SettingsPage() {
-  const router = useRouter();
+const MIN_TEXTFIELD_ROWS = 3;
+const MAX_TEXTFIELD_ROWS = 20;
 
+export default function DocumentationPage() {
   // Global State
-  const { 
-    selectedConnectionId, setSelectedConnectionId,
-    selectedProjectKey, setSelectedProjectKey 
+  const {
+    selectedConnectionId,
+    setSelectedConnectionId,
+    selectedProjectKey,
+    setSelectedProjectKey,
   } = useWorkspaceStore();
 
   // Queries
-  const { data: connectionsData, isLoading: isConnectionsLoading } = useUserConnectionsQuery();
-  const { data: projectKeysData } = useProjectKeysQuery(selectedConnectionId || undefined);
-  const { data: settingsData, isLoading: isSettingsLoading } = useSettingsQuery(selectedConnectionId || undefined, selectedProjectKey || undefined);
-  
+  const { data: connectionsData, isLoading: isConnectionsLoading } =
+    useUserConnectionsQuery();
+  const { data: projectDtosData } = useProjectKeysQuery(
+    selectedConnectionId || undefined
+  );
+  const { data: settingsData, isLoading: isSettingsLoading } = useSettingsQuery(
+    selectedConnectionId || undefined,
+    selectedProjectKey || undefined
+  );
+
   // Mutations
-  const { mutateAsync: createSettings, isPending: isCreating } = useCreateSettingsMutation();
-  const { mutateAsync: updateSettings, isPending: isUpdating } = useUpdateSettingsMutation();
+  const { mutateAsync: createSettings, isPending: isCreating } =
+    useCreateSettingsMutation();
+  const { mutateAsync: updateSettings, isPending: isUpdating } =
+    useUpdateSettingsMutation();
 
   const connections = connectionsData?.data?.jira_connections || [];
-  const projectKeys = projectKeysData?.data || [];
+  const projectDtos = projectDtosData?.data || [];
   const settings = settingsData?.data;
-  
+
   // Local state for form fields only
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -70,21 +83,27 @@ export default function SettingsPage() {
   // Effects to set initial selections
   useEffect(() => {
     if (connections.length > 0) {
-        if (!selectedConnectionId || !connections.find(c => c.id === selectedConnectionId)) {
-            setSelectedConnectionId(connections[0].id);
-        }
+      if (
+        !selectedConnectionId ||
+        !connections.find((c) => c.id === selectedConnectionId)
+      ) {
+        setSelectedConnectionId(connections[0].id);
+      }
     }
   }, [connections, selectedConnectionId, setSelectedConnectionId]);
 
   useEffect(() => {
-    if (projectKeys.length > 0) {
-        if (!selectedProjectKey || !projectKeys.includes(selectedProjectKey)) {
-             setSelectedProjectKey(projectKeys[0]);
-        }
-    } else if (projectKeys.length === 0 && selectedProjectKey) {
-        setSelectedProjectKey(null);
+    if (projectDtos.length > 0) {
+      if (
+        !selectedProjectKey ||
+        !projectDtos.find((p) => p.key === selectedProjectKey)
+      ) {
+        setSelectedProjectKey(projectDtos[0].key);
+      }
+    } else if (projectDtos.length === 0 && selectedProjectKey) {
+      setSelectedProjectKey(null);
     }
-  }, [projectKeys, selectedProjectKey, setSelectedProjectKey]);
+  }, [projectDtos, selectedProjectKey, setSelectedProjectKey]);
 
   // Effect to populate form when settings change
   useEffect(() => {
@@ -131,10 +150,22 @@ export default function SettingsPage() {
       };
 
       if (settings) {
-        await updateSettings({ connectionId: selectedConnectionId, projectKey: selectedProjectKey, data });
+        await updateSettings({
+          connectionId: selectedConnectionId,
+          projectKey: selectedProjectKey,
+          data,
+        });
         setSuccess("Settings updated successfully");
       } else {
-        await createSettings({ connectionId: selectedConnectionId, projectKey: selectedProjectKey, data: { ...data, connection_id: selectedConnectionId, project_key: selectedProjectKey } });
+        await createSettings({
+          connectionId: selectedConnectionId,
+          projectKey: selectedProjectKey,
+          data: {
+            ...data,
+            connection_id: selectedConnectionId,
+            project_key: selectedProjectKey,
+          },
+        });
         setSuccess("Settings created successfully");
       }
       setShowSuccess(true);
@@ -146,13 +177,15 @@ export default function SettingsPage() {
     }
   };
 
-  const handleConnectionChange = async (connId: string) => {
-    setSelectedConnectionId(connId);
+  const handleConnectionChange = async (
+    connection: JiraConnectionDto | null
+  ) => {
+    setSelectedConnectionId(connection?.id || null);
     resetForm();
   };
 
-  const handleProjectKeyChange = (projKey: string) => {
-    setSelectedProjectKey(projKey);
+  const handleProjectKeyChange = (project: ProjectDto | null) => {
+    setSelectedProjectKey(project?.key || null);
     resetForm();
   };
 
@@ -168,7 +201,7 @@ export default function SettingsPage() {
     <Layout
       appBarLeftContent={
         <Stack direction={"row"} alignItems="center" spacing={2} py={2}>
-          <Typography variant="h5">Settings</Typography>
+          <Typography variant="h5">Documentation</Typography>
         </Stack>
       }
       appBarTransparent
@@ -183,49 +216,23 @@ export default function SettingsPage() {
             bgcolor: "background.paper",
           }}
         >
-          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+          <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
             Connection & Projects
           </Typography>
-          <Stack spacing={2}>
-            <FormControl fullWidth margin="normal" required>
-              <InputLabel>Connection</InputLabel>
-              <Select
-                value={selectedConnectionId || ""}
-                onChange={(e) => handleConnectionChange(e.target.value)}
-                label="Connection"
-                disabled={isSettingsLoading}
-              >
-                {connections.map((conn) => (
-                  <MenuItem value={conn.id} key={conn.id}>
-                    <Box sx={{ display: "flex", alignItems: "center", px: 1 }}>
-                      {/* Example 1: Using a local image */}
-                      <img
-                        src={conn.avatar_url}
-                        alt="icon"
-                        style={{ width: 20, height: 20, marginRight: 10 }}
-                      />
-                      {conn.name || conn.id}
-                    </Box>
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl fullWidth>
-              <InputLabel>Project</InputLabel>
-              <Select
-                value={selectedProjectKey || ""}
-                label="Project"
-                onChange={(e) => handleProjectKeyChange(e.target.value)}
-                disabled={!selectedConnectionId || projectKeys.length === 0}
-              >
-                {projectKeys.map((key) => (
-                  <MenuItem key={key} value={key}>
-                    {key}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Stack>
+          <SessionStartForm
+            connectionOptions={{
+              options: connections,
+              selectedOption:
+                connections.find((c) => c.id === selectedConnectionId) || null,
+              onChange: handleConnectionChange,
+            }}
+            projectOptions={{
+              options: projectDtos,
+              selectedOption:
+                projectDtos.find((p) => p.key === selectedProjectKey) || null,
+              onChange: handleProjectKeyChange,
+            }}
+          />
         </Paper>
 
         {selectedConnectionId && selectedProjectKey && (
@@ -238,8 +245,8 @@ export default function SettingsPage() {
               bgcolor: "background.paper",
             }}
           >
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-              Project Settings
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
+              Project Documentation
             </Typography>
             {settings && (
               <Typography
@@ -258,52 +265,62 @@ export default function SettingsPage() {
                   <TextField
                     fullWidth
                     multiline
-                    rows={4}
                     label="Product Vision"
                     value={productVision}
                     onChange={(e) => setProductVision(e.target.value)}
                     disabled={isCreating || isUpdating}
                     placeholder="Describe the overall vision and goals for this product..."
+                    minRows={MIN_TEXTFIELD_ROWS}
+                    maxRows={MAX_TEXTFIELD_ROWS}
+                    sx={{ ...scrollBarSx }}
                   />
                   <TextField
                     fullWidth
                     multiline
-                    rows={4}
                     label="Product Scope"
                     value={productScope}
                     onChange={(e) => setProductScope(e.target.value)}
                     disabled={isCreating || isUpdating}
                     placeholder="Define what is included and excluded from this product..."
+                    minRows={MIN_TEXTFIELD_ROWS}
+                    maxRows={MAX_TEXTFIELD_ROWS}
+                    sx={{ ...scrollBarSx }}
                   />
                   <TextField
                     fullWidth
                     multiline
-                    rows={3}
                     label="Current Sprint Goals"
                     value={currentSprintGoals}
                     onChange={(e) => setCurrentSprintGoals(e.target.value)}
                     disabled={isCreating || isUpdating}
                     placeholder="Describe the goals for the current sprint..."
+                    minRows={MIN_TEXTFIELD_ROWS}
+                    maxRows={MAX_TEXTFIELD_ROWS}
+                    sx={{ ...scrollBarSx }}
                   />
                   <TextField
                     fullWidth
                     multiline
-                    rows={4}
                     label="Glossary"
                     value={glossary}
                     onChange={(e) => setGlossary(e.target.value)}
                     disabled={isCreating || isUpdating}
                     placeholder="Define key terms and concepts used in this project..."
+                    minRows={MIN_TEXTFIELD_ROWS}
+                    maxRows={MAX_TEXTFIELD_ROWS}
+                    sx={{ ...scrollBarSx }}
                   />
                   <TextField
                     fullWidth
                     multiline
-                    rows={4}
                     label="LLM Guidelines"
                     value={llmGuidelines}
                     onChange={(e) => setLlmGuidelines(e.target.value)}
                     disabled={isCreating || isUpdating}
                     placeholder="Provide specific guidelines for how the LLM should behave when analyzing this project..."
+                    minRows={MIN_TEXTFIELD_ROWS}
+                    maxRows={MAX_TEXTFIELD_ROWS}
+                    sx={{ ...scrollBarSx }}
                   />
                   <Button
                     type="submit"

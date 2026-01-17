@@ -8,6 +8,7 @@ import {
   Box,
   Button,
   Card,
+  CardActionArea,
   CardContent,
   Chip,
   Divider,
@@ -23,6 +24,7 @@ import {
   Edit,
   Save,
   Cancel,
+  CompareArrows,
 } from "@mui/icons-material";
 import type {
   ProposalActionFlag,
@@ -46,6 +48,7 @@ interface ProposalCardProps {
     flag: ProposalActionFlag
   ) => Promise<void> | void;
   defaultExpanded?: boolean;
+  onProposalContentClick?: (content: ProposalContentDto) => void;
 }
 
 const statusChip = (value?: boolean | null) => {
@@ -76,6 +79,7 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
   onProposalAction,
   onProposalContentAction,
   defaultExpanded = true,
+  onProposalContentClick,
 }) => {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [loadingTarget, setLoadingTarget] = useState<string | null>(null);
@@ -185,7 +189,7 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
     const revertDisabled = !onRevert || isLoading;
 
     return (
-      <Stack direction="row" spacing={1}>
+      <Stack direction="row" spacing={1} onClick={(e) => e.stopPropagation()}>
         {accepted === null && (
           <>
             {onEdit && (
@@ -339,6 +343,17 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
               key={content.id || `${proposal.id}-${index}`}
               variant="outlined"
               elevation={0}
+              sx={{
+                cursor: "pointer",
+                transition: "all 0.2s ease-in-out",
+                "&:hover": {
+                  boxShadow: 2,
+                  borderColor: "primary.main",
+                },
+              }}
+              onClick={() =>
+                onProposalContentClick && onProposalContentClick(content)
+              }
             >
               <CardContent>
                 <Stack
@@ -353,6 +368,7 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
                       gap: 1,
                       flexGrow: 1, // expand to fill remaining space
                     }}
+                    onClick={(e) => e.stopPropagation()}
                   >
                     {content.story_key && (
                       <StoryChip storyKey={content.story_key} size="small" />
@@ -404,7 +420,11 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
                   {/* Summary field - editable for CREATE and UPDATE types */}
                   {(content.type === "CREATE" || content.type === "UPDATE") &&
                   editingContentId === content.id ? (
-                    <Stack direction="column" spacing={1}>
+                    <Stack
+                      direction="column"
+                      spacing={1}
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <Typography variant="body1">Summary:</Typography>
                       <TextField
                         fullWidth
@@ -435,7 +455,11 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
                   {/* Description field - editable for CREATE and UPDATE types */}
                   {(content.type === "CREATE" || content.type === "UPDATE") &&
                   editingContentId === content.id ? (
-                    <Stack direction="column" spacing={1}>
+                    <Stack
+                      direction="column"
+                      spacing={1}
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <Typography variant="body1">Description:</Typography>
                       <TextField
                         fullWidth
@@ -488,6 +512,14 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
                     )
                   )}
                 </Stack>
+                <Box
+                  sx={{ mt: 2, display: "flex", alignItems: "center", gap: 1 }}
+                >
+                  <CompareArrows fontSize="small" color="action" />
+                  <Typography variant="caption" color="text.secondary">
+                    Click to view changes
+                  </Typography>
+                </Box>
               </CardContent>
             </Card>
           ))}

@@ -5,6 +5,7 @@ import json
 from .schemas import (
     CreateIssuesRequest,
     IssueUpdate,
+    ProjectDto,
     SearchResponse,
     Issue,
     ExchangeAutorizationCodeResponse,
@@ -287,7 +288,7 @@ class JiraClient:
         cloud_id: str,
         access_token: str,
         max_results: int = 1000,
-    ) -> List[dict]:
+    ) -> List[ProjectDto]:
         """Fetch all project info from Jira
 
         Args:
@@ -314,10 +315,25 @@ class JiraClient:
 
         json_data = resp.json()
         projects = json_data.get("values", [])
-        return [
-            {"id": project["id"], "key": project["key"], "name": project["name"]}
-            for project in projects
-        ]
+
+        resutls = []
+        for project in projects:
+            avatar_dict = project.get("avatarUrls", {})
+            avatar_url = (
+                avatar_dict.get("48x48")
+                or avatar_dict.get("32x32")
+                or avatar_dict.get("24x24")
+                or avatar_dict.get("16x16")
+            )
+            resutls.append(
+                ProjectDto(
+                    id=project["id"],
+                    key=project["key"],
+                    name=project["name"],
+                    avatar_url=avatar_url,
+                )
+            )
+        return resutls
 
     @staticmethod
     def fetch_story_keys(

@@ -5,3 +5,9 @@ export const NONE_STORY_SUMMARY: StorySummary = {
   key: "none",
   summary: "Use No Story",
 };
+
+export const NO_FILTER_STORY_SUMMARY: StorySummary = {
+  id: "ALL",
+  key: "ALL",
+  summary: "No Story Filter",
+};
