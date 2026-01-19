@@ -39,6 +39,7 @@ class ChatSession(Base):
         String(64),
         ForeignKey("connections.platform_connection_id", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
 
     project_key = Column(String(32), nullable=False, index=True)
@@ -58,9 +59,13 @@ class ChatSession(Base):
         cascade="all, delete-orphan",
     )
 
-    # Index project key and story key for faster retrieval
     __table_args__ = (
-        Index("ix_chat_sessions_project_story", "project_key", "story_key"),
+        Index(
+            "ix_chat_sessions_project_story",
+            "connection_id",
+            "project_key",
+            "story_key",
+        ),
     )
 
 

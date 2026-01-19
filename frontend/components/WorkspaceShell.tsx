@@ -3,10 +3,10 @@ import { Box, Divider, Typography } from "@mui/material";
 
 import { DoubleLayout } from "./Layout";
 import type {
-  JiraConnectionDto,
+  ConnectionDto,
   ProjectDto,
   StorySummary,
-} from "@/types/integration";
+} from "@/types/connection";
 import {
   SessionStartForm,
   SelectableOptions,
@@ -18,10 +18,11 @@ import HeaderContent from "./HeaderContent";
 import { NoConnection } from "./NoConnection";
 
 interface WorkspaceShellProps {
-  connectionOptions: SelectableOptions<JiraConnectionDto>;
+  connectionOptions: SelectableOptions<ConnectionDto>;
   projectOptions?: SelectableOptions<ProjectDto>;
   storyOptions?: SelectableOptions<StorySummary>;
-  submitAction?: SubmitAction;
+  primaryAction?: SubmitAction;
+  secondaryAction?: SubmitAction;
   sessions: SessionItem[];
   selectedSessionId?: string | null;
   onSelectSession: (id: string) => void;
@@ -37,13 +38,15 @@ interface WorkspaceShellProps {
   headerStoryKey?: string;
   appBarTransparent?: boolean;
   sidebarFooter?: React.ReactNode;
+  basePath?: string;
 }
 
 export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
   connectionOptions,
   projectOptions,
   storyOptions,
-  submitAction,
+  primaryAction,
+  secondaryAction,
   sessions,
   selectedSessionId,
   onSelectSession,
@@ -59,6 +62,7 @@ export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
   headerStoryKey,
   appBarTransparent = true,
   sidebarFooter,
+  basePath,
 }) => {
   return (
     <DoubleLayout
@@ -76,7 +80,8 @@ export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
               connectionOptions={connectionOptions}
               projectOptions={projectOptions}
               storyOptions={storyOptions}
-              primaryAction={submitAction}
+              primaryAction={primaryAction}
+              secondaryAction={secondaryAction}
               loadingConnections={loadingConnections}
               loadingProjectKeys={loadingProjectKeys}
               loadingStoryKeys={loadingStoryKeys}
@@ -114,6 +119,7 @@ export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
         />
       }
       appBarTransparent={appBarTransparent}
+      basePath={basePath}
     />
   );
 };

@@ -66,11 +66,37 @@ class ChatDataService:
         self.db.refresh(message)
         return message.id, message.created_at.isoformat()
 
-    def list_chat_sessions(self, connection_id: str):
+    def list_chat_sessions_by_project(self, connection_id: str, project_key: str):
         sessions = (
             self.db.query(ChatSession)
             .filter(
                 ChatSession.connection_id == connection_id,
+                ChatSession.project_key == project_key,
+            )
+            .order_by(ChatSession.created_at.desc())
+            .all()
+        )
+
+        return [
+            ChatSessionSummary(
+                id=session.id,
+                key=session.key,
+                project_key=session.project_key,
+                story_key=session.story_key,
+                created_at=session.created_at.isoformat(),
+            )
+            for session in sessions
+        ]
+
+    def list_chat_sessions_by_story(
+        self, connection_id: str, project_key: str, story_key: str
+    ):
+        sessions = (
+            self.db.query(ChatSession)
+            .filter(
+                ChatSession.connection_id == connection_id,
+                ChatSession.project_key == project_key,
+                ChatSession.story_key == story_key,
             )
             .order_by(ChatSession.created_at.desc())
             .all()

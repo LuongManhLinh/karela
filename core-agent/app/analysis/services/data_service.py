@@ -64,11 +64,42 @@ class AnalysisDataService:
             return status[0].value
         return None
 
-    def get_analysis_summaries(self, connection_id: str) -> List[AnalysisSummary]:
+    def get_analysis_summaries_by_project(
+        self, connection_id: str, project_key: str
+    ) -> List[AnalysisSummary]:
         analyses = (
             self.db.query(Analysis)
             .filter(
                 Analysis.connection_id == connection_id,
+                Analysis.project_key == project_key,
+            )
+            .order_by(Analysis.created_at.desc())
+            .all()
+        )
+
+        return [
+            AnalysisSummary(
+                id=analysis.id,
+                key=analysis.key,
+                project_key=analysis.project_key,
+                story_key=analysis.story_key,
+                status=analysis.status.value,
+                type=analysis.type.value,
+                created_at=analysis.created_at.isoformat(),
+                ended_at=(analysis.ended_at.isoformat() if analysis.ended_at else None),
+            )
+            for analysis in analyses
+        ]
+
+    def get_analysis_summaries_by_story(
+        self, connection_id: str, project_key: str, story_key: str
+    ) -> List[AnalysisSummary]:
+        analyses = (
+            self.db.query(Analysis)
+            .filter(
+                Analysis.connection_id == connection_id,
+                Analysis.project_key == project_key,
+                Analysis.story_key == story_key,
             )
             .order_by(Analysis.created_at.desc())
             .all()

@@ -8,8 +8,6 @@ from sqlalchemy import (
     Boolean,
     Integer,
     Text,
-    text,
-    JSON,
     DateTime,
 )
 from sqlalchemy.orm import relationship
@@ -86,7 +84,7 @@ class Analysis(Base):
     )
     project_key = Column(String(32), index=True)
     type = Column(SqlEnum(AnalysisType), nullable=False)
-    story_key = Column(String(32), nullable=True, index=True)  # For targeted analyses
+    story_key = Column(String(32), nullable=True, index=True)
     status = Column(SqlEnum(AnalysisStatus), nullable=False)
     created_at = Column(
         DateTime(timezone=True),
@@ -105,9 +103,10 @@ class Analysis(Base):
         "Proposal", back_populates="analysis", cascade="all, delete-orphan"
     )
 
-    # Index connection_id and project_key for faster queries
     __table_args__ = (
-        Index("idx_connection_id_project_key", "connection_id", "project_key"),
+        Index(
+            "idx_connection_id_project_key", "connection_id", "project_key", "story_key"
+        ),
     )
 
 

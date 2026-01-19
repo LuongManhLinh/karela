@@ -4,6 +4,7 @@ from .analysis.services import AnalysisDataService, AnalysisRunService, DefectSe
 from .chat.services import ChatService, ChatDataService
 from .connection.jira.services import JiraService
 from .connection.ac.services import ACService
+from .connection.services import DashboardService
 from .proposal.services import ProposalService
 from .settings.services import SettingsService
 from .user.services import UserService
@@ -48,3 +49,7 @@ def get_defect_service(db=Depends(get_db)):
 
 def get_ac_service(db=Depends(get_db)):
     return ACService(db)
+
+
+def get_dashboard_service(db=Depends(get_db)):
+    return DashboardService(db)

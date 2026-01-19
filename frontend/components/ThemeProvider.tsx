@@ -56,7 +56,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
         dark: "#5a3788",
       },
       tertiary: {
-        main: mode === "light" ? "#ffb547" : "#ffcc80",
+        main: mode === "light" ? "#c9d1eae5" : "#80c2ff23",
         light: mode === "light" ? "#ffd280" : "#ffe0b2",
         dark: mode === "light" ? "#e69a2c" : "#ffb74d",
       },

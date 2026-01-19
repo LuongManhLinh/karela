@@ -15,7 +15,7 @@ import {
   Stack,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { StoryDto } from "@/types/integration";
+import { StoryDto } from "@/types/connection";
 import StoryChip from "./StoryChip";
 import { scrollBarSx } from "@/constants/scrollBarSx";
 import { connectionService } from "@/services/connectionService";
@@ -49,7 +49,7 @@ export const MultiStoryDetailDialog: React.FC<MultiStoryDetailDialogProps> = ({
       setError(null);
       try {
         const storyPromises = storyKeys.map((key) =>
-          connectionService.getStory(connectionId, projectKey, key)
+          connectionService.getStory(connectionId, projectKey, key),
         );
         const responses = await Promise.all(storyPromises);
         const loadedStories = responses

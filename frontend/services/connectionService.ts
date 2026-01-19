@@ -3,42 +3,43 @@ import type { BasicResponse } from "@/types";
 import { ACDto, ACSummary } from "@/types/ac";
 import {
   ConnectionSyncStatusDto,
+  ProjectDashboardDto,
   ProjectDto,
+  StoryDashboardDto,
   StoryDto,
   StorySummary,
-} from "@/types/integration";
+} from "@/types/connection";
 import type { UserConnections } from "@/types/user";
 
 export const connectionService = {
   getUserConnections: async (): Promise<BasicResponse<UserConnections>> => {
-    const response = await apiClient.get<BasicResponse<UserConnections>>(
-      "/connections"
-    );
+    const response =
+      await apiClient.get<BasicResponse<UserConnections>>("/connections/");
     return response.data;
   },
 
   getProjects: async (
-    connectionIdOrName: string
+    connectionIdOrName: string,
   ): Promise<BasicResponse<ProjectDto[]>> => {
     const response = await apiClient.get<BasicResponse<ProjectDto[]>>(
-      `/connections/${connectionIdOrName}/projects`
+      `/connections/${connectionIdOrName}/projects`,
     );
     return response.data;
   },
 
   getStorySummaries: async (
     connId: string,
-    projectKey: string
+    projectKey: string,
   ): Promise<BasicResponse<StorySummary[]>> => {
     const response = await apiClient.get<BasicResponse<StorySummary[]>>(
-      `/connections/${connId}/projects/${projectKey}/stories`
+      `/connections/${connId}/projects/${projectKey}/stories`,
     );
     return response.data;
   },
 
   deleteConnection: async (connectionId: string): Promise<BasicResponse> => {
     const response = await apiClient.delete<BasicResponse>(
-      `/connections/${connectionId}`
+      `/connections/${connectionId}`,
     );
     return response.data;
   },
@@ -46,16 +47,16 @@ export const connectionService = {
   getStory: async (
     connId: string,
     projectKey: string,
-    storyKey: string
+    storyKey: string,
   ): Promise<BasicResponse<StoryDto>> => {
     const response = await apiClient.get<BasicResponse<StoryDto>>(
-      `/connections/${connId}/projects/${projectKey}/stories/${storyKey}`
+      `/connections/${connId}/projects/${projectKey}/stories/${storyKey}`,
     );
     return response.data;
   },
 
   getConnectionSyncStatus: async (
-    connectionId: string
+    connectionId: string,
   ): Promise<BasicResponse<ConnectionSyncStatusDto>> => {
     const response = await apiClient.get<
       BasicResponse<ConnectionSyncStatusDto>
@@ -63,13 +64,23 @@ export const connectionService = {
     return response.data;
   },
 
-  getACs: async (
+  getACsByProject: async (
     connectionId: string,
     projectKey: string,
-    storyKey: string
-  ): Promise<BasicResponse<ACDto[]>> => {
-    const response = await apiClient.get<BasicResponse<ACDto[]>>(
-      `/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}/acs`
+  ): Promise<BasicResponse<ACSummary[]>> => {
+    const response = await apiClient.get<BasicResponse<ACSummary[]>>(
+      `/connections/${connectionId}/projects/${projectKey}/acs`,
+    );
+    return response.data;
+  },
+
+  getACsByStory: async (
+    connectionId: string,
+    projectKey: string,
+    storyKey: string,
+  ): Promise<BasicResponse<ACSummary[]>> => {
+    const response = await apiClient.get<BasicResponse<ACSummary[]>>(
+      `/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}/acs`,
     );
     return response.data;
   },
@@ -78,11 +89,11 @@ export const connectionService = {
     connectionId: string,
     projectKey: string,
     storyKey: string,
-    genWithAI: boolean
+    genWithAI: boolean,
   ): Promise<BasicResponse<string>> => {
     const response = await apiClient.post<BasicResponse<string>>(
       `/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}/acs`,
-      { gen_with_ai: genWithAI }
+      { gen_with_ai: genWithAI },
     );
     return response.data;
   },
@@ -92,11 +103,11 @@ export const connectionService = {
     storyKey: string,
     acId: string,
     gherkin?: string,
-    feedback?: string
+    feedback?: string,
   ): Promise<BasicResponse<string>> => {
     const response = await apiClient.put<BasicResponse<string>>(
       `/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}/acs/${acId}/regenerate`,
-      { content: gherkin, feedback }
+      { content: gherkin, feedback },
     );
     return response.data;
   },
@@ -104,10 +115,10 @@ export const connectionService = {
     connectionId: string,
     projectKey: string,
     storyKey: string,
-    acId: string
+    acId: string,
   ): Promise<BasicResponse<ACDto>> => {
     const response = await apiClient.get<BasicResponse<ACDto>>(
-      `/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}/acs/${acId}`
+      `/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}/acs/${acId}`,
     );
     return response.data;
   },
@@ -116,11 +127,11 @@ export const connectionService = {
     projectKey: string,
     storyKey: string,
     acId: string,
-    content: string
+    content: string,
   ): Promise<BasicResponse> => {
     const response = await apiClient.put<BasicResponse>(
       `/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}/acs/${acId}`,
-      { content }
+      { content },
     );
     return response.data;
   },
@@ -128,19 +139,29 @@ export const connectionService = {
     connectionId: string,
     projectKey: string,
     storyKey: string,
-    acId: string
+    acId: string,
   ): Promise<BasicResponse> => {
     const response = await apiClient.delete<BasicResponse>(
-      `/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}/acs/${acId}`
+      `/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}/acs/${acId}`,
     );
     return response.data;
   },
-  getACsByProject: async (
+  getProjectDashboardInfo: async (
     connectionId: string,
-    projectKey: string
-  ): Promise<BasicResponse<ACSummary[]>> => {
-    const response = await apiClient.get<BasicResponse<ACSummary[]>>(
-      `/connections/${connectionId}/projects/${projectKey}/acs`
+    projectKey: string,
+  ): Promise<BasicResponse<ProjectDashboardDto>> => {
+    const response = await apiClient.get<BasicResponse<ProjectDashboardDto>>(
+      `/connections/${connectionId}/projects/${projectKey}/dashboard`,
+    );
+    return response.data;
+  },
+  getStoryDashboardInfo: async (
+    connectionId: string,
+    projectKey: string,
+    storyKey: string,
+  ): Promise<BasicResponse<StoryDashboardDto>> => {
+    const response = await apiClient.get<BasicResponse<StoryDashboardDto>>(
+      `/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}/dashboard`,
     );
     return response.data;
   },

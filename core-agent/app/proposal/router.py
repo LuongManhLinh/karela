@@ -91,6 +91,7 @@ async def get_proposal(
 async def get_proposals_by_session(
     session_id: str,
     source: str,
+    story_key: str | None = None,
     jwt_payload: dict = Depends(get_jwt_payload),
     service: ProposalService = Depends(get_proposal_service),
 ):
@@ -101,7 +102,7 @@ async def get_proposals_by_session(
         )
     try:
         proposals: List[ProposalDto] = service.get_proposals_by_session(
-            session_id, source
+            session_id, source, story_key=story_key
         )
         return BasicResponse(data=proposals)
     except ValueError as e:
@@ -110,16 +111,33 @@ async def get_proposals_by_session(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/connections/{connection_id}")
-async def get_proposals_by_connection(
+@router.get("/connections/{connection_id}/projects/{project_key}")
+async def list_proposals_by_project(
     connection_id: str,
+    project_key: str,
     service: ProposalService = Depends(get_proposal_service),
 ):
     """Get all proposals for a connection."""
     try:
-        dto = service.get_sessions_having_proposals(connection_id)
-        print("Number of analyses with proposals:", len(dto.analysis_sessions))
-        print("Number of chats with proposals:", len(dto.chat_sessions))
+        dto = service.list_proposals_by_project(connection_id, project_key)
+        return BasicResponse(data=dto)
+    except ValueError as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/connections/{connection_id}/projects/{project_key}/stories/{story_key}")
+async def list_proposals_by_story(
+    connection_id: str,
+    project_key: str,
+    story_key: str,
+    service: ProposalService = Depends(get_proposal_service),
+):
+    """Get all proposals for a story."""
+    try:
+        dto = service.list_proposals_by_story(connection_id, project_key, story_key)
         return BasicResponse(data=dto)
     except ValueError as e:
         traceback.print_exc()

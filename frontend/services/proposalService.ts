@@ -2,7 +2,7 @@ import apiClient from "./api";
 import type { BasicResponse } from "@/types";
 import type {
   ProposalActionFlag,
-  SessionsHavingProposals,
+  SessionsWithProposals,
   ProposalDto,
   ProposalSource,
   ProposalContentEditRequest,
@@ -10,42 +10,55 @@ import type {
 
 export const proposalService = {
   getProposal: async (
-    proposalId: string
+    proposalId: string,
   ): Promise<BasicResponse<ProposalDto>> => {
     const response = await apiClient.get<BasicResponse<ProposalDto>>(
-      `/proposals/${proposalId}`
+      `/proposals/${proposalId}`,
     );
     return response.data;
   },
 
-  getProposalsByConnection: async (
-    connectionId: string
-  ): Promise<BasicResponse<SessionsHavingProposals>> => {
-    const response = await apiClient.get<
-      BasicResponse<SessionsHavingProposals>
-    >(`/proposals/connections/${connectionId}`);
+  listProposalsByProject: async (
+    connectionId: string,
+    projectKey: string,
+  ): Promise<BasicResponse<SessionsWithProposals>> => {
+    const response = await apiClient.get<BasicResponse<SessionsWithProposals>>(
+      `/proposals/connections/${connectionId}/projects/${projectKey}`,
+    );
+    return response.data;
+  },
+
+  listProposalsByStory: async (
+    connectionId: string,
+    projectKey: string,
+    storyKey: string,
+  ): Promise<BasicResponse<SessionsWithProposals>> => {
+    const response = await apiClient.get<BasicResponse<SessionsWithProposals>>(
+      `/proposals/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}`,
+    );
     return response.data;
   },
 
   getProposalsBySession: async (
     sessionId: string,
-    source: ProposalSource
+    source: ProposalSource,
+    storyKey?: string,
   ): Promise<BasicResponse<ProposalDto[]>> => {
     const response = await apiClient.get<BasicResponse<ProposalDto[]>>(
       `/proposals/sessions/${sessionId}`,
       {
-        params: { source },
-      }
+        params: { source, story_key: storyKey },
+      },
     );
     return response.data;
   },
 
   actOnProposal: async (
     proposalId: string,
-    flag: ProposalActionFlag
+    flag: ProposalActionFlag,
   ): Promise<BasicResponse> => {
     const response = await apiClient.post<BasicResponse>(
-      `/proposals/${proposalId}/${flag}`
+      `/proposals/${proposalId}/${flag}`,
     );
     return response.data;
   },
@@ -53,25 +66,25 @@ export const proposalService = {
   actOnProposalContent: async (
     proposalId: string,
     contentId: string,
-    flag: ProposalActionFlag
+    flag: ProposalActionFlag,
   ): Promise<BasicResponse> => {
     const response = await apiClient.post<BasicResponse>(
       `/proposals/contents/${contentId}/${flag}`,
       undefined,
       {
         params: { proposal_id: proposalId },
-      }
+      },
     );
     return response.data;
   },
 
   editProposalContent: async (
     proposalContentId: string,
-    request: ProposalContentEditRequest
+    request: ProposalContentEditRequest,
   ): Promise<BasicResponse> => {
     const response = await apiClient.put<BasicResponse>(
       `/proposals/contents/${proposalContentId}`,
-      request
+      request,
     );
     return response.data;
   },

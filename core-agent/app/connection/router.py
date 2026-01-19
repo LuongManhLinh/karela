@@ -4,16 +4,22 @@ import traceback
 from app.connection.ac.services import ACService
 from app.user.services import UserService
 from common.schemas import BasicResponse
-from app.service_factory import get_user_service, get_jira_service, get_ac_service
+from app.service_factory import (
+    get_user_service,
+    get_jira_service,
+    get_ac_service,
+    get_dashboard_service,
+)
 from app.auth_factory import get_jwt_payload
 from app.connection.jira.services import JiraService
 from .ac.schemas import ACCreateRequest, ACRegenerateRequest
+from .services import DashboardService
 
 router = APIRouter()
 
 
 @router.get("/")
-def list_connections(
+async def list_connections(
     service: UserService = Depends(get_user_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
@@ -30,7 +36,7 @@ def list_connections(
 
 
 @router.get("/{connection_id_or_name}/projects")
-def list_projects(
+async def list_projects(
     connection_id_or_name: str,
     service: JiraService = Depends(get_jira_service),
     jwt_payload=Depends(get_jwt_payload),
@@ -49,7 +55,7 @@ def list_projects(
 
 
 @router.get("/{connection_id}/projects/{project_key}/stories")
-def list_stories(
+async def list_stories(
     connection_id: str,
     project_key: str,
     service: JiraService = Depends(get_jira_service),
@@ -70,7 +76,7 @@ def list_stories(
 
 
 @router.delete("/{connection_id}")
-def delete_connection(
+async def delete_connection(
     connection_id: str,
     service: JiraService = Depends(get_jira_service),
     jwt_payload=Depends(get_jwt_payload),
@@ -142,13 +148,13 @@ async def list_story_acs_by_story(
     if user_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
-        if story_key == "ALL":
+        if story_key == "none":
             acs = service.get_acs_by_project(
                 connection_id=connection_id,
                 project_key=project_key,
             )
         else:
-            acs = service.get_acs(
+            acs = service.get_acs_by_story(
                 connection_id=connection_id,
                 project_key=project_key,
                 story_key=story_key,
@@ -303,5 +309,47 @@ async def delete_ac(
             ac_id=ac_id,
         )
         return BasicResponse(detail="AC deleted successfully")
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.get("/{connection_id}/projects/{project_key}/dashboard")
+async def get_project_dashboard_info(
+    connection_id: str,
+    project_key: str,
+    service: DashboardService = Depends(get_dashboard_service),
+    jwt_payload=Depends(get_jwt_payload),
+):
+    user_id = jwt_payload.get("sub")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+    try:
+        dashboard_info = service.get_project_dashboard_info(
+            connection_id=connection_id,
+            project_key=project_key,
+        )
+        return BasicResponse(data=dashboard_info)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.get("/{connection_id}/projects/{project_key}/stories/{story_key}/dashboard")
+async def get_story_dashboard_info(
+    connection_id: str,
+    project_key: str,
+    story_key: str,
+    service: DashboardService = Depends(get_dashboard_service),
+    jwt_payload=Depends(get_jwt_payload),
+):
+    user_id = jwt_payload.get("sub")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+    try:
+        dashboard_info = service.get_story_dashboard_info(
+            connection_id=connection_id,
+            project_key=project_key,
+            story_key=story_key,
+        )
+        return BasicResponse(data=dashboard_info)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

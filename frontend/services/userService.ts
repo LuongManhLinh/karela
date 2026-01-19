@@ -5,7 +5,7 @@ import {
   ProjectDto,
   StoryDto,
   StorySummary,
-} from "@/types/integration";
+} from "@/types/connection";
 import type { UserConnections } from "@/types/user";
 import type {
   RegisterUserRequest,
@@ -18,17 +18,17 @@ export const userService = {
   register: async (data: RegisterUserRequest): Promise<BasicResponse> => {
     const response = await apiClient.post<BasicResponse>(
       "/users/register",
-      data
+      data,
     );
     return response.data;
   },
 
   authenticate: async (
-    data: AuthenticateUserRequest
+    data: AuthenticateUserRequest,
   ): Promise<BasicResponse<string>> => {
     const response = await apiClient.post<BasicResponse<string>>(
       "/users/",
-      data
+      data,
     );
     return response.data;
   },
@@ -39,11 +39,11 @@ export const userService = {
   },
 
   changePassword: async (
-    data: ChangePasswordRequest
+    data: ChangePasswordRequest,
   ): Promise<BasicResponse> => {
     const response = await apiClient.post<BasicResponse>(
       "/users/change-password",
-      data
+      data,
     );
     return response.data;
   },

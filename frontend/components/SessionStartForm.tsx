@@ -11,10 +11,10 @@ import {
   Paper,
 } from "@mui/material";
 import type {
-  JiraConnectionDto,
+  ConnectionDto,
   ProjectDto,
   StorySummary,
-} from "@/types/integration";
+} from "@/types/connection";
 
 import { scrollBarSx } from "@/constants/scrollBarSx";
 
@@ -34,7 +34,7 @@ export interface SubmitAction {
 }
 
 export interface SessionStartFormProps {
-  connectionOptions?: SelectableOptions<JiraConnectionDto>;
+  connectionOptions?: SelectableOptions<ConnectionDto>;
   projectOptions?: SelectableOptions<ProjectDto>;
   storyOptions?: SelectableOptions<StorySummary>;
   primaryAction?: SubmitAction;
@@ -85,7 +85,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
           options={connectionOptions.options}
           value={
             connectionOptions.options.find(
-              (conn) => conn.id === connectionOptions.selectedOption?.id
+              (conn) => conn.id === connectionOptions.selectedOption?.id,
             ) || null
           }
           onChange={(_, newValue) => {
@@ -100,7 +100,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
           renderInput={(params) => (
             <TextField
               {...params}
-              label={connectionOptions.label || "Connection"}
+              label={connectionOptions.label || "Select Connection"}
               required
               margin="normal"
               InputProps={{
@@ -172,7 +172,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
           renderInput={(params) => (
             <TextField
               {...params}
-              label={projectOptions.label || "Project"}
+              label={projectOptions.label || "Select Project"}
               required
               margin="normal"
               InputProps={{
@@ -201,7 +201,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
             return options.filter(
               (option) =>
                 option.key.toLowerCase().startsWith(searchValue) ||
-                (option.name || "").toLowerCase().startsWith(searchValue)
+                (option.name || "").toLowerCase().startsWith(searchValue),
             );
           }}
           slots={{
@@ -243,7 +243,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
           renderInput={(params) => (
             <TextField
               {...params}
-              label={storyOptions.label || "Story"}
+              label={storyOptions.label || "Select Story"}
               margin="normal"
               sx={{ minWidth: 150 }}
               InputProps={{
@@ -265,7 +265,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
             return options.filter(
               (option) =>
                 option.key.toLowerCase().startsWith(searchValue) ||
-                (option.summary || "").toLowerCase().startsWith(searchValue)
+                (option.summary || "").toLowerCase().startsWith(searchValue),
             );
           }}
           slots={{
@@ -280,13 +280,12 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
           )}
         />
       )}
-      <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
         {primaryAction && (
           <Button
             type="submit"
             variant="contained"
             fullWidth
-            sx={{ mt: 2 }}
             disabled={loadingConnections || primaryAction.disabled}
             onClick={primaryAction.onClick}
           >
@@ -298,7 +297,6 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
             type="button"
             variant="outlined"
             fullWidth
-            sx={{ mt: 2 }}
             disabled={loadingConnections || secondaryAction.disabled}
             onClick={secondaryAction.onClick}
           >

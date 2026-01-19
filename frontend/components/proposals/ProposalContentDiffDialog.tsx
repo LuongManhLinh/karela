@@ -22,7 +22,7 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import DifferenceIcon from "@mui/icons-material/Difference";
 import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
-import { StoryDto } from "@/types/integration";
+import { StoryDto } from "@/types/connection";
 import { ProposalContentDto } from "@/types/proposal";
 import { userService } from "@/services/userService";
 import StoryChip from "../StoryChip";
@@ -137,7 +137,7 @@ const DiffView: React.FC<{
 }> = ({ title, oldText, newText, showLineNumbers }) => {
   const diffLines = useMemo(
     () => computeDiff(oldText, newText),
-    [oldText, newText]
+    [oldText, newText],
   );
   const hasChanges = diffLines.some((line) => line.type !== "unchanged");
 
@@ -203,14 +203,14 @@ const DiffView: React.FC<{
                   line.type === "added"
                     ? "success.light"
                     : line.type === "removed"
-                    ? "error.light"
-                    : "transparent",
+                      ? "error.light"
+                      : "transparent",
                 color:
                   line.type === "added"
                     ? "success.contrastText"
                     : line.type === "removed"
-                    ? "error.contrastText"
-                    : "text.primary",
+                      ? "error.contrastText"
+                      : "text.primary",
                 borderBottom: index < linesWithNumbers.length - 1 ? 1 : 0,
                 borderColor: "divider",
                 "&:hover": {
@@ -218,8 +218,8 @@ const DiffView: React.FC<{
                     line.type === "added"
                       ? "success.main"
                       : line.type === "removed"
-                      ? "error.main"
-                      : "action.hover",
+                        ? "error.main"
+                        : "action.hover",
                 },
               }}
             >
@@ -414,7 +414,7 @@ export const ProposalContentDiffDialog: React.FC<
           const response = await userService.getStory(
             connectionId,
             projectKey,
-            content.story_key!
+            content.story_key!,
           );
           if (response.data) {
             setCurrentStory(response.data);
@@ -423,7 +423,7 @@ export const ProposalContentDiffDialog: React.FC<
           }
         } catch (err: any) {
           setError(
-            err.response?.data?.detail || "Failed to load current story"
+            err.response?.data?.detail || "Failed to load current story",
           );
         } finally {
           setLoading(false);
@@ -470,7 +470,7 @@ export const ProposalContentDiffDialog: React.FC<
     oldSummary: string,
     newSummary: string,
     oldDescription: string,
-    newDescription: string
+    newDescription: string,
   ) => {
     if (viewMode === "diff") {
       return (
@@ -608,7 +608,7 @@ export const ProposalContentDiffDialog: React.FC<
                   "",
                   content.summary || "",
                   "",
-                  content.description || ""
+                  content.description || "",
                 )}
               </>
             )}
@@ -625,7 +625,7 @@ export const ProposalContentDiffDialog: React.FC<
                   currentStory?.summary || "",
                   content.summary || "",
                   currentStory?.description || "",
-                  content.description || ""
+                  content.description || "",
                 )}
               </>
             )}
@@ -642,7 +642,7 @@ export const ProposalContentDiffDialog: React.FC<
                   currentStory?.summary || "",
                   "",
                   currentStory?.description || "",
-                  ""
+                  "",
                 )}
               </>
             )}

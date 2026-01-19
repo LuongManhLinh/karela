@@ -92,18 +92,40 @@ async def create_chat_session(
     return BasicResponse(data=session_id)
 
 
-@router.get("/")
-async def list_chat_sessions(
+@router.get("/connections/{connection_id}/projects/{project_key}")
+async def list_chat_sessions_by_project(
     connection_id: str,
+    project_key: str,
     jwt_payload=Depends(get_jwt_payload),
     service: ChatDataService = Depends(get_chat_data_service),
 ):
     user_id = jwt_payload.get("sub")
     if user_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
-    sessions: List[ChatSessionSummary] = service.list_chat_sessions(
-        connection_id=connection_id
+    sessions: List[ChatSessionSummary] = service.list_chat_sessions_by_project(
+        connection_id=connection_id,
+        project_key=project_key,
     )
+    return BasicResponse(data=sessions)
+
+
+@router.get("/connections/{connection_id}/projects/{project_key}/stories/{story_key}")
+async def list_chat_sessions_by_story(
+    connection_id: str,
+    project_key: str,
+    story_key: str,
+    jwt_payload=Depends(get_jwt_payload),
+    service: ChatDataService = Depends(get_chat_data_service),
+):
+    user_id = jwt_payload.get("sub")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+    sessions: List[ChatSessionSummary] = service.list_chat_sessions_by_story(
+        connection_id=connection_id,
+        project_key=project_key,
+        story_key=story_key,
+    )
+
     return BasicResponse(data=sessions)
 
 

@@ -1,8 +1,4 @@
-import {
-  JiraConnectionDto,
-  ProjectDto,
-  StorySummary,
-} from "@/types/integration";
+import { ConnectionDto, ProjectDto, StorySummary } from "@/types/connection";
 import { SelectableOptions, SessionStartForm } from "./SessionStartForm";
 import {
   Button,
@@ -19,20 +15,20 @@ export interface SessionStartDialogProps {
   open: boolean;
   onClose: () => void;
   title: string;
-  connectionOptions: SelectableOptions<JiraConnectionDto>;
+  connectionOptions: SelectableOptions<ConnectionDto>;
   projectOptions: SelectableOptions<ProjectDto>;
   storyOptions: SelectableOptions<StorySummary>;
   onPrimarySubmit?: (
-    connectionId: string,
-    projectKey: string,
-    storyKey: string
+    connection: ConnectionDto,
+    project: ProjectDto,
+    story: StorySummary,
   ) => void;
   primaryLabel?: string;
   primaryDisabled?: boolean;
   onSecondarySubmit?: (
-    connectionId: string,
-    projectKey: string,
-    storyKey: string
+    connection: ConnectionDto,
+    project: ProjectDto,
+    story: StorySummary,
   ) => void;
   secondaryLabel?: string;
   secondaryDisabled?: boolean;
@@ -52,7 +48,7 @@ export const SessionStartDialog: React.FC<SessionStartDialogProps> = ({
   secondaryLabel,
   secondaryDisabled,
 }) => {
-  const [connection, setConnection] = useState<JiraConnectionDto | null>(null);
+  const [connection, setConnection] = useState<ConnectionDto | null>(null);
   const [project, setProject] = useState<ProjectDto | null>(null);
   const [story, setStory] = useState<StorySummary | null>(null);
 
@@ -68,7 +64,7 @@ export const SessionStartDialog: React.FC<SessionStartDialogProps> = ({
     setStory(storyOptions.selectedOption);
   }, [storyOptions.selectedOption]);
 
-  const handleConnectionChange = (value: JiraConnectionDto | null) => {
+  const handleConnectionChange = (value: ConnectionDto | null) => {
     setConnection(value);
   };
 
@@ -114,20 +110,24 @@ export const SessionStartDialog: React.FC<SessionStartDialogProps> = ({
             label: primaryLabel || "Start Session",
             onClick: () => {
               if (onPrimarySubmit && connection && project && story) {
-                onPrimarySubmit(connection.id, project.key, story.key);
+                onPrimarySubmit(connection, project, story);
               }
             },
             disabled: primaryDisabled || !connection || !project || !story,
           }}
-          secondaryAction={{
-            label: secondaryLabel || "Optional Action",
-            onClick: () => {
-              if (onSecondarySubmit && connection && project && story) {
-                onSecondarySubmit(connection.id, project.key, story.key);
-              }
-            },
-            disabled: secondaryDisabled || !connection || !project,
-          }}
+          secondaryAction={
+            onSecondarySubmit
+              ? {
+                  label: secondaryLabel || "Optional Action",
+                  onClick: () => {
+                    if (onSecondarySubmit && connection && project && story) {
+                      onSecondarySubmit(connection, project, story);
+                    }
+                  },
+                  disabled: secondaryDisabled || !connection || !project,
+                }
+              : undefined
+          }
           loadingConnections={false}
           loadingProjectKeys={false}
           loadingStoryKeys={false}

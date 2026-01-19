@@ -1,18 +1,26 @@
+import { ConnectionDto, ProjectDto, StorySummary } from "@/types/connection";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface WorkspaceState {
-  selectedConnectionId: string | null;
-  selectedProjectKey: string | null;
-  selectedStoryKey: string | null;
+  selectedConnection: ConnectionDto | null;
+  selectedProject: ProjectDto | null;
+  selectedStory: StorySummary | null;
   headerProjectKey: string;
   headerStoryKey: string;
 
-  setSelectedConnectionId: (id: string | null) => void;
-  setSelectedProjectKey: (key: string | null) => void;
-  setSelectedStoryKey: (key: string | null) => void;
+  connections: ConnectionDto[];
+  projects: ProjectDto[];
+  stories: StorySummary[];
+
+  setSelectedConnection: (connection: ConnectionDto | null) => void;
+  setSelectedProject: (project: ProjectDto | null) => void;
+  setSelectedStory: (story: StorySummary | null) => void;
   setHeaderProjectKey: (key: string) => void;
   setHeaderStoryKey: (key: string) => void;
+  setConnections: (connections: ConnectionDto[]) => void;
+  setProjects: (projects: ProjectDto[]) => void;
+  setStories: (stories: StorySummary[]) => void;
 
   // Actions to reset dependent states
   resetSelection: () => void;
@@ -22,34 +30,41 @@ interface WorkspaceState {
 export const useWorkspaceStore = create<WorkspaceState>()(
   persist(
     (set) => ({
-      selectedConnectionId: null,
-      selectedProjectKey: null,
-      selectedStoryKey: null,
+      selectedConnection: null,
+      selectedProject: null,
+      selectedStory: null,
       headerProjectKey: "",
       headerStoryKey: "",
+      connections: [],
+      projects: [],
+      stories: [],
 
-      setSelectedConnectionId: (id) =>
+      setSelectedConnection: (conn) =>
         set((state) => ({
-          selectedConnectionId: id,
-          selectedProjectKey: null, // Reset project when connection changes
-          selectedStoryKey: null, // Reset story when connection changes
+          selectedConnection: conn,
+          selectedProject: null, // Reset project when connection changes
+          selectedStory: null, // Reset story when connection changes
         })),
 
-      setSelectedProjectKey: (key) =>
+      setSelectedProject: (proj) =>
         set((state) => ({
-          selectedProjectKey: key,
-          selectedStoryKey: null, // Reset story when project changes
+          selectedProject: proj,
+          selectedStory: null, // Reset story when project changes
         })),
 
-      setSelectedStoryKey: (key) => set({ selectedStoryKey: key }),
+      setSelectedStory: (story) => set({ selectedStory: story }),
       setHeaderProjectKey: (key) => set({ headerProjectKey: key }),
       setHeaderStoryKey: (key) => set({ headerStoryKey: key }),
 
+      setConnections: (connections) => set({ connections }),
+      setProjects: (projects) => set({ projects }),
+      setStories: (stories) => set({ stories }),
+
       resetSelection: () =>
         set({
-          selectedConnectionId: null,
-          selectedProjectKey: null,
-          selectedStoryKey: null,
+          selectedConnection: null,
+          selectedProject: null,
+          selectedStory: null,
         }),
       resetHeaderKeys: () =>
         set({
@@ -60,6 +75,6 @@ export const useWorkspaceStore = create<WorkspaceState>()(
     {
       name: "workspace-storage", // name of the item in the storage (must be unique)
       // default is localStorage
-    }
-  )
+    },
+  ),
 );

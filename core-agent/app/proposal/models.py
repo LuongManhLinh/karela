@@ -10,11 +10,9 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
-    text,
     DateTime,
 )
 from sqlalchemy.orm import relationship
-from datetime import datetime
 
 
 class ProposalSource(Enum):

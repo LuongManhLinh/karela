@@ -15,14 +15,15 @@ from ..schemas import (
     CreateProposalRequest,
     ProposalDto,
     ProposalContentDto,
-    SessionsHavingProposals,
+    SessionsWithProposals,
 )
 
 from app.connection import get_platform_service
 from app.connection.jira.schemas import CreateStoryRequest
 from app.analysis.services.defect_service import DefectService
-from common.database import uuid_generator
 from common.schemas import SessionSummary
+from app.analysis.models import Analysis
+from app.chat.models import ChatSession
 
 
 class ProposalService:
@@ -385,7 +386,10 @@ class ProposalService:
         return self._get_proposal_dto(proposal)
 
     def get_proposals_by_session(
-        self, session_id: str, source: Literal["CHAT", "ANALYSIS"]
+        self,
+        session_id: str,
+        source: Literal["CHAT", "ANALYSIS"],
+        story_key: str | None = None,
     ) -> List[ProposalDto]:
         """Retrieves all proposals for a given session ID and source.
         Args:
@@ -393,25 +397,39 @@ class ProposalService:
             source (Literal["CHAT", "ANALYSIS"]): The source of the proposals.
         """
         source_enum = ProposalSource(source)
-        query = self.db.query(Proposal).filter(Proposal.source == source_enum)
-        if source_enum == ProposalSource.CHAT:
-            query = query.filter(Proposal.chat_session_id == session_id)
+        if story_key:
+            query = (
+                self.db.query(Proposal)
+                .join(ProposalContent)
+                .filter(
+                    Proposal.source == source_enum,
+                    ProposalContent.story_key == story_key,
+                )
+                .distinct()
+            )
+            if source_enum == ProposalSource.CHAT:
+                query = query.filter(Proposal.chat_session_id == session_id)
+            else:
+                query = query.filter(Proposal.analysis_session_id == session_id)
         else:
-            query = query.filter(Proposal.analysis_session_id == session_id)
+            query = self.db.query(Proposal).filter(Proposal.source == source_enum)
+            if source_enum == ProposalSource.CHAT:
+                query = query.filter(Proposal.chat_session_id == session_id)
+            else:
+                query = query.filter(Proposal.analysis_session_id == session_id)
 
         proposals = query.all()
         return [self._get_proposal_dto(proposal) for proposal in proposals]
 
-    def get_sessions_having_proposals(
-        self, connection_id: str
-    ) -> SessionsHavingProposals:
+    def list_proposals_by_project(
+        self, connection_id: str, project_key: str
+    ) -> SessionsWithProposals:
         """Retrieves all proposals for a given connection ID.
         Args:
             connection_id (str): The connection ID.
+            project_key (str): The project key.
         """
         # Import here to avoid circular dependencies
-        from app.analysis.models import Analysis
-        from app.chat.models import ChatSession
 
         # Query distinct analysis sessions that have proposals
         analysis_sessions = (
@@ -419,8 +437,8 @@ class ProposalService:
             .join(Proposal, Proposal.analysis_session_id == Analysis.id)
             .filter(
                 Proposal.connection_id == connection_id,
+                Proposal.project_key == project_key,
                 Proposal.source == ProposalSource.ANALYSIS,
-                Analysis.connection_id == connection_id,
             )
             .distinct()
             .order_by(Analysis.created_at.desc())
@@ -433,15 +451,77 @@ class ProposalService:
             .join(Proposal, Proposal.chat_session_id == ChatSession.id)
             .filter(
                 Proposal.connection_id == connection_id,
+                Proposal.project_key == project_key,
                 Proposal.source == ProposalSource.CHAT,
-                ChatSession.connection_id == connection_id,
             )
             .distinct()
             .order_by(ChatSession.created_at.desc())
             .all()
         )
 
-        return SessionsHavingProposals(
+        return SessionsWithProposals(
+            analysis_sessions=[
+                SessionSummary(
+                    id=analysis.id,
+                    key=analysis.key,
+                    project_key=analysis.project_key,
+                    created_at=analysis.created_at.isoformat(),
+                )
+                for analysis in analysis_sessions
+            ],
+            chat_sessions=[
+                SessionSummary(
+                    id=chat.id,
+                    key=chat.key,
+                    project_key=chat.project_key,
+                    story_key=chat.story_key,
+                    created_at=chat.created_at.isoformat(),
+                )
+                for chat in chat_sessions
+            ],
+        )
+
+    def list_proposals_by_story(
+        self, connection_id: str, project_key: str, story_key: str
+    ) -> SessionsWithProposals:
+        """Retrieves all proposals for a given story.
+        Args:
+            connection_id (str): The connection ID.
+            project_key (str): The project key.
+            story_key (str): The story key.
+        """
+        # 1. Get all unique IDs in one trip
+        session_ids = (
+            self.db.query(Proposal.analysis_session_id, Proposal.chat_session_id)
+            .join(ProposalContent)
+            .filter(
+                Proposal.connection_id == connection_id,
+                Proposal.project_key == project_key,
+                ProposalContent.story_key == story_key,
+            )
+            .distinct()
+            .all()
+        )
+
+        # 2. Extract unique non-null IDs
+        a_ids = {r.analysis_session_id for r in session_ids if r.analysis_session_id}
+        c_ids = {r.chat_session_id for r in session_ids if r.chat_session_id}
+
+        # 3. Fetch objects using 'IN' (Very fast for indexed Primary Keys)
+        analysis_sessions = (
+            self.db.query(Analysis)
+            .filter(Analysis.id.in_(a_ids))
+            .order_by(Analysis.created_at.desc())
+            .all()
+        )
+        chat_sessions = (
+            self.db.query(ChatSession)
+            .filter(ChatSession.id.in_(c_ids))
+            .order_by(ChatSession.created_at.desc())
+            .all()
+        )
+
+        return SessionsWithProposals(
             analysis_sessions=[
                 SessionSummary(
                     id=analysis.id,

@@ -10,7 +10,7 @@ export default function Home() {
   useEffect(() => {
     const token = getToken();
     if (token) {
-      router.push("/analysis");
+      router.push("/app/connections");
     } else {
       router.push("/login");
     }

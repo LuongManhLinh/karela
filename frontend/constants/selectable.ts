@@ -1,13 +1,13 @@
-import { StorySummary } from "@/types/integration";
+import { StorySummary } from "@/types/connection";
 
-export const NONE_STORY_SUMMARY: StorySummary = {
+export const USE_NO_STORY: StorySummary = {
   id: "none",
   key: "none",
-  summary: "Use No Story",
+  summary: "Use No Story (Project Level)",
 };
 
-export const NO_FILTER_STORY_SUMMARY: StorySummary = {
-  id: "ALL",
-  key: "ALL",
-  summary: "No Story Filter",
+export const NO_STORY_FILTER: StorySummary = {
+  id: "none",
+  key: "none",
+  summary: "No Story (Filter By Project Level)",
 };

@@ -16,6 +16,7 @@ class ACSummary(BaseModel):
     id: str
     key: Optional[str] = None
     story_key: str
+    summary: str
     created_at: datetime
     updated_at: datetime
 
@@ -24,7 +25,6 @@ class ACSummary(BaseModel):
 
 
 class ACDto(ACSummary):
-    summary: str
     description: str
 
 

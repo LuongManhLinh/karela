@@ -32,7 +32,7 @@ import {
   setGherkinEditorTheme,
 } from "@/utils/editorThemeUtils";
 import { ChatSection } from "../chat/ChatSection";
-import { ACChatPopover } from "./ACChatPopover";
+import { ACChatPopover } from "./AcChatPopover";
 import { connectionService } from "@/services/connectionService";
 import { scrollBarSx } from "@/constants/scrollBarSx";
 
@@ -60,7 +60,7 @@ const AceEditor = dynamic(
         <CircularProgress size={24} />
       </Box>
     ),
-  }
+  },
 ) as any;
 
 interface GherkinEditorWrapperProps {
@@ -91,14 +91,14 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
           storyKey,
           content,
           line,
-          col
+          col,
         );
         setSuggestions(res.suggestions);
       } catch (error) {
         console.error(error);
       }
     },
-    []
+    [],
   ); // Dependencies? Likely none if acService is static, otherwise add them
 
   const clearSuggestions = useCallback(() => setSuggestions([]), []);
@@ -122,7 +122,7 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
   const editorInstanceRef = useRef<any>(null);
   const [markers, setMarkers] = useState<any[]>([]);
   const [activeSuggestion, setActiveSuggestion] = useState<AISuggestion | null>(
-    null
+    null,
   );
   const [popupPos, setPopupPos] = useState<{
     top: number;
@@ -133,7 +133,7 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
 
   // We need to track if a CREATE suggestion was just inserted to handle Dismiss
   const insertedSuggestionRef = useRef<{ range: any; text: string } | null>(
-    null
+    null,
   );
   // Track if change is internal to avoid clearing suggestions on AI insertion
   const isInternalChangeRef = useRef(false);
@@ -354,7 +354,7 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
       const editor = editorInstanceRef.current;
       const coords = editor.renderer.textToScreenCoordinates(
         s.position.start_row - 1,
-        s.position.start_column - 1
+        s.position.start_column - 1,
       );
       setPopupPos({ top: coords.pageY + 20, left: coords.pageX });
     }
@@ -588,8 +588,8 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
                 activeSuggestion.type === "CREATE"
                   ? "success.main"
                   : activeSuggestion.type === "DELETE"
-                  ? "error.main"
-                  : "warning.main",
+                    ? "error.main"
+                    : "warning.main",
               color: "text.primary",
               borderRadius: "0 4px 4px 4px",
             }}

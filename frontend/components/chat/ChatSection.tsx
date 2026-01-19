@@ -22,7 +22,7 @@ export const ChatSection: React.FC<{
       elevation={2}
       onClick={handleFocusTextField}
       sx={{
-        cursor: "text",
+        cursor: disabled ? "default" : "text",
         p: 2,
         mt: 0,
         borderRadius: 2.5,

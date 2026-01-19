@@ -2,24 +2,27 @@
 
 import React from "react";
 import { Box, Paper } from "@mui/material";
-import { MyAppBar } from "./AppBar";
+import { MyAppBar } from "./MyAppBar";
 
 interface LayoutProps {
   children: React.ReactNode;
   appBarLeftContent?: React.ReactNode;
   appBarTransparent?: boolean;
+  basePath?: string;
 }
 
 export const Layout: React.FC<LayoutProps> = ({
   children,
   appBarLeftContent,
   appBarTransparent,
+  basePath,
 }) => {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <MyAppBar
         leftContent={appBarLeftContent}
         transparent={appBarTransparent}
+        basePath={basePath}
       />
       <Box
         component="main"
@@ -36,12 +39,14 @@ interface DoubleLayoutProps {
   rightChildren: React.ReactNode;
   appBarLeftContent?: React.ReactNode;
   appBarTransparent?: boolean;
+  basePath?: string;
 }
 export const DoubleLayout: React.FC<DoubleLayoutProps> = ({
   leftChildren,
   rightChildren,
   appBarLeftContent,
   appBarTransparent,
+  basePath,
 }) => {
   return (
     <Box sx={{ display: "flex", flexDirection: "row", minHeight: "100vh" }}>
@@ -71,6 +76,7 @@ export const DoubleLayout: React.FC<DoubleLayoutProps> = ({
         <MyAppBar
           leftContent={appBarLeftContent}
           transparent={appBarTransparent}
+          basePath={basePath}
         />
         <Box
           sx={{

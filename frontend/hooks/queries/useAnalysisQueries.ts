@@ -4,19 +4,59 @@ import type { RunAnalysisRequest } from "@/types/analysis";
 
 export const ANALYSIS_KEYS = {
   all: ["analysis"] as const,
-  summaries: (connectionId: string) =>
-    [...ANALYSIS_KEYS.all, "summaries", connectionId] as const,
+  summariesByProject: (connectionId: string, projectKey: string) =>
+    [...ANALYSIS_KEYS.all, "summaries", connectionId, projectKey] as const,
+  summariesByStory: (
+    connectionId: string,
+    projectKey: string,
+    storyKey: string,
+  ) =>
+    [
+      ...ANALYSIS_KEYS.all,
+      "summaries",
+      connectionId,
+      projectKey,
+      storyKey,
+    ] as const,
   details: (analysisId: string) =>
     [...ANALYSIS_KEYS.all, "details", analysisId] as const,
   statuses: (ids: string[]) =>
     [...ANALYSIS_KEYS.all, "statuses", ...ids.sort()] as const,
 };
 
-export const useAnalysisSummariesQuery = (connectionId: string | undefined) => {
+export const useAnalysisSummariesByProjectQuery = (
+  connectionId: string | undefined,
+  projectKey: string | undefined,
+) => {
   return useQuery({
-    queryKey: ANALYSIS_KEYS.summaries(connectionId || ""),
-    queryFn: () => analysisService.getAnalysisSummaries(connectionId!),
-    enabled: !!connectionId,
+    queryKey: ANALYSIS_KEYS.summariesByProject(
+      connectionId || "",
+      projectKey || "",
+    ),
+    queryFn: () =>
+      analysisService.getAnalysisSummariesByProject(connectionId!, projectKey!),
+    enabled: !!connectionId && !!projectKey,
+  });
+};
+
+export const useAnalysisSummariesByStoryQuery = (
+  connectionId: string | undefined,
+  projectKey: string | undefined,
+  storyKey: string | undefined,
+) => {
+  return useQuery({
+    queryKey: ANALYSIS_KEYS.summariesByStory(
+      connectionId || "",
+      projectKey || "",
+      storyKey || "",
+    ),
+    queryFn: () =>
+      analysisService.getAnalysisSummariesByStory(
+        connectionId!,
+        projectKey!,
+        storyKey!,
+      ),
+    enabled: !!connectionId && !!projectKey && !!storyKey,
   });
 };
 
@@ -55,7 +95,10 @@ export const useRunAnalysisMutation = () => {
     }) => analysisService.runAnalysis(connectionId, projectKey, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ANALYSIS_KEYS.summaries(variables.connectionId),
+        queryKey: ANALYSIS_KEYS.summariesByProject(
+          variables.connectionId,
+          variables.projectKey,
+        ),
       });
     },
   });

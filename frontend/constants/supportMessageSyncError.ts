@@ -1,7 +1,7 @@
-import { ConnectionSyncError } from "@/types/integration";
+import { ConnectionSyncError } from "@/types/connection";
 
 export const getSupportMessageForSyncError = (
-  errorType: ConnectionSyncError
+  errorType: ConnectionSyncError,
 ): string => {
   switch (errorType) {
     case "data_sync_error":

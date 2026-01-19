@@ -33,7 +33,7 @@ export default function LoginPage() {
     // Check if already logged in
     const token = getToken();
     if (token) {
-      router.push("/analysis");
+      router.push("/app/connections");
     }
   }, [router]);
 
@@ -50,7 +50,7 @@ export default function LoginPage() {
 
       if (response.data) {
         saveToken(response.data);
-        router.push("/analysis");
+        router.push("/app");
       }
     } catch (err: any) {
       const errorMessage =

@@ -21,12 +21,28 @@ from .tasks import analyze_all_user_stories, analyze_target_user_story
 router = APIRouter()
 
 
-@router.get("/connections/{connection_id}")
+@router.get("/connections/{connection_id}/projects/{project_key}")
 async def get_analysis_summaries(
     connection_id: str,
+    project_key: str,
     service: AnalysisDataService = Depends(get_analysis_data_service),
 ):
-    summaries: List[AnalysisSummary] = service.get_analysis_summaries(connection_id)
+    summaries: List[AnalysisSummary] = service.get_analysis_summaries_by_project(
+        connection_id=connection_id, project_key=project_key
+    )
+    return BasicResponse(data=summaries)
+
+
+@router.get("/connections/{connection_id}/projects/{project_key}/stories/{story_key}")
+async def get_analysis_summaries_by_story(
+    connection_id: str,
+    project_key: str,
+    story_key: str,
+    service: AnalysisDataService = Depends(get_analysis_data_service),
+):
+    summaries: List[AnalysisSummary] = service.get_analysis_summaries_by_story(
+        connection_id=connection_id, project_key=project_key, story_key=story_key
+    )
     return BasicResponse(data=summaries)
 
 

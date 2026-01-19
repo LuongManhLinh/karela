@@ -59,7 +59,7 @@ class CreateProposalRequest(BaseModel):
     target_defect_ids: Optional[List[str]] = None
 
 
-class SessionsHavingProposals(BaseModel):
+class SessionsWithProposals(BaseModel):
     analysis_sessions: List[SessionSummary]
     chat_sessions: List[SessionSummary]
 

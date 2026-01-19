@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Container,
   Paper,
@@ -21,28 +21,30 @@ import {
 import { Layout } from "@/components/Layout";
 import {
   useCurrentUserQuery,
-  useUserConnectionsQuery,
   useChangePasswordMutation,
 } from "@/hooks/queries/useUserQueries";
+import { useUserConnectionsQuery } from "@/hooks/queries/useConnectionQueries";
 import { jiraService } from "@/services/jiraService";
 import { ErrorSnackbar } from "@/components/ErrorSnackbar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useRouter } from "next/navigation";
-import type { UserConnections } from "@/types/user";
-import type { JiraConnectionDto } from "@/types/integration";
-import type { UserDto } from "@/types/user";
-import {
-  Add,
-  Link as LinkIcon,
-  MoreVert,
-  Edit,
-  Delete,
-} from "@mui/icons-material";
-import { getToken } from "@/utils/jwtUtils";
-import { userService } from "@/services/userService";
+import type { ConnectionDto } from "@/types/connection";
+import { Add, Edit, Delete } from "@mui/icons-material";
 import { JiraConnectionItem } from "@/components/profile/JiraConnectionItem";
+import { connectionService } from "@/services/connectionService";
+import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 
 export default function ProfilePage() {
+  const {
+    selectedConnection,
+    setSelectedConnection,
+    setConnections,
+    selectedProject,
+    setSelectedProject,
+    setProjects,
+    setSelectedStory,
+    setStories,
+  } = useWorkspaceStore();
   const router = useRouter();
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -72,13 +74,22 @@ export default function ProfilePage() {
   const [showError, setShowError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const theme = useTheme();
+  const basePath = useMemo(() => {
+    if (!selectedConnection) {
+      return "/app";
+    }
+    if (!selectedProject) {
+      return `/app/connections/${selectedConnection.name}`;
+    }
+
+    return `/app/connections/${selectedConnection.name}/projects/${selectedProject.key}`;
+  }, [selectedConnection, selectedProject]);
 
   // Load user data handles via React Query hooks automatically
 
   const handleMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
-    connectionId: string
+    connectionId: string,
   ) => {
     setMenuAnchorEl(event.currentTarget);
     setSelectedConnectionId(connectionId);
@@ -95,9 +106,16 @@ export default function ProfilePage() {
   };
 
   const handleDeleteConnection = () => {
-    userService.deleteConnection(selectedConnectionId!).then(() => {
+    connectionService.deleteConnection(selectedConnectionId!).then(() => {
       // Optionally, you can refetch the connections or update the state to reflect the deletion
-      refetchConnections();
+      refetchConnections().then((res) => {
+        setSelectedConnection(null);
+        setConnections(res.data?.data?.jira_connections || []);
+        setSelectedProject(null);
+        setProjects([]);
+        setSelectedStory(null);
+        setStories([]);
+      });
     });
     handleMenuClose();
   };
@@ -169,6 +187,7 @@ export default function ProfilePage() {
         </Stack>
       }
       appBarTransparent={true}
+      basePath={basePath}
     >
       <Container maxWidth="md" sx={{ mt: 4, mb: 4, overflowY: "auto" }}>
         <Paper
@@ -224,7 +243,7 @@ export default function ProfilePage() {
           </Box>
           <Stack spacing={2}>
             {connections && connections.jira_connections.length > 0 ? (
-              connections.jira_connections.map((conn: JiraConnectionDto) => (
+              connections.jira_connections.map((conn: ConnectionDto) => (
                 <JiraConnectionItem
                   key={conn.id}
                   connection={conn}

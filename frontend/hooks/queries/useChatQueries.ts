@@ -4,16 +4,50 @@ import type { ChatSessionDto } from "@/types/chat";
 
 export const CHAT_KEYS = {
   all: ["chat"] as const,
-  sessions: (connectionId: string) => [...CHAT_KEYS.all, "sessions", connectionId] as const,
-  session: (sessionId: string) => [...CHAT_KEYS.all, "session", sessionId] as const,
+  sessionsByProject: (connectionId: string, projectKey: string) =>
+    [...CHAT_KEYS.all, "sessions", connectionId, projectKey] as const,
+  sessionsByStory: (
+    connectionId: string,
+    projectKey: string,
+    storyKey: string,
+  ) =>
+    [...CHAT_KEYS.all, "sessions", connectionId, projectKey, storyKey] as const,
+  session: (sessionId: string) =>
+    [...CHAT_KEYS.all, "session", sessionId] as const,
 };
 
-export const useChatSessionsQuery = (connectionId: string | undefined) => {
+export const useChatSessionsByProjectQuery = (
+  connectionId: string | undefined,
+  projectKey: string | undefined,
+) => {
   return useQuery({
-    queryKey: CHAT_KEYS.sessions(connectionId || ""),
-    queryFn: () => chatService.listChatSessions(connectionId!),
-    enabled: !!connectionId,
-    staleTime: 60 * 1000, 
+    queryKey: CHAT_KEYS.sessionsByProject(connectionId || "", projectKey || ""),
+    queryFn: () =>
+      chatService.listChatSessionsByProject(connectionId!, projectKey!),
+    enabled: !!connectionId && !!projectKey,
+    staleTime: 60 * 1000,
+  });
+};
+
+export const useChatSessionsByStoryQuery = (
+  connectionId: string | undefined,
+  projectKey: string | undefined,
+  storyKey: string | undefined,
+) => {
+  return useQuery({
+    queryKey: CHAT_KEYS.sessionsByStory(
+      connectionId || "",
+      projectKey || "",
+      storyKey || "",
+    ),
+    queryFn: () =>
+      chatService.listChatSessionsByStory(
+        connectionId!,
+        projectKey!,
+        storyKey!,
+      ),
+    enabled: !!connectionId && !!projectKey && !!storyKey,
+    staleTime: 60 * 1000,
   });
 };
 
@@ -23,7 +57,7 @@ export const useChatSessionQuery = (sessionId: string | undefined) => {
     queryFn: () => chatService.getChatSession(sessionId!),
     enabled: !!sessionId,
     // Session messages might update frequently via websocket, but initial load can be cached
-    staleTime: 60 * 1000, 
+    staleTime: 60 * 1000,
   });
 };
 

@@ -1,6 +1,6 @@
 // User types
 
-import { JiraConnectionDto } from "./integration";
+import { ConnectionDto } from "./connection";
 
 export interface RegisterUserRequest {
   username: string;
@@ -23,6 +23,6 @@ export interface ChangePasswordRequest {
   new_password: string;
 }
 export interface UserConnections {
-  jira_connections: JiraConnectionDto[];
+  jira_connections: ConnectionDto[];
   azure_devops_connections: any[];
 }

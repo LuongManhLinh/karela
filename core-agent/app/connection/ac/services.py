@@ -47,7 +47,7 @@ class ACService:
             .first()
         )
 
-    def get_acs(self, connection_id: str, project_key: str, story_key: str):
+    def get_acs_by_story(self, connection_id: str, project_key: str, story_key: str):
         acs = (
             self.db.query(GherkinAC, JiraStory.key)
             .join(JiraStory, GherkinAC.jira_story_id == JiraStory.id)
@@ -62,12 +62,36 @@ class ACService:
         )
 
         return [
-            ACDto(
+            ACSummary(
                 id=ac.id,
                 key=ac.key,
                 story_key=story_key,
                 summary=ac.summary,
-                description=ac.description,
+                created_at=ac.created_at,
+                updated_at=ac.updated_at,
+            )
+            for ac, story_key in acs
+        ]
+
+    def get_acs_by_project(self, connection_id: str, project_key: str):
+        acs = (
+            self.db.query(GherkinAC, JiraStory.key)
+            .join(JiraStory, GherkinAC.jira_story_id == JiraStory.id)
+            .join(JiraProject, JiraStory.jira_project_id == JiraProject.id)
+            .join(JiraConnection, JiraProject.jira_connection_id == JiraConnection.id)
+            .filter(
+                JiraConnection.id == connection_id,
+                JiraProject.key == project_key,
+            )
+            .all()
+        )
+
+        return [
+            ACSummary(
+                id=ac.id,
+                key=ac.key,
+                story_key=story_key,
+                summary=ac.summary,
                 created_at=ac.created_at,
                 updated_at=ac.updated_at,
             )
@@ -100,32 +124,6 @@ class ACService:
             created_at=ac.created_at,
             updated_at=ac.updated_at,
         )
-
-    def get_acs_by_project(self, connection_id: str, project_key: str):
-        acs = (
-            self.db.query(GherkinAC, JiraStory.key)
-            .join(JiraStory, GherkinAC.jira_story_id == JiraStory.id)
-            .join(JiraProject, JiraStory.jira_project_id == JiraProject.id)
-            .join(JiraConnection, JiraProject.jira_connection_id == JiraConnection.id)
-            .filter(
-                JiraConnection.id == connection_id,
-                JiraProject.key == project_key,
-            )
-            .all()
-        )
-
-        return [
-            ACDto(
-                id=ac.id,
-                key=ac.key,
-                story_key=story_key,
-                summary=ac.summary,
-                description=ac.description,
-                created_at=ac.created_at,
-                updated_at=ac.updated_at,
-            )
-            for ac, story_key in acs
-        ]
 
     def create_ac(
         self,

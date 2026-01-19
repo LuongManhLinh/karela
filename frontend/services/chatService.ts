@@ -8,31 +8,46 @@ import type {
 
 export const chatService = {
   createChatSession: async (
-    request: ChatSessionCreateRequest
+    connectionId: string,
+    projectKey: string,
+    storyKey?: string,
   ): Promise<BasicResponse<string>> => {
+    const request: ChatSessionCreateRequest = {
+      connection_id: connectionId,
+      project_key: projectKey,
+      story_key: storyKey,
+    };
     const response = await apiClient.post<BasicResponse<string>>(
       "/chat/",
-      request
+      request,
     );
     return response.data;
   },
-  listChatSessions: async (
-    connectionId: string
+  listChatSessionsByProject: async (
+    connectionId: string,
+    projectKey: string,
   ): Promise<BasicResponse<ChatSessionSummary[]>> => {
     const response = await apiClient.get<BasicResponse<ChatSessionSummary[]>>(
-      "/chat/",
-      {
-        params: { connection_id: connectionId },
-      }
+      `/chat/connections/${connectionId}/projects/${projectKey}`
+    );
+    return response.data;
+  },
+  listChatSessionsByStory: async (
+    connectionId: string,
+    projectKey: string,
+    storyKey: string,
+  ): Promise<BasicResponse<ChatSessionSummary[]>> => {
+    const response = await apiClient.get<BasicResponse<ChatSessionSummary[]>>(
+      `/chat/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}`
     );
     return response.data;
   },
 
   getChatSession: async (
-    sessionIdOrKey: string
+    sessionIdOrKey: string,
   ): Promise<BasicResponse<ChatSessionDto>> => {
     const response = await apiClient.get<BasicResponse<ChatSessionDto>>(
-      `/chat/${sessionIdOrKey}`
+      `/chat/${sessionIdOrKey}`,
     );
     return response.data;
   },

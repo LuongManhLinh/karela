@@ -14,7 +14,7 @@ import {
   IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { StoryDto } from "@/types/integration";
+import { StoryDto } from "@/types/connection";
 import { userService } from "@/services/userService";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 
@@ -29,7 +29,10 @@ export const StoryDetailDialog: React.FC<StoryDetailDialogProps> = ({
   onClose,
   storyKey,
 }) => {
-  const { selectedConnectionId, selectedProjectKey } = useWorkspaceStore();
+  const {
+    selectedConnection: selectedConnectionId,
+    selectedProject: selectedProjectKey,
+  } = useWorkspaceStore();
   const [story, setStory] = useState<StoryDto | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +49,7 @@ export const StoryDetailDialog: React.FC<StoryDetailDialogProps> = ({
         const response = await userService.getStory(
           selectedConnectionId,
           selectedProjectKey,
-          storyKey
+          storyKey,
         );
         if (response.data) {
           setStory(response.data);

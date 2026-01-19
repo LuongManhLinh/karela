@@ -15,15 +15,15 @@ import {
   CheckCircle as CheckCircleIcon,
   Info as InfoIcon,
 } from "@mui/icons-material";
-import { JiraConnectionDto } from "@/types/integration";
-import { useConnectionSyncStatusQuery } from "@/hooks/queries/useUserQueries";
+import { ConnectionDto } from "@/types/connection";
+import { useConnectionSyncStatusQuery } from "@/hooks/queries/useConnectionQueries";
 import { getSupportMessageForSyncError } from "@/constants/supportMessageSyncError";
 
 interface JiraConnectionItemProps {
-  connection: JiraConnectionDto;
+  connection: ConnectionDto;
   onMenuOpen: (
     event: React.MouseEvent<HTMLElement>,
-    connectionId: string
+    connectionId: string,
   ) => void;
 }
 
@@ -33,7 +33,7 @@ export const JiraConnectionItem: React.FC<JiraConnectionItemProps> = ({
 }) => {
   const theme = useTheme();
   const { data: statusData, isLoading } = useConnectionSyncStatusQuery(
-    connection.id
+    connection.id,
   );
 
   const statusDto = statusData?.data;
@@ -129,14 +129,11 @@ export const JiraConnectionItem: React.FC<JiraConnectionItemProps> = ({
         gap: 2,
         p: 2,
         borderRadius: 1,
-        border: `1.5px solid ${
-          syncError ? theme.palette.error.light : theme.palette.divider
-        }`,
         bgcolor: syncError
           ? theme.vars
             ? "error.soft"
             : alpha(theme.palette.error.main, 0.05)
-          : "background.paper",
+          : "tertiary.main",
         overflow: "hidden", // Extra safety
       }}
     >

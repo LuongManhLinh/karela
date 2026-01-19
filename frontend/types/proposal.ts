@@ -29,7 +29,7 @@ export interface ProposalDto extends ProposalSummary {
   contents: ProposalContentDto[];
 }
 
-export interface SessionsHavingProposals {
+export interface SessionsWithProposals {
   analysis_sessions: SessionSummary[];
   chat_sessions: SessionSummary[];
 }
