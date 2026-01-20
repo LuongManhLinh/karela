@@ -58,7 +58,6 @@ export const getDefaultRoutes = (): Route[] => {
       href: `/documentation`,
       icon: <Article />,
     },
-    { name: "Profile", href: `/profile`, icon: <ManageAccounts /> },
   ];
 };
 
@@ -184,6 +183,16 @@ export const MyAppBar: React.FC<AppBarProps> = ({
             disableEnforceFocus={true}
             disableScrollLock={true}
           >
+            <MenuItem
+              onClick={resetHeaderKeys}
+              href="/profile"
+              component={Link}
+            >
+              <ListItemIcon>
+                <ManageAccounts />
+              </ListItemIcon>
+              <ListItemText>Profile</ListItemText>
+            </MenuItem>
             <MenuItem onClick={toggleColorMode}>
               <ListItemIcon>
                 {mode === "dark" ? <Brightness7 /> : <Brightness4 />}

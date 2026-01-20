@@ -8,11 +8,17 @@ import { useRouter } from "next/navigation";
 
 const ConnectionPage = () => {
   const router = useRouter();
-  const { selectedConnection } = useWorkspaceStore();
+  const { selectedConnection, connections, setSelectedConnection } = useWorkspaceStore();
+
+  useEffect(() => {
+    if (!selectedConnection && connections.length > 0) {
+      setSelectedConnection(connections[0]);
+    }
+  }, [selectedConnection, connections, setSelectedConnection]);
 
   useEffect(() => {
     if (selectedConnection) {
-      router.replace(`/app/connections/${selectedConnection.id}/projects`);
+      router.replace(`/app/connections/${selectedConnection.name}/projects`);
     }
   }, [selectedConnection, router]);
 

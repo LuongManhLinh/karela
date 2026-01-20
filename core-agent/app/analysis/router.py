@@ -115,56 +115,6 @@ async def run_analysis(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.websocket("/")
-async def run_analysis_ws(
-    websocket: WebSocket,
-    service: AnalysisRunService = Depends(get_analysis_run_service),
-):
-    await websocket.accept()
-    print("WS connection accepted")
-
-    raw_request = await websocket.receive_json()
-    connection_id = raw_request.get("connection_id")
-    if not connection_id:
-        await websocket.close(code=4002, reason="Connection ID missing")
-        return
-    project_key = raw_request.get("project_key")
-    if not project_key:
-        await websocket.close(code=4003, reason="Project key missing")
-        return
-    analysis_type = raw_request.get("analysis_type")
-    if analysis_type not in ["TARGETED", "ALL"]:
-        await websocket.close(code=4000, reason="Unsupported analysis type")
-        return
-    if analysis_type == "ALL":
-        async for chunk in service.stream_all_user_stories_analysis(
-            connection_id, project_key, analysis_type
-        ):
-            await websocket.send_json(chunk)
-    else:
-        story_key = raw_request.get("target_story_key")
-        if not story_key:
-            await websocket.close(
-                code=4001,
-                reason="target_story_key is required for TARGETED analysis",
-            )
-            return
-        async for chunk in service.stream_target_user_story_analysis(
-            connection_id, project_key, analysis_type, story_key
-        ):
-            await websocket.send_json(chunk)
-
-    await websocket.close()
-
-    # try:
-    #     while True:
-    #         await websocket.receive_text()  # keep WS alive
-    # except WebSocketDisconnect:
-    #     print("Client gone, but task continues")
-    # finally:
-    #     await websocket.close()
-
-
 @router.post("/{analysis_id}/rerun")
 async def rerun_analysis(
     analysis_id: str,

@@ -17,21 +17,23 @@ import SessionList, { SessionItem } from "./SessionList";
 import HeaderContent from "./HeaderContent";
 import { NoConnection } from "./NoConnection";
 
-interface WorkspaceShellProps {
+export interface WorkspaceSessions {
+  sessions: SessionItem[];
+  selectedSessionId?: string | null;
+  onSelectSession?: (id: string) => void;
+  label?: string;
+  emptyStateText?: string;
+  loading?: boolean;
+}
+
+export interface WorkspaceShellProps {
   connectionOptions: SelectableOptions<ConnectionDto>;
   projectOptions?: SelectableOptions<ProjectDto>;
   storyOptions?: SelectableOptions<StorySummary>;
   primaryAction?: SubmitAction;
   secondaryAction?: SubmitAction;
-  sessions: SessionItem[];
-  selectedSessionId?: string | null;
-  onSelectSession: (id: string) => void;
-  loadingSessions?: boolean;
-  loadingConnections?: boolean;
-  loadingProjectKeys?: boolean;
-  loadingStoryKeys?: boolean;
-  emptyStateText?: string;
-  sessionListLabel?: string;
+  primarySessions: WorkspaceSessions;
+  secondarySessions?: WorkspaceSessions;
   rightChildren: React.ReactNode;
   headerText?: string;
   headerProjectKey?: string;
@@ -47,15 +49,8 @@ export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
   storyOptions,
   primaryAction,
   secondaryAction,
-  sessions,
-  selectedSessionId,
-  onSelectSession,
-  loadingSessions,
-  loadingConnections,
-  loadingProjectKeys,
-  loadingStoryKeys,
-  emptyStateText = "No sessions yet",
-  sessionListLabel = "Sessions",
+  primarySessions,
+  secondarySessions,
   rightChildren,
   headerText,
   headerProjectKey,
@@ -82,9 +77,6 @@ export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
               storyOptions={storyOptions}
               primaryAction={primaryAction}
               secondaryAction={secondaryAction}
-              loadingConnections={loadingConnections}
-              loadingProjectKeys={loadingProjectKeys}
-              loadingStoryKeys={loadingStoryKeys}
             />
           ) : (
             <NoConnection />
@@ -98,15 +90,37 @@ export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
               color: "text.secondary",
             }}
           >
-            {sessionListLabel}
+            {primarySessions.label || "Sessions"}
           </Typography>
           <SessionList
-            sessions={sessions}
-            selectedId={selectedSessionId || null}
-            onSelect={onSelectSession}
-            loading={loadingSessions}
-            emptyStateText={emptyStateText}
+            sessions={primarySessions.sessions}
+            selectedId={primarySessions.selectedSessionId}
+            onSelect={primarySessions.onSelectSession || (() => {})}
+            loading={primarySessions.loading}
+            emptyStateText={primarySessions.emptyStateText}
           />
+          {secondarySessions && (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  textTransform: "uppercase",
+                  mb: 1,
+                  color: "text.secondary",
+                }}
+              >
+                {secondarySessions.label || "Sessions"}
+              </Typography>
+              <SessionList
+                sessions={secondarySessions.sessions}
+                selectedId={secondarySessions.selectedSessionId}
+                onSelect={secondarySessions.onSelectSession || (() => {})}
+                loading={secondarySessions.loading}
+                emptyStateText={secondarySessions.emptyStateText}
+              />
+            </>
+          )}
           {sidebarFooter ? <Box sx={{ mt: 3 }}>{sidebarFooter}</Box> : null}
         </Box>
       }

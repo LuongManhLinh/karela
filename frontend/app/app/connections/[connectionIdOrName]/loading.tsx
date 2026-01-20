@@ -20,28 +20,23 @@ const ConnectionItemLoading: React.FC = () => {
     selectedConnection?.id || undefined,
   );
 
+  console.log("Loading projects for connection:", selectedConnection);
+
   const router = useRouter();
 
   useEffect(() => {
+    console.log("Fetched projects:", projectDtosData?.data);
     setProjects(projectDtosData?.data || []);
   }, [projectDtosData?.data, setProjects]);
 
-  // Initialize project key
   useEffect(() => {
-    // If we have keys but no selection (or selection invalid), select first
     if (projects.length > 0 && !selectedProject) {
+      console.log("Auto-selecting project:", projects[0]);
       setSelectedProject(projects[0]);
     } else if (projects.length === 0 && selectedProject) {
-      // Clear selection if no keys
       setSelectedProject(null);
     }
   }, [projects, selectedProject, setSelectedProject]);
-  useEffect(() => {
-    const token = getToken();
-    if (!token) {
-      router.push("/login");
-    }
-  }, [router]);
 
   return <CircularProgress />;
 };

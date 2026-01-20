@@ -58,6 +58,7 @@ export const connectionService = {
   getConnectionSyncStatus: async (
     connectionId: string,
   ): Promise<BasicResponse<ConnectionSyncStatusDto>> => {
+    console.log(`Fetching sync status for connection ${connectionId}`);
     const response = await apiClient.get<
       BasicResponse<ConnectionSyncStatusDto>
     >(`/connections/${connectionId}/sync-status`);

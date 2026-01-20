@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Box, Button, Stack, Typography, Divider } from "@mui/material";
+import {
+  Box,
+  Button,
+  Stack,
+  Typography,
+  Divider,
+  Skeleton,
+} from "@mui/material";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { ErrorSnackbar } from "@/components/ErrorSnackbar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -16,10 +23,12 @@ import {
   useGenerateProposalsMutation,
 } from "@/hooks/queries/useAnalysisQueries";
 import {
-  useSessionProposalsQuery,
   useActOnProposalMutation,
   useActOnProposalContentMutation,
+  useSessionProposalsQuery,
 } from "@/hooks/queries/useProposalQueries";
+import { useQueryClient } from "@tanstack/react-query";
+import { useWebSocketContext } from "@/providers/WebSocketProvider";
 
 import { useParams } from "next/navigation";
 import { scrollBarSx } from "@/constants/scrollBarSx";
@@ -62,6 +71,40 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({ idOrKey }) => {
   const [diffDialogOpen, setDiffDialogOpen] = useState(false);
   const [selectedContentForDiff, setSelectedContentForDiff] =
     useState<ProposalContentDto | null>(null);
+
+  const { subscribe, unsubscribe } = useWebSocketContext();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!idOrKey) return;
+
+    // Use ID if we have it from details, otherwise we might rely on invalidation from layout if key is used
+    // But ideally we subscribe to the ID.
+    // If we only have key, we might need to wait for analysisDetailData to get ID.
+    const analysisId = selectedAnalysisDetail?.id;
+    if (!analysisId) return;
+
+    const handleMessage = (data: any) => {
+      console.log("Received WebSocket message for analysis:", data);
+      if (data.id === analysisId) {
+        // Invalidate details query to refresh status and defects
+        queryClient.invalidateQueries({
+          queryKey: ["analysis", "details", idOrKey],
+        });
+        // Also invalidate summaries to keep sidebar in sync
+        queryClient.invalidateQueries({ queryKey: ["analysis", "summaries"] });
+      }
+    };
+
+    subscribe(`analysis:${analysisId}`, handleMessage);
+    return () => unsubscribe(`analysis:${analysisId}`, handleMessage);
+  }, [
+    idOrKey,
+    selectedAnalysisDetail?.id,
+    subscribe,
+    unsubscribe,
+    queryClient,
+  ]);
 
   const handleDefectCardStoriesClick = (storyKeys: string[]) => {
     setSelectedStoryKeys(storyKeys);
@@ -235,6 +278,26 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({ idOrKey }) => {
                       onStoriesClick={handleDefectCardStoriesClick}
                     />
                   ))
+                )}
+                {(selectedAnalysisDetail.status === "IN_PROGRESS" ||
+                  selectedAnalysisDetail.status === "PENDING") && (
+                  <Stack spacing={2}>
+                    <Skeleton
+                      variant="rectangular"
+                      height={100}
+                      sx={{ borderRadius: 2 }}
+                    />
+                    <Skeleton
+                      variant="rectangular"
+                      height={100}
+                      sx={{ borderRadius: 2 }}
+                    />
+                    <Skeleton
+                      variant="rectangular"
+                      height={100}
+                      sx={{ borderRadius: 2 }}
+                    />
+                  </Stack>
                 )}
               </Stack>
               <Divider />

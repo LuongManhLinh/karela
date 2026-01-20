@@ -25,6 +25,7 @@ export interface SelectableOptions<T> {
   label?: string;
   required?: boolean;
   disabled?: boolean;
+  loading?: boolean;
 }
 
 export interface SubmitAction {
@@ -39,9 +40,6 @@ export interface SessionStartFormProps {
   storyOptions?: SelectableOptions<StorySummary>;
   primaryAction?: SubmitAction;
   secondaryAction?: SubmitAction;
-  loadingConnections?: boolean;
-  loadingProjectKeys?: boolean;
-  loadingStoryKeys?: boolean;
 }
 
 export const SessionStartForm: React.FC<SessionStartFormProps> = ({
@@ -50,9 +48,6 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
   storyOptions,
   primaryAction,
   secondaryAction,
-  loadingConnections,
-  loadingProjectKeys,
-  loadingStoryKeys,
 }) => {
   const getStoryLabel = (story: StorySummary) => {
     if (story.key === "none") {
@@ -96,7 +91,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
           }}
           getOptionLabel={(option) => option.name || option.id}
           isOptionEqualToValue={(option, value) => option.id === value.id}
-          disabled={loadingConnections}
+          disabled={connectionOptions.loading}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -105,7 +100,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
               margin="normal"
               InputProps={{
                 ...params.InputProps,
-                startAdornment: loadingConnections ? (
+                startAdornment: connectionOptions.loading ? (
                   <CircularProgress
                     size={20}
                     sx={{
@@ -166,7 +161,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
             projectOptions.onChange &&
               projectOptions.onChange(newValue || null);
           }}
-          disabled={loadingConnections}
+          disabled={projectOptions.loading}
           getOptionLabel={(option) => `${option.key} - ${option.name || ""}`}
           isOptionEqualToValue={(option, value) => option.id === value.id}
           renderInput={(params) => (
@@ -177,7 +172,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
               margin="normal"
               InputProps={{
                 ...params.InputProps,
-                startAdornment: loadingProjectKeys ? (
+                startAdornment: projectOptions.loading ? (
                   <CircularProgress
                     size={20}
                     sx={{
@@ -237,7 +232,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
           onChange={(_, newValue) => {
             storyOptions.onChange && storyOptions.onChange(newValue || null);
           }}
-          disabled={loadingConnections}
+          disabled={storyOptions.loading}
           getOptionLabel={getStoryLabel}
           isOptionEqualToValue={(option, value) => option.id === value.id}
           renderInput={(params) => (
@@ -248,7 +243,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
               sx={{ minWidth: 150 }}
               InputProps={{
                 ...params.InputProps,
-                startAdornment: loadingStoryKeys ? (
+                startAdornment: storyOptions.loading ? (
                   <CircularProgress
                     size={20}
                     sx={{
@@ -286,7 +281,12 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
             type="submit"
             variant="contained"
             fullWidth
-            disabled={loadingConnections || primaryAction.disabled}
+            disabled={
+              connectionOptions?.loading ||
+              projectOptions?.loading ||
+              storyOptions?.loading ||
+              primaryAction.disabled
+            }
             onClick={primaryAction.onClick}
           >
             {primaryAction.label}
@@ -297,7 +297,12 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
             type="button"
             variant="outlined"
             fullWidth
-            disabled={loadingConnections || secondaryAction.disabled}
+            disabled={
+              connectionOptions?.loading ||
+              projectOptions?.loading ||
+              storyOptions?.loading ||
+              secondaryAction.disabled
+            }
             onClick={secondaryAction.onClick}
           >
             {secondaryAction.label}

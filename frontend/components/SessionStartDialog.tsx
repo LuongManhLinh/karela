@@ -128,9 +128,6 @@ export const SessionStartDialog: React.FC<SessionStartDialogProps> = ({
                 }
               : undefined
           }
-          loadingConnections={false}
-          loadingProjectKeys={false}
-          loadingStoryKeys={false}
         />
       </DialogContent>
     </Dialog>

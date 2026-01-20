@@ -24,15 +24,6 @@ export const useConnectionSyncStatusQuery = (connectionId: string) => {
   return useQuery({
     queryKey: CONNECTION_KEYS.syncStatus(connectionId),
     queryFn: () => connectionService.getConnectionSyncStatus(connectionId),
-    refetchInterval: (query) => {
-      const status = query.state.data?.data?.sync_status;
-      const error = query.state.data?.data?.sync_error;
-      // Poll if not SYNCED and no error
-      if (status && status !== "SYNCED" && !error) {
-        return 1000;
-      }
-      return false;
-    },
   });
 };
 

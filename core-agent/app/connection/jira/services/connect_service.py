@@ -17,9 +17,27 @@ from ..schemas import (
 )
 
 
+from redis import Redis
+from common.configs import RedisConfig
+from common.redis_app import redis_client
+import json
+
+
 class JiraConnectService(JiraBaseService):
     def __init__(self, db: Session):
         super().__init__(db)
+        self.redis_client = redis_client
+
+    def _publish_status(self, connection_id: str, status: str, error: str = None):
+        try:
+            payload = {"id": connection_id, "sync_status": status}
+            if error:
+                payload["sync_error"] = error if isinstance(error, str) else error.value
+            self.redis_client.publish(
+                f"connection:{connection_id}", json.dumps(payload)
+            )
+        except Exception as e:
+            print(f"Failed to publish connection update: {e}")
 
     def setup_connection(self, connection_id: str, new: bool = True):
         connection = (
@@ -40,6 +58,7 @@ class JiraConnectService(JiraBaseService):
 
         connection.sync_status = "SYNCED"
         self.db.commit()
+        self._publish_status(connection.id, "SYNCED")
 
     def _on_connection_update(self, connection: JiraConnection):
         """Fetch projects and stories from Jira and cache them locally, including vector store"""
@@ -47,6 +66,7 @@ class JiraConnectService(JiraBaseService):
         connection.sync_error = None
         self.db.add(connection)
         self.db.commit()
+        self._publish_status(connection.id, "Starting sync...")
 
         try:
             # Clear existing projects and stories for this connection
@@ -68,6 +88,9 @@ class JiraConnectService(JiraBaseService):
                 print("Processing project:", project_data.key)
                 connection.sync_status = "Syncing project " + project_data.key
                 self.db.commit()
+                self._publish_status(
+                    connection.id, f"Syncing project {project_data.key}"
+                )
                 jira_project = JiraProject(
                     id=project_data.id,
                     key=project_data.key,
@@ -83,8 +106,8 @@ class JiraConnectService(JiraBaseService):
                 # Fetch stories for this project
                 issues = self.fetch_issues(
                     connection_id=connection.id,
-                    jql=f'project = "{project_data.key}" AND issuetype in (Story, {AC_ISSUE_TYPE_NAME})',
-                    fields=["summary", "description"],
+                    jql=f'project = "{project_data.key}" AND issuetype in ("Story", "{AC_ISSUE_TYPE_NAME}")',
+                    fields=["summary", "description", "issuetype", "parent", "created"],
                 )
 
                 # Save stories locally
@@ -101,7 +124,6 @@ class JiraConnectService(JiraBaseService):
                             summary=issue.fields.summary,
                             description=description_md,
                             jira_project_id=jira_project.id,
-                            created_at=issue.fields.created,
                         )
                         self.db.add(jira_story)
                         project_stories.append(
@@ -136,6 +158,7 @@ class JiraConnectService(JiraBaseService):
 
             connection.sync_status = "Sync completed"
             self.db.commit()
+            self._publish_status(connection.id, "Sync completed")
 
         except Exception as e:
             self.db.rollback()
@@ -143,6 +166,11 @@ class JiraConnectService(JiraBaseService):
             connection.sync_status = f"Sync failed: {e}"
             connection.sync_error = JiraSyncError.DATA_SYNC_ERROR
             self.db.commit()
+            self._publish_status(
+                connection_id=connection.id,
+                status=f"Sync failed: {e}",
+                error=JiraSyncError.DATA_SYNC_ERROR,
+            )
             raise
 
     def _update_issue_type_for_connection(
@@ -151,6 +179,7 @@ class JiraConnectService(JiraBaseService):
         connection.sync_status = "Updating issue types for projects..."
         self.db.add(connection)
         self.db.commit()
+        self._publish_status(connection.id, "Updating issue types for projects...")
         try:
             self._exec_refreshing_access_token(
                 connection=connection,

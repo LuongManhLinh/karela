@@ -6,13 +6,9 @@ from common.agents.input_schemas import (
 )
 from app.analysis.agents.all import (
     run_analysis as run_user_stories_analysis_all,
-    run_analysis_async as run_user_stories_analysis_all_async,
-    stream_analysis as stream_user_stories_analysis_all,
 )
 from app.analysis.agents.target import (
     run_analysis as run_user_stories_analysis_target,
-    run_analysis_async as run_user_stories_analysis_target_async,
-    stream_analysis as stream_user_stories_analysis_target,
 )
 from app.analysis.models import (
     Analysis,
@@ -26,7 +22,6 @@ from app.analysis.models import (
 from app.connection import get_platform_service
 
 
-from html2text import html2text
 from sqlalchemy.orm import Session
 from sqlalchemy import func, select
 
@@ -38,13 +33,34 @@ from typing import List, Optional, Literal
 
 from app.settings.models import Settings
 from common.agents.input_schemas import ContextInput, LlmContext
-from common.database import uuid_generator
+
+
+from redis import Redis
+from common.configs import RedisConfig
+import json
 
 
 class AnalysisRunService:
     def __init__(self, db: Session):
         self.db = db
         self.settings_service = SettingsService(db=db)
+        self.redis_client = Redis(
+            host=RedisConfig.REDIS_HOST,
+            port=RedisConfig.REDIS_PORT,
+            db=RedisConfig.REDIS_DB,
+            decode_responses=True,
+        )
+
+    def _publish_update(self, analysis_id: str, status: str):
+        try:
+            print(f"Publishing update to Redis: analysis:{analysis_id} status:{status}")
+            subscribers = self.redis_client.publish(
+                f"analysis:{analysis_id}",
+                json.dumps({"id": analysis_id, "status": status}),
+            )
+            print(f"Published to {subscribers} subscribers")
+        except Exception as e:
+            print(f"Failed to publish update: {e}")
 
     def _get_analysis_or_raise(self, analysis_id: str) -> Analysis:
         analysis = self.db.query(Analysis).filter(Analysis.id == analysis_id).first()
@@ -56,6 +72,9 @@ class AnalysisRunService:
         analysis.status = status
         self.db.add(analysis)
         self.db.commit()
+        self._publish_update(
+            analysis.id, status.value if hasattr(status, "value") else status
+        )
 
     def _get_default_context_input(
         self, connection_id: str, project_key: str
@@ -72,6 +91,9 @@ class AnalysisRunService:
         if error_msg:
             analysis.error_message = error_msg
         self.db.commit()
+        self._publish_update(
+            analysis.id, status.value if hasattr(status, "value") else status
+        )
 
     def _fetch_stories(self, connection_id: str, project_key: str):
         return get_platform_service(
@@ -139,27 +161,25 @@ class AnalysisRunService:
                 connection_id=analysis.connection_id,
                 project_key=analysis.project_key,
             )
-            # existing_defects = [
-            #     DefectInput(
-            #         id=d.key,
-            #         type=d.type.value,
-            #         severity=d.severity.value,
-            #         explanation=d.explanation,
-            #         confidence=d.confidence,
-            #         suggested_fix=d.suggested_fix,
-            #         story_keys=[w.key for w in d.story_keys],
-            #     )
-            #     for d in self.db.query(Defect)
-            #     .join(Analysis)
-            #     .filter(Defect.solved == False)
-            #     .filter(
-            #         Analysis.connection_id == analysis.connection_id,
-            #         Analysis.project_key == analysis.project_key,
-            #     )
-            #     .all()
-            # ]
-
-            existing_defects = []
+            existing_defects = [
+                DefectInput(
+                    id=d.key,
+                    type=d.type.value,
+                    severity=d.severity.value,
+                    explanation=d.explanation,
+                    confidence=d.confidence,
+                    suggested_fix=d.suggested_fix,
+                    story_keys=[w.key for w in d.story_keys],
+                )
+                for d in self.db.query(Defect)
+                .join(Analysis)
+                .filter(Defect.solved == False)
+                .filter(
+                    Analysis.connection_id == analysis.connection_id,
+                    Analysis.project_key == analysis.project_key,
+                )
+                .all()
+            ]
 
             print("Found existing defects:", len(existing_defects))
 
@@ -270,194 +290,6 @@ class AnalysisRunService:
         except Exception:
             traceback.print_exc()
             self._finish_analysis(analysis, AnalysisStatus.FAILED)
-
-    async def stream_target_user_story_analysis(
-        self,
-        connection_id: str,
-        project_key: str,
-        analysis_type: Literal["TARGETED", "ALL"],
-        target_key: Optional[str] = None,
-    ):
-        analysis_id = uuid_generator()
-        analysis = Analysis(
-            id=analysis_id,
-            project_key=project_key,
-            type=AnalysisType(analysis_type),
-            status=AnalysisStatus.PENDING,
-            connection_id=connection_id,
-            started_at=datetime.now(),
-            story_key=target_key,
-        )
-
-        self.db.add(analysis)
-        self.db.commit()
-        try:
-            self._start_analysis(analysis)
-
-            yield {
-                "status": "IN_PROGRESS",
-                "message": "Fetching issues...",
-                "id": analysis_id,
-            }
-
-            stories = self._fetch_stories(
-                connection_id=connection_id,
-                project_key=project_key,
-            )
-            normalized_stories = []
-            target = None
-            for i in stories:
-                wi = WorkItemMinimal(
-                    key=i.key, title=i.summary, description=i.description or ""
-                )
-
-                if wi.key == target_key:
-                    target = wi
-                else:
-                    normalized_stories.append(wi)
-
-            if not target:
-                raise ValueError(f"Target user story {target_key} not found")
-
-            yield {"message": "Running analysis..."}
-            context_input = self._get_default_context_input(
-                connection_id=connection_id,
-                project_key=project_key,
-            )
-            existing_defects = [
-                DefectInput(
-                    id=d.key,
-                    type=d.type.value,
-                    severity=d.severity.value,
-                    explanation=d.explanation,
-                    confidence=d.confidence,
-                    suggested_fix=d.suggested_fix,
-                    story_keys=[w.key for w in d.story_keys],
-                )
-                for d in self.db.query(Defect)
-                .join(DefectStoryKey)
-                .filter(DefectStoryKey.key == target_key, Defect.solved == False)
-                .distinct()
-            ]
-
-            start = time.perf_counter()
-            for step in stream_user_stories_analysis_target(
-                user_stories=normalized_stories,
-                target_user_story=target,
-                context_input=context_input,
-                existing_defects=existing_defects,
-            ):
-                if "data" in step:
-                    defects = step["data"]
-                    analysis.defects = self._convert_llm_defects(
-                        defects, analysis.connection_id, analysis.project_key
-                    )
-                else:
-                    yield step
-            print(
-                "Target story analysis (async) completed in:",
-                (time.perf_counter() - start) * 1000,
-                "ms",
-            )
-
-            self._finish_analysis(analysis, AnalysisStatus.DONE)
-            yield {"status": "DONE"}
-        except Exception as e:
-            traceback.print_exc()
-            error_msg = str(e)
-            self._finish_analysis(analysis, AnalysisStatus.FAILED, error_msg=error_msg)
-            yield {"status": "FAILED", "message": error_msg}
-
-    async def stream_all_user_stories_analysis(
-        self,
-        connection_id: str,
-        project_key: str,
-        analysis_type: Literal["TARGETED", "ALL"],
-    ):
-        analysis_id = uuid_generator()
-        analysis = Analysis(
-            id=analysis_id,
-            project_key=project_key,
-            type=AnalysisType(analysis_type),
-            status=AnalysisStatus.PENDING,
-            connection_id=connection_id,
-            started_at=datetime.now(),
-        )
-
-        self.db.add(analysis)
-        self.db.commit()
-
-        try:
-            self._start_analysis(analysis)
-
-            yield {
-                "status": "IN_PROGRESS",
-                "message": "Fetching issues...",
-                "id": analysis_id,
-            }
-
-            stories = self._fetch_stories(
-                connection_id=connection_id,
-                project_key=project_key,
-            )
-            normalized_stories = [
-                WorkItemMinimal(
-                    key=i.key,
-                    title=i.summary,
-                    description=i.description or "",
-                )
-                for i in stories
-            ]
-
-            yield {"message": "Running analysis...", "id": analysis_id}
-            context_input = self._get_default_context_input(
-                connection_id=connection_id,
-                project_key=project_key,
-            )
-            existing_defects = [
-                DefectInput(
-                    id=d.key,
-                    type=d.type.value,
-                    severity=d.severity.value,
-                    explanation=d.explanation,
-                    confidence=d.confidence,
-                    suggested_fix=d.suggested_fix,
-                    story_keys=[w.key for w in d.story_keys],
-                )
-                for d in self.db.query(Defect)
-                .join(Analysis)
-                .filter(
-                    Defect.solved == False, Analysis.project_key == analysis.project_key
-                )
-            ]
-
-            start = time.perf_counter()
-            for step in stream_user_stories_analysis_all(
-                user_stories=normalized_stories,
-                context_input=context_input,
-                existing_defects=existing_defects,
-            ):
-                if "data" in step:
-                    defects = step["data"]
-                    analysis.defects = self._convert_llm_defects(
-                        defects, analysis.connection_id, analysis.project_key
-                    )
-                else:
-                    step["id"] = analysis_id
-                    yield step
-            print(
-                "All user stories analysis (async) completed in:",
-                (time.perf_counter() - start) * 1000,
-                "ms",
-            )
-
-            self._finish_analysis(analysis, AnalysisStatus.DONE)
-            yield {"status": "DONE", "id": analysis_id}
-        except Exception as e:
-            traceback.print_exc()
-            error_msg = str(e)
-            self._finish_analysis(analysis, AnalysisStatus.FAILED, error_msg=error_msg)
-            yield {"status": "FAILED", "message": error_msg, "id": analysis_id}
 
     def generate_proposals(self, analysis_id: str):
         """Generate proposals for the given analysis.

@@ -7,18 +7,30 @@ from .settings.router import router as settings_router
 from .connection.jira.router import router as jira_router
 from .connection.router import router as connection_router
 from .connection.ac.router import router as ac_router
+from .websocket.router import router as websocket_router
+from .websocket.manager import manager as websocket_manager
 
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from common.database import Base, engine
+import asyncio
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
-    yield
-    # Shutdown code here
+    # --- Startup ---
+    print("System startup: Starting Redis listener...")
+    # Start the background task that reads from Redis
+    await websocket_manager.start_listening()
+
+    yield  # The application runs here
+
+    # --- Shutdown ---
+    print("System shutdown: Closing Redis connections...")
+    # Add a close method to your manager to clean up cleanly
+    await websocket_manager.close()
 
 
 app = FastAPI(root_path="/api/v1", lifespan=lifespan)
@@ -36,6 +48,7 @@ app.include_router(connection_router, prefix="/connections")
 app.include_router(ac_router, prefix="/ac")
 app.include_router(chat_router, prefix="/chat")
 app.include_router(proposal_router, prefix="/proposals")
+app.include_router(websocket_router, prefix="/ws")
 app.include_router(user_router, prefix="/users")
 app.include_router(settings_router, prefix="/settings")
 
