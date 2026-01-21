@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { chatService } from "@/services/chatService";
 import type { ChatSessionDto } from "@/types/chat";
+import { connect } from "http2";
 
 export const CHAT_KEYS = {
   all: ["chat"] as const,
@@ -12,51 +13,68 @@ export const CHAT_KEYS = {
     storyKey: string,
   ) =>
     [...CHAT_KEYS.all, "sessions", connectionId, projectKey, storyKey] as const,
-  session: (sessionId: string) =>
-    [...CHAT_KEYS.all, "session", sessionId] as const,
+  session: (sessionOrKey: string, connectionName: string, projectKey: string) =>
+    [
+      ...CHAT_KEYS.all,
+      "session",
+      sessionOrKey,
+      connectionName,
+      projectKey,
+    ] as const,
 };
 
 export const useChatSessionsByProjectQuery = (
-  connectionId: string | undefined,
+  connectionName: string | undefined,
   projectKey: string | undefined,
 ) => {
   return useQuery({
-    queryKey: CHAT_KEYS.sessionsByProject(connectionId || "", projectKey || ""),
+    queryKey: CHAT_KEYS.sessionsByProject(
+      connectionName || "",
+      projectKey || "",
+    ),
     queryFn: () =>
-      chatService.listChatSessionsByProject(connectionId!, projectKey!),
-    enabled: !!connectionId && !!projectKey,
+      chatService.listChatSessionsByProject(connectionName!, projectKey!),
+    enabled: !!connectionName && !!projectKey,
     staleTime: 60 * 1000,
   });
 };
 
 export const useChatSessionsByStoryQuery = (
-  connectionId: string | undefined,
+  connectionName: string | undefined,
   projectKey: string | undefined,
   storyKey: string | undefined,
 ) => {
   return useQuery({
     queryKey: CHAT_KEYS.sessionsByStory(
-      connectionId || "",
+      connectionName || "",
       projectKey || "",
       storyKey || "",
     ),
     queryFn: () =>
       chatService.listChatSessionsByStory(
-        connectionId!,
+        connectionName!,
         projectKey!,
         storyKey!,
       ),
-    enabled: !!connectionId && !!projectKey && !!storyKey,
+    enabled: !!connectionName && !!projectKey && !!storyKey,
     staleTime: 60 * 1000,
   });
 };
 
-export const useChatSessionQuery = (sessionId: string | undefined) => {
+export const useChatSessionQuery = (
+  connectionName: string | undefined,
+  projectKey: string | undefined,
+  sessionIdOrKey: string | undefined,
+) => {
   return useQuery({
-    queryKey: CHAT_KEYS.session(sessionId || ""),
-    queryFn: () => chatService.getChatSession(sessionId!),
-    enabled: !!sessionId,
-    // Session messages might update frequently via websocket, but initial load can be cached
+    queryKey: CHAT_KEYS.session(
+      sessionIdOrKey || "",
+      connectionName || "",
+      projectKey || "",
+    ),
+    queryFn: () =>
+      chatService.getChatSession(connectionName!, projectKey!, sessionIdOrKey!),
+    enabled: !!connectionName && !!projectKey && !!sessionIdOrKey,
     staleTime: 60 * 1000,
   });
 };

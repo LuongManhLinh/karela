@@ -12,10 +12,7 @@ import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { NO_STORY_FILTER, USE_NO_STORY } from "@/constants/selectable";
 import { SessionStartDialog } from "@/components/SessionStartDialog";
 
-import {
-  useProjectDtosQuery,
-  useStorySummariesQuery,
-} from "@/hooks/queries/useConnectionQueries";
+import { connectionService } from "@/services/connectionService";
 
 export interface PageLayoutProps {
   children: React.ReactNode;
@@ -23,6 +20,8 @@ export interface PageLayoutProps {
   href: string;
   primarySessions: WorkspaceSessions;
   secondarySessions?: WorkspaceSessions;
+  disablePrimaryAutoRoute?: boolean;
+  disableSecondaryAutoRoute?: boolean;
   onNewLabel?: string;
   dialogLabel?: string;
   primaryAction?: (
@@ -47,6 +46,8 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   href,
   primarySessions,
   secondarySessions,
+  disablePrimaryAutoRoute,
+  disableSecondaryAutoRoute,
   onNewLabel,
   dialogLabel,
   primaryAction,
@@ -90,39 +91,36 @@ const PageLayout: React.FC<PageLayoutProps> = ({
     [level, selectedConnection, selectedProject, selectedStory],
   );
 
-  const {
-    data: projectsData,
-    isLoading: isProjectsLoading,
-    refetch: refetchProjects,
-  } = useProjectDtosQuery(selectedConnection?.id);
-
-  const {
-    data: storiesData,
-    isLoading: isStoriesLoading,
-    refetch: refetchStories,
-  } = useStorySummariesQuery(selectedConnection?.id, selectedProject?.key);
-
   const router = useRouter();
 
+  const [isProjectsLoading, setIsProjectsLoading] = useState(false);
+  const [isStoriesLoading, setIsStoriesLoading] = useState(false);
+
   const handleConnectionChange = async (conn: ConnectionDto | null) => {
+    setIsProjectsLoading(true);
     setSelectedConnection(conn);
     setSelectedProject(null);
     setSelectedStory(null);
 
     if (conn) {
-      await refetchProjects();
+      const projectsData = await connectionService.getProjects(conn.id);
       setProjects(projectsData?.data || []);
     }
+    setIsProjectsLoading(false);
   };
 
   const handleProjectChange = async (proj: ProjectDto | null) => {
+    setIsStoriesLoading(true);
     setSelectedProject(proj);
     setSelectedStory(null);
     if (proj) {
-      // Refetch stories for the new project
-      await refetchStories();
+      const storiesData = await connectionService.getStorySummaries(
+        selectedConnection!.id,
+        proj.key,
+      );
       setStories(storiesData?.data || []);
     }
+    setIsStoriesLoading(false);
   };
 
   const handleStoryChange = async (story: StorySummary | null) => {
@@ -146,13 +144,17 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   const handleSelectPrimarySession = async (sessionId: string) => {
     primarySessions.onSelectSession &&
       primarySessions.onSelectSession(sessionId);
-    router.push(`${basePath}/${href}/${sessionId}`);
+    if (!disablePrimaryAutoRoute) {
+      router.push(`${basePath}/${href}/${sessionId}`);
+    }
   };
 
   const handleSelectSecondarySession = async (sessionId: string) => {
     secondarySessions?.onSelectSession &&
       secondarySessions.onSelectSession(sessionId);
-    router.push(`${basePath}/${href}/${sessionId}`);
+    if (!disableSecondaryAutoRoute) {
+      router.push(`${basePath}/${href}/${sessionId}`);
+    }
   };
 
   const handlePrimarySubmit = async (

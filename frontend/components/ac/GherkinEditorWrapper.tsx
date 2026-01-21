@@ -1,27 +1,17 @@
 "use client";
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useMemo,
-  useCallback,
-} from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
 import {
   Box,
   Paper,
   CircularProgress,
-  useTheme,
   Typography,
   Button,
   Switch,
   Tooltip,
   IconButton,
-  Popover,
-  TextField,
-  PopoverPaper,
 } from "@mui/material";
-import { Info as InfoIcon, Try, Try as TryIcon } from "@mui/icons-material";
+import { Info as InfoIcon, Try as TryIcon } from "@mui/icons-material";
 import { defineGherkinMode } from "@/utils/ace-gherkin-mode";
 import { defineCustomThemes } from "@/utils/ace-themes";
 import { acService } from "@/services/acService";
@@ -31,10 +21,9 @@ import {
   getGherkinEditorTheme,
   setGherkinEditorTheme,
 } from "@/utils/editorThemeUtils";
-import { ChatSection } from "../chat/ChatSection";
 import { ACChatPopover } from "./AcChatPopover";
-import { connectionService } from "@/services/connectionService";
 import { scrollBarSx } from "@/constants/scrollBarSx";
+import { useWebSocketContext } from "@/providers/WebSocketProvider";
 
 // Dynamic import of React Ace avoiding SSR issues
 const AceEditor = dynamic(
@@ -68,7 +57,7 @@ interface GherkinEditorWrapperProps {
   initialValue: string;
   readOnly?: boolean;
   onSave?: (gherkin: string) => void;
-  onSendFeedback?: (gherkin: string, feedback: string) => void;
+  onSendFeedback?: (gherkin: string, feedback: string) => Promise<void>;
 }
 
 const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
@@ -81,25 +70,40 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
   const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
   const [annotations, setAnnotations] = useState<any[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
+  const [sendingFeedback, setSendingFeedback] = useState(false);
 
   const chatButtonRef = useRef<HTMLButtonElement>(null);
 
+    // 2. Wrap lintContent in useCallback
+  const { subscribe, unsubscribe, send } = useWebSocketContext();
+  
+  const handleSuggestionResponse = useCallback((response: any) => {
+      if (response && response.suggestions) {
+          setSuggestions(response.suggestions);
+      }
+  }, []);
+
+  useEffect(() => {
+     if (!storyKey) return;
+     const topic = `suggestions:${storyKey}`;
+     subscribe(topic, handleSuggestionResponse);
+     return () => unsubscribe(topic, handleSuggestionResponse);
+  }, [storyKey, subscribe, unsubscribe, handleSuggestionResponse]);
+
   const fetchSuggestions = useCallback(
     async (content: string, line: number, col: number) => {
-      try {
-        const res = await acService.getSuggestions(
-          storyKey,
-          content,
-          line,
-          col,
-        );
-        setSuggestions(res.suggestions);
-      } catch (error) {
-        console.error(error);
-      }
+      // Send request via WebSocket
+      send({
+          action: "request_suggestion",
+          story_key: storyKey,
+          content: content,
+          cursor_line: line,
+          cursor_column: col,
+          request_id: Date.now().toString() // Optional correlation
+      });
     },
-    [],
-  ); // Dependencies? Likely none if acService is static, otherwise add them
+    [send, storyKey],
+  );
 
   const clearSuggestions = useCallback(() => setSuggestions([]), []);
 
@@ -402,12 +406,19 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
 
   const handleSendFeedback = async (feedback: string) => {
     if (editorInstanceRef.current && onSendFeedback) {
-      const editor = editorInstanceRef.current;
-      const gherkinContent = editor.getValue();
+      try {
+        setSendingFeedback(true);
+        const editor = editorInstanceRef.current;
+        const gherkinContent = editor.getValue();
 
-      onSendFeedback(gherkinContent, feedback);
+        await onSendFeedback(gherkinContent, feedback);
 
-      setChatOpen(false);
+        setChatOpen(false);
+      } catch (error) {
+        console.error("Error sending feedback:", error);
+      } finally {
+        setSendingFeedback(false);
+      }
     }
   };
 

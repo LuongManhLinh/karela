@@ -1,5 +1,6 @@
 import {
   Box,
+  CircularProgress,
   Icon,
   IconButton,
   InputAdornment,
@@ -24,6 +25,7 @@ export interface ACChatPopoverProps {
   };
   title?: string;
   onSendMessage: (message: string) => void;
+  sending?: boolean;
   disabled?: boolean;
 }
 
@@ -37,6 +39,7 @@ export const ACChatPopover: React.FC<ACChatPopoverProps> = ({
   transformOrigin,
   title,
   onSendMessage,
+  sending,
   disabled = false,
 }) => {
   const [message, setMessage] = useState("");
@@ -106,9 +109,15 @@ export const ACChatPopover: React.FC<ACChatPopoverProps> = ({
           input: {
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton onClick={() => handleSendMessage(message)}>
-                  <SendIcon />
-                </IconButton>
+                {sending ? (
+                  <Icon sx={{ mr: 1 }}>
+                    <CircularProgress size={16} />
+                  </Icon>
+                ) : (
+                  <IconButton onClick={() => handleSendMessage(message)}>
+                    <SendIcon />
+                  </IconButton>
+                )}
               </InputAdornment>
             ),
           },

@@ -6,7 +6,7 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 
 import { proposalService } from "@/services/proposalService";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { ErrorSnackbar } from "@/components/ErrorSnackbar";
+import { AppSnackbar } from "@/components/AppSnackbar";
 import { ProposalCard } from "@/components/proposals/ProposalCard";
 import type {
   ProposalActionFlag,
@@ -15,29 +15,39 @@ import type {
 } from "@/types/proposal";
 import { downloadAsJson } from "@/utils/export_utils";
 import { scrollBarSx } from "@/constants/scrollBarSx";
-import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { useSessionProposalsQuery } from "@/hooks/queries/useProposalQueries";
 
 export interface ProposalItemPageProps {
+  connectionName: string;
+  projectKey: string;
+  storyKey?: string; // Required if level is "story"
   sessionIdOrKey: string;
   sessionSource: ProposalSource;
   level: "project" | "story";
 }
 
 const ProposalSessionItemPage: React.FC<ProposalItemPageProps> = ({
+  connectionName,
+  projectKey,
+  storyKey,
   sessionIdOrKey,
   sessionSource,
   level,
 }) => {
-  const { selectedStory } = useWorkspaceStore();
-
   const { data: proposalsData, isLoading: loadingProposals } =
     level === "project"
-      ? useSessionProposalsQuery(sessionIdOrKey, sessionSource)
+      ? useSessionProposalsQuery(
+          sessionIdOrKey,
+          sessionSource,
+          connectionName,
+          projectKey,
+        )
       : useSessionProposalsQuery(
           sessionIdOrKey,
           sessionSource,
-          selectedStory?.key,
+          connectionName,
+          projectKey,
+          storyKey,
         );
 
   const proposals = useMemo(() => proposalsData?.data || [], [proposalsData]);
@@ -134,7 +144,7 @@ const ProposalSessionItemPage: React.FC<ProposalItemPageProps> = ({
           )}
         </Box>
       </Box>
-      <ErrorSnackbar
+      <AppSnackbar
         open={showError}
         message={error}
         onClose={() => setShowError(false)}

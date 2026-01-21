@@ -9,33 +9,36 @@ import type {
   DefectDto,
   RunAnalysisResponse,
 } from "@/types/analysis";
+import { connection } from "next/server";
 
 export const analysisService = {
   getAnalysisSummariesByProject: async (
-    connectionId: string,
+    connectionName: string,
     projectKey: string,
   ): Promise<BasicResponse<AnalysisSummary[]>> => {
     const response = await apiClient.get<BasicResponse<AnalysisSummary[]>>(
-      `/analyses/connections/${connectionId}/projects/${projectKey}`,
+      `/analyses/connections/${connectionName}/projects/${projectKey}`,
     );
     return response.data;
   },
   getAnalysisSummariesByStory: async (
-    connectionId: string,
+    connectionName: string,
     projectKey: string,
     storyKey: string,
   ): Promise<BasicResponse<AnalysisSummary[]>> => {
     const response = await apiClient.get<BasicResponse<AnalysisSummary[]>>(
-      `/analyses/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}`,
+      `/analyses/connections/${connectionName}/projects/${projectKey}/stories/${storyKey}`,
     );
     return response.data;
   },
 
   getAnalysisDetails: async (
+    connectionName: string,
+    projectKey: string,
     analysisIdOrKey: string,
   ): Promise<BasicResponse<AnalysisDto>> => {
     const response = await apiClient.get<BasicResponse<AnalysisDto>>(
-      `/analyses/${analysisIdOrKey}`,
+      `/analyses/connections/${connectionName}/projects/${projectKey}/analyses/${analysisIdOrKey}`,
     );
     return response.data;
   },
@@ -55,7 +58,7 @@ export const analysisService = {
     data: RunAnalysisRequest,
   ): Promise<BasicResponse<RunAnalysisResponse>> => {
     const response = await apiClient.post<BasicResponse<RunAnalysisResponse>>(
-      `/analyses/connections/${connectionId}/${projectKey}`,
+      `/analyses/connections/${connectionId}/projects/${projectKey}`,
       data,
     );
     return response.data;

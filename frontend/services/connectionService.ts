@@ -19,20 +19,20 @@ export const connectionService = {
   },
 
   getProjects: async (
-    connectionIdOrName: string,
+    connectionName: string,
   ): Promise<BasicResponse<ProjectDto[]>> => {
     const response = await apiClient.get<BasicResponse<ProjectDto[]>>(
-      `/connections/${connectionIdOrName}/projects`,
+      `/connections/${connectionName}/projects`,
     );
     return response.data;
   },
 
   getStorySummaries: async (
-    connId: string,
+    connectionName: string,
     projectKey: string,
   ): Promise<BasicResponse<StorySummary[]>> => {
     const response = await apiClient.get<BasicResponse<StorySummary[]>>(
-      `/connections/${connId}/projects/${projectKey}/stories`,
+      `/connections/${connectionName}/projects/${projectKey}/stories`,
     );
     return response.data;
   },
@@ -58,95 +58,12 @@ export const connectionService = {
   getConnectionSyncStatus: async (
     connectionId: string,
   ): Promise<BasicResponse<ConnectionSyncStatusDto>> => {
-    console.log(`Fetching sync status for connection ${connectionId}`);
     const response = await apiClient.get<
       BasicResponse<ConnectionSyncStatusDto>
     >(`/connections/${connectionId}/sync-status`);
     return response.data;
   },
 
-  getACsByProject: async (
-    connectionId: string,
-    projectKey: string,
-  ): Promise<BasicResponse<ACSummary[]>> => {
-    const response = await apiClient.get<BasicResponse<ACSummary[]>>(
-      `/connections/${connectionId}/projects/${projectKey}/acs`,
-    );
-    return response.data;
-  },
-
-  getACsByStory: async (
-    connectionId: string,
-    projectKey: string,
-    storyKey: string,
-  ): Promise<BasicResponse<ACSummary[]>> => {
-    const response = await apiClient.get<BasicResponse<ACSummary[]>>(
-      `/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}/acs`,
-    );
-    return response.data;
-  },
-
-  createAC: async (
-    connectionId: string,
-    projectKey: string,
-    storyKey: string,
-    genWithAI: boolean,
-  ): Promise<BasicResponse<string>> => {
-    const response = await apiClient.post<BasicResponse<string>>(
-      `/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}/acs`,
-      { gen_with_ai: genWithAI },
-    );
-    return response.data;
-  },
-  regenerateAC: async (
-    connectionId: string,
-    projectKey: string,
-    storyKey: string,
-    acId: string,
-    gherkin?: string,
-    feedback?: string,
-  ): Promise<BasicResponse<string>> => {
-    const response = await apiClient.put<BasicResponse<string>>(
-      `/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}/acs/${acId}/regenerate`,
-      { content: gherkin, feedback },
-    );
-    return response.data;
-  },
-  getAC: async (
-    connectionId: string,
-    projectKey: string,
-    storyKey: string,
-    acId: string,
-  ): Promise<BasicResponse<ACDto>> => {
-    const response = await apiClient.get<BasicResponse<ACDto>>(
-      `/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}/acs/${acId}`,
-    );
-    return response.data;
-  },
-  updateAC: async (
-    connectionId: string,
-    projectKey: string,
-    storyKey: string,
-    acId: string,
-    content: string,
-  ): Promise<BasicResponse> => {
-    const response = await apiClient.put<BasicResponse>(
-      `/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}/acs/${acId}`,
-      { content },
-    );
-    return response.data;
-  },
-  deleteAC: async (
-    connectionId: string,
-    projectKey: string,
-    storyKey: string,
-    acId: string,
-  ): Promise<BasicResponse> => {
-    const response = await apiClient.delete<BasicResponse>(
-      `/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}/acs/${acId}`,
-    );
-    return response.data;
-  },
   getProjectDashboardInfo: async (
     connectionId: string,
     projectKey: string,

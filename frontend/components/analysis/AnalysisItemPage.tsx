@@ -10,7 +10,7 @@ import {
   Skeleton,
 } from "@mui/material";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
-import { ErrorSnackbar } from "@/components/ErrorSnackbar";
+import { AppSnackbar } from "@/components/AppSnackbar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ProposalCard } from "@/components/proposals/ProposalCard";
 import type { ProposalContentDto, ProposalActionFlag } from "@/types/proposal";
@@ -30,27 +30,42 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useWebSocketContext } from "@/providers/WebSocketProvider";
 
-import { useParams } from "next/navigation";
 import { scrollBarSx } from "@/constants/scrollBarSx";
 import MultiStoryDetailDialog from "@/components/MultiStoryDetailDialog";
-import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import ProposalContentDiffDialog from "@/components/proposals/ProposalContentDiffDialog";
 
 export interface AnalysisItemPageProps {
+  connectionName: string;
+  projectKey: string;
+  storyKey?: string; // Required if level is "story"
   idOrKey: string;
 }
 
-const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({ idOrKey }) => {
-  const { selectedConnection } = useWorkspaceStore();
-
+const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
+  connectionName,
+  projectKey,
+  storyKey,
+  idOrKey,
+}) => {
   const { data: analysisDetailData, isLoading: isDetailsLoading } =
-    useAnalysisDetailsQuery(idOrKey);
-  const selectedAnalysisDetail = analysisDetailData?.data || null;
+    useAnalysisDetailsQuery(connectionName, projectKey, idOrKey);
+  const selectedAnalysisDetail = useMemo(
+    () => analysisDetailData?.data || null,
+    [analysisDetailData],
+  );
 
   // Proposals
   const { data: proposalsData, isLoading: isProposalsLoading } =
-    useSessionProposalsQuery(idOrKey || undefined, "ANALYSIS");
-  const analysisProposals = proposalsData?.data || [];
+    useSessionProposalsQuery(
+      selectedAnalysisDetail?.id,
+      "ANALYSIS",
+      connectionName,
+      projectKey,
+    );
+  const analysisProposals = useMemo(
+    () => proposalsData?.data || [],
+    [proposalsData],
+  );
 
   // Mutations
   const { mutateAsync: rerunAnalysis, isPending: isRerunning } =
@@ -76,11 +91,6 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({ idOrKey }) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (!idOrKey) return;
-
-    // Use ID if we have it from details, otherwise we might rely on invalidation from layout if key is used
-    // But ideally we subscribe to the ID.
-    // If we only have key, we might need to wait for analysisDetailData to get ID.
     const analysisId = selectedAnalysisDetail?.id;
     if (!analysisId) return;
 
@@ -89,7 +99,13 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({ idOrKey }) => {
       if (data.id === analysisId) {
         // Invalidate details query to refresh status and defects
         queryClient.invalidateQueries({
-          queryKey: ["analysis", "details", idOrKey],
+          queryKey: [
+            "analysis",
+            "details",
+            connectionName,
+            projectKey,
+            idOrKey,
+          ],
         });
         // Also invalidate summaries to keep sidebar in sync
         queryClient.invalidateQueries({ queryKey: ["analysis", "summaries"] });
@@ -138,9 +154,11 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({ idOrKey }) => {
   };
 
   const handleGenerateProposals = async () => {
-    if (!idOrKey) return;
+    const analysisId = selectedAnalysisDetail?.id;
+    if (!analysisId) return;
+    setError("");
     try {
-      await generateProposals(idOrKey);
+      await generateProposals(analysisId);
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.detail || "Failed to start proposal generation";
@@ -153,7 +171,7 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({ idOrKey }) => {
     proposalId: string,
     flag: ProposalActionFlag,
   ) => {
-    if (!idOrKey) return;
+    if (!selectedAnalysisDetail?.id) return;
     try {
       await actOnProposal({ proposalId, flag });
     } catch (err: any) {
@@ -169,7 +187,7 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({ idOrKey }) => {
     content: ProposalContentDto,
     flag: ProposalActionFlag,
   ) => {
-    if (!idOrKey || !content.id) return;
+    if (!selectedAnalysisDetail?.id || !content.id) return;
     try {
       await actOnProposalContent({ proposalId, contentId: content.id, flag });
     } catch (err: any) {
@@ -181,11 +199,12 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({ idOrKey }) => {
   };
 
   const handleRerunAnalysis = async () => {
-    if (!idOrKey) return;
+    const analysisId = selectedAnalysisDetail?.id;
+    if (!analysisId) return;
     setError("");
 
     try {
-      await rerunAnalysis(idOrKey);
+      await rerunAnalysis(analysisId);
       // Invalidation handles state update
     } catch (err: any) {
       const errorMessage =
@@ -323,7 +342,7 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({ idOrKey }) => {
                 </Stack>
                 {isProposalsLoading ? (
                   <LoadingSpinner />
-                ) : analysisProposals.length === 0 ? (
+                ) : analysisProposals.length === 0 && !isGenerating ? (
                   <Typography color="text.secondary">
                     No proposals generated yet.
                   </Typography>
@@ -338,6 +357,25 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({ idOrKey }) => {
                         onProposalContentClick={handleProposalContentClick}
                       />
                     ))}
+                    {isGenerating && (
+                      <>
+                        <Skeleton
+                          variant="rectangular"
+                          height={120}
+                          sx={{ borderRadius: 2 }}
+                        />
+                        <Skeleton
+                          variant="rectangular"
+                          height={120}
+                          sx={{ borderRadius: 2 }}
+                        />
+                        <Skeleton
+                          variant="rectangular"
+                          height={120}
+                          sx={{ borderRadius: 2 }}
+                        />
+                      </>
+                    )}
                   </Stack>
                 )}
               </Box>
@@ -359,7 +397,7 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({ idOrKey }) => {
           )}
         </Box>
       </Box>
-      <ErrorSnackbar
+      <AppSnackbar
         open={showError}
         message={error}
         onClose={() => setShowError(false)}
@@ -367,16 +405,16 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({ idOrKey }) => {
       <MultiStoryDetailDialog
         open={multiStoryDialogOpen}
         onClose={handleCloseMultiStoryDialog}
-        connectionId={selectedConnection?.id || ""}
-        projectKey={analysisDetailData?.data?.project_key || ""}
+        connectionId={connectionName}
+        projectKey={analysisDetailData?.data?.project_key || projectKey}
         storyKeys={selectedStoryKeys}
       />
       <ProposalContentDiffDialog
         open={diffDialogOpen}
         onClose={handleCloseDiffDialog}
         content={selectedContentForDiff}
-        connectionId={selectedConnection?.id || ""}
-        projectKey={analysisDetailData?.data?.project_key || ""}
+        connectionId={connectionName}
+        projectKey={analysisDetailData?.data?.project_key || projectKey}
       />
     </Box>
   );

@@ -4,7 +4,7 @@ from typing import Literal
 
 from app.analysis.agents.schemas import DefectInput, WorkItemMinimal
 from app.analysis.models import Defect
-from app.connection import get_platform_service
+from app.connection.jira.services import JiraService
 from app.proposal.schemas import CreateProposalRequest, ProposeStoryRequest
 from app.settings.services import SettingsService
 
@@ -16,6 +16,7 @@ class ProposalRunService:
     def __init__(self, db: Session):
         self.db = db
         self.settings_service = SettingsService(db=db)
+        self.jira_service = JiraService(db=db)
 
     def _get_default_context_input(self, connection_id: str, project_key: str):
         return self.settings_service.get_agent_context_input(
@@ -53,9 +54,7 @@ class ProposalRunService:
             project_key=project_key,
         )
 
-        jira_service = get_platform_service(db=self.db, connection_id=connection_id)
-
-        jira_issues = jira_service.fetch_issues(
+        jira_issues = self.jira_service.fetch_issues(
             connection_id=connection_id,
             jql=f"project = '{project_key}' AND key in ({', '.join(involved_story_keys)}) AND issuetype in (Story)",
             fields=["summary", "description"],

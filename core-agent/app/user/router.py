@@ -112,7 +112,7 @@ def list_projects(
     try:
         return BasicResponse(
             data=service.fetch_project_dtos(
-                user_id=user_id, connection_id_or_name=connection_id_or_name
+                user_id=user_id, connection_name=connection_id_or_name
             )
         )
     except ValueError as e:
@@ -132,7 +132,7 @@ def list_stories(
     try:
         return BasicResponse(
             data=service.fetch_story_summaries(
-                connection_id=connection_id,
+                connection_name=connection_id,
                 project_key=project_key,
             )
         )

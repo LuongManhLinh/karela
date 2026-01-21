@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import {
   Box,
   Typography,
@@ -18,7 +24,7 @@ import { ToolMessage } from "@/components/chat/ToolMessage";
 import { AnalysisProgressMessage } from "@/components/chat/AnalysisProgressMessage";
 import { chatService } from "@/services/chatService";
 import { proposalService } from "@/services/proposalService";
-import { ErrorSnackbar } from "@/components/ErrorSnackbar";
+import { AppSnackbar } from "@/components/AppSnackbar";
 import type {
   ProposalDto,
   ProposalContentDto,
@@ -28,22 +34,26 @@ import type { ChatMessageDto, MessageRole, MessageChunk } from "@/types/chat";
 
 import { ProposalCard } from "@/components/proposals/ProposalCard";
 
-import { getToken } from "@/utils/jwtUtils";
 import { ChatSection } from "@/components/chat/ChatSection";
-import { useWaitingMessageStore } from "@/store/useWaitingMessageStore";
 import { scrollBarSx } from "@/constants/scrollBarSx";
-
-const WS_BASE_URL = "ws://localhost:8000/api/v1/chat/";
+import { useWebSocketContext } from "@/providers/WebSocketProvider";
+import { useChatSessionQuery } from "@/hooks/queries/useChatQueries";
+import { useSessionProposalsQuery } from "@/hooks/queries/useProposalQueries";
 
 export interface ChatItemPageProps {
+  connectionName: string;
+  projectKey: string;
+  storyKey?: string; // Required if level is "story"
   idOrKey: string;
 }
 
-const ChatItemPage: React.FC<ChatItemPageProps> = ({ idOrKey }) => {
+const ChatItemPage: React.FC<ChatItemPageProps> = ({
+  connectionName,
+  projectKey,
+  storyKey,
+  idOrKey,
+}) => {
   const [messages, setMessages] = useState<ChatMessageDto[]>([]);
-  const [loadingSession, setLoadingSession] = useState(false);
-  const [sessionProposals, setSessionProposals] = useState<ProposalDto[]>([]);
-  const [loadingProposals, setLoadingProposals] = useState(false);
 
   // Separate streaming state - isolate active stream from history
   const streamingIdRef = useRef<string | null>(null);
@@ -54,10 +64,10 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({ idOrKey }) => {
   const [streamingContent, setStreamingContent] = useState<string>("");
   const [bufferUpdateTrigger, setBufferUpdateTrigger] = useState(0);
 
-  const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState("");
   const [showError, setShowError] = useState(false);
   const [proposalExpanded, setProposalExpanded] = useState(true);
+  const [waitingForResponse, setWaitingForResponse] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollThrottleRef = useRef<NodeJS.Timeout | null>(null);
   const streamingBufferRef = useRef<string>("");
@@ -65,48 +75,34 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({ idOrKey }) => {
   const displayedLengthRef = useRef<number>(0);
   const lastChunkTimeRef = useRef<number>(Date.now());
   const isCommittingRef = useRef<boolean>(false);
-  const wsRef = useRef<WebSocket | null>(null);
 
-  const {
-    sessionId: waitingSessionId,
-    message: waitingMessage,
-    resetWaitingMessage,
-  } = useWaitingMessageStore();
-
-  const initialzed = useRef<boolean>(false);
-
-  const loadSession = useCallback(
-    async (sessionKey: string) => {
-      try {
-        setLoadingSession(true);
-        const response = await chatService.getChatSession(sessionKey);
-        setMessages(response.data?.messages || []);
-        await fetchSessionProposals(sessionKey);
-      } catch (err: any) {
-        const errorMessage =
-          err.response?.data?.detail || "Failed to load session";
-        setError(errorMessage);
-        setShowError(true);
-      } finally {
-        setLoadingSession(false);
-      }
-    },
-    [idOrKey],
+  const { data: sessionData, isLoading: loadingSession } = useChatSessionQuery(
+    connectionName,
+    projectKey,
+    idOrKey,
   );
 
+  const {
+    data: sessionProposalsData,
+    isLoading: loadingProposals,
+    refetch: fetchSessionProposals,
+  } = useSessionProposalsQuery(
+    idOrKey,
+    "CHAT",
+    connectionName,
+    projectKey,
+    storyKey,
+  );
+
+  const [sessionProposals, setSessionProposals] = useState<ProposalDto[]>([]);
+
   useEffect(() => {
-    if (idOrKey && !initialzed.current) {
-      if (idOrKey === waitingSessionId && waitingMessage) {
-        console.log("Sending waiting message for session:", idOrKey);
-        const messageToSend = waitingMessage.trim();
-        resetWaitingMessage();
-        handleSendMessage(messageToSend);
-      } else {
-        loadSession(idOrKey);
-      }
-      initialzed.current = true;
-    }
-  }, []);
+    setMessages(sessionData?.data?.messages || []);
+  }, [sessionData]);
+
+  useEffect(() => {
+    setSessionProposals(sessionProposalsData?.data || []);
+  }, [sessionProposalsData]);
 
   // Smooth streaming animation effect
   useEffect(() => {
@@ -174,31 +170,6 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({ idOrKey }) => {
       }
     };
   }, [messages, streamingContent]);
-
-  const fetchSessionProposals = useCallback(
-    async (sessionId: string | null) => {
-      if (!sessionId) {
-        setSessionProposals([]);
-        return;
-      }
-      setLoadingProposals(true);
-      try {
-        const response = await proposalService.getProposalsBySession(
-          sessionId,
-          "CHAT",
-        );
-        setSessionProposals(response.data || []);
-      } catch (err: any) {
-        const errorMessage =
-          err.response?.data?.detail || "Failed to load proposals";
-        setError(errorMessage);
-        setShowError(true);
-      } finally {
-        setLoadingProposals(false);
-      }
-    },
-    [],
-  );
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -303,6 +274,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({ idOrKey }) => {
         displayedLengthRef.current = 0;
         lastChunkTimeRef.current = Date.now();
         isCommittingRef.current = false;
+        setWaitingForResponse(false); // First chunk arrived, stop waiting
         setStreamingId(chunkId);
         setStreamingRole(chunkRole);
         streamingRoleRef.current = chunkRole;
@@ -319,104 +291,69 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({ idOrKey }) => {
     [commitStreamingMessage],
   );
 
-  const connectWebSocket = useCallback(
-    (userMessage: string, sessionId: string) => {
-      const token = getToken();
-      if (!token) {
-        setError("No authentication token found");
-        setShowError(true);
-        return;
-      }
+  const { subscribe, unsubscribe, send, isConnected } = useWebSocketContext();
 
-      // Close existing WebSocket if any
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-
-      setConnecting(true);
-      setError("");
-
-      try {
-        const ws = new WebSocket(WS_BASE_URL);
-        wsRef.current = ws;
-
-        ws.onopen = () => {
-          // Send initialization message
-          const initMessage: any = {
-            token,
-            session_id: sessionId,
-          };
-
-          // Include user message if provided (backend may not use it yet)
-          initMessage.user_message = userMessage;
-
-          ws.send(JSON.stringify(initMessage));
-        };
-
-        ws.onmessage = (event) => {
-          try {
-            const parsed = JSON.parse(event.data);
-
-            if (parsed.type === "message") {
-              const chunkData = parsed.data as MessageChunk;
-              handleMessageChunk(chunkData);
-            } else if (parsed.type === "proposal" && parsed.data) {
-              handleIncomingProposals(parsed.data);
-            }
-          } catch (err) {
-            console.error("Failed to parse WebSocket message:", err);
-          }
-        };
-
-        ws.onerror = (error) => {
-          console.error("WebSocket error:", error);
-          setError("WebSocket connection error");
-          setShowError(true);
-          setConnecting(false);
-          commitStreamingMessage();
-        };
-
-        ws.onclose = () => {
-          console.log("WebSocket closed");
-          setConnecting(false);
-          wsRef.current = null;
-
-          // Commit any active streaming message before closing
-          commitStreamingMessage();
-        };
-      } catch (err) {
-        console.log("Error connecting to chat server:", err);
-        setError((err as Error).message || "Failed to connect to chat server");
-        setShowError(true);
-        setConnecting(false);
+  const handleMessage = useCallback(
+    (parsed: any) => {
+      // console.log("Received chat message via subscription:", parsed);
+      if (parsed.type === "message") {
+        const chunkData = parsed.data as MessageChunk;
+        handleMessageChunk(chunkData);
+      } else if (parsed.type === "proposal" && parsed.data) {
+        handleIncomingProposals(parsed.data);
       }
     },
-    [
-      idOrKey,
-      handleMessageChunk,
-      commitStreamingMessage,
-      fetchSessionProposals,
-      handleIncomingProposals,
-    ],
+    [handleMessageChunk, handleIncomingProposals],
   );
 
-  const handleSendMessage = async (userMessage: string) => {
-    if (!userMessage.trim()) {
-      return;
-    }
-    const messageToSend = userMessage.trim();
+  const handleSendMessage = useCallback(
+    async (userMessage: string) => {
+      if (!userMessage.trim()) {
+        return;
+      }
+      const messageToSend = userMessage.trim();
 
-    // Add user message to UI immediately
-    const userMsg: ChatMessageDto = {
-      id: Date.now().toString(),
-      role: "user",
-      content: messageToSend,
-      created_at: new Date().toISOString(),
+      // Commit any pending streaming message before adding new user message
+      // This ensures correct message ordering
+      if (streamingIdRef.current) {
+        commitStreamingMessage();
+      }
+
+      // Add user message to UI immediately
+      const userMsg: ChatMessageDto = {
+        id: Date.now().toString(),
+        role: "user",
+        content: messageToSend,
+        created_at: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, userMsg]);
+
+      if (isConnected) {
+        setWaitingForResponse(true); // Start waiting for AI response
+        send({
+          action: "chat_message",
+          session_id_or_key: idOrKey,
+          message: messageToSend,
+        });
+      } else {
+        setError("Connection lost. Please try again.");
+        setShowError(true);
+      }
+    },
+    [isConnected, send, idOrKey, commitStreamingMessage],
+  );
+
+  useEffect(() => {
+    if (!idOrKey) return;
+
+    // Subscribe to chat topic
+    const topic = `chat:${idOrKey}`;
+    subscribe(topic, handleMessage);
+
+    return () => {
+      unsubscribe(topic, handleMessage);
     };
-    setMessages((prev) => [...prev, userMsg]);
-
-    connectWebSocket(messageToSend, idOrKey);
-  };
+  }, [idOrKey, subscribe, unsubscribe, handleMessage]);
 
   const renderMessage = (message: ChatMessageDto) => {
     switch (message.role) {
@@ -440,7 +377,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({ idOrKey }) => {
     async (proposalId: string, flag: ProposalActionFlag) => {
       try {
         await proposalService.actOnProposal(proposalId, flag);
-        await fetchSessionProposals(idOrKey);
+        await fetchSessionProposals();
       } catch (err: any) {
         const errorMessage =
           err.response?.data?.detail || "Failed to update proposal";
@@ -463,7 +400,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({ idOrKey }) => {
           content.id,
           flag,
         );
-        await fetchSessionProposals(idOrKey);
+        await fetchSessionProposals();
       } catch (err: any) {
         const errorMessage =
           err.response?.data?.detail || "Failed to update proposal content";
@@ -516,7 +453,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({ idOrKey }) => {
                   }}
                 />
               ) : (
-                connecting && (
+                waitingForResponse && (
                   <Skeleton
                     variant="text"
                     animation="wave"
@@ -632,7 +569,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({ idOrKey }) => {
           </Accordion>
         )}
 
-        <ChatSection sendMessage={handleSendMessage} disabled={connecting} />
+        <ChatSection sendMessage={handleSendMessage} disabled={!isConnected} />
       </Box>
     </>
   );
@@ -652,7 +589,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({ idOrKey }) => {
     >
       {loadingSession ? <CircularProgress /> : chatContent}
 
-      <ErrorSnackbar
+      <AppSnackbar
         open={showError}
         message={error}
         onClose={() => setShowError(false)}

@@ -14,8 +14,8 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
     updated_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
 
-    jira_connections = relationship(
-        "JiraConnection", back_populates="user", cascade="all, delete-orphan"
+    connections = relationship(
+        "Connection", back_populates="user", cascade="all, delete-orphan"
     )
 
     # On update event

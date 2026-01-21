@@ -87,8 +87,12 @@ async def get_proposal(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/sessions/{session_id}")
+@router.get(
+    "/connections/{connection_name}/projects/{project_key}/sessions/{session_id}"
+)
 async def get_proposals_by_session(
+    connection_name: str,
+    project_key: str,
     session_id: str,
     source: str,
     story_key: str | None = None,
@@ -100,9 +104,17 @@ async def get_proposals_by_session(
         raise HTTPException(
             status_code=400, detail="Source must be either 'CHAT' or 'ANALYSIS'"
         )
+    user_id = jwt_payload.get("sub")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         proposals: List[ProposalDto] = service.get_proposals_by_session(
-            session_id, source, story_key=story_key
+            user_id=user_id,
+            connection_name=connection_name,
+            project_key=project_key,
+            story_key=story_key,
+            session_id=session_id,
+            source=source,
         )
         return BasicResponse(data=proposals)
     except ValueError as e:
@@ -111,15 +123,21 @@ async def get_proposals_by_session(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/connections/{connection_id}/projects/{project_key}")
+@router.get("/connections/{connection_name}/projects/{project_key}")
 async def list_proposals_by_project(
-    connection_id: str,
+    connection_name: str,
     project_key: str,
+    jwt_payload=Depends(get_jwt_payload),
     service: ProposalService = Depends(get_proposal_service),
 ):
     """Get all proposals for a connection."""
+    user_id = jwt_payload.get("sub")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
-        dto = service.list_proposals_by_project(connection_id, project_key)
+        dto = service.list_sessions_proposals_by_project(
+            user_id, connection_name, project_key
+        )
         return BasicResponse(data=dto)
     except ValueError as e:
         traceback.print_exc()
@@ -128,16 +146,22 @@ async def list_proposals_by_project(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/connections/{connection_id}/projects/{project_key}/stories/{story_key}")
+@router.get("/connections/{connection_name}/projects/{project_key}/stories/{story_key}")
 async def list_proposals_by_story(
-    connection_id: str,
+    connection_name: str,
     project_key: str,
     story_key: str,
+    jwt_payload=Depends(get_jwt_payload),
     service: ProposalService = Depends(get_proposal_service),
 ):
     """Get all proposals for a story."""
+    user_id = jwt_payload.get("sub")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
-        dto = service.list_proposals_by_story(connection_id, project_key, story_key)
+        dto = service.list_sessions_proposals_by_story(
+            user_id, connection_name, project_key, story_key
+        )
         return BasicResponse(data=dto)
     except ValueError as e:
         traceback.print_exc()

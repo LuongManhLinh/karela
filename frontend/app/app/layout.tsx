@@ -7,13 +7,10 @@ import { useRouter } from "next/navigation";
 import { getToken } from "@/utils/jwtUtils";
 import AppLoading from "./loading";
 
-export default function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { setConnections } = useWorkspaceStore();
-  const { data: connectionsData, isLoading } = useUserConnectionsQuery();
+  const { data: connectionsData, isLoading: isConnectionsLoading } =
+    useUserConnectionsQuery();
   const router = useRouter();
 
   useEffect(() => {
@@ -24,12 +21,15 @@ export default function AppLayout({
   }, [router]);
 
   useEffect(() => {
-    if (connectionsData?.data?.jira_connections) {
-      setConnections(connectionsData.data.jira_connections);
+    const connections = connectionsData?.data?.jira_connections || [];
+    if (connections.length > 0) {
+      setConnections(connections);
+    } else if (!isConnectionsLoading) {
+      router.push("/profile");
     }
-  }, [connectionsData, setConnections]);
+  }, [connectionsData, setConnections, isConnectionsLoading]);
 
-  if (isLoading) {
+  if (isConnectionsLoading) {
     return <AppLoading />;
   }
 

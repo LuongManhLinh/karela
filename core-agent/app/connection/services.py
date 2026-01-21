@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import func, and_, or_, select, distinct
 
 from .schemas import ProjectDashboardDto, StoryDashboardDto
-from .jira.models import JiraConnection, JiraProject, JiraStory, GherkinAC
+from .jira.models import Connection, Project, Story, GherkinAC
 from .jira.schemas import StorySummary
 from app.analysis.models import Analysis, Defect, DefectStoryKey
 from app.chat.models import ChatSession
@@ -18,11 +18,11 @@ class DashboardService:
     ) -> ProjectDashboardDto:
         # Check project exists
         project = (
-            self.db.query(JiraProject)
-            .join(JiraConnection)
+            self.db.query(Project)
+            .join(Connection)
             .filter(
-                JiraConnection.id == connection_id,
-                JiraProject.key == project_key,
+                Connection.id == connection_id,
+                Project.key == project_key,
             )
             .first()
         )
@@ -32,8 +32,8 @@ class DashboardService:
 
         # Count stories in the project
         num_stories = (
-            self.db.query(func.count(JiraStory.id))
-            .filter(JiraStory.jira_project_id == project.id)
+            self.db.query(func.count(Story.id_))
+            .filter(Story.project_id == project.id_)
             .scalar()
         )
 
@@ -70,8 +70,8 @@ class DashboardService:
         # Count acceptance criteria (GherkinAC) for all stories in this project
         num_ac = (
             self.db.query(func.count(GherkinAC.id))
-            .join(JiraStory)
-            .filter(JiraStory.jira_project_id == project.id)
+            .join(Story)
+            .filter(Story.project_id == project.id_)
             .scalar()
         )
 
@@ -88,10 +88,10 @@ class DashboardService:
         )
 
         stories_with_analyses = (
-            self.db.query(JiraStory)
+            self.db.query(Story)
             .filter(
-                JiraStory.jira_project_id == project.id,
-                JiraStory.key.in_(select(stories_with_analyses_subq)),
+                Story.project_id == project.id_,
+                Story.key.in_(select(stories_with_analyses_subq)),
             )
             .all()
         )
@@ -108,10 +108,10 @@ class DashboardService:
         )
 
         stories_with_chats = (
-            self.db.query(JiraStory)
+            self.db.query(Story)
             .filter(
-                JiraStory.jira_project_id == project.id,
-                JiraStory.key.in_(select(stories_with_chats_subq)),
+                Story.project_id == project.id_,
+                Story.key.in_(select(stories_with_chats_subq)),
             )
             .all()
         )
@@ -129,22 +129,22 @@ class DashboardService:
         )
 
         stories_with_proposals = (
-            self.db.query(JiraStory)
+            self.db.query(Story)
             .filter(
-                JiraStory.jira_project_id == project.id,
-                JiraStory.key.in_(select(stories_with_proposals_subq)),
+                Story.project_id == project.id_,
+                Story.key.in_(select(stories_with_proposals_subq)),
             )
             .all()
         )
 
         # Subquery: story keys that have acceptance criteria
-        stories_with_ac_subq = select(distinct(GherkinAC.jira_story_id)).subquery()
+        stories_with_ac_subq = select(distinct(GherkinAC.story_id)).subquery()
 
         stories_with_ac = (
-            self.db.query(JiraStory)
+            self.db.query(Story)
             .filter(
-                JiraStory.jira_project_id == project.id,
-                JiraStory.id.in_(select(stories_with_ac_subq)),
+                Story.project_id == project.id_,
+                Story.id_.in_(select(stories_with_ac_subq)),
             )
             .all()
         )
@@ -156,19 +156,19 @@ class DashboardService:
             num_proposals=num_proposals,
             num_acs=num_ac,
             stories_with_analyses=[
-                StorySummary(id=s.id, key=s.key, summary=s.summary)
+                StorySummary(id=s.id_, key=s.key, summary=s.summary)
                 for s in stories_with_analyses
             ],
             stories_with_chats=[
-                StorySummary(id=s.id, key=s.key, summary=s.summary)
+                StorySummary(id=s.id_, key=s.key, summary=s.summary)
                 for s in stories_with_chats
             ],
             stories_with_proposals=[
-                StorySummary(id=s.id, key=s.key, summary=s.summary)
+                StorySummary(id=s.id_, key=s.key, summary=s.summary)
                 for s in stories_with_proposals
             ],
             stories_with_acs=[
-                StorySummary(id=s.id, key=s.key, summary=s.summary)
+                StorySummary(id=s.id_, key=s.key, summary=s.summary)
                 for s in stories_with_ac
             ],
         )
@@ -178,13 +178,13 @@ class DashboardService:
     ) -> StoryDashboardDto:
         # Verify the story exists
         story = (
-            self.db.query(JiraStory)
-            .join(JiraProject)
-            .join(JiraConnection)
+            self.db.query(Story)
+            .join(Project)
+            .join(Connection)
             .filter(
-                JiraConnection.id == connection_id,
-                JiraProject.key == project_key,
-                JiraStory.key == story_key,
+                Connection.id == connection_id,
+                Project.key == project_key,
+                Story.key == story_key,
             )
             .first()
         )
@@ -231,7 +231,7 @@ class DashboardService:
         # Count acceptance criteria for this story
         num_ac = (
             self.db.query(func.count(GherkinAC.id))
-            .filter(GherkinAC.jira_story_id == story.id)
+            .filter(GherkinAC.story_id == story.id_)
             .scalar()
         )
 

@@ -8,4 +8,4 @@ redis_client = Redis(
     db=RedisConfig.REDIS_DB,
 )
 
-task_queue = Queue("default", connection=redis_client)
+task_queue = Queue("karela", connection=redis_client)

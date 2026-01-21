@@ -4,8 +4,20 @@ import type { ProposalActionFlag } from "@/types/proposal";
 
 export const PROPOSAL_KEYS = {
   all: ["proposals"] as const,
-  bySession: (sessionId: string) =>
-    [...PROPOSAL_KEYS.all, "session", sessionId] as const,
+  bySession: (
+    sessionId: string,
+    connectionName: string,
+    projectKey: string,
+    storyKey?: string,
+  ) =>
+    [
+      ...PROPOSAL_KEYS.all,
+      "session",
+      sessionId,
+      connectionName,
+      projectKey,
+      storyKey,
+    ] as const,
   item: (proposalId: string) =>
     [...PROPOSAL_KEYS.all, "item", proposalId] as const,
   byProject: (connectionId: string, projectKey: string) =>
@@ -21,15 +33,28 @@ export const PROPOSAL_KEYS = {
 };
 
 export const useSessionProposalsQuery = (
-  sessionId: string | undefined,
+  sessionIdOrKey: string | undefined,
   source: "CHAT" | "ANALYSIS" = "CHAT",
+  connectionName: string | undefined,
+  projectKey: string | undefined,
   storyKey?: string,
 ) => {
   return useQuery({
-    queryKey: PROPOSAL_KEYS.bySession(sessionId || ""),
+    queryKey: PROPOSAL_KEYS.bySession(
+      sessionIdOrKey || "",
+      connectionName || "",
+      projectKey || "",
+      storyKey,
+    ),
     queryFn: () =>
-      proposalService.getProposalsBySession(sessionId!, source, storyKey),
-    enabled: !!sessionId,
+      proposalService.getProposalsBySession(
+        sessionIdOrKey!,
+        source,
+        connectionName!,
+        projectKey!,
+        storyKey,
+      ),
+    enabled: !!sessionIdOrKey,
   });
 };
 

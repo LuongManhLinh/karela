@@ -24,30 +24,32 @@ export const chatService = {
     return response.data;
   },
   listChatSessionsByProject: async (
-    connectionId: string,
+    connectionName: string,
     projectKey: string,
   ): Promise<BasicResponse<ChatSessionSummary[]>> => {
     const response = await apiClient.get<BasicResponse<ChatSessionSummary[]>>(
-      `/chat/connections/${connectionId}/projects/${projectKey}`
+      `/chat/connections/${connectionName}/projects/${projectKey}`,
     );
     return response.data;
   },
   listChatSessionsByStory: async (
-    connectionId: string,
+    connectionName: string,
     projectKey: string,
     storyKey: string,
   ): Promise<BasicResponse<ChatSessionSummary[]>> => {
     const response = await apiClient.get<BasicResponse<ChatSessionSummary[]>>(
-      `/chat/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}`
+      `/chat/connections/${connectionName}/projects/${projectKey}/stories/${storyKey}`,
     );
     return response.data;
   },
 
   getChatSession: async (
+    connectionName: string,
+    projectKey: string,
     sessionIdOrKey: string,
   ): Promise<BasicResponse<ChatSessionDto>> => {
     const response = await apiClient.get<BasicResponse<ChatSessionDto>>(
-      `/chat/${sessionIdOrKey}`,
+      `/chat/connections/${connectionName}/projects/${projectKey}/sessions/${sessionIdOrKey}`,
     );
     return response.data;
   },

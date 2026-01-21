@@ -17,18 +17,19 @@ from ..schemas import (
     ProposalContentDto,
     SessionsWithProposals,
 )
-
-from app.connection import get_platform_service
+from app.connection.jira.services import JiraService
 from app.connection.jira.schemas import CreateStoryRequest
 from app.analysis.services.defect_service import DefectService
 from common.schemas import SessionSummary
 from app.analysis.models import Analysis
 from app.chat.models import ChatSession
+from app.connection.jira.models import Connection
 
 
 class ProposalService:
     def __init__(self, db: Session):
         self.db = db
+        self.jira_service = JiraService(db=db)
 
     def create_proposal(self, proposal_request: CreateProposalRequest):
         """Creates a new proposal with its contents.
@@ -109,9 +110,6 @@ class ProposalService:
         num_updated = 0
         num_deleted = 0
         try:
-            platform_service = get_platform_service(
-                db=self.db, connection_id=connection_id
-            )
             create_contents = []
             update_keys = []
             delete_keys = []
@@ -155,7 +153,7 @@ class ProposalService:
                         summary=content.summary,
                         description=content.description,
                     )
-                    created_key = platform_service.create_story(
+                    created_key = self.jira_service.create_story(
                         connection_id=connection_id,
                         project_key=project_key,
                         story=new_story,
@@ -175,7 +173,7 @@ class ProposalService:
             # Update existing issues
             if update_keys:
                 # Search for existing issues to back up their versions before modification
-                existing_stories = platform_service.fetch_stories(
+                existing_stories = self.jira_service.fetch_stories(
                     connection_id=connection_id,
                     project_key=project_key,
                     story_keys=update_keys,
@@ -197,7 +195,7 @@ class ProposalService:
                     self.db.add(new_version)
 
                     content = content_lookup.get(story_dto.key)
-                    platform_service.update_issue(
+                    self.jira_service.update_issue(
                         connection_id=connection_id,
                         project_key=project_key,
                         issue_key=story_dto.key,
@@ -209,7 +207,7 @@ class ProposalService:
             # Delete issues
             if delete_keys:
                 # Search for existing issues to back up their versions before deletion
-                existing_stories = platform_service.fetch_stories(
+                existing_stories = self.jira_service.fetch_stories(
                     connection_id=connection_id,
                     project_key=project_key,
                     story_keys=delete_keys,
@@ -230,10 +228,10 @@ class ProposalService:
                     )
                     self.db.add(new_version)
 
-                    platform_service.delete_story(
+                    self.jira_service.delete_issue(
                         connection_id=connection_id,
                         project_key=project_key,
-                        story_key=story_dto.key,
+                        issue_key=story_dto.key,
                     )
                     num_deleted += 1
             for content in contents:
@@ -387,6 +385,9 @@ class ProposalService:
 
     def get_proposals_by_session(
         self,
+        user_id: str,
+        connection_name: str,
+        project_key: str,
         session_id: str,
         source: Literal["CHAT", "ANALYSIS"],
         story_key: str | None = None,
@@ -401,7 +402,11 @@ class ProposalService:
             query = (
                 self.db.query(Proposal)
                 .join(ProposalContent)
+                .join(Connection, Connection.id == Proposal.connection_id)
                 .filter(
+                    Connection.user_id == user_id,
+                    Connection.name == connection_name,
+                    Proposal.project_key == project_key,
                     Proposal.source == source_enum,
                     ProposalContent.story_key == story_key,
                 )
@@ -421,8 +426,8 @@ class ProposalService:
         proposals = query.all()
         return [self._get_proposal_dto(proposal) for proposal in proposals]
 
-    def list_proposals_by_project(
-        self, connection_id: str, project_key: str
+    def list_sessions_proposals_by_project(
+        self, user_id: str, connection_name: str, project_key: str
     ) -> SessionsWithProposals:
         """Retrieves all proposals for a given connection ID.
         Args:
@@ -435,8 +440,10 @@ class ProposalService:
         analysis_sessions = (
             self.db.query(Analysis)
             .join(Proposal, Proposal.analysis_session_id == Analysis.id)
+            .join(Connection, Connection.id == Proposal.connection_id)
             .filter(
-                Proposal.connection_id == connection_id,
+                Connection.user_id == user_id,
+                Connection.name == connection_name,
                 Proposal.project_key == project_key,
                 Proposal.source == ProposalSource.ANALYSIS,
             )
@@ -449,8 +456,10 @@ class ProposalService:
         chat_sessions = (
             self.db.query(ChatSession)
             .join(Proposal, Proposal.chat_session_id == ChatSession.id)
+            .join(Connection, Connection.id == Proposal.connection_id)
             .filter(
-                Proposal.connection_id == connection_id,
+                Connection.user_id == user_id,
+                Connection.name == connection_name,
                 Proposal.project_key == project_key,
                 Proposal.source == ProposalSource.CHAT,
             )
@@ -481,8 +490,8 @@ class ProposalService:
             ],
         )
 
-    def list_proposals_by_story(
-        self, connection_id: str, project_key: str, story_key: str
+    def list_sessions_proposals_by_story(
+        self, user_id: str, connection_name: str, project_key: str, story_key: str
     ) -> SessionsWithProposals:
         """Retrieves all proposals for a given story.
         Args:
@@ -494,8 +503,10 @@ class ProposalService:
         session_ids = (
             self.db.query(Proposal.analysis_session_id, Proposal.chat_session_id)
             .join(ProposalContent)
+            .join(Connection, Connection.id == Proposal.connection_id)
             .filter(
-                Proposal.connection_id == connection_id,
+                Connection.user_id == user_id,
+                Connection.name == connection_name,
                 Proposal.project_key == project_key,
                 ProposalContent.story_key == story_key,
             )
@@ -550,10 +561,6 @@ class ProposalService:
         contents: List[ProposalContent],
     ):
         try:
-            platform_service = get_platform_service(
-                db=self.db, connection_id=connection_id
-            )
-
             for content in contents:
                 if content.accepted is not True:
                     continue
@@ -566,7 +573,7 @@ class ProposalService:
                 if latest_version:
                     match latest_version.action:
                         case ProposalType.UPDATE:
-                            platform_service.update_issue(
+                            self.jira_service.update_issue(
                                 connection_id=connection_id,
                                 project_key=project_key,
                                 issue_key=latest_version.key,
@@ -574,13 +581,13 @@ class ProposalService:
                                 description=latest_version.description,
                             )
                         case ProposalType.CREATE:
-                            platform_service.delete_story(
+                            self.jira_service.delete_issue(
                                 connection_id=connection_id,
                                 project_key=project_key,
-                                story_key=latest_version.key,
+                                issue_key=latest_version.key,
                             )
                         case ProposalType.DELETE:
-                            platform_service.create_stories(
+                            self.jira_service.create_stories(
                                 connection_id=connection_id,
                                 project_key=content.proposal.project_key,
                                 stories=[

@@ -73,12 +73,12 @@ class UserService:
         jira_connections = [
             JiraConnectionDto(
                 id=conn.id,
-                cloud_id=conn.cloud_id,
+                cloud_id=conn.id_,
                 name=conn.name,
                 avatar_url=conn.avatar_url,
                 url=conn.url,
             )
-            for conn in user.jira_connections
+            for conn in user.connections
         ]
 
         return UserConnections(

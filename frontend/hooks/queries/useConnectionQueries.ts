@@ -34,26 +34,26 @@ export const useUserConnectionsQuery = () => {
   });
 };
 
-export const useProjectDtosQuery = (connectionId: string | undefined) => {
+export const useProjectDtosQuery = (connectionName: string | undefined) => {
   return useQuery({
-    queryKey: CONNECTION_KEYS.projects(connectionId || ""),
-    queryFn: () => connectionService.getProjects(connectionId!),
-    enabled: !!connectionId,
+    queryKey: CONNECTION_KEYS.projects(connectionName || ""),
+    queryFn: () => connectionService.getProjects(connectionName!),
+    enabled: !!connectionName,
   });
 };
 
 export const useStorySummariesQuery = (
-  connectionId: string | undefined,
+  connectionName: string | undefined,
   projectKey: string | undefined,
 ) => {
   return useQuery({
     queryKey: CONNECTION_KEYS.storySummaries(
-      connectionId || "",
+      connectionName || "",
       projectKey || "",
     ),
     queryFn: () =>
-      connectionService.getStorySummaries(connectionId!, projectKey!),
-    enabled: !!connectionId && !!projectKey,
+      connectionService.getStorySummaries(connectionName!, projectKey!),
+    enabled: !!connectionName && !!projectKey,
   });
 };
 

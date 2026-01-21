@@ -1,7 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { chatService } from "@/services/chatService";
-import type { ChatSessionDto } from "@/types/chat";
-import { connectionService } from "@/services/connectionService";
+import { useQuery } from "@tanstack/react-query";
+import { acService } from "@/services/acService";
 
 export const AC_KEYS = {
   all: ["ac"] as const,
@@ -19,52 +17,51 @@ export const AC_KEYS = {
 };
 
 export const useACsByStoryQuery = (
-  connectionId: string | undefined,
+  connectionName: string | undefined,
   projectKey: string | undefined,
   storyKey: string | undefined,
 ) => {
   return useQuery({
     queryKey: AC_KEYS.storyAcs(
-      connectionId || "",
+      connectionName || "",
       projectKey || "",
       storyKey || "",
     ),
     queryFn: () =>
-      connectionService.getACsByStory(connectionId!, projectKey!, storyKey!),
-    enabled: !!connectionId && !!projectKey && !!storyKey,
+      acService.listACsByStory(connectionName!, projectKey!, storyKey!),
+    enabled: !!connectionName && !!projectKey && !!storyKey,
     staleTime: 60 * 1000, // 1 minute
   });
 };
 
 export const useACQuery = (
-  connectionId: string | undefined,
+  connectionName: string | undefined,
   projectKey: string | undefined,
   storyKey: string | undefined,
-  acId: string | undefined,
+  acKey: string | undefined,
 ) => {
   return useQuery({
     queryKey: AC_KEYS.ac(
-      connectionId || "",
+      connectionName || "",
       projectKey || "",
       storyKey || "",
-      acId || "",
+      acKey || "",
     ),
     queryFn: () =>
-      connectionService.getAC(connectionId!, projectKey!, storyKey!, acId!),
-    enabled: !!connectionId && !!projectKey && !!storyKey && !!acId,
+      acService.getAC(connectionName!, projectKey!, storyKey!, acKey!),
+    enabled: !!connectionName && !!projectKey && !!storyKey && !!acKey,
     staleTime: 60 * 1000, // 1 minute
   });
 };
 
 export const useACsByProjectQuery = (
-  connectionId: string | undefined,
+  connectionName: string | undefined,
   projectKey: string | undefined,
 ) => {
   return useQuery({
-    queryKey: AC_KEYS.projectACs(connectionId || "", projectKey || ""),
-    queryFn: () =>
-      connectionService.getACsByProject(connectionId!, projectKey!),
-    enabled: !!connectionId && !!projectKey,
+    queryKey: AC_KEYS.projectACs(connectionName || "", projectKey || ""),
+    queryFn: () => acService.listACsByProject(connectionName!, projectKey!),
+    enabled: !!connectionName && !!projectKey,
     staleTime: 60 * 1000, // 1 minute
   });
 };

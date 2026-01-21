@@ -13,7 +13,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRegisterMutation } from "@/hooks/queries/useUserQueries";
-import { ErrorSnackbar } from "@/components/ErrorSnackbar";
+import { AppSnackbar } from "@/components/AppSnackbar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { getToken } from "@/utils/jwtUtils";
 
@@ -190,7 +190,7 @@ export default function RegisterPage() {
             </Box>
           </Box>
         </Paper>
-        <ErrorSnackbar
+        <AppSnackbar
           open={showError}
           message={error}
           onClose={() => setShowError(false)}

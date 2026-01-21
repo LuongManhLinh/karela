@@ -6,6 +6,8 @@ import os
 import subprocess
 import json
 
+from common.database import uuid_generator
+
 from ..jira.models import GherkinAC
 from .schemas import (
     ACCreateRequest,
@@ -16,7 +18,7 @@ from .schemas import (
     ACDto,
 )
 from .agents import generate_ac_from_story
-from app.connection.jira.models import JiraStory, JiraProject, JiraConnection
+from app.connection.jira.models import Story, Project, Connection
 from app.connection.jira.services import JiraService
 from app.connection.jira.services.base_service import AC_ISSUE_TYPE_NAME
 from app.connection.jira.schemas import IssueUpdate
@@ -35,28 +37,31 @@ class ACService:
     def _get_ac(self, connection_id: str, project_key: str, story_key: str, ac_id: str):
         return (
             self.db.query(GherkinAC)
-            .join(JiraStory, GherkinAC.jira_story_id == JiraStory.id)
-            .join(JiraProject, JiraStory.jira_project_id == JiraProject.id)
-            .join(JiraConnection, JiraProject.jira_connection_id == JiraConnection.id)
+            .join(Story, GherkinAC.story_id == Story.id_)
+            .join(Project, Story.project_id == Project.id_)
+            .join(Connection, Project.connection_id == Connection.id)
             .filter(
-                JiraConnection.id == connection_id,
-                JiraProject.key == project_key,
-                JiraStory.key == story_key,
+                Connection.id == connection_id,
+                Project.key == project_key,
+                Story.key == story_key,
                 GherkinAC.id == ac_id,
             )
             .first()
         )
 
-    def get_acs_by_story(self, connection_id: str, project_key: str, story_key: str):
+    def get_acs_by_story(
+        self, user_id: str, connection_name: str, project_key: str, story_key: str
+    ):
         acs = (
-            self.db.query(GherkinAC, JiraStory.key)
-            .join(JiraStory, GherkinAC.jira_story_id == JiraStory.id)
-            .join(JiraProject, JiraStory.jira_project_id == JiraProject.id)
-            .join(JiraConnection, JiraProject.jira_connection_id == JiraConnection.id)
+            self.db.query(GherkinAC, Story.key)
+            .join(Story, GherkinAC.story_id == Story.id_)
+            .join(Project, Story.project_id == Project.id_)
+            .join(Connection, Project.connection_id == Connection.id)
             .filter(
-                JiraConnection.id == connection_id,
-                JiraProject.key == project_key,
-                JiraStory.key == story_key,
+                Connection.user_id == user_id,
+                Connection.name == connection_name,
+                Project.key == project_key,
+                Story.key == story_key,
             )
             .all()
         )
@@ -73,15 +78,16 @@ class ACService:
             for ac, story_key in acs
         ]
 
-    def get_acs_by_project(self, connection_id: str, project_key: str):
+    def get_acs_by_project(self, user_id: str, connection_name: str, project_key: str):
         acs = (
-            self.db.query(GherkinAC, JiraStory.key)
-            .join(JiraStory, GherkinAC.jira_story_id == JiraStory.id)
-            .join(JiraProject, JiraStory.jira_project_id == JiraProject.id)
-            .join(JiraConnection, JiraProject.jira_connection_id == JiraConnection.id)
+            self.db.query(GherkinAC, Story.key)
+            .join(Story, GherkinAC.story_id == Story.id)
+            .join(Project, Story.project_id == Project.id)
+            .join(Connection, Project.connection_id == Connection.id)
             .filter(
-                JiraConnection.id == connection_id,
-                JiraProject.key == project_key,
+                Connection.user_id == user_id,
+                Connection.name == connection_name,
+                Project.key == project_key,
             )
             .all()
         )
@@ -98,17 +104,25 @@ class ACService:
             for ac, story_key in acs
         ]
 
-    def get_ac(self, connection_id: str, project_key: str, story_key: str, ac_id: str):
+    def get_ac(
+        self,
+        user_id: str,
+        connection_name: str,
+        project_key: str,
+        story_key: str,
+        ac_id_or_key: str,
+    ):
         ac = (
-            self.db.query(GherkinAC, JiraStory.key)
-            .join(JiraStory, GherkinAC.jira_story_id == JiraStory.id)
-            .join(JiraProject, JiraStory.jira_project_id == JiraProject.id)
-            .join(JiraConnection, JiraProject.jira_connection_id == JiraConnection.id)
+            self.db.query(GherkinAC, Story.key)
+            .join(Story, GherkinAC.story_id == Story.id_)
+            .join(Project, Story.project_id == Project.id_)
+            .join(Connection, Project.connection_id == Connection.id)
             .filter(
-                JiraConnection.id == connection_id,
-                JiraProject.key == project_key,
-                JiraStory.key == story_key,
-                GherkinAC.id == ac_id,
+                Connection.user_id == user_id,
+                Connection.name == connection_name,
+                Project.key == project_key,
+                Story.key == story_key,
+                or_(GherkinAC.id == ac_id_or_key, GherkinAC.key == ac_id_or_key),
             )
             .first()
         )
@@ -133,13 +147,13 @@ class ACService:
         gen_with_ai: bool = False,
     ):
         story = (
-            self.db.query(JiraStory)
-            .join(JiraProject, JiraStory.jira_project_id == JiraProject.id)
-            .join(JiraConnection, JiraProject.jira_connection_id == JiraConnection.id)
+            self.db.query(Story)
+            .join(Project, Story.project_id == Project.id)
+            .join(Connection, Project.connection_id == Connection.id)
             .filter(
-                JiraConnection.id == connection_id,
-                JiraProject.key == project_key,
-                JiraStory.key == story_key,
+                Connection.id == connection_id,
+                Project.key == project_key,
+                Story.key == story_key,
             )
             .first()
         )
@@ -157,21 +171,23 @@ class ACService:
                 "Feature: New Feature \n  Scenario: \n    Given \n    When \n    Then "
             )
 
+        ac_id = uuid_generator()
         new_ac = GherkinAC(
+            id=ac_id,
             summary=content.splitlines()[0].replace("Feature: ", "").strip(),
             description=content,
-            jira_story_id=story.id,
+            story_id=story.id,
         )
         self.db.add(new_ac)
-        self.db.commit()
         jira_issue_key = self._create_on_jira(
             connection_id, project_key, story_key, new_ac
         )
         if jira_issue_key:
-            new_ac.jira_issue_key = jira_issue_key
-            self.db.commit()
-        self.db.refresh(new_ac)
-        return new_ac.id
+            new_ac.key = jira_issue_key
+
+        self.db.commit()
+
+        return jira_issue_key if jira_issue_key else ac_id
 
     def _create_on_jira(
         self, connection_id: str, project_key: str, story_key: str, ac: GherkinAC
@@ -214,34 +230,31 @@ class ACService:
         except Exception as e:
             print(f"Failed to update AC on Jira: {e}")
 
-    def regenerate_ac(
-        self,
-        connection_id: str,
-        project_key: str,
-        story_key: str,
-        ac_id: str,
-        content: str,
-        feedback: Optional[str] = None,
-    ):
-
-        ac_and_story = (
-            self.db.query(GherkinAC, JiraStory)
-            .join(JiraStory, GherkinAC.jira_story_id == JiraStory.id)
-            .join(JiraProject, JiraStory.jira_project_id == JiraProject.id)
-            .join(JiraConnection, JiraProject.jira_connection_id == JiraConnection.id)
+    def _get_ac_and_related(self, ac_id: str):
+        result = (
+            self.db.query(GherkinAC, Story.key, Project.key, Connection.id)
+            .join(Story, GherkinAC.story_id == Story.id)
+            .join(Project, Story.project_id == Project.id)
+            .join(Connection, Project.connection_id == Connection.id)
             .filter(
-                JiraConnection.id == connection_id,
-                JiraProject.key == project_key,
-                JiraStory.key == story_key,
                 GherkinAC.id == ac_id,
             )
             .first()
         )
 
-        if not ac_and_story:
+        if not result:
             raise ValueError("AC not found")
 
-        ac, story = ac_and_story
+        return result
+
+    def regenerate_ac(
+        self,
+        ac_id: str,
+        content: str,
+        feedback: Optional[str] = None,
+    ):
+
+        ac, story, project_key, connection_id = self._get_ac_and_related(ac_id)
 
         new_content = generate_ac_from_story(
             summary=story.summary,
@@ -252,73 +265,36 @@ class ACService:
         ac.content = new_content
         self.db.commit()
 
-        self._update_on_jira(connection_id, project_key, story_key, ac)
+        self._update_on_jira(connection_id, project_key, story.key, ac)
 
     def update_ac(
         self,
-        connection_id: str,
-        project_key: str,
-        story_key: str,
         ac_id: str,
         content: str,
     ):
-        ac = self._get_ac(connection_id, project_key, story_key, ac_id)
+        ac, story, project_key, connection_id = self._get_ac_and_related(ac_id)
         if not ac:
             raise ValueError("AC not found")
         ac.description = content
         self.db.commit()
-        self._update_on_jira(connection_id, project_key, story_key, ac)
+        self._update_on_jira(connection_id, project_key, story.key, ac)
 
-    def delete_ac(
-        self, connection_id: str, project_key: str, story_key: str, ac_id: str
-    ):
-        ac = self._get_ac(connection_id, project_key, story_key, ac_id)
+    def delete_ac(self, ac_id: str):
+        ac, _, project_key, connection_id = self._get_ac_and_related(ac_id)
         if not ac:
             raise ValueError("AC not found")
 
         if ac.key:
             try:
-                self.jira_service.delete_story(connection_id, project_key, ac.key)
+                self.jira_service.delete_issue(connection_id, project_key, ac.key)
             except Exception as e:
                 print(f"Failed to delete AC on Jira: {e}")
 
         self.db.delete(ac)
         self.db.commit()
 
-    def lint_ac(self, content: str):
-        # Write to temp file
-        with tempfile.NamedTemporaryFile(
-            suffix=".feature", delete=False, mode="w"
-        ) as tmp:
-            tmp.write(content)
-            tmp_path = tmp.name
-
-        try:
-            # Run gherlint
-            # gherlint usually outputs to stdout.
-            result = subprocess.run(
-                ["npx", "gherkin-lint", tmp_path, "--format", "json"],
-                capture_output=True,
-                text=True,
-            )
-            # Parse output. This depends on gherlint output format.
-            # Assuming standard "file:line:col: message" or similar.
-            # If gherlint is not installed or fails, return empty list or error string.
-            output = result.stdout + result.stderr
-            return output  # Return raw output for now to frontend to display
-        except FileNotFoundError:
-            import traceback
-
-            traceback.print_exc()
-            return "gherlint not installed"
-        finally:
-            if os.path.exists(tmp_path):
-                os.remove(tmp_path)
-
     async def get_ai_suggestions(self, request: AIRequest) -> AIResponse:
-        story = (
-            self.db.query(JiraStory).filter(JiraStory.key == request.story_key).first()
-        )
+        story = self.db.query(Story).filter(Story.key == request.story_key).first()
         agent = GenimiDynamicAgent(
             system_prompt="You are an expert Gherkin developer. Provide suggestions to complete or improve the Gherkin feature file for a User Story. "
             "Return ONLY the suggestion content, or instructions.",

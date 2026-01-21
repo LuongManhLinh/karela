@@ -9,7 +9,7 @@ class Settings(Base):
     id = Column(String(64), primary_key=True, index=True, default=uuid_generator)
     connection_id = Column(
         String(64),
-        ForeignKey("connections.platform_connection_id", ondelete="CASCADE"),
+        ForeignKey("connections.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )

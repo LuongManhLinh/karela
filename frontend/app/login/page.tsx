@@ -15,7 +15,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLoginMutation } from "@/hooks/queries/useUserQueries";
-import { ErrorSnackbar } from "@/components/ErrorSnackbar";
+import { AppSnackbar } from "@/components/AppSnackbar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { getToken, saveToken } from "@/utils/jwtUtils";
 
@@ -158,7 +158,7 @@ export default function LoginPage() {
             </Box>
           </Box>
         </Paper>
-        <ErrorSnackbar
+        <AppSnackbar
           open={showError}
           message={error}
           onClose={() => setShowError(false)}

@@ -4,7 +4,7 @@ import os
 
 # Set set RQ_WORKER_CLASS=rq.worker.SimpleWorker before running rq_process
 os.environ["RQ_WORKER_CLASS"] = "rq.worker.SimpleWorker"
-rq_process = subprocess.Popen(["rq", "worker", "default"])
+rq_process = subprocess.Popen(["rq", "worker", "karela"])
 time.sleep(1)
 
 # Start FastAPI with Uvicorn

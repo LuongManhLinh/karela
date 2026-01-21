@@ -1,98 +1,48 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useParams } from "next/navigation";
-import { Box, Paper, Typography, CircularProgress } from "@mui/material";
+import { Box, Typography, CircularProgress } from "@mui/material";
 import GherkinEditorWrapper from "@/components/ac/GherkinEditorWrapper";
-import { ACDto, AISuggestion } from "@/types/ac";
 import { useACQuery } from "@/hooks/queries/useACQueries";
-import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { connectionService } from "@/services/connectionService";
+import { useMemo, useState } from "react";
 import { acService } from "@/services/acService";
-import { lintGherkin } from "@/utils/gherkin-linter";
 
 export interface AcEditorItemPageProps {
-  id: string;
+  connectionName: string;
+  projectKey: string;
+  storyKey?: string; // Required if level is "story"
+  idOrKey: string;
 }
 
-const AcEditorItemPage: React.FC<AcEditorItemPageProps> = ({ id }) => {
-  const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
-  const [annotations, setAnnotations] = useState<any[]>([]);
-
-  const { selectedConnection, selectedProject, selectedStory } =
-    useWorkspaceStore();
-
+const AcEditorItemPage: React.FC<AcEditorItemPageProps> = ({
+  connectionName,
+  projectKey,
+  storyKey,
+  idOrKey,
+}) => {
   const { data, isLoading, refetch } = useACQuery(
-    selectedConnection?.id || undefined,
-    selectedProject?.key || undefined,
-    selectedStory?.key || undefined,
-    id,
+    connectionName,
+    projectKey,
+    storyKey,
+    idOrKey,
   );
 
-  const currentAC = data?.data || null;
+  const currentAC = useMemo(() => data?.data || null, [data]);
 
   const [editorReadOnly, setEditorReadOnly] = useState(false);
 
-  const fetchSuggestions = useCallback(
-    async (content: string, line: number, col: number) => {
-      if (!currentAC) return;
-      try {
-        const res = await acService.getSuggestions(
-          currentAC.story_key,
-          content,
-          line,
-          col,
-        );
-        setSuggestions(res.suggestions);
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    [],
-  ); // Dependencies? Likely none if acService is static, otherwise add them
-
-  const clearSuggestions = useCallback(() => setSuggestions([]), []);
-
-  // 2. Wrap lintContent in useCallback
-  const lintContent = useCallback((content: string) => {
-    return;
-    const errors = lintGherkin(content);
-    const newAnnotations = errors.map((err: any) => ({
-      row: err.line - 1,
-      column: err.column || 0,
-      text: err.message,
-      type: "error",
-    }));
-
-    // Optional optimization: Compare lengths or content to avoid unnecessary re-renders
-    setAnnotations(newAnnotations);
-  }, []);
-
   const handleSave = async (val: string) => {
-    if (selectedConnection && selectedProject && selectedStory && currentAC) {
-      await connectionService.updateAC(
-        selectedConnection.id,
-        selectedProject.key,
-        selectedStory.key,
-        currentAC.id,
-        val,
-      );
+    if (connectionName && projectKey && storyKey && currentAC) {
+      await acService.updateAC(currentAC.id, val);
       refetch();
     }
   };
 
   const handleSendFeedback = async (gherkin: string, feedback: string) => {
-    if (selectedConnection && selectedProject && selectedStory && currentAC) {
+    if (connectionName && projectKey && storyKey && currentAC) {
       try {
         setEditorReadOnly(true);
-        await connectionService.regenerateAC(
-          selectedConnection.id,
-          selectedProject.key,
-          selectedStory.key,
-          currentAC.id,
-          gherkin,
-          feedback,
-        );
+        await acService.regenerateAC(currentAC.id, gherkin, feedback);
         refetch();
       } catch (error) {
         throw error;

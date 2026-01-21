@@ -114,7 +114,6 @@ export const MyAppBar: React.FC<AppBarProps> = ({
       <Box
         sx={{
           px: 2,
-          gap: 2,
           display: "flex",
           flexDirection: "row",
           flexWrap: "wrap",

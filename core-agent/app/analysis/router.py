@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, WebSocket
 from typing import List
 import traceback
 
+from app.auth_factory import get_jwt_payload
 from app.service_factory import (
     get_analysis_data_service,
     get_analysis_run_service,
@@ -21,37 +22,61 @@ from .tasks import analyze_all_user_stories, analyze_target_user_story
 router = APIRouter()
 
 
-@router.get("/connections/{connection_id}/projects/{project_key}")
-async def get_analysis_summaries(
-    connection_id: str,
+@router.get("/connections/{connection_name}/projects/{project_key}")
+async def get_analysis_summaries_by_project(
+    connection_name: str,
     project_key: str,
+    jwt_payload=Depends(get_jwt_payload),
     service: AnalysisDataService = Depends(get_analysis_data_service),
 ):
+    user_id = jwt_payload.get("sub")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     summaries: List[AnalysisSummary] = service.get_analysis_summaries_by_project(
-        connection_id=connection_id, project_key=project_key
+        user_id=user_id, connection_name=connection_name, project_key=project_key
     )
     return BasicResponse(data=summaries)
 
 
-@router.get("/connections/{connection_id}/projects/{project_key}/stories/{story_key}")
+@router.get("/connections/{connection_name}/projects/{project_key}/stories/{story_key}")
 async def get_analysis_summaries_by_story(
-    connection_id: str,
+    connection_name: str,
     project_key: str,
     story_key: str,
+    jwt_payload=Depends(get_jwt_payload),
     service: AnalysisDataService = Depends(get_analysis_data_service),
 ):
+    user_id = jwt_payload.get("sub")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     summaries: List[AnalysisSummary] = service.get_analysis_summaries_by_story(
-        connection_id=connection_id, project_key=project_key, story_key=story_key
+        user_id=user_id,
+        connection_name=connection_name,
+        project_key=project_key,
+        story_key=story_key,
     )
     return BasicResponse(data=summaries)
 
 
-@router.get("/{analysis_id_or_key}")
+@router.get(
+    "/connections/{connection_name}/projects/{project_key}/analyses/{analysis_id_or_key}"
+)
 async def get_analysis_details(
+    connection_name: str,
+    project_key: str,
     analysis_id_or_key: str,
+    jwt_payload=Depends(get_jwt_payload),
     service: AnalysisDataService = Depends(get_analysis_data_service),
 ):
-    detail: AnalysisDto = service.get_analysis_details(analysis_id_or_key)
+    user_id = jwt_payload.get("sub")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+    detail: AnalysisDto = service.get_analysis_details(
+        user_id=user_id,
+        connection_name=connection_name,
+        project_key=project_key,
+        analysis_id_or_key=analysis_id_or_key,
+    )
     if detail is None:
         raise HTTPException(status_code=404, detail="Analysis detail not found")
     return BasicResponse(data=detail)
@@ -80,7 +105,7 @@ async def generate_proposals_for_analysis(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.post("/connections/{connection_id}/{project_key}")
+@router.post("/connections/{connection_id}/projects/{project_key}")
 async def run_analysis(
     run_req: RunAnalysisRequest,
     connection_id: str,

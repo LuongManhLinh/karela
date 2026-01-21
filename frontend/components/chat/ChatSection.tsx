@@ -50,6 +50,7 @@ export const ChatSection: React.FC<{
           onChange={(e) => setUserMessage(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
               sendMessage(userMessage);
               setUserMessage("");
             }
@@ -58,11 +59,13 @@ export const ChatSection: React.FC<{
           sx={{
             "& fieldset": { border: "none" },
           }}
-          InputProps={{
-            disableUnderline: true,
-            style: {
-              paddingBottom: 0,
-              paddingTop: 0,
+          slotProps={{
+            input: {
+              disableUnderline: true,
+              style: {
+                paddingBottom: 0,
+                paddingTop: 0,
+              },
             },
           }}
         />

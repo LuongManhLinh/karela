@@ -7,12 +7,10 @@ from common.schemas import BasicResponse
 from app.service_factory import (
     get_user_service,
     get_jira_service,
-    get_ac_service,
     get_dashboard_service,
 )
 from app.auth_factory import get_jwt_payload
 from app.connection.jira.services import JiraService
-from .ac.schemas import ACCreateRequest, ACRegenerateRequest
 from .services import DashboardService
 
 router = APIRouter()
@@ -35,9 +33,9 @@ async def list_connections(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/{connection_id_or_name}/projects")
+@router.get("/{connection_name}/projects")
 async def list_projects(
-    connection_id_or_name: str,
+    connection_name: str,
     service: JiraService = Depends(get_jira_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
@@ -47,16 +45,16 @@ async def list_projects(
     try:
         return BasicResponse(
             data=service.fetch_project_dtos(
-                user_id=user_id, connection_id_or_name=connection_id_or_name
+                user_id=user_id, connection_name=connection_name
             )
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/{connection_id}/projects/{project_key}/stories")
+@router.get("/{connection_name}/projects/{project_key}/stories")
 async def list_stories(
-    connection_id: str,
+    connection_name: str,
     project_key: str,
     service: JiraService = Depends(get_jira_service),
     jwt_payload=Depends(get_jwt_payload),
@@ -67,7 +65,8 @@ async def list_stories(
     try:
         return BasicResponse(
             data=service.fetch_story_summaries(
-                connection_id=connection_id,
+                user_id=user_id,
+                connection_name=connection_name,
                 project_key=project_key,
             )
         )
@@ -129,186 +128,9 @@ def get_connection_sync_status(
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         status_dto = service.get_connection_sync_status(
-            user_id=user_id, connection_id_or_name=connection_id
+            user_id=user_id, connection_name=connection_id
         )
         return BasicResponse(data=status_dto)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-
-@router.get("/{connection_id}/projects/{project_key}/stories/{story_key}/acs")
-async def list_story_acs_by_story(
-    connection_id: str,
-    project_key: str,
-    story_key: str,
-    service: ACService = Depends(get_ac_service),
-    jwt_payload=Depends(get_jwt_payload),
-):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
-        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
-    try:
-        if story_key == "none":
-            acs = service.get_acs_by_project(
-                connection_id=connection_id,
-                project_key=project_key,
-            )
-        else:
-            acs = service.get_acs_by_story(
-                connection_id=connection_id,
-                project_key=project_key,
-                story_key=story_key,
-            )
-        return BasicResponse(data=acs)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-
-@router.get("/{connection_id}/projects/{project_key}/acs")
-async def list_story_acs_by_project(
-    connection_id: str,
-    project_key: str,
-    service: ACService = Depends(get_ac_service),
-    jwt_payload=Depends(get_jwt_payload),
-):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
-        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
-    try:
-        acs = service.get_acs_by_project(
-            connection_id=connection_id,
-            project_key=project_key,
-        )
-        return BasicResponse(data=acs)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-
-@router.post("/{connection_id}/projects/{project_key}/stories/{story_key}/acs")
-async def create_ac(
-    connection_id: str,
-    project_key: str,
-    story_key: str,
-    ac_data: ACCreateRequest,
-    service: ACService = Depends(get_ac_service),
-    jwt_payload=Depends(get_jwt_payload),
-):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
-        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
-    try:
-        ac = service.create_ac(
-            connection_id=connection_id,
-            project_key=project_key,
-            story_key=story_key,
-            gen_with_ai=ac_data.gen_with_ai,
-        )
-        return BasicResponse(data=ac)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-
-@router.put(
-    "/{connection_id}/projects/{project_key}/stories/{story_key}/acs/{ac_id}/regenerate"
-)
-async def regenerate_ac(
-    connection_id: str,
-    project_key: str,
-    story_key: str,
-    ac_id: str,
-    ac_data: ACRegenerateRequest,
-    service: ACService = Depends(get_ac_service),
-    jwt_payload=Depends(get_jwt_payload),
-):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
-        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
-    try:
-        service.regenerate_ac(
-            connection_id=connection_id,
-            project_key=project_key,
-            story_key=story_key,
-            ac_id=ac_id,
-            content=ac_data.content,
-            feedback=ac_data.feedback,
-        )
-
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-
-@router.get("/{connection_id}/projects/{project_key}/stories/{story_key}/acs/{ac_id}")
-async def get_ac(
-    connection_id: str,
-    project_key: str,
-    story_key: str,
-    ac_id: str,
-    service: ACService = Depends(get_ac_service),
-    jwt_payload=Depends(get_jwt_payload),
-):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
-        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
-    try:
-        ac = service.get_ac(
-            connection_id=connection_id,
-            project_key=project_key,
-            story_key=story_key,
-            ac_id=ac_id,
-        )
-        return BasicResponse(data=ac)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-
-@router.put("/{connection_id}/projects/{project_key}/stories/{story_key}/acs/{ac_id}")
-async def update_ac(
-    connection_id: str,
-    project_key: str,
-    story_key: str,
-    ac_id: str,
-    ac_data: ACCreateRequest,
-    service: ACService = Depends(get_ac_service),
-    jwt_payload=Depends(get_jwt_payload),
-):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
-        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
-    try:
-        ac = service.update_ac(
-            connection_id=connection_id,
-            project_key=project_key,
-            story_key=story_key,
-            ac_id=ac_id,
-            content=ac_data.content,
-        )
-        return BasicResponse(data=ac)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-
-@router.delete(
-    "/{connection_id}/projects/{project_key}/stories/{story_key}/acs/{ac_id}"
-)
-async def delete_ac(
-    connection_id: str,
-    project_key: str,
-    story_key: str,
-    ac_id: str,
-    service: ACService = Depends(get_ac_service),
-    jwt_payload=Depends(get_jwt_payload),
-):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
-        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
-    try:
-        service.delete_ac(
-            connection_id=connection_id,
-            project_key=project_key,
-            story_key=story_key,
-            ac_id=ac_id,
-        )
-        return BasicResponse(detail="AC deleted successfully")
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 

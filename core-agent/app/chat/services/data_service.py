@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
 
+from app.connection.jira.models import Connection
+
 from ...proposal.schemas import ProposalContentDto, ProposalDto
 
 from ..models import (
@@ -46,7 +48,7 @@ class ChatDataService:
         self.db.commit()
         self.db.refresh(chat_session)
 
-        return chat_session.id
+        return chat_session.key
 
     def create_chat_message(
         self,
@@ -66,11 +68,15 @@ class ChatDataService:
         self.db.refresh(message)
         return message.id, message.created_at.isoformat()
 
-    def list_chat_sessions_by_project(self, connection_id: str, project_key: str):
+    def list_chat_sessions_by_project(
+        self, user_id: str, connection_name: str, project_key: str
+    ):
         sessions = (
             self.db.query(ChatSession)
+            .join(Connection, ChatSession.connection_id == Connection.id)
             .filter(
-                ChatSession.connection_id == connection_id,
+                Connection.user_id == user_id,
+                Connection.name == connection_name,
                 ChatSession.project_key == project_key,
             )
             .order_by(ChatSession.created_at.desc())
@@ -89,14 +95,15 @@ class ChatDataService:
         ]
 
     def list_chat_sessions_by_story(
-        self, connection_id: str, project_key: str, story_key: str
+        self, user_id: str, connection_name: str, project_key: str, story_key: str
     ):
         sessions = (
             self.db.query(ChatSession)
+            .join(Connection, ChatSession.connection_id == Connection.id)
             .filter(
-                ChatSession.connection_id == connection_id,
+                Connection.user_id == user_id,
+                Connection.name == connection_name,
                 ChatSession.project_key == project_key,
-                ChatSession.story_key == story_key,
             )
             .order_by(ChatSession.created_at.desc())
             .all()
@@ -113,14 +120,24 @@ class ChatDataService:
             for session in sessions
         ]
 
-    def get_chat_session(self, session_id_or_key: str) -> ChatSessionDto:
+    def get_chat_session(
+        self,
+        user_id: str,
+        connection_name: str,
+        project_key: str,
+        session_id_or_key: str,
+    ) -> ChatSessionDto:
         session = (
             self.db.query(ChatSession)
+            .join(Connection, ChatSession.connection_id == Connection.id)
             .filter(
+                Connection.user_id == user_id,
+                Connection.name == connection_name,
+                ChatSession.project_key == project_key,
                 or_(
                     ChatSession.id == session_id_or_key,
                     ChatSession.key == session_id_or_key,
-                )
+                ),
             )
             .first()
         )

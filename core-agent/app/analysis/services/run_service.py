@@ -19,7 +19,7 @@ from app.analysis.models import (
     DefectType,
     DefectStoryKey,
 )
-from app.connection import get_platform_service
+from app.connection.jira.services import JiraService
 
 
 from sqlalchemy.orm import Session
@@ -50,6 +50,7 @@ class AnalysisRunService:
             db=RedisConfig.REDIS_DB,
             decode_responses=True,
         )
+        self.jira_service = JiraService(db=db)
 
     def _publish_update(self, analysis_id: str, status: str):
         try:
@@ -96,9 +97,9 @@ class AnalysisRunService:
         )
 
     def _fetch_stories(self, connection_id: str, project_key: str):
-        return get_platform_service(
-            db=self.db, connection_id=connection_id
-        ).fetch_stories(connection_id=connection_id, project_key=project_key)
+        return self.jira_service.fetch_stories(
+            connection_id=connection_id, project_key=project_key
+        )
 
     def _count_defects(self, connection_id: str, project_key: str) -> int:
         stmt = (

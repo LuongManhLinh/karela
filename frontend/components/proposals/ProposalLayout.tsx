@@ -2,9 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { ProposalSource } from "@/types/proposal";
 import { SessionItem } from "@/components/SessionList";
-import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import {
   useProjectProposalsQuery,
   useStoryProposalsQuery,
@@ -14,27 +12,29 @@ import PageLayout from "../PageLayout";
 export interface ProposalLayoutProps {
   children?: React.ReactNode;
   level: "project" | "story";
+  connectionName: string;
+  projectKey: string;
+  storyKey?: string;
 }
 
-const ProposalLayout: React.FC<ProposalLayoutProps> = ({ children, level }) => {
-  const { selectedConnection, selectedProject, selectedStory } =
-    useWorkspaceStore();
-
+const ProposalLayout: React.FC<ProposalLayoutProps> = ({
+  children,
+  level,
+  connectionName,
+  projectKey,
+  storyKey,
+}) => {
   const { data: sessionsData, isLoading: isSessionsLoading } =
     level === "project"
-      ? useProjectProposalsQuery(selectedConnection?.id, selectedProject?.key)
-      : useStoryProposalsQuery(
-          selectedConnection?.id,
-          selectedProject?.key,
-          selectedStory?.key,
-        );
+      ? useProjectProposalsQuery(connectionName, projectKey)
+      : useStoryProposalsQuery(connectionName, projectKey, storyKey!);
 
   const basePath = useMemo(
     () =>
       level === "project"
-        ? `/app/connections/${selectedConnection?.name}/projects/${selectedProject?.key}`
-        : `/app/connections/${selectedConnection?.name}/projects/${selectedProject?.key}/stories/${selectedStory?.key}`,
-    [level, selectedConnection, selectedProject, selectedStory],
+        ? `/app/connections/${connectionName}/projects/${projectKey}`
+        : `/app/connections/${connectionName}/projects/${projectKey}/stories/${storyKey}`,
+    [level, connectionName, projectKey, storyKey],
   );
 
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
@@ -93,6 +93,8 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({ children, level }) => {
         emptyStateText: "No chat sessions having proposals",
         label: "Chat Proposals",
       }}
+      disablePrimaryAutoRoute
+      disableSecondaryAutoRoute
       useNoStoryFilter
     >
       {children}

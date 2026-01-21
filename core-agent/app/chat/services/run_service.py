@@ -17,13 +17,11 @@ from ..models import (
 )
 from ..schemas import MessageChunk
 from common.database import uuid_generator
-from .sesison_cache import SESSION_CACHE
 
 
 from sqlalchemy.orm import Session
 
 
-from typing import List, Optional, Iterator
 from datetime import datetime
 import json
 import traceback
@@ -48,18 +46,46 @@ class ChatService:
     def __init__(self, db: Session):
         self.db = db
         self.settings_service = SettingsService(db=db)
+        from redis.asyncio import Redis
+        from common.configs import RedisConfig
 
-    async def stream(self, session_id: str, user_message: str):
+        self.redis_client = Redis(
+            host=RedisConfig.REDIS_HOST,
+            port=RedisConfig.REDIS_PORT,
+            db=RedisConfig.REDIS_DB,
+            decode_responses=True,
+        )
+
+    async def publish_stream(self, session_id_or_key: str, user_message: str):
+        """Streams chat response chunks to Redis Pub/Sub."""
+        topic = f"chat:{session_id_or_key}"
+        print(f"Starting publish stream to {topic}")
+
+        async for chunk_dict in self.stream(session_id_or_key, user_message):
+            # chunk_dict is {"type": ..., "data": ...}
+            payload = json.dumps(chunk_dict)
+            await self.redis_client.publish(topic, payload)
+            # print(f"Published chunk to {topic}: {payload[:50]}...") # Debug log
+
+        # Optionally publish a "done" message or let the client infer
+        # print(f"Finished publish stream to {topic}")
+
+    async def stream(self, session_id_or_key: str, user_message: str):
         session = (
-            self.db.query(ChatSession).filter(ChatSession.id == session_id).first()
+            self.db.query(ChatSession)
+            .filter(
+                (ChatSession.id == session_id_or_key)
+                | (ChatSession.key == session_id_or_key)
+            )
+            .first()
         )
         if not session:
-            raise ValueError(f"Chat session with id '{session_id}' not found.")
+            raise ValueError(f"Chat session with id '{session_id_or_key}' not found.")
 
         new_message = Message(
             role=SenderRole.USER,
             content=user_message,
-            session_id=session_id,
+            session_id=session.id,
             created_at=datetime.now(),
         )
 
@@ -84,7 +110,7 @@ class ChatService:
             story_key = session.story_key
             for chunk, _ in stream_with_agent(
                 messages=history_messages,
-                session_id=session_id,
+                session_id=session.id,
                 connection_id=session.connection_id,
                 db_session=self.db,
                 project_key=project_key,
@@ -169,7 +195,7 @@ class ChatService:
             }
 
         finally:
-            SESSION_CACHE[session_id] = cache
+            self._persist_messages(session, list(cache.values()))
 
     @staticmethod
     def _additional_from_tool_msg(tool_msg: ToolMessage):
@@ -194,28 +220,16 @@ class ChatService:
             traceback.print_exc()
             return None
 
-    def persist_messages(self, session_id: str):
-        print("Persisting messages from cache to database...")
-        cache = SESSION_CACHE.get(session_id)
-        if not cache:
-            print("No cached messages found.")
-            return
-
-        session = (
-            self.db.query(ChatSession).filter(ChatSession.id == session_id).first()
-        )
-        if not session:
-            raise ValueError(f"Chat session with id '{session_id}' not found.")
-
-        print(f"Persisting {len(cache)} messages...")
+    def _persist_messages(self, session: Session, messages: list[dict]):
+        print(f"Persisting {len(messages)} messages...")
         try:
-            for item in cache.values():
-                msg_chunk: MessageChunk = item["data"]
+            for msg in messages:
+                msg_chunk: MessageChunk = msg["data"]
                 orm_message = Message(
                     id=msg_chunk.id,
                     content=msg_chunk.content,
-                    session_id=session_id,
-                    created_at=item["created_at"],
+                    session_id=session.id,
+                    created_at=msg["created_at"],
                 )
                 if msg_chunk.role == "agent":
                     orm_message.role = SenderRole.AGENT
@@ -232,4 +246,3 @@ class ChatService:
 
         finally:
             self.db.commit()
-            del SESSION_CACHE[session_id]

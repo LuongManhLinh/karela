@@ -16,8 +16,8 @@ class JiraSyncError(Enum):
     UNKNOWN_ERROR = "unknown_error"
 
 
-class JiraConnection(Base):
-    __tablename__ = "jira_connections"
+class Connection(Base):
+    __tablename__ = "connections"
 
     id = Column(String(64), primary_key=True, default=uuid_generator)
     token = Column(LONGBLOB, nullable=False)
@@ -25,8 +25,8 @@ class JiraConnection(Base):
     refresh_token = Column(LONGBLOB, nullable=False)
     refresh_token_iv = Column(BINARY(12), nullable=False)
 
-    cloud_id = Column(String(64), index=True, nullable=False)
-    name = Column(String(128), nullable=True)
+    id_ = Column(String(64), index=True, nullable=False)
+    name = Column(String(128), nullable=True, index=True)
     url = Column(String(256), nullable=True)
     scopes = Column(Text, nullable=True)
     avatar_url = Column(String(256), nullable=True)
@@ -48,9 +48,9 @@ class JiraConnection(Base):
         nullable=True,
     )
 
-    user = relationship("User", back_populates="jira_connections")
+    user = relationship("User", back_populates="connections")
     projects = relationship(
-        "JiraProject", back_populates="jira_connection", cascade="all, delete-orphan"
+        "Project", back_populates="connection", cascade="all, delete-orphan"
     )
 
     # On update event
@@ -58,25 +58,25 @@ class JiraConnection(Base):
         target.updated_at = utcnow()
 
 
-class JiraProject(Base):
-    __tablename__ = "jira_projects"
-
+class Project(Base):
+    __tablename__ = "projects"
     id = Column(String(64), primary_key=True, default=uuid_generator)
+    id_ = Column(String(64), nullable=False, index=True, default=uuid_generator)
     key = Column(String(32), nullable=False, index=True)
     name = Column(String(128), nullable=False)
 
     avatar_url = Column(String(256), nullable=True)
 
-    jira_connection_id = Column(
+    connection_id = Column(
         String(64),
-        ForeignKey("jira_connections.id", ondelete="CASCADE"),
+        ForeignKey("connections.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
 
-    jira_connection = relationship("JiraConnection", back_populates="projects")
+    connection = relationship("Connection", back_populates="projects")
     stories = relationship(
-        "JiraStory", back_populates="jira_project", cascade="all, delete-orphan"
+        "Story", back_populates="project", cascade="all, delete-orphan"
     )
 
     # On update event
@@ -84,24 +84,26 @@ class JiraProject(Base):
         target.updated_at = utcnow()
 
 
-class JiraStory(Base):
-    __tablename__ = "jira_stories"
-
+class Story(Base):
+    __tablename__ = "stories"
     id = Column(String(64), primary_key=True, default=uuid_generator)
+    id_ = Column(String(64), nullable=False, index=True, default=uuid_generator)
     key = Column(String(32), nullable=False, index=True)
     summary = Column(String(256), nullable=False)
     description = Column(Text, nullable=True)
 
-    jira_project_id = Column(
+    project_id = Column(
         String(64),
-        ForeignKey("jira_projects.id", ondelete="CASCADE"),
+        ForeignKey("projects.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
 
-    jira_project = relationship("JiraProject", back_populates="stories")
+    project = relationship("Project", back_populates="stories")
 
-    ac = relationship("GherkinAC", back_populates="story", cascade="all, delete-orphan")
+    acs = relationship(
+        "GherkinAC", back_populates="story", cascade="all, delete-orphan"
+    )
 
     # On update event
     def before_update_listener(mapper, _, target):
@@ -112,21 +114,22 @@ class GherkinAC(Base):
     __tablename__ = "gherkin_acs"
 
     id = Column(String(64), primary_key=True, default=uuid_generator)
-    key = Column(String(32), nullable=True)
+    id_ = Column(String(64), nullable=True, index=True, default=uuid_generator)
+    key = Column(String(32), nullable=True, index=True)
 
     summary = Column(String(256), nullable=False)
     description = Column(Text, nullable=False)
 
     # Link to Story
-    jira_story_id = Column(
+    story_id = Column(
         String(64),
-        ForeignKey("jira_stories.id", ondelete="CASCADE"),
+        ForeignKey("stories.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
 
     # Use backref to avoid modifying JiraStory code, but ensure we have access
-    story = relationship("JiraStory", back_populates="ac")
+    story = relationship("Story", back_populates="acs")
 
     created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
     updated_at = Column(

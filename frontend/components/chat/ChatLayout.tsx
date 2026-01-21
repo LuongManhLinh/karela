@@ -21,32 +21,31 @@ import PageLayout from "../PageLayout";
 interface ChatLayoutProps {
   children?: React.ReactNode;
   level: "project" | "story";
+  connectionName: string;
+  projectKey: string;
+  storyKey?: string; // Required if level is "story"
 }
-const ChatLayout: React.FC<ChatLayoutProps> = ({ children, level }) => {
+const ChatLayout: React.FC<ChatLayoutProps> = ({
+  children,
+  level,
+  connectionName,
+  projectKey,
+  storyKey,
+}) => {
   const [sessions, setSessions] = useState<ChatSessionSummary[]>([]);
   const [selectedSessionKey, setSelectedSessionKey] = useState<string | null>(
     null,
   );
 
-  const {
-    selectedConnection,
-    selectedProject,
-    selectedStory,
-    setHeaderProjectKey,
-    setHeaderStoryKey,
-  } = useWorkspaceStore();
+  const { setHeaderProjectKey, setHeaderStoryKey } = useWorkspaceStore();
 
-  const { data: sessionsData, isLoading: isSessionsLoading } =
-    level === "project"
-      ? useChatSessionsByProjectQuery(
-          selectedConnection?.id || undefined,
-          selectedProject?.key || undefined,
-        )
-      : useChatSessionsByStoryQuery(
-          selectedConnection?.id || undefined,
-          selectedProject?.key || undefined,
-          selectedStory?.key || undefined,
-        );
+  const {
+    data: sessionsData,
+    isLoading: isSessionsLoading,
+    refetch: refetchSessions,
+  } = level === "project"
+    ? useChatSessionsByProjectQuery(connectionName, projectKey)
+    : useChatSessionsByStoryQuery(connectionName, projectKey, storyKey!);
 
   // Initialize sessions
   useEffect(() => {
@@ -73,6 +72,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ children, level }) => {
     if (newId) {
       setSelectedSessionKey(newId);
     }
+    await refetchSessions();
     return newId;
   };
 
@@ -84,12 +84,17 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ children, level }) => {
         title: session.key,
         subtitle: new Date(session.created_at).toLocaleString(),
       });
-      if (session.key === selectedSessionKey) {
-        setHeaderProjectKey(session.project_key);
-        setHeaderStoryKey(session.story_key || "");
-      }
     });
     return items;
+  }, [sessions]);
+
+  // Update header keys in useEffect to avoid setState during render
+  useEffect(() => {
+    const selectedSummary = sessions.find((s) => s.key === selectedSessionKey);
+    if (selectedSummary) {
+      setHeaderProjectKey(selectedSummary.project_key);
+      setHeaderStoryKey(selectedSummary.story_key || "");
+    }
   }, [sessions, selectedSessionKey, setHeaderProjectKey, setHeaderStoryKey]);
 
   return (

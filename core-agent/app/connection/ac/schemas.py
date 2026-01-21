@@ -7,8 +7,11 @@ class ACCreateRequest(BaseModel):
     gen_with_ai: bool = False
 
 
-class ACRegenerateRequest(BaseModel):
+class ACUpdateRequest(BaseModel):
     content: str
+
+
+class ACRegenerateRequest(ACUpdateRequest):
     feedback: Optional[str] = None
 
 

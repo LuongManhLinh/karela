@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from utils.security_utils import encrypt_token, decrypt_token
 from common.configs import JiraConfig
 from ..client import JiraClient
-from ..models import JiraConnection
+from ..models import Connection
 from ..schemas import (
     Issue,
 )
@@ -19,7 +19,7 @@ class JiraBaseService:
         self.db = db
         self.vector_store = JiraVectorStore()
 
-    def __refresh_access_token(self, connection: JiraConnection):
+    def __refresh_access_token(self, connection: Connection):
         refresh_token = decrypt_token(
             connection.refresh_token, connection.refresh_token_iv
         )
@@ -41,7 +41,7 @@ class JiraBaseService:
 
     def _exec_refreshing_access_token(
         self,
-        connection: JiraConnection,
+        connection: Connection,
         func,
         *args,
         **kwargs,
@@ -78,9 +78,7 @@ class JiraBaseService:
             List[Issue]: List of fetched issues
         """
         connection = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.id == connection_id)
-            .first()
+            self.db.query(Connection).filter(Connection.id == connection_id).first()
         )
         if not connection:
             raise ValueError("Connection not found")
@@ -88,7 +86,7 @@ class JiraBaseService:
         response = self._exec_refreshing_access_token(
             connection,
             JiraClient.search_issues,
-            cloud_id=connection.cloud_id,
+            cloud_id=connection.id_,
             jql=jql,
             fields=fields,
             max_results=max_results,

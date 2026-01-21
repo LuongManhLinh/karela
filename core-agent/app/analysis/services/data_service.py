@@ -9,9 +9,8 @@ from app.analysis.schemas import (
     AnalysisDto,
     AnalysisSummary,
     DefectDto,
-    AnalysisStatusDto,
 )
-
+from app.connection.jira.models import Connection
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
@@ -65,12 +64,14 @@ class AnalysisDataService:
         return None
 
     def get_analysis_summaries_by_project(
-        self, connection_id: str, project_key: str
+        self, user_id: str, connection_name: str, project_key: str
     ) -> List[AnalysisSummary]:
         analyses = (
             self.db.query(Analysis)
+            .join(Analysis.connection)
             .filter(
-                Analysis.connection_id == connection_id,
+                Connection.user_id == user_id,
+                Connection.name == connection_name,
                 Analysis.project_key == project_key,
             )
             .order_by(Analysis.created_at.desc())
@@ -92,12 +93,14 @@ class AnalysisDataService:
         ]
 
     def get_analysis_summaries_by_story(
-        self, connection_id: str, project_key: str, story_key: str
+        self, user_id: str, connection_name: str, project_key: str, story_key: str
     ) -> List[AnalysisSummary]:
         analyses = (
             self.db.query(Analysis)
+            .join(Analysis.connection)
             .filter(
-                Analysis.connection_id == connection_id,
+                Connection.user_id == user_id,
+                Connection.name == connection_name,
                 Analysis.project_key == project_key,
                 Analysis.story_key == story_key,
             )
@@ -119,20 +122,30 @@ class AnalysisDataService:
             for analysis in analyses
         ]
 
-    def get_analysis_details(self, analysis_id_or_key: str) -> Optional[AnalysisDto]:
+    def get_analysis_details(
+        self,
+        user_id: str,
+        connection_name: str,
+        project_key: str,
+        analysis_id_or_key: str,
+    ) -> Optional[AnalysisDto]:
         analysis = (
             self.db.query(Analysis)
+            .join(Analysis.connection)
             .filter(
+                Connection.user_id == user_id,
+                Connection.name == connection_name,
+                Analysis.project_key == project_key,
                 or_(
                     Analysis.id == analysis_id_or_key,
                     Analysis.key == analysis_id_or_key,
-                )
+                ),
             )
             .first()
         )
 
         if not analysis:
-            return None
+            raise ValueError("Analysis not found")
 
         # Query order by solved, type asc, severity desc
         defects = (

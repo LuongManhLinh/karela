@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Container,
   Paper,
@@ -9,14 +9,11 @@ import {
   Typography,
   Box,
   Stack,
-  Alert,
   CircularProgress,
-  IconButton,
   Menu,
   MenuItem,
   ListItemIcon,
   ListItemText,
-  useTheme,
 } from "@mui/material";
 import { Layout } from "@/components/Layout";
 import {
@@ -25,7 +22,7 @@ import {
 } from "@/hooks/queries/useUserQueries";
 import { useUserConnectionsQuery } from "@/hooks/queries/useConnectionQueries";
 import { jiraService } from "@/services/jiraService";
-import { ErrorSnackbar } from "@/components/ErrorSnackbar";
+import { AppSnackbar } from "@/components/AppSnackbar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useRouter } from "next/navigation";
 import type { ConnectionDto } from "@/types/connection";
@@ -69,10 +66,26 @@ export default function ProfilePage() {
   const connections = connectionsData?.data;
   const loading = isUserLoading || isConnectionsLoading;
   const [connectingJira, setConnectingJira] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [showError, setShowError] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [severity, setSeverity] = useState<"error" | "success" | "info">(
+    "info",
+  );
+  const [showSnackbar, setShowSnackbar] = useState(false);
+
+  // Show snackbar to alert to connect Jira if no connections exist
+  useEffect(() => {
+    if (
+      !loading &&
+      !isConnectionsLoading &&
+      connections &&
+      connections.jira_connections.length === 0
+    ) {
+      setSnackbarMessage("Please connect your Jira account to get started.");
+      setSeverity("info");
+      setShowSnackbar(true);
+    }
+  }, [loading, isConnectionsLoading, connections]);
 
   const basePath = useMemo(() => {
     if (!selectedConnection) {
@@ -87,7 +100,7 @@ export default function ProfilePage() {
 
   // Load user data handles via React Query hooks automatically
 
-  const handleMenuOpen = (
+  const handleMenuOpen = async (
     event: React.MouseEvent<HTMLElement>,
     connectionId: string,
   ) => {
@@ -95,17 +108,17 @@ export default function ProfilePage() {
     setSelectedConnectionId(connectionId);
   };
 
-  const handleMenuClose = () => {
+  const handleMenuClose = async () => {
     setMenuAnchorEl(null);
     setSelectedConnectionId(null);
   };
 
-  const handleUpdateConnection = () => {
-    console.log("Update connection:", selectedConnectionId);
+  const handleUpdateConnection = async () => {
     handleMenuClose();
+    await handleConnectJira();
   };
 
-  const handleDeleteConnection = () => {
+  const handleDeleteConnection = async () => {
     connectionService.deleteConnection(selectedConnectionId!).then(() => {
       // Optionally, you can refetch the connections or update the state to reflect the deletion
       refetchConnections().then((res) => {
@@ -122,15 +135,16 @@ export default function ProfilePage() {
 
   const handleConnectJira = async () => {
     setConnectingJira(true);
-    setError("");
+    setSnackbarMessage("");
 
     try {
       await jiraService.startOAuth();
       // The redirect will happen in jiraService, so we don't need to do anything here
     } catch (err: any) {
       const errorMessage = err.message || "Failed to initiate Jira connection";
-      setError(errorMessage);
-      setShowError(true);
+      setSnackbarMessage(errorMessage);
+      setShowSnackbar(true);
+      setSeverity("error");
     } finally {
       setConnectingJira(false);
     }
@@ -138,18 +152,19 @@ export default function ProfilePage() {
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    setSnackbarMessage("");
 
     if (newPassword !== confirmPassword) {
-      setError("New passwords do not match");
-      setShowError(true);
+      setSnackbarMessage("New passwords do not match");
+      setShowSnackbar(true);
+      setSeverity("error");
       return;
     }
 
     if (newPassword.length < 6) {
-      setError("Password must be at least 6 characters long");
-      setShowError(true);
+      setSnackbarMessage("Password must be at least 6 characters long");
+      setSeverity("error");
+      setShowSnackbar(true);
       return;
     }
 
@@ -158,16 +173,18 @@ export default function ProfilePage() {
         old_password: oldPassword,
         new_password: newPassword,
       });
-      setSuccess("Password changed successfully");
-      setShowSuccess(true);
+      setSnackbarMessage("Password changed successfully");
+      setShowSnackbar(true);
+      setSeverity("success");
       setOldPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.detail || "Failed to change password";
-      setError(errorMessage);
-      setShowError(true);
+      setSnackbarMessage(errorMessage);
+      setSeverity("error");
+      setShowSnackbar(true);
     }
   };
 
@@ -389,21 +406,12 @@ export default function ProfilePage() {
             </Button>
           </Box>
         </Paper>
-
-        {showSuccess && (
-          <Alert
-            severity="success"
-            sx={{ mt: 2 }}
-            onClose={() => setShowSuccess(false)}
-          >
-            {success}
-          </Alert>
-        )}
       </Container>
-      <ErrorSnackbar
-        open={showError}
-        message={error}
-        onClose={() => setShowError(false)}
+      <AppSnackbar
+        open={showSnackbar}
+        message={snackbarMessage}
+        severity={severity}
+        onClose={() => setShowSnackbar(false)}
       />
     </Layout>
   );

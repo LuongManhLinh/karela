@@ -17,6 +17,7 @@ import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { USE_NO_STORY } from "@/constants/selectable";
 import { useWebSocketContext } from "@/providers/WebSocketProvider";
 import PageLayout from "../PageLayout";
+import { connection } from "next/server";
 
 const getStatusColor = (status?: string) => {
   switch (status) {
@@ -36,19 +37,19 @@ const getStatusColor = (status?: string) => {
 interface AnalysisPageLayoutProps {
   children?: React.ReactNode;
   level: "project" | "story";
+  connectionName: string;
+  projectKey: string;
+  storyKey?: string; // Required if level is "story"
 }
 
 const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
   children,
   level,
+  connectionName,
+  projectKey: projectKey,
+  storyKey: storyKey,
 }) => {
-  const {
-    selectedConnection,
-    selectedProject,
-    selectedStory,
-    setHeaderProjectKey,
-    setHeaderStoryKey,
-  } = useWorkspaceStore();
+  const { setHeaderProjectKey, setHeaderStoryKey } = useWorkspaceStore();
 
   const [selectedAnalysisKey, setSelectedAnalysisKey] = useState<string | null>(
     null,
@@ -57,15 +58,8 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
   // Analysis Hooks
   const { data: summariesData, isLoading: isSummariesLoading } =
     level === "project"
-      ? useAnalysisSummariesByProjectQuery(
-          selectedConnection?.id,
-          selectedProject?.key,
-        )
-      : useAnalysisSummariesByStoryQuery(
-          selectedConnection?.id,
-          selectedProject?.key,
-          selectedStory?.key,
-        );
+      ? useAnalysisSummariesByProjectQuery(connectionName, projectKey)
+      : useAnalysisSummariesByStoryQuery(connectionName, projectKey, storyKey!);
   const summaries = useMemo(() => summariesData?.data || [], [summariesData]);
 
   // Mutations
@@ -89,10 +83,6 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
     };
 
     runningIds.forEach((id) => {
-      console.log(
-        "In AnalysisLayout, Subscribing to analysis updates for ID:",
-        id,
-      );
       subscribe(`analysis:${id}`, handleMessage);
     });
 

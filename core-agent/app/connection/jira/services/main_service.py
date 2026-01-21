@@ -5,12 +5,10 @@ from typing import List, Optional
 from utils.markdown_adf_bridge.markdown_adf_bridge import md_to_adf, adf_to_md
 from utils.security_utils import encrypt_token
 from common.configs import JiraConfig
-from common.schemas import Platform
 from common.database import uuid_generator
-from app.connection.models import Connection
 from .base_service import JiraBaseService
 from ..client import JiraClient
-from ..models import JiraConnection, JiraProject, JiraStory, GherkinAC
+from ..models import Connection, Project, Story, GherkinAC
 from ..schemas import (
     ConnectionSyncStatusDto,
     ProjectDto,
@@ -50,66 +48,50 @@ class JiraService(JiraBaseService):
         ]
 
         existing_connection = (
-            self.db.query(JiraConnection)
+            self.db.query(Connection)
             .filter(
-                JiraConnection.user_id == user_id,
-                JiraConnection.cloud_id == cloud_info.id,
+                Connection.user_id == user_id,
+                Connection.id_ == cloud_info.id,
             )
             .first()
         )
-        if existing_connection:
-            # Update existing connection
-            existing_connection.token = encryped_token
-            existing_connection.token_iv = token_iv
-            existing_connection.refresh_token = refresh_encrypted_token
-            existing_connection.refresh_token_iv = refresh_token_iv
-            existing_connection.name = cloud_info.name
-            existing_connection.url = cloud_info.url
-            existing_connection.scopes = (
-                " ".join(cloud_info.scopes) if cloud_info.scopes else None
-            )
-            existing_connection.avatar_url = cloud_info.avatarUrl
 
-            self.db.add(existing_connection)
-            self.db.commit()
-
-            execute_update_connection(connection_id=existing_connection.id, new=False)
-            return 2
-
+        new = True
         jira_conn_id = uuid_generator()
 
-        jira_connection = JiraConnection(
+        if existing_connection:
+            jira_conn_id = existing_connection.id
+            new = False
+            self.delete_connection(user_id=user_id, connection_id=jira_conn_id)
+
+        jira_connection = Connection(
             id=jira_conn_id,
             token=encryped_token,
             token_iv=token_iv,
             refresh_token=refresh_encrypted_token,
             refresh_token_iv=refresh_token_iv,
             user_id=user_id,
-            cloud_id=cloud_info.id,
+            id_=cloud_info.id,
             name=cloud_info.name,
             url=cloud_info.url,
             scopes=" ".join(cloud_info.scopes) if cloud_info.scopes else None,
             avatar_url=cloud_info.avatarUrl,
         )
 
-        connection = Connection(
-            platform=Platform.JIRA,
-            platform_connection_id=jira_conn_id,
-        )
-        self.db.add_all([jira_connection, connection])
+        self.db.add(jira_connection)
         self.db.commit()
 
-        execute_update_connection(connection_id=jira_conn_id, new=True)
+        execute_update_connection(connection_id=jira_conn_id, new=new)
 
-        return 1
+        return 1 if new else 2
 
     def __get_connection_and_project(self, connection_id: str, project_key: str):
         connection_and_project = (
-            self.db.query(JiraConnection, JiraProject)
-            .join(JiraProject, JiraProject.jira_connection_id == JiraConnection.id)
+            self.db.query(Connection, Project)
+            .join(Project, Project.connection_id == Connection.id)
             .filter(
-                JiraConnection.id == connection_id,
-                JiraProject.key == project_key,
+                Connection.id == connection_id,
+                Project.key == project_key,
             )
             .first()
         )
@@ -124,11 +106,11 @@ class JiraService(JiraBaseService):
         self, user_id: str, connection_id_or_name: str
     ) -> str:
         connection = (
-            self.db.query(JiraConnection)
+            self.db.query(Connection)
             .filter(
-                JiraConnection.user_id == user_id,
-                (JiraConnection.id == connection_id_or_name)
-                | (JiraConnection.name == connection_id_or_name),
+                Connection.user_id == user_id,
+                (Connection.id == connection_id_or_name)
+                | (Connection.name == connection_id_or_name),
             )
             .first()
         )
@@ -143,9 +125,7 @@ class JiraService(JiraBaseService):
 
     def create_issues(self, connection_id: str, issues: List[IssueUpdate]) -> list[str]:
         connection = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.id == connection_id)
-            .first()
+            self.db.query(Connection).filter(Connection.id == connection_id).first()
         )
         if not connection:
             raise ValueError("Connection not found")
@@ -154,7 +134,7 @@ class JiraService(JiraBaseService):
         return self._exec_refreshing_access_token(
             connection,
             JiraClient.create_issues,
-            cloud_id=connection.cloud_id,
+            cloud_id=connection.id_,
             payload=payload,
         )
 
@@ -185,12 +165,9 @@ class JiraService(JiraBaseService):
         created_keys = self._exec_refreshing_access_token(
             connection,
             JiraClient.create_issues,
-            cloud_id=connection.cloud_id,
+            cloud_id=connection.id_,
             payload=payload,
         )
-
-        if created_keys:
-            self.__on_stories_create(connection, project, created_keys)
 
         return created_keys
 
@@ -215,12 +192,10 @@ class JiraService(JiraBaseService):
         story_key = self._exec_refreshing_access_token(
             connection,
             JiraClient.create_issue,
-            cloud_id=connection.cloud_id,
+            cloud_id=connection.id_,
             payload=payload,
         )
 
-        # Update local data, vector store, and Jira
-        self.__on_stories_create(connection, project, [story_key])
         return story_key
 
     def fetch_stories(
@@ -243,15 +218,20 @@ class JiraService(JiraBaseService):
             List[StoryDto]: List of fetched story issues
         """
         if local:
-            _, project = self.__get_connection_and_project(connection_id, project_key)
-
-            # Get stories
-            query = self.db.query(JiraStory).filter(
-                JiraStory.jira_project_id == project.id
+            project = (
+                self.db.query(Project)
+                .filter(
+                    Project.connection_id == connection_id,
+                    Project.key == project_key,
+                )
+                .first()
             )
 
+            # Get stories
+            query = self.db.query(Story).filter(Story.project_id == project.id)
+
             if story_keys:
-                query = query.filter(JiraStory.key.in_(story_keys))
+                query = query.filter(Story.key.in_(story_keys))
 
             if max_results:
                 query = query.limit(max_results)
@@ -260,7 +240,7 @@ class JiraService(JiraBaseService):
 
             return [
                 StoryDto(
-                    id=story.id,
+                    id=story.id_,
                     key=story.key,
                     summary=story.summary,
                     description=story.description,
@@ -313,9 +293,7 @@ class JiraService(JiraBaseService):
             Issue: The fetched issue
         """
         connection = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.id == connection_id)
-            .first()
+            self.db.query(Connection).filter(Connection.id == connection_id).first()
         )
         if not connection:
             raise ValueError("Connection not found")
@@ -323,18 +301,18 @@ class JiraService(JiraBaseService):
         if local:
             # Fetch from local database
             story = (
-                self.db.query(JiraStory)
-                .join(JiraProject)
+                self.db.query(Story)
+                .join(Project)
                 .filter(
-                    JiraProject.jira_connection_id == connection_id,
-                    JiraStory.key == issue_key,
+                    Project.connection_id == connection_id,
+                    Story.key == issue_key,
                 )
                 .first()
             )
             if story:
                 # Convert to Issue object for consistency
                 return Issue(
-                    id=story.id,
+                    id=story.id_,
                     key=story.key,
                     fields={
                         "summary": story.summary,
@@ -346,7 +324,7 @@ class JiraService(JiraBaseService):
         response = self._exec_refreshing_access_token(
             connection,
             JiraClient.get_issue,
-            cloud_id=connection.cloud_id,
+            cloud_id=connection.id_,
             issue_key=issue_key,
             fields=fields,
             expand_rendered_fields=expand_rendered_fields,
@@ -368,15 +346,11 @@ class JiraService(JiraBaseService):
         self._exec_refreshing_access_token(
             connection,
             JiraClient.update_issue,
-            cloud_id=connection.cloud_id,
+            cloud_id=connection.id_,
             issue_key=issue_key,
             summary=summary,
             description=md_to_adf(description) if description else None,
         )
-
-        if project:
-            # Update local data and vector store
-            self.__on_stories_update(connection, project, [issue_key])
 
     def update_stories(
         self,
@@ -385,9 +359,7 @@ class JiraService(JiraBaseService):
         story_updates: List[UpdateStoryRequest],
     ):
         connection = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.id == connection_id)
-            .first()
+            self.db.query(Connection).filter(Connection.id == connection_id).first()
         )
         if not connection:
             raise ValueError("Connection not found")
@@ -396,7 +368,7 @@ class JiraService(JiraBaseService):
             self._exec_refreshing_access_token(
                 connection,
                 JiraClient.update_issue,
-                cloud_id=connection.cloud_id,
+                cloud_id=connection.id_,
                 issue_key=story_update.key,
                 summary=story_update.summary,
                 description=(
@@ -406,12 +378,7 @@ class JiraService(JiraBaseService):
                 ),
             )
 
-        # Update local data and vector store
-        self.__on_stories_update(
-            connection, project_key, [su.key for su in story_updates]
-        )
-
-    def delete_story(self, connection_id: str, project_key: str, story_key: str):
+    def delete_issue(self, connection_id: str, project_key: str, issue_key: str):
         connection, project = self.__get_connection_and_project(
             connection_id, project_key
         )
@@ -419,11 +386,9 @@ class JiraService(JiraBaseService):
         self._exec_refreshing_access_token(
             connection,
             JiraClient.delete_issue,
-            cloud_id=connection.cloud_id,
-            issue_key=story_key,
+            cloud_id=connection.id_,
+            issue_key=issue_key,
         )
-
-        self.__on_stories_delete(connection, project, [story_key])
 
     def get_project_settings(
         self,
@@ -432,9 +397,7 @@ class JiraService(JiraBaseService):
         setting_key: str,
     ) -> dict:
         connection = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.id == connection_id)
-            .first()
+            self.db.query(Connection).filter(Connection.id == connection_id).first()
         )
         if not connection:
             raise ValueError("Connection not found")
@@ -442,7 +405,7 @@ class JiraService(JiraBaseService):
         response = self._exec_refreshing_access_token(
             connection,
             JiraClient.get_project_settings,
-            cloud_id=connection.cloud_id,
+            cloud_id=connection.id_,
             project_key=project_key,
             setting_key=setting_key,
         )
@@ -450,16 +413,14 @@ class JiraService(JiraBaseService):
 
     def get_connection(self, connection_id: str) -> JiraConnectionDto:
         connection = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.id == connection_id)
-            .first()
+            self.db.query(Connection).filter(Connection.id == connection_id).first()
         )
         if not connection:
             raise ValueError("Connection not found")
 
         return JiraConnectionDto(
             id=connection.id,
-            cloud_id=connection.cloud_id,
+            cloud_id=connection.id_,
             name=connection.name,
             url=connection.url,
             avatar_url=connection.avatar_url,
@@ -467,15 +428,13 @@ class JiraService(JiraBaseService):
 
     def list_user_connections(self, user_id: str) -> List[JiraConnectionDto]:
         connections = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.user_id == user_id)
-            .all()
+            self.db.query(Connection).filter(Connection.user_id == user_id).all()
         )
 
         return [
             JiraConnectionDto(
                 id=conn.id,
-                cloud_id=conn.cloud_id,
+                cloud_id=conn.id_,
                 name=conn.name,
                 url=conn.url,
                 avatar_url=conn.avatar_url,
@@ -483,20 +442,8 @@ class JiraService(JiraBaseService):
             for conn in connections
         ]
 
-    def delete_connection(self, connection_id: str):
-        connection = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.id == connection_id)
-            .first()
-        )
-        if not connection:
-            raise ValueError("Connection not found")
-
-        self.db.delete(connection)
-        self.db.commit()
-
     def fetch_project_dtos(
-        self, user_id: str, connection_id_or_name: str, local: bool = True
+        self, user_id: str, connection_name: str, local: bool = True
     ) -> List[ProjectDto]:
         """Fetch all project keys from Jira
 
@@ -507,11 +454,10 @@ class JiraService(JiraBaseService):
             List[str]: List of project keys
         """
         connection = (
-            self.db.query(JiraConnection)
+            self.db.query(Connection)
             .filter(
-                JiraConnection.user_id == user_id,
-                (JiraConnection.id == connection_id_or_name)
-                | (JiraConnection.name == connection_id_or_name),
+                Connection.user_id == user_id,
+                Connection.name == connection_name,
             )
             .first()
         )
@@ -524,13 +470,16 @@ class JiraService(JiraBaseService):
                 raise ValueError("Connection not found")
 
             projects = (
-                self.db.query(JiraProject)
-                .filter(JiraProject.jira_connection_id == connection.id)
+                self.db.query(Project)
+                .filter(Project.connection_id == connection.id)
                 .all()
             )
             return [
                 ProjectDto(
-                    id=prod.id, key=prod.key, name=prod.name, avatar_url=prod.avatar_url
+                    id=prod.id_,
+                    key=prod.key,
+                    name=prod.name,
+                    avatar_url=prod.avatar_url,
                 )
                 for prod in projects
             ]
@@ -538,11 +487,15 @@ class JiraService(JiraBaseService):
         return self._exec_refreshing_access_token(
             connection,
             JiraClient.fetch_projects,
-            cloud_id=connection.cloud_id,
+            cloud_id=connection.id_,
         )
 
     def fetch_story_summaries(
-        self, connection_id: str, project_key: str, local: bool = True
+        self,
+        user_id: str,
+        connection_name: str,
+        project_key: str,
+        local: bool = True,
     ) -> List[StorySummary]:
         """Fetch all story issue keys for a specific project
 
@@ -553,19 +506,30 @@ class JiraService(JiraBaseService):
         Returns:
             List[str]: List of story issue keys
         """
-        connection, project = self.__get_connection_and_project(
-            connection_id, project_key
+        conn_proj = (
+            self.db.query(Connection, Project)
+            .join(Project)
+            .filter(
+                Connection.user_id == user_id,
+                Connection.name == connection_name,
+                Project.key == project_key,
+            )
+            .first()
         )
+        if not conn_proj:
+            raise ValueError("Connection or Project not found")
+
+        connection, project = conn_proj
 
         if local:
-
             stories = (
-                self.db.query(JiraStory)
-                .filter(JiraStory.jira_project_id == project.id)
+                self.db.query(Story)
+                .filter(Story.project_id == project.id)
+                .order_by(Story.key)
                 .all()
             )
             return [
-                StorySummary(id=story.id, key=story.key, summary=story.summary)
+                StorySummary(id=story.id_, key=story.key, summary=story.summary)
                 for story in stories
             ]
 
@@ -591,9 +555,8 @@ class JiraService(JiraBaseService):
         )
 
     def __on_stories_create(
-        self, connection: JiraConnection, project: JiraProject, story_keys: List[str]
+        self, connection: Connection, project: Project, story_keys: List[str]
     ):
-        print("Creating stories:", story_keys)
         try:
             to_vector: list[StoryDto] = []
 
@@ -605,12 +568,12 @@ class JiraService(JiraBaseService):
             )
 
             for story in stories:
-                jira_story = JiraStory(
-                    id=story.id,
+                jira_story = Story(
+                    id_=story.id,
                     key=story.key,
                     summary=story.summary,
                     description=story.description,
-                    jira_project_id=project.id,
+                    project_id=project.id,
                 )
                 self.db.add(jira_story)
 
@@ -642,17 +605,17 @@ class JiraService(JiraBaseService):
         )
 
     def __on_stories_update(
-        self, connection: JiraConnection, project: JiraProject, story_keys: List[str]
+        self, connection: Connection, project: Project, story_keys: List[str]
     ):
         print("Updating stories:", story_keys)
         try:
             stories = (
-                self.db.query(JiraStory)
-                .join(JiraProject)
+                self.db.query(Story)
+                .join(Project)
                 .filter(
-                    JiraProject.jira_connection_id == connection.id,
-                    JiraProject.key == project.key,
-                    JiraStory.key.in_(story_keys),
+                    Project.connection_id == connection.id,
+                    Project.key == project.key,
+                    Story.key.in_(story_keys),
                 )
                 .all()
             )
@@ -701,21 +664,18 @@ class JiraService(JiraBaseService):
         )
 
     def __on_stories_delete(
-        self, connection: JiraConnection, project: JiraProject, story_keys: List[str]
+        self, connection: Connection, project: Project, story_keys: List[str]
     ):
         print("Deleting stories:", story_keys)
         try:
             # Get the story from local DB
             stories = (
-                self.db.query(JiraStory)
-                .join(JiraProject)
+                self.db.query(Story)
+                .join(Project)
                 .filter(
-                    JiraProject.jira_connection_id == connection.id,
-                    JiraProject.key == project.key,
-                    or_(
-                        JiraStory.key.in_(story_keys),
-                        JiraStory.id.in_(story_keys),
-                    ),
+                    Project.connection_id == connection.id,
+                    Project.key == project.key,
+                    Story.key.in_(story_keys),
                 )
                 .all()
             )
@@ -723,7 +683,7 @@ class JiraService(JiraBaseService):
             ids_to_delete = []
             for story in stories:
                 self.db.delete(story)
-                ids_to_delete.append(story.id)
+                ids_to_delete.append(story.id_)
             self.db.commit()
 
             self.vector_store.remove_stories(
@@ -738,26 +698,43 @@ class JiraService(JiraBaseService):
             raise
 
     def delete_connection(self, user_id: str, connection_id: str):
-        jira_connection = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.id == connection_id)
-            .first()
-        )
-        if not jira_connection:
-            raise ValueError("Connection not found")
+        """
+        Delete a Jira connection and all associated data
 
-        if jira_connection.user_id != user_id:
-            raise PermissionError(
-                "User does not have permission to delete this connection"
-            )
-
-        self.db.delete(jira_connection)
-
+        Args:
+            user_id (str): The ID of the user owning the connection
+            connection_id (str): The ID of the Jira connection to delete
+        """
         connection = (
             self.db.query(Connection)
-            .filter(Connection.platform_connection_id == connection_id)
+            .filter(Connection.id == connection_id, Connection.user_id == user_id)
             .first()
         )
+        if not connection:
+            raise ValueError("Connection not found")
+
+        self.db.delete(connection)
+
+        # Query all stories and remove from vector store
+        projects_stories = (
+            self.db.query(Project.key, Story.id)
+            .join(Story, Story.project_id == Project.id)
+            .filter(Project.connection_id == connection.id)
+            .all()
+        )
+
+        proj_to_story_ids = {}
+        for project_key, story_id in projects_stories:
+            if project_key not in proj_to_story_ids:
+                proj_to_story_ids[project_key] = []
+            proj_to_story_ids[project_key].append(story_id)
+
+        for project_key, story_ids in proj_to_story_ids.items():
+            self.vector_store.remove_stories(
+                connection_id=connection.id,
+                project_key=project_key,
+                story_ids=story_ids,
+            )
 
         self.db.delete(connection)
 
@@ -797,8 +774,9 @@ class JiraService(JiraBaseService):
                     self._on_ac_create(
                         connection_id=connection_id,
                         project_key=project_key,
-                        story_id=payload.issue.fields.parent.id,
-                        ac_id=payload.issue.id,
+                        story_key=payload.issue.fields.parent.key,
+                        ac_id_=payload.issue.id,
+                        ac_key=payload.issue.key,
                         summary=payload.issue.fields.summary,
                         description=(
                             adf_to_md(payload.issue.fields.description)
@@ -810,8 +788,8 @@ class JiraService(JiraBaseService):
                     self._on_ac_update(
                         connection_id=connection_id,
                         project_key=project_key,
-                        story_id=payload.issue.fields.parent.id,
-                        ac_id=payload.issue.id,
+                        story_key=payload.issue.fields.parent.key,
+                        ac_key=payload.issue.key,
                         summary=payload.issue.fields.summary,
                         description=(
                             adf_to_md(payload.issue.fields.description)
@@ -823,15 +801,13 @@ class JiraService(JiraBaseService):
                     self._on_ac_delete(
                         connection_id=connection_id,
                         project_key=project_key,
-                        story_id=payload.issue.fields.parent.id,
-                        ac_id=payload.issue.id,
+                        story_key=payload.issue.fields.parent.key,
+                        ac_key=payload.issue.key,
                     )
 
     def get_webhooks(self, connection_id: str):
         connection = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.id == connection_id)
-            .first()
+            self.db.query(Connection).filter(Connection.id == connection_id).first()
         )
         if not connection:
             raise ValueError("Connection not found")
@@ -839,15 +815,13 @@ class JiraService(JiraBaseService):
         response = self._exec_refreshing_access_token(
             connection,
             JiraClient.get_webhooks,
-            cloud_id=connection.cloud_id,
+            cloud_id=connection.id_,
         )
         return response
 
     def delete_webhook(self, connection_id: str, webhook_id: str):
         connection = (
-            self.db.query(JiraConnection)
-            .filter(JiraConnection.id == connection_id)
-            .first()
+            self.db.query(Connection).filter(Connection.id == connection_id).first()
         )
         if not connection:
             raise ValueError("Connection not found")
@@ -855,7 +829,7 @@ class JiraService(JiraBaseService):
         self._exec_refreshing_access_token(
             connection,
             JiraClient.delete_webhooks,
-            cloud_id=connection.cloud_id,
+            cloud_id=connection.id_,
             webhook_ids=[webhook_id],
         )
 
@@ -863,17 +837,32 @@ class JiraService(JiraBaseService):
         self,
         connection_id: str,
         project_key: str,
-        story_id: str,
-        ac_id: str,
+        story_key: str,
+        ac_id_: str,
+        ac_key: str,
         summary: str,
         description: str,
     ):
         """Handle AC creation: save to local DB and vector store"""
+        story = (
+            self.db.query(Story)
+            .join(Project, Story.project_id == Project.id)
+            .join(Connection, Project.connection_id == Connection.id)
+            .filter(
+                Connection.id == connection_id,
+                Project.key == project_key,
+                Story.key == story_key,
+            )
+            .first()
+        )
+        if not story:
+            raise ValueError("Story not found")
         ac = GherkinAC(
-            id=ac_id,
+            id_=ac_id_,
+            key=ac_key,
             summary=summary,
             description=description,
-            jira_story_id=story_id,
+            story_id=story.id,
         )
         self.db.add(ac)
         self.db.commit()
@@ -882,19 +871,27 @@ class JiraService(JiraBaseService):
         self,
         connection_id: str,
         project_key: str,
-        story_id: str,
-        ac_id: str,
+        story_key: str,
+        ac_key: str,
         summary: str,
         description: str,
     ):
         """Handle AC creation: save to local DB and vector store"""
         ac = (
             self.db.query(GherkinAC)
+            .join(Story, GherkinAC.story_id == Story.id)
+            .join(Project, Story.project_id == Project.id)
+            .join(Connection, Project.connection_id == Connection.id)
             .filter(
-                GherkinAC.id == ac_id,
+                Connection.id == connection_id,
+                Project.key == project_key,
+                Story.key == story_key,
+                GherkinAC.key == ac_key,
             )
             .first()
         )
+        if not ac:
+            raise ValueError("AC not found")
 
         ac.summary = summary
         ac.description = description
@@ -904,23 +901,26 @@ class JiraService(JiraBaseService):
         self,
         connection_id: str,
         project_key: str,
-        story_id: str,
-        ac_id: str,
+        story_key: str,
+        ac_key: str,
     ):
         """Handle AC deletion: remove from local DB and vector store"""
         ac = (
             self.db.query(GherkinAC)
-            .join(JiraStory, GherkinAC.jira_story_id == JiraStory.id)
-            .join(JiraProject, JiraStory.jira_project_id == JiraProject.id)
-            .join(JiraConnection, JiraProject.jira_connection_id == JiraConnection.id)
+            .join(Story, GherkinAC.story_id == Story.id)
+            .join(Project, Story.project_id == Project.id)
+            .join(Connection, Project.connection_id == Connection.id)
             .filter(
-                JiraConnection.id == connection_id,
-                JiraProject.key == project_key,
-                JiraStory.id == story_id,
-                GherkinAC.id == ac_id,
+                Connection.id == connection_id,
+                Project.key == project_key,
+                Story.key == story_key,
+                GherkinAC.key == ac_key,
             )
             .first()
         )
+
+        if not ac:
+            raise ValueError("AC not found")
 
         self.db.delete(ac)
         self.db.commit()

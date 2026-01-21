@@ -89,6 +89,7 @@ export const JiraConnectionItem: React.FC<JiraConnectionItemProps> = ({
             color: theme.palette.error.main,
             width: "100%", // changed from maxWidth to width to fill available space
           }}
+          title={syncStatus}
         >
           <Typography
             variant="body2"
