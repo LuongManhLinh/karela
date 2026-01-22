@@ -8,6 +8,7 @@ import {
   useStoryProposalsQuery,
 } from "@/hooks/queries/useProposalQueries";
 import PageLayout from "../PageLayout";
+import { idID } from "@mui/material/locale";
 
 export interface ProposalLayoutProps {
   children?: React.ReactNode;
@@ -15,6 +16,7 @@ export interface ProposalLayoutProps {
   connectionName: string;
   projectKey: string;
   storyKey?: string;
+  idOrKey?: string;
 }
 
 const ProposalLayout: React.FC<ProposalLayoutProps> = ({
@@ -23,6 +25,7 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({
   connectionName,
   projectKey,
   storyKey,
+  idOrKey,
 }) => {
   const { data: sessionsData, isLoading: isSessionsLoading } =
     level === "project"
@@ -38,7 +41,7 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({
   );
 
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
-    null,
+    idOrKey || null,
   );
 
   const router = useRouter();
@@ -77,6 +80,9 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({
     <PageLayout
       level={level}
       href="proposals"
+      connectionName={connectionName}
+      projectKey={projectKey}
+      storyKey={storyKey}
       primarySessions={{
         sessions: analysisSessions,
         selectedSessionId: selectedSessionId,

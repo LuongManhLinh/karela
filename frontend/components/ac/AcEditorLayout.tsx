@@ -11,7 +11,6 @@ import {
   useACsByProjectQuery,
   useACsByStoryQuery,
 } from "@/hooks/queries/useACQueries";
-import { connectionService } from "@/services/connectionService";
 import PageLayout from "../PageLayout";
 import { acService } from "@/services/acService";
 
@@ -21,6 +20,7 @@ interface AcEditorLayoutProps {
   connectionName: string;
   projectKey: string;
   storyKey?: string; // Required if level is "story"
+  idOrKey?: string;
 }
 
 const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
@@ -29,8 +29,11 @@ const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
   connectionName,
   projectKey,
   storyKey,
+  idOrKey,
 }) => {
-  const [selectedACId, setSelectedACId] = useState<string | null>(null);
+  const [selectedACId, setSelectedACId] = useState<string | null>(
+    idOrKey || null,
+  );
 
   const {
     data: acsData,
@@ -87,6 +90,9 @@ const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
   return (
     <PageLayout
       level={level}
+      connectionName={connectionName}
+      projectKey={projectKey}
+      storyKey={storyKey}
       href="acs"
       primarySessions={{
         sessions: gherkinItems,

@@ -14,9 +14,6 @@ import {
 import { Info as InfoIcon, Try as TryIcon } from "@mui/icons-material";
 import { defineGherkinMode } from "@/utils/ace-gherkin-mode";
 import { defineCustomThemes } from "@/utils/ace-themes";
-import { acService } from "@/services/acService";
-import { AISuggestion } from "@/types/ac";
-import { lintGherkin } from "@/utils/gherkin-linter";
 import {
   getGherkinEditorTheme,
   setGherkinEditorTheme,
@@ -24,6 +21,8 @@ import {
 import { ACChatPopover } from "./AcChatPopover";
 import { scrollBarSx } from "@/constants/scrollBarSx";
 import { useWebSocketContext } from "@/providers/WebSocketProvider";
+import { LintError } from "@/utils/gherkinLinter";
+import { lintGherkinAction } from "@/app/actions";
 
 // Dynamic import of React Ace avoiding SSR issues
 const AceEditor = dynamic(
@@ -53,94 +52,155 @@ const AceEditor = dynamic(
 ) as any;
 
 interface GherkinEditorWrapperProps {
-  storyKey: string;
+  acId: string;
   initialValue: string;
   readOnly?: boolean;
   onSave?: (gherkin: string) => void;
   onSendFeedback?: (gherkin: string, feedback: string) => Promise<void>;
 }
 
+interface LintAnnotation {
+  row: number;
+  text: string;
+  type: "error" | "warning" | "info";
+}
+
+// Local type for our parsed suggestion
+interface ParsedSuggestion {
+  type: "CREATE" | "UPDATE" | "DELETE"; // Visual type
+  originalContent?: string;
+  newContent: string;
+  range?: {
+    start: { row: number; column: number };
+    end: { row: number; column: number };
+  };
+  explanation?: string; // Optional
+}
+
 const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
-  storyKey,
+  acId,
   initialValue,
   readOnly = false,
   onSave,
   onSendFeedback,
 }) => {
-  const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
-  const [annotations, setAnnotations] = useState<any[]>([]);
+  const [suggestion, setSuggestion] = useState<ParsedSuggestion | null>(null);
+  const [annotations, setAnnotations] = useState<LintAnnotation[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
   const [sendingFeedback, setSendingFeedback] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const chatButtonRef = useRef<HTMLButtonElement>(null);
-
-    // 2. Wrap lintContent in useCallback
   const { subscribe, unsubscribe, send } = useWebSocketContext();
-  
-  const handleSuggestionResponse = useCallback((response: any) => {
-      if (response && response.suggestions) {
-          setSuggestions(response.suggestions);
-      }
-  }, []);
 
-  useEffect(() => {
-     if (!storyKey) return;
-     const topic = `suggestions:${storyKey}`;
-     subscribe(topic, handleSuggestionResponse);
-     return () => unsubscribe(topic, handleSuggestionResponse);
-  }, [storyKey, subscribe, unsubscribe, handleSuggestionResponse]);
-
-  const fetchSuggestions = useCallback(
-    async (content: string, line: number, col: number) => {
-      // Send request via WebSocket
-      send({
-          action: "request_suggestion",
-          story_key: storyKey,
-          content: content,
-          cursor_line: line,
-          cursor_column: col,
-          request_id: Date.now().toString() // Optional correlation
-      });
-    },
-    [send, storyKey],
-  );
-
-  const clearSuggestions = useCallback(() => setSuggestions([]), []);
-
-  // 2. Wrap lintContent in useCallback
-  const lintContent = useCallback((content: string) => {
-    return;
-    const errors = lintGherkin(content);
-    const newAnnotations = errors.map((err: any) => ({
-      row: err.line - 1,
-      column: err.column || 0,
-      text: err.message,
-      type: "error",
-    }));
-
-    // Optional optimization: Compare lengths or content to avoid unnecessary re-renders
-    setAnnotations(newAnnotations);
-  }, []);
-
-  const [value, setValue] = useState(initialValue);
   const editorInstanceRef = useRef<any>(null);
+  const [value, setValue] = useState(initialValue);
+
   const [markers, setMarkers] = useState<any[]>([]);
-  const [activeSuggestion, setActiveSuggestion] = useState<AISuggestion | null>(
-    null,
-  );
   const [popupPos, setPopupPos] = useState<{
     top: number;
     left: number;
   } | null>(null);
   const [editorTheme, setEditorTheme] = useState(getGherkinEditorTheme());
-  const [aiSuggestionEnabled, setAiSuggestionEnabled] = useState(true);
+  const [aiSuggestionEnabled, setAiSuggestionEnabled] = useState(false);
 
-  // We need to track if a CREATE suggestion was just inserted to handle Dismiss
-  const insertedSuggestionRef = useRef<{ range: any; text: string } | null>(
-    null,
-  );
-  // Track if change is internal to avoid clearing suggestions on AI insertion
   const isInternalChangeRef = useRef(false);
+
+  const parseSuggestionRaw = (rawText: string): ParsedSuggestion | null => {
+    // 1. Check for SEARCH/REPLACE
+    if (rawText.includes("<<<<<<< SEARCH")) {
+      const searchMatch = rawText.match(
+        /<<<<<<< SEARCH\s*([\s\S]*?)\s*=======\s*([\s\S]*?)>>>>>>> REPLACE/,
+      );
+      if (searchMatch) {
+        const original = searchMatch[1]; // Keep newlines, but maybe trim edges if needed?
+        const replacement = searchMatch[2];
+
+        // Determine type
+        // If replacement is empty -> DELETE
+        // If original is empty -> CREATE (unlikely in this block, but possible)
+        // Else -> UPDATE
+        let type: "CREATE" | "UPDATE" | "DELETE" = "UPDATE";
+        if (!replacement.trim()) type = "DELETE";
+        else if (!original.trim()) type = "CREATE";
+
+        // Find range in editor?
+        // We'll do finding in useEffect when we set the suggestion.
+        return {
+          type,
+          originalContent: original,
+          newContent: replacement,
+          explanation: "Provided change via SEARCH/REPLACE format.",
+        };
+      }
+    }
+
+    // 2. Check for FIM
+    if (rawText.includes("<MID>")) {
+      // We expect: <PRE> ... <SUF> ... <MID> [Suggestion]
+      // Or just [Suggestion] if it forgot specific tags, but prompt said "Format 2".
+      const parts = rawText.split("<MID>");
+      if (parts.length >= 2) {
+        const suggestionText = parts[1]; // Take everything after <MID>
+        // Remove </MID> if AI hallucinated it
+        const cleanSuggestion = suggestionText.replace("</MID>", "");
+
+        return {
+          type: "CREATE",
+          newContent: cleanSuggestion,
+          explanation: "Suggested content to insert at cursor via FIM.",
+        };
+      }
+    }
+
+    return null;
+  };
+
+  const handleSuggestionResponse = useCallback((response: any) => {
+    console.log("AI suggestion response received:", response);
+    if (response) {
+      console.log("Received AI suggestion response:", response);
+      const parsed = parseSuggestionRaw(response);
+      console.log("Parsed suggestion:", parsed);
+      if (parsed) {
+        setSuggestion(parsed);
+      }
+    } else {
+      console.warn("Invalid AI suggestion response:", response);
+    }
+  }, []);
+
+  useEffect(() => {
+    const topic = `suggestions:${acId}`;
+    subscribe(topic, handleSuggestionResponse);
+    return () => unsubscribe(topic, handleSuggestionResponse);
+  }, [acId, subscribe, unsubscribe, handleSuggestionResponse]);
+
+  const fetchSuggestions = useCallback(
+    async (content: string, line: number, col: number) => {
+      send({
+        action: "request_suggestion",
+        ac_id: acId,
+        content: content,
+        cursor_line: line,
+        cursor_column: col,
+        request_id: Date.now().toString(),
+      });
+    },
+    [send, acId],
+  );
+
+  const clearSuggestions = useCallback(async () => setSuggestion(null), []);
+
+  const lintContent = useCallback(async (content: string) => {
+    const errors = await lintGherkinAction(content);
+    const newAnnotations: LintAnnotation[] = errors.map((err: LintError) => ({
+      row: err.line - 1,
+      text: err.message,
+      type: "error",
+    }));
+    setAnnotations(newAnnotations);
+  }, []);
 
   useEffect(() => {
     if (initialValue !== value) {
@@ -158,8 +218,6 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
 
   const handleChange = (newValue: string) => {
     setValue(newValue);
-
-    // Only dismiss if the change wasn't caused by accepting/inserting a suggestion
     if (!isInternalChangeRef.current) {
       clearSuggestions();
     }
@@ -174,42 +232,130 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
     });
   }, [value, initialValue]);
 
-  // Custom command handling
+  // Locate suggestion and create markers
   useEffect(() => {
-    if (editorInstanceRef.current && suggestions.length > 0) {
+    if (!suggestion || !editorInstanceRef.current) {
+      setMarkers([]);
+      setPopupPos(null);
+      return;
+    }
+
+    const editor = editorInstanceRef.current;
+    const session = editor.session;
+    const doc = session.getDocument();
+
+    let startRow = 0,
+      startCol = 0,
+      endRow = 0,
+      endCol = 0;
+
+    if (suggestion.type === "CREATE") {
+      // Input at cursor usually, for FIM
+      // Or if we have originalContent as empty (rare)
+      // For FIM we use cursor position
+      const cursor = editor.getCursorPosition();
+      startRow = cursor.row;
+      startCol = cursor.column;
+      endRow = cursor.row;
+      endCol = cursor.column;
+    } else {
+      // SEARCH/REPLACE - Find text
+      if (suggestion.originalContent) {
+        // Try to find the exact text
+        // We need to match newlines carefully.
+        // Ace's text might have different newlines (\r\n vs \n).
+        // We'll normalize? Ace `getValue()` return strings.
+        const text = editor.getValue();
+
+        // Normalize newlines for search?
+        // Ideally the AI returns exact copy from the file content provided.
+        // But indentation might be tricky.
+        // Simple indexOf first.
+        const idx = text.indexOf(suggestion.originalContent);
+
+        if (idx !== -1) {
+          // Found it. Convert index to Position.
+          const startPos = doc.indexToPosition(idx);
+          const endPos = doc.indexToPosition(
+            idx + suggestion.originalContent.length,
+          );
+          startRow = startPos.row;
+          startCol = startPos.column;
+          endRow = endPos.row;
+          endCol = endPos.column;
+
+          // Update suggestion range
+          setSuggestion((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  range: {
+                    start: { row: startRow, column: startCol },
+                    end: { row: endRow, column: endCol },
+                  },
+                }
+              : null,
+          );
+        } else {
+          console.warn(
+            "Could not find original content in editor:",
+            suggestion.originalContent,
+          );
+          // Fallback: don't show marker or show error?
+          return;
+        }
+      }
+    }
+
+    // Create Markers
+    const newMarkers: any[] = [];
+    const markerClass =
+      suggestion.type === "CREATE"
+        ? "marker-create"
+        : suggestion.type === "DELETE"
+          ? "marker-delete"
+          : "marker-update";
+
+    newMarkers.push({
+      startRow: startRow,
+      startCol: startCol,
+      endRow: endRow,
+      endCol: endCol,
+      className: markerClass,
+      type: "text",
+      inFront: false,
+    });
+
+    // Popup Position
+    const coords = editor.renderer.textToScreenCoordinates(startRow, startCol);
+    setPopupPos({ top: coords.pageY + 20, left: coords.pageX });
+    setMarkers(newMarkers);
+  }, [suggestion?.originalContent, suggestion?.newContent, suggestion?.type]); // Dependencies
+
+  // Custom commands
+  useEffect(() => {
+    if (editorInstanceRef.current && suggestion) {
       const editor = editorInstanceRef.current;
 
       const applySuggestion = () => {
-        isInternalChangeRef.current = true; // Mark as internal
-        const s = suggestions[0];
-        if (!s) return;
+        isInternalChangeRef.current = true;
 
-        if (s.type === "UPDATE") {
+        if (suggestion.type === "CREATE") {
+          // Insert at cursor
+          const cursor = editor.getCursorPosition();
+          editor.session.insert(cursor, suggestion.newContent);
+          // Update ref so we can dismiss/undo if needed (simple undo usually works via Ctrl+Z, but for Dismiss command...)
+          // Implementing "Dismiss" for inserted text is tricky effectively without Undo.
+          // We will rely on editor built-in undo for that?
+          // Or track it like before.
+        } else if (suggestion.range) {
+          // Update/Delete
+          // range is set in previous useEffect when finding text
           const range = {
-            start: {
-              row: s.position.start_row - 1,
-              column: s.position.start_column - 1,
-            },
-            end: {
-              row: s.position.end_row - 1,
-              column: s.position.end_column - 1,
-            },
+            start: suggestion.range.start,
+            end: suggestion.range.end,
           };
-          editor.session.replace(range, s.new_content);
-        } else if (s.type === "DELETE") {
-          const range = {
-            start: {
-              row: s.position.start_row - 1,
-              column: s.position.start_column - 1,
-            },
-            end: {
-              row: s.position.end_row - 1,
-              column: s.position.end_column - 1,
-            },
-          };
-          editor.session.replace(range, "");
-        } else if (s.type === "CREATE") {
-          insertedSuggestionRef.current = null;
+          editor.session.replace(range, suggestion.newContent);
         }
 
         clearSuggestions();
@@ -218,49 +364,11 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
       };
 
       const dismissSuggestion = () => {
-        const s = suggestions[0];
-        if (!s) return;
-
-        if (s.type === "CREATE" && insertedSuggestionRef.current) {
-          isInternalChangeRef.current = true;
-          const range = {
-            start: {
-              row: s.position.start_row - 1,
-              column: s.position.start_column - 1,
-            },
-            end: {
-              row: s.position.end_row - 1,
-              column: s.position.end_column - 1,
-            },
-          };
-          if (insertedSuggestionRef.current.range) {
-            editor.session.replace(namespacedRange(s), "");
-          }
-        }
-
+        // Just clear
         clearSuggestions();
-        insertedSuggestionRef.current = null;
         setMarkers([]);
         setPopupPos(null);
       };
-
-      const namespacedRange = (s: any) => ({
-        start: {
-          row: s.position.start_row - 1,
-          column: s.position.start_column - 1,
-        },
-        end: { row: s.position.end_row - 1, column: s.position.end_column - 1 },
-      });
-
-      editor.commands.addCommand({
-        name: "saveDocument",
-        bindKey: { win: "Ctrl-Shift-S", mac: "Command-Shift-S" },
-        exec: () => {
-          if (onSave) onSave(value);
-          return true;
-        },
-        readOnly: false,
-      });
 
       editor.commands.addCommand({
         name: "applySuggestion",
@@ -281,100 +389,20 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
         },
         readOnly: false,
       });
+
+      return () => {
+        editor.commands.removeCommand("applySuggestion");
+        editor.commands.removeCommand("dismissSuggestion");
+      };
     }
-  }, [suggestions, clearSuggestions]);
-
-  // Process Suggestions & Visuals
-  useEffect(() => {
-    if (!suggestions || suggestions.length === 0) {
-      setMarkers([]);
-      setPopupPos(null);
-      setActiveSuggestion(null);
-      return;
-    }
-
-    const s = suggestions[0];
-    if (!s) return;
-    setActiveSuggestion(s);
-
-    const newMarkers: any[] = [];
-
-    if (s.type === "CREATE") {
-      if (!insertedSuggestionRef.current) {
-        if (editorInstanceRef.current) {
-          isInternalChangeRef.current = true; // Prevents clearing on insertion
-          const editor = editorInstanceRef.current;
-          const doc = editor.getSession().getDocument();
-          const pos = {
-            row: s.position.start_row - 1,
-            column: s.position.start_column - 1,
-          };
-          doc.insert(pos, s.new_content);
-
-          const lines = s.new_content.split("\n");
-          const endRow = pos.row + lines.length - 1;
-          const endCol =
-            (lines.length === 1 ? pos.column : 0) +
-            lines[lines.length - 1].length;
-
-          insertedSuggestionRef.current = {
-            text: s.new_content,
-            range: { start: pos, end: { row: endRow, column: endCol } },
-          };
-        }
-      }
-      newMarkers.push({
-        startRow: s.position.start_row - 1,
-        startCol: s.position.start_column - 1,
-        endRow: s.position.end_row - 1,
-        endCol: s.position.end_column - 1 + s.new_content.length,
-        className: "marker-create",
-        type: "text",
-        inFront: false,
-      });
-    } else if (s.type === "UPDATE") {
-      newMarkers.push({
-        startRow: s.position.start_row - 1,
-        startCol: s.position.start_column - 1,
-        endRow: s.position.end_row - 1,
-        endCol: s.position.end_column - 1,
-        className: "marker-update",
-        type: "text",
-        inFront: false,
-      });
-    } else if (s.type === "DELETE") {
-      newMarkers.push({
-        startRow: s.position.start_row - 1,
-        startCol: s.position.start_column - 1,
-        endRow: s.position.end_row - 1,
-        endCol: s.position.end_column - 1,
-        className: "marker-delete",
-        type: "text",
-        inFront: false,
-      });
-    }
-
-    if (editorInstanceRef.current) {
-      const editor = editorInstanceRef.current;
-      const coords = editor.renderer.textToScreenCoordinates(
-        s.position.start_row - 1,
-        s.position.start_column - 1,
-      );
-      setPopupPos({ top: coords.pageY + 20, left: coords.pageX });
-    }
-
-    setMarkers(newMarkers);
-  }, [suggestions]);
+  }, [suggestion, clearSuggestions]);
 
   // AI Trigger
-  // 3. Update the AI Trigger Effect
   useEffect(() => {
     const handler = setTimeout(() => {
       if (aiSuggestionEnabled && editorInstanceRef.current) {
         const editor = editorInstanceRef.current;
-
-        // Ensure we don't fetch if suggestions already exist
-        if (editor && editor.getCursorPosition && suggestions.length === 0) {
+        if (editor && editor.getCursorPosition && !suggestion) {
           const cursor = editor.getCursorPosition();
           if (value.trim().length > 0) {
             fetchSuggestions(value, cursor.row + 1, cursor.column + 1);
@@ -382,14 +410,11 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
         }
       }
     }, 1500);
-
     return () => clearTimeout(handler);
-
-    // Add aiSuggestionEnabled to dependencies to avoid stale closures
-  }, [value, fetchSuggestions, suggestions.length, aiSuggestionEnabled]);
+  }, [value, aiSuggestionEnabled, fetchSuggestions, suggestion]); // Removed suggestions.length
 
   const handleToggleAISuggestions = (checked: boolean) => {
-    if (!changed) {
+    if (!checked) {
       clearSuggestions();
     }
     setAiSuggestionEnabled(checked);
@@ -408,16 +433,25 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
     if (editorInstanceRef.current && onSendFeedback) {
       try {
         setSendingFeedback(true);
-        const editor = editorInstanceRef.current;
-        const gherkinContent = editor.getValue();
-
-        await onSendFeedback(gherkinContent, feedback);
-
+        await onSendFeedback(value, feedback);
         setChatOpen(false);
       } catch (error) {
         console.error("Error sending feedback:", error);
       } finally {
         setSendingFeedback(false);
+      }
+    }
+  };
+
+  const handleSave = async () => {
+    if (editorInstanceRef.current && onSave) {
+      try {
+        setSaving(true);
+        await onSave(value);
+      } catch (error) {
+        console.error("Error sending feedback:", error);
+      } finally {
+        setSaving(false);
       }
     }
   };
@@ -452,9 +486,8 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
         <Button
           variant="outlined"
           size="small"
-          onClick={() => {
-            if (onSave) onSave(value);
-          }}
+          onClick={handleSave}
+          startIcon={saving ? <CircularProgress size={14} /> : null}
         >
           Save{changed.current ? "*" : ""}
         </Button>
@@ -485,20 +518,20 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
           <Typography variant="body2" sx={{ fontWeight: "bold" }}>
             Errors:
           </Typography>
-          <Box
-            sx={{
-              bgcolor: annotations.length > 0 ? "error.main" : "success.main",
-              color: "white",
-              borderRadius: "12px",
-              px: 1,
-              fontSize: "0.75rem",
-              fontWeight: "bold",
-              minWidth: "24px",
-              textAlign: "center",
-            }}
+          <Tooltip
+            title={annotations.map((a) => a.text).join("\n") || "No errors"}
           >
-            {annotations.length}
-          </Box>
+            <Box
+              sx={{
+                bgcolor: annotations.length > 0 ? "error.main" : "success.main",
+                color: "white",
+                borderRadius: 12,
+                px: 1,
+              }}
+            >
+              {annotations.length}
+            </Box>
+          </Tooltip>
         </Box>
 
         <Box display="flex" alignItems="center">
@@ -582,7 +615,7 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
           }}
         />
 
-        {activeSuggestion && popupPos && (
+        {suggestion && popupPos && (
           <Paper
             elevation={4}
             sx={{
@@ -596,36 +629,47 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
               borderLeftWidth: 4,
               borderLeftStyle: "solid",
               borderLeftColor:
-                activeSuggestion.type === "CREATE"
+                suggestion.type === "CREATE"
                   ? "success.main"
-                  : activeSuggestion.type === "DELETE"
+                  : suggestion.type === "DELETE"
                     ? "error.main"
                     : "warning.main",
               color: "text.primary",
               borderRadius: "0 4px 4px 4px",
             }}
           >
-            {activeSuggestion.type === "UPDATE" && (
+            {(suggestion.type === "UPDATE" || suggestion.type === "CREATE") && (
               <Typography
                 variant="body1"
+                fontWeight="bold"
+                sx={{
+                  fontFamily: "monospace",
+                  whiteSpace: "pre-wrap",
+                  color: "#000",
+                  mb: 1,
+                }}
+              >
+                {suggestion.newContent}
+              </Typography>
+            )}
+            {suggestion.explanation && (
+              <Typography
+                variant="body2"
                 sx={{
                   fontFamily: "monospace",
                   whiteSpace: "pre-wrap",
                   color: "#000",
                 }}
               >
-                {activeSuggestion.new_content}
+                Reason: {suggestion.explanation}
               </Typography>
             )}
             <Typography
-              variant="body2"
-              sx={{
-                fontFamily: "monospace",
-                whiteSpace: "pre-wrap",
-                color: "#000",
-              }}
+              variant="caption"
+              display="block"
+              sx={{ mt: 1, fontStyle: "italic" }}
             >
-              Reason: {activeSuggestion.explanation}
+              Tab to apply, Shift+Tab to dismiss
             </Typography>
           </Paper>
         )}
@@ -633,6 +677,7 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
 
       <ACChatPopover
         open={chatOpen}
+        sending={sendingFeedback}
         anchorEl={chatButtonRef.current}
         onClose={() => setChatOpen(false)}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}

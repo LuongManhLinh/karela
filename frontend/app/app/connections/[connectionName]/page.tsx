@@ -1,18 +1,18 @@
 "use client";
-import { useEffect } from "react";
-import { useWorkspaceStore } from "@/store/useWorkspaceStore";
+import { useEffect, useMemo } from "react";
 import { CircularProgress } from "@mui/material";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 const ConnectionIdPage = () => {
-  const { selectedConnection } = useWorkspaceStore();
+  const params = useParams();
+  const connectionName = useMemo(() => {
+    return params.connectionName as string;
+  }, [params]);
   const router = useRouter();
 
   useEffect(() => {
-    if (selectedConnection) {
-      router.replace(`/app/connections/${selectedConnection.name}/projects`);
-    }
-  }, [selectedConnection, router]);
+    router.replace(`/app/connections/${connectionName}/projects`);
+  }, [connectionName, router]);
 
   return <CircularProgress />;
 };

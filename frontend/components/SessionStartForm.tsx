@@ -275,7 +275,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
           )}
         />
       )}
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
         {primaryAction && (
           <Button
             type="submit"

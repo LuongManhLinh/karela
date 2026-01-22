@@ -45,7 +45,7 @@ app.add_middleware(
 app.include_router(analysis_router, prefix="/analyses")
 app.include_router(jira_router, prefix="/integrations/jira")
 app.include_router(connection_router, prefix="/connections")
-app.include_router(ac_router, prefix="/ac")
+app.include_router(ac_router, prefix="/acs")
 app.include_router(chat_router, prefix="/chat")
 app.include_router(proposal_router, prefix="/proposals")
 app.include_router(websocket_router, prefix="/ws")

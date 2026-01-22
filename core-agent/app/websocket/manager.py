@@ -55,7 +55,6 @@ class WebSocketManager:
                 # Use async iterator for listening
                 await self.pubsub.subscribe("heartbeat")
                 async for message in self.pubsub.listen():
-                    print(f"DEBUG: Redis listener received: {message}")
                     if message["type"] == "message":
                         await self.broadcast(message["channel"], message["data"])
             except Exception as e:

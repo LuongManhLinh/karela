@@ -5,15 +5,11 @@ export const AC_KEYS = {
   all: ["ac"] as const,
   storyAcs: (connectionId: string, projectKey: string, storyKey: string) =>
     [...AC_KEYS.all, "acs", connectionId, projectKey, storyKey] as const,
-  ac: (
-    connectionId: string,
-    projectKey: string,
-    storyKey: string,
-    acId: string,
-  ) =>
-    [...AC_KEYS.all, "ac", connectionId, projectKey, storyKey, acId] as const,
+  ac: (connectionId: string, projectKey: string, acId: string) =>
+    [...AC_KEYS.all, "ac", connectionId, projectKey, acId] as const,
   projectACs: (connectionId: string, projectKey: string) =>
     [...AC_KEYS.all, "projectACs", connectionId, projectKey] as const,
+  story: (acId: string) => [...AC_KEYS.all, "story", acId] as const,
 };
 
 export const useACsByStoryQuery = (
@@ -37,19 +33,16 @@ export const useACsByStoryQuery = (
 export const useACQuery = (
   connectionName: string | undefined,
   projectKey: string | undefined,
-  storyKey: string | undefined,
-  acKey: string | undefined,
+  acIdOrKey: string | undefined,
 ) => {
   return useQuery({
     queryKey: AC_KEYS.ac(
       connectionName || "",
       projectKey || "",
-      storyKey || "",
-      acKey || "",
+      acIdOrKey || "",
     ),
-    queryFn: () =>
-      acService.getAC(connectionName!, projectKey!, storyKey!, acKey!),
-    enabled: !!connectionName && !!projectKey && !!storyKey && !!acKey,
+    queryFn: () => acService.getAC(connectionName!, projectKey!, acIdOrKey!),
+    enabled: !!connectionName && !!projectKey && !!acIdOrKey,
     staleTime: 60 * 1000, // 1 minute
   });
 };
@@ -63,5 +56,13 @@ export const useACsByProjectQuery = (
     queryFn: () => acService.listACsByProject(connectionName!, projectKey!),
     enabled: !!connectionName && !!projectKey,
     staleTime: 60 * 1000, // 1 minute
+  });
+};
+
+export const useStoryByACQuery = (acId: string | undefined) => {
+  return useQuery({
+    queryKey: AC_KEYS.story(acId || ""),
+    queryFn: () => acService.getStoryByAC(acId!),
+    enabled: !!acId,
   });
 };

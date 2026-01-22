@@ -162,7 +162,9 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   return (
-    <WebSocketContext.Provider value={{ isConnected, subscribe, unsubscribe, send }}>
+    <WebSocketContext.Provider
+      value={{ isConnected, subscribe, unsubscribe, send }}
+    >
       {children}
     </WebSocketContext.Provider>
   );

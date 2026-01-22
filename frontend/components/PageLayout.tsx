@@ -17,6 +17,9 @@ import { connectionService } from "@/services/connectionService";
 export interface PageLayoutProps {
   children: React.ReactNode;
   level: "project" | "story";
+  connectionName: string;
+  projectKey: string;
+  storyKey?: string;
   href: string;
   primarySessions: WorkspaceSessions;
   secondarySessions?: WorkspaceSessions;
@@ -44,6 +47,9 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   children,
   level,
   href,
+  connectionName,
+  projectKey,
+  storyKey,
   primarySessions,
   secondarySessions,
   disablePrimaryAutoRoute,
@@ -86,8 +92,8 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   const basePath = useMemo(
     () =>
       level === "project"
-        ? `/app/connections/${selectedConnection?.name}/projects/${selectedProject?.key}`
-        : `/app/connections/${selectedConnection?.name}/projects/${selectedProject?.key}/stories/${selectedStory?.key}`,
+        ? `/app/connections/${connectionName}/projects/${projectKey}`
+        : `/app/connections/${connectionName}/projects/${projectKey}/stories/${storyKey}`,
     [level, selectedConnection, selectedProject, selectedStory],
   );
 

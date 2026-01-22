@@ -98,7 +98,7 @@ class AnalysisRunService:
 
     def _fetch_stories(self, connection_id: str, project_key: str):
         return self.jira_service.fetch_stories(
-            connection_id=connection_id, project_key=project_key
+            connection_name=connection_id, project_key=project_key
         )
 
     def _count_defects(self, connection_id: str, project_key: str) -> int:

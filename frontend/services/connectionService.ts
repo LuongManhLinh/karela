@@ -45,12 +45,12 @@ export const connectionService = {
   },
 
   getStory: async (
-    connId: string,
+    connectionName: string,
     projectKey: string,
     storyKey: string,
   ): Promise<BasicResponse<StoryDto>> => {
     const response = await apiClient.get<BasicResponse<StoryDto>>(
-      `/connections/${connId}/projects/${projectKey}/stories/${storyKey}`,
+      `/connections/${connectionName}/projects/${projectKey}/stories/${storyKey}`,
     );
     return response.data;
   },
@@ -65,21 +65,22 @@ export const connectionService = {
   },
 
   getProjectDashboardInfo: async (
-    connectionId: string,
+    connectionName: string,
     projectKey: string,
   ): Promise<BasicResponse<ProjectDashboardDto>> => {
     const response = await apiClient.get<BasicResponse<ProjectDashboardDto>>(
-      `/connections/${connectionId}/projects/${projectKey}/dashboard`,
+      `/connections/${connectionName}/projects/${projectKey}/dashboard`,
     );
     return response.data;
   },
+
   getStoryDashboardInfo: async (
-    connectionId: string,
+    connectionName: string,
     projectKey: string,
     storyKey: string,
   ): Promise<BasicResponse<StoryDashboardDto>> => {
     const response = await apiClient.get<BasicResponse<StoryDashboardDto>>(
-      `/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}/dashboard`,
+      `/connections/${connectionName}/projects/${projectKey}/stories/${storyKey}/dashboard`,
     );
     return response.data;
   },

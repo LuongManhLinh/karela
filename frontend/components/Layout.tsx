@@ -3,6 +3,7 @@
 import React from "react";
 import { Box, Paper } from "@mui/material";
 import { MyAppBar } from "./MyAppBar";
+import { scrollBarSx } from "@/constants/scrollBarSx";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -49,7 +50,14 @@ export const DoubleLayout: React.FC<DoubleLayoutProps> = ({
   basePath,
 }) => {
   return (
-    <Box sx={{ display: "flex", flexDirection: "row", minHeight: "100vh" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "row",
+        minHeight: "100vh",
+        ...scrollBarSx,
+      }}
+    >
       <Paper
         elevation={2}
         sx={{

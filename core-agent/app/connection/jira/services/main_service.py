@@ -102,15 +102,12 @@ class JiraService(JiraBaseService):
 
         return connection, project
 
-    def get_connection_sync_status(
-        self, user_id: str, connection_id_or_name: str
-    ) -> str:
+    def get_connection_sync_status(self, user_id: str, connection_id: str) -> str:
         connection = (
             self.db.query(Connection)
             .filter(
                 Connection.user_id == user_id,
-                (Connection.id == connection_id_or_name)
-                | (Connection.name == connection_id_or_name),
+                Connection.id == connection_id,
             )
             .first()
         )
@@ -200,7 +197,8 @@ class JiraService(JiraBaseService):
 
     def fetch_stories(
         self,
-        connection_id: str,
+        user_id: str,
+        connection_name: str,
         project_key: str,
         story_keys: List[str] | None = None,
         max_results: int | None = None,
@@ -209,6 +207,7 @@ class JiraService(JiraBaseService):
         """Fetch story issues from local cache or Jira for a specific project
 
         Args:
+            user_id (str): The ID of the user owning the connection
             connection_id (str): Jira connection ID
             project_key (str): The project key to fetch stories from
             story_keys (List[str], optional): Specific issue keys to fetch. Defaults to None.
@@ -218,17 +217,16 @@ class JiraService(JiraBaseService):
             List[StoryDto]: List of fetched story issues
         """
         if local:
-            project = (
-                self.db.query(Project)
+            query = (
+                self.db.query(Story)
+                .join(Project)
+                .join(Connection)
                 .filter(
-                    Project.connection_id == connection_id,
+                    Connection.user_id == user_id,
+                    Connection.name == connection_name,
                     Project.key == project_key,
                 )
-                .first()
             )
-
-            # Get stories
-            query = self.db.query(Story).filter(Story.project_id == project.id)
 
             if story_keys:
                 query = query.filter(Story.key.in_(story_keys))
@@ -250,7 +248,7 @@ class JiraService(JiraBaseService):
 
         # Fetch from Jira
         issues = self.fetch_issues(
-            connection_id=connection_id,
+            connection_id=connection_name,
             jql=f'project = "{project_key}" AND issuetype = Story'
             + (f' AND key IN ({", ".join(story_keys)})' if story_keys else ""),
             fields=["summary", "description", "priority"],
@@ -536,7 +534,7 @@ class JiraService(JiraBaseService):
         return [
             StorySummary(id=dto.id, key=dto.key, summary=dto.summary)
             for dto in self.fetch_stories(
-                connection_id=connection.id,
+                connection_name=connection.id,
                 project_key=project_key,
                 local=False,
             )
@@ -561,7 +559,7 @@ class JiraService(JiraBaseService):
             to_vector: list[StoryDto] = []
 
             stories = self.fetch_stories(
-                connection_id=connection.id,
+                connection_name=connection.id,
                 project_key=project.key,
                 story_keys=story_keys,
                 local=False,
@@ -625,7 +623,7 @@ class JiraService(JiraBaseService):
             to_vector: list[StoryDto] = []
 
             fetched_stories = self.fetch_stories(
-                connection_id=connection.id,
+                connection_name=connection.id,
                 project_key=project.key,
                 story_keys=[story.key for story in stories],
                 local=False,

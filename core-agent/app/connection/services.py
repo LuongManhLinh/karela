@@ -14,14 +14,15 @@ class DashboardService:
         self.db = db
 
     def get_project_dashboard_info(
-        self, connection_id: str, project_key: str
+        self, user_id: str, connection_name: str, project_key: str
     ) -> ProjectDashboardDto:
         # Check project exists
         project = (
             self.db.query(Project)
             .join(Connection)
             .filter(
-                Connection.id == connection_id,
+                Connection.user_id == user_id,
+                Connection.name == connection_name,
                 Project.key == project_key,
             )
             .first()
@@ -41,7 +42,7 @@ class DashboardService:
         num_analyses = (
             self.db.query(func.count(Analysis.id))
             .filter(
-                Analysis.connection_id == connection_id,
+                Analysis.connection_id == connection_name,
                 Analysis.project_key == project_key,
             )
             .scalar()
@@ -51,7 +52,7 @@ class DashboardService:
         num_chats = (
             self.db.query(func.count(ChatSession.id))
             .filter(
-                ChatSession.connection_id == connection_id,
+                ChatSession.connection_id == connection_name,
                 ChatSession.project_key == project_key,
             )
             .scalar()
@@ -61,7 +62,7 @@ class DashboardService:
         num_proposals = (
             self.db.query(func.count(Proposal.id))
             .filter(
-                Proposal.connection_id == connection_id,
+                Proposal.connection_id == connection_name,
                 Proposal.project_key == project_key,
             )
             .scalar()
@@ -81,7 +82,7 @@ class DashboardService:
             .join(Defect)
             .join(Analysis)
             .where(
-                Analysis.connection_id == connection_id,
+                Analysis.connection_id == connection_name,
                 Analysis.project_key == project_key,
             )
             .subquery()
@@ -100,7 +101,7 @@ class DashboardService:
         stories_with_chats_subq = (
             select(distinct(ChatSession.story_key))
             .where(
-                ChatSession.connection_id == connection_id,
+                ChatSession.connection_id == connection_name,
                 ChatSession.project_key == project_key,
                 ChatSession.story_key.isnot(None),
             )
@@ -121,7 +122,7 @@ class DashboardService:
             select(distinct(ProposalContent.story_key))
             .join(Proposal)
             .where(
-                Proposal.connection_id == connection_id,
+                Proposal.connection_id == connection_name,
                 Proposal.project_key == project_key,
                 ProposalContent.story_key.isnot(None),
             )
@@ -174,7 +175,7 @@ class DashboardService:
         )
 
     def get_story_dashboard_info(
-        self, connection_id: str, project_key: str, story_key: str
+        self, user_id: str, connection_name: str, project_key: str, story_key: str
     ) -> StoryDashboardDto:
         # Verify the story exists
         story = (
@@ -182,7 +183,8 @@ class DashboardService:
             .join(Project)
             .join(Connection)
             .filter(
-                Connection.id == connection_id,
+                Connection.user_id == user_id,
+                Connection.name == connection_name,
                 Project.key == project_key,
                 Story.key == story_key,
             )
@@ -198,7 +200,7 @@ class DashboardService:
             .join(Defect)
             .join(DefectStoryKey)
             .filter(
-                Analysis.connection_id == connection_id,
+                Analysis.connection_id == connection_name,
                 Analysis.project_key == project_key,
                 DefectStoryKey.key == story_key,
             )
@@ -209,7 +211,7 @@ class DashboardService:
         num_chats = (
             self.db.query(func.count(ChatSession.id))
             .filter(
-                ChatSession.connection_id == connection_id,
+                ChatSession.connection_id == connection_name,
                 ChatSession.project_key == project_key,
                 ChatSession.story_key == story_key,
             )
@@ -221,7 +223,7 @@ class DashboardService:
             self.db.query(func.count(distinct(Proposal.id)))
             .join(ProposalContent)
             .filter(
-                Proposal.connection_id == connection_id,
+                Proposal.connection_id == connection_name,
                 Proposal.project_key == project_key,
                 ProposalContent.story_key == story_key,
             )

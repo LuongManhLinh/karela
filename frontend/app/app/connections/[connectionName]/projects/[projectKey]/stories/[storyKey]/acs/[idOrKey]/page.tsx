@@ -1,27 +1,27 @@
-import ProposalLayout from "@/components/proposals/ProposalLayout";
+"use client";
+
 import { useParams } from "next/navigation";
+import AcEditorItemPage from "@/components/ac/AcEditorItemPage";
 import { useMemo } from "react";
 
-const SLProposalLayout = () => {
+export default function StoryLevelACItemPage() {
   const params = useParams();
-  const { connectionName, projectKey, storyKey, idOrKey } = useMemo(
-    () => ({
+
+  const { connectionName, projectKey, storyKey, idOrKey } = useMemo(() => {
+    return {
       connectionName: params.connectionName as string,
       projectKey: params.projectKey as string,
       storyKey: params.storyKey as string,
-      idOrKey: (params.idOrKey as string) || undefined,
-    }),
-    [params],
-  );
+      idOrKey: params.idOrKey as string,
+    };
+  }, [params]);
+
   return (
-    <ProposalLayout
-      level="story"
+    <AcEditorItemPage
       connectionName={connectionName}
       projectKey={projectKey}
       storyKey={storyKey}
       idOrKey={idOrKey}
     />
   );
-};
-
-export default SLProposalLayout;
+}

@@ -1,15 +1,7 @@
 "use client";
 
-import React from "react";
-import {
-  Box,
-  Container,
-  Paper,
-  Typography,
-  Grid,
-  useTheme,
-  Stack,
-} from "@mui/material";
+import React, { useMemo } from "react";
+import { Box, Container, Paper, Typography, Grid, Stack } from "@mui/material";
 import {
   Analytics,
   Assistant,
@@ -17,7 +9,7 @@ import {
   Code,
   MenuBook,
 } from "@mui/icons-material";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import { Layout } from "@/components/Layout";
 import { SessionStartForm } from "@/components/SessionStartForm";
@@ -27,18 +19,20 @@ import { StoryListSection } from "@/components/dashboard/StoryListSection";
 import { useProjectDashboardQuery } from "@/hooks/queries/useDashboardQueries";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import type {
-  ProjectDashboardDto,
   ConnectionDto,
   ProjectDto,
   StorySummary,
 } from "@/types/connection";
 
-interface ProjectDashboardProps {
-  dto?: ProjectDashboardDto;
-}
-
-const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ dto }) => {
-  const theme = useTheme();
+const ProjectDashboard: React.FC = () => {
+  const params = useParams();
+  const { connectionName, projectKey, basePath } = useMemo(() => {
+    return {
+      connectionName: params.connectionName as string,
+      projectKey: params.projectKey as string,
+      basePath: `/app/connections/${params.connectionName}/projects/${params.projectKey}`,
+    };
+  }, [params]);
   const router = useRouter();
 
   const {
@@ -52,38 +46,36 @@ const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ dto }) => {
   } = useWorkspaceStore();
 
   const { data: dashboardData, isLoading } = useProjectDashboardQuery(
-    selectedConnection?.id,
-    selectedProject?.key,
+    connectionName,
+    projectKey,
   );
 
-  const dashboard = dto || dashboardData?.data;
+  const dashboard = useMemo(() => dashboardData?.data || null, [dashboardData]);
 
-  const basePath = `/app/connections/${selectedConnection?.name}/projects/${selectedProject?.key}`;
-
-  const handleConnectionChange = (conn: ConnectionDto | null) => {
+  const handleConnectionChange = async (conn: ConnectionDto | null) => {
     setSelectedConnection(conn);
     setSelectedProject(null);
   };
 
-  const handleProjectChange = (proj: ProjectDto | null) => {
+  const handleProjectChange = async (proj: ProjectDto | null) => {
     setSelectedProject(proj);
-    if (proj && selectedConnection) {
-      router.push(
-        `/app/connections/${selectedConnection.name}/projects/${proj.key}`,
-      );
-    }
   };
 
-  const handleStoryClick = (story: StorySummary) => {
-    setSelectedStory(story);
+  const handleFilter = async () => {
     if (selectedConnection && selectedProject) {
       router.push(
-        `/app/connections/${selectedConnection.name}/projects/${selectedProject.key}/stories/${story.key}`,
+        `/app/connections/${selectedConnection.name}/projects/${selectedProject.key}`,
       );
     }
   };
+  const handleStoryClick = async (story: StorySummary) => {
+    setSelectedStory(story);
+    if (selectedConnection && selectedProject) {
+      router.push(`${basePath}/stories/${story.key}`);
+    }
+  };
 
-  const handleNavigate = (path: string) => {
+  const handleNavigate = async (path: string) => {
     router.push(`${basePath}/${path}`);
   };
 
@@ -160,6 +152,10 @@ const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ dto }) => {
               options: projects,
               selectedOption: selectedProject,
               onChange: handleProjectChange,
+            }}
+            primaryAction={{
+              label: "Filter",
+              onClick: handleFilter,
             }}
           />
         </Paper>

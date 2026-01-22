@@ -1,10 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, or_
-from typing import List, Optional
-import tempfile
-import os
-import subprocess
-import json
+from typing import Optional
 
 from common.database import uuid_generator
 
@@ -21,12 +17,41 @@ from .agents import generate_ac_from_story
 from app.connection.jira.models import Story, Project, Connection
 from app.connection.jira.services import JiraService
 from app.connection.jira.services.base_service import AC_ISSUE_TYPE_NAME
-from app.connection.jira.schemas import IssueUpdate
+from app.connection.jira.schemas import IssueUpdate, StoryDto
 from common.configs import GeminiConfig
 from utils.markdown_adf_bridge import md_to_adf
 
 from llm.dynamic_agent import GenimiDynamicAgent
 from langchain_core.messages import SystemMessage, HumanMessage
+
+system_prompt = """You are an expert Gherkin developer. Your goal is to provide suggestions to complete or improve the Gherkin feature file for a User Story.
+
+You MUST output your suggestion in ONE of the following two formats:
+
+Format 1: Search & Replace (Best for refactoring, fixing bugs, or rewriting blocks)
+<<<<<<< SEARCH
+[Exact copy of the code to find in the file]
+=======
+[The new code to write in its place]
+>>>>>>> REPLACE
+
+Format 2: Fill-In-The-Middle (Best for completions at the cursor)
+<PRE> [Code Before Cursor] <SUF> [Code After Cursor] <MID>
+
+(Note for Format 2: You must construct the PRE and SUF based on the cursor position context provided, and put your suggestion after <MID>. Do not close with </MID>).
+
+RULES:
+- Choose the most appropriate format. 
+- Ensure valid Gherkin syntax.
+- Return ONLY the suggestion in one of these formats. 
+- Do not add markdown backticks around the block unless it's part of the code."""
+
+suggestion_agent = GenimiDynamicAgent(
+    system_prompt=system_prompt,
+    model_name=GeminiConfig.GEMINI_API_CHAT_MODEL,
+    temperature=0.2,
+    api_keys=GeminiConfig.GEMINI_API_KEYS,
+)
 
 
 class ACService:
@@ -37,8 +62,8 @@ class ACService:
     def _get_ac(self, connection_id: str, project_key: str, story_key: str, ac_id: str):
         return (
             self.db.query(GherkinAC)
-            .join(Story, GherkinAC.story_id == Story.id_)
-            .join(Project, Story.project_id == Project.id_)
+            .join(Story, GherkinAC.story_id == Story.id)
+            .join(Project, Story.project_id == Project.id)
             .join(Connection, Project.connection_id == Connection.id)
             .filter(
                 Connection.id == connection_id,
@@ -54,8 +79,8 @@ class ACService:
     ):
         acs = (
             self.db.query(GherkinAC, Story.key)
-            .join(Story, GherkinAC.story_id == Story.id_)
-            .join(Project, Story.project_id == Project.id_)
+            .join(Story, GherkinAC.story_id == Story.id)
+            .join(Project, Story.project_id == Project.id)
             .join(Connection, Project.connection_id == Connection.id)
             .filter(
                 Connection.user_id == user_id,
@@ -109,19 +134,17 @@ class ACService:
         user_id: str,
         connection_name: str,
         project_key: str,
-        story_key: str,
         ac_id_or_key: str,
     ):
         ac = (
             self.db.query(GherkinAC, Story.key)
-            .join(Story, GherkinAC.story_id == Story.id_)
-            .join(Project, Story.project_id == Project.id_)
+            .join(Story, GherkinAC.story_id == Story.id)
+            .join(Project, Story.project_id == Project.id)
             .join(Connection, Project.connection_id == Connection.id)
             .filter(
                 Connection.user_id == user_id,
                 Connection.name == connection_name,
                 Project.key == project_key,
-                Story.key == story_key,
                 or_(GherkinAC.id == ac_id_or_key, GherkinAC.key == ac_id_or_key),
             )
             .first()
@@ -214,16 +237,14 @@ class ACService:
             print(f"Failed to create AC on Jira: {e}")
             return None
 
-    def _update_on_jira(
-        self, connection_id: str, project_key: str, story_key: str, ac: GherkinAC
-    ):
-        if not ac.jira_issue_key:
+    def _update_on_jira(self, connection_id: str, project_key: str, ac: GherkinAC):
+        if not ac.key:
             return  # Not linked to Jira
         try:
             self.jira_service.update_issue(
                 connection_id,
                 project_key,
-                ac.jira_issue_key,
+                ac.key,
                 summary=ac.summary,
                 description=ac.description,
             )
@@ -232,7 +253,7 @@ class ACService:
 
     def _get_ac_and_related(self, ac_id: str):
         result = (
-            self.db.query(GherkinAC, Story.key, Project.key, Connection.id)
+            self.db.query(GherkinAC, Story, Project.key, Connection.id)
             .join(Story, GherkinAC.story_id == Story.id)
             .join(Project, Story.project_id == Project.id)
             .join(Connection, Project.connection_id == Connection.id)
@@ -265,7 +286,7 @@ class ACService:
         ac.content = new_content
         self.db.commit()
 
-        self._update_on_jira(connection_id, project_key, story.key, ac)
+        self._update_on_jira(connection_id, project_key, ac)
 
     def update_ac(
         self,
@@ -277,7 +298,7 @@ class ACService:
             raise ValueError("AC not found")
         ac.description = content
         self.db.commit()
-        self._update_on_jira(connection_id, project_key, story.key, ac)
+        self._update_on_jira(connection_id, project_key, ac)
 
     def delete_ac(self, ac_id: str):
         ac, _, project_key, connection_id = self._get_ac_and_related(ac_id)
@@ -293,36 +314,55 @@ class ACService:
         self.db.delete(ac)
         self.db.commit()
 
-    async def get_ai_suggestions(self, request: AIRequest) -> AIResponse:
-        story = self.db.query(Story).filter(Story.key == request.story_key).first()
-        agent = GenimiDynamicAgent(
-            system_prompt="You are an expert Gherkin developer. Provide suggestions to complete or improve the Gherkin feature file for a User Story. "
-            "Return ONLY the suggestion content, or instructions.",
-            model_name=GeminiConfig.GEMINI_API_CHAT_MODEL,
-            temperature=0.2,
-            api_keys=GeminiConfig.GEMINI_API_KEYS,
-            response_schema=AIResponse,
-            response_mime_type="application/json",
+    def get_story_by_ac(self, ac_id: str) -> StoryDto:
+        story = (
+            self.db.query(Story).join(GherkinAC).filter(GherkinAC.id == ac_id).first()
         )
+        if not story:
+            raise ValueError("Story not found")
+        return StoryDto(
+            id=story.id,
+            key=story.key,
+            summary=story.summary,
+            description=story.description,
+        )
+
+    async def get_ai_suggestions(self, request: AIRequest) -> str:
+        story = (
+            self.db.query(Story)
+            .join(GherkinAC)
+            .filter(GherkinAC.id == request.ac_id)
+            .first()
+        )
+        if not story:
+            story_summary = "N/A"
+            story_description = "N/A"
+        else:
+            story_summary = story.summary
+            story_description = story.description or ""
 
         user_prompt = f"""
 Story Summary:
-{story.summary}
+{story_summary}
 Story Description:
-{story.description or 'N/A'}
+{story_description}
 
 Current Gherkin Content:
 {request.content}
 
 Cursor is at Line: {request.cursor_line}, Column: {request.cursor_column}
 
-Provide 1-3 useful suggestions to complete the current line, add a new scenario, or fix an error.
-Focus on valid Gherkin syntax (Given/When/Then).
+Provide a useful suggestion following the given formats strictly.
 """
 
         try:
-            result = agent.invoke([HumanMessage(content=user_prompt)])
-            return result["structured_response"]
+            result = suggestion_agent.invoke([HumanMessage(content=user_prompt)])
+
+            messages = result.get("messages", [])
+            if len(messages) > 1:
+                return messages[1].content
+            return ""
+
         except Exception as e:
             print(f"AI Error: {e}")
-            return AIResponse(suggestions=[])
+            return ""

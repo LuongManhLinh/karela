@@ -93,9 +93,9 @@ async def delete_connection(
         raise HTTPException(status_code=403, detail=str(e))
 
 
-@router.get("/{connection_id}/projects/{project_key}/stories/{story_key}")
+@router.get("/{connection_name}/projects/{project_key}/stories/{story_key}")
 async def get_story_details(
-    connection_id: str,
+    connection_name: str,
     project_key: str,
     story_key: str,
     service: JiraService = Depends(get_jira_service),
@@ -106,7 +106,8 @@ async def get_story_details(
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         story = service.fetch_stories(
-            connection_id=connection_id,
+            user_id=user_id,
+            connection_name=connection_name,
             project_key=project_key,
             story_keys=[story_key],
         )
@@ -128,16 +129,16 @@ def get_connection_sync_status(
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         status_dto = service.get_connection_sync_status(
-            user_id=user_id, connection_name=connection_id
+            user_id=user_id, connection_id=connection_id
         )
         return BasicResponse(data=status_dto)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/{connection_id}/projects/{project_key}/dashboard")
+@router.get("/{connection_name}/projects/{project_key}/dashboard")
 async def get_project_dashboard_info(
-    connection_id: str,
+    connection_name: str,
     project_key: str,
     service: DashboardService = Depends(get_dashboard_service),
     jwt_payload=Depends(get_jwt_payload),
@@ -147,7 +148,8 @@ async def get_project_dashboard_info(
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         dashboard_info = service.get_project_dashboard_info(
-            connection_id=connection_id,
+            user_id=user_id,
+            connection_name=connection_name,
             project_key=project_key,
         )
         return BasicResponse(data=dashboard_info)
@@ -155,9 +157,9 @@ async def get_project_dashboard_info(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/{connection_id}/projects/{project_key}/stories/{story_key}/dashboard")
+@router.get("/{connection_name}/projects/{project_key}/stories/{story_key}/dashboard")
 async def get_story_dashboard_info(
-    connection_id: str,
+    connection_name: str,
     project_key: str,
     story_key: str,
     service: DashboardService = Depends(get_dashboard_service),
@@ -168,7 +170,8 @@ async def get_story_dashboard_info(
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         dashboard_info = service.get_story_dashboard_info(
-            connection_id=connection_id,
+            user_id=user_id,
+            connection_name=connection_name,
             project_key=project_key,
             story_key=story_key,
         )

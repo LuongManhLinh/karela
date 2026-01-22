@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { use, useMemo } from "react";
 import {
   Box,
   Container,
@@ -10,7 +10,7 @@ import {
   Stack,
 } from "@mui/material";
 import { Analytics, Assistant, EmojiObjects, Code } from "@mui/icons-material";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import { Layout } from "@/components/Layout";
 import { SessionStartForm } from "@/components/SessionStartForm";
@@ -26,13 +26,19 @@ import type {
 } from "@/types/connection";
 import { useStoryDetailsQuery } from "@/hooks/queries/useConnectionQueries";
 
-interface StoryDashboardProps {
-  dto?: StoryDashboardDto;
-}
-
-const StoryDashboard: React.FC<StoryDashboardProps> = ({ dto }) => {
+const StoryDashboard: React.FC = () => {
   const theme = useTheme();
   const router = useRouter();
+
+  const params = useParams();
+  const { connectionName, projectKey, storyKey, basePath } = useMemo(() => {
+    return {
+      connectionName: params.connectionName as string,
+      projectKey: params.projectKey as string,
+      storyKey: params.storyKey as string,
+      basePath: `/app/connections/${params.connectionName}/projects/${params.projectKey}/stories/${params.storyKey}`,
+    };
+  }, [params]);
 
   const {
     selectedConnection,
@@ -47,47 +53,53 @@ const StoryDashboard: React.FC<StoryDashboardProps> = ({ dto }) => {
   } = useWorkspaceStore();
 
   const { data: dashboardData, isLoading } = useStoryDashboardQuery(
-    selectedConnection?.id,
-    selectedProject?.key,
-    selectedStory?.key,
+    connectionName,
+    projectKey,
+    storyKey,
   );
 
-  const { data: storyDetails } = useStoryDetailsQuery(
-    selectedConnection?.id,
-    selectedProject?.key,
-    selectedStory?.key,
+  const { data: storyDetailsData } = useStoryDetailsQuery(
+    connectionName,
+    projectKey,
+    storyKey,
   );
 
-  const dashboard = dto || dashboardData?.data;
+  const dashboard = useMemo(() => dashboardData?.data || null, [dashboardData]);
+  const storyDetails = useMemo(
+    () => storyDetailsData?.data || null,
+    [storyDetailsData],
+  );
 
-  const basePath = `/app/connections/${selectedConnection?.name}/projects/${selectedProject?.key}/stories/${selectedStory?.key}`;
-
-  const handleConnectionChange = (conn: ConnectionDto | null) => {
+  const handleConnectionChange = async (conn: ConnectionDto | null) => {
     setSelectedConnection(conn);
     setSelectedProject(null);
     setSelectedStory(null);
   };
 
-  const handleProjectChange = (proj: ProjectDto | null) => {
+  const handleProjectChange = async (proj: ProjectDto | null) => {
     setSelectedProject(proj);
     setSelectedStory(null);
-    if (proj && selectedConnection) {
-      router.push(
-        `/app/connections/${selectedConnection.name}/projects/${proj.key}`,
-      );
-    }
   };
 
-  const handleStoryChange = (story: StorySummary | null) => {
+  const handleStoryChange = async (story: StorySummary | null) => {
     setSelectedStory(story);
-    if (story && selectedConnection && selectedProject) {
-      router.push(
-        `/app/connections/${selectedConnection.name}/projects/${selectedProject.key}/stories/${story.key}`,
-      );
+  };
+
+  const handleFilter = async () => {
+    if (selectedConnection && selectedProject) {
+      if (selectedStory) {
+        router.push(
+          `/app/connections/${selectedConnection.name}/projects/${selectedProject.key}/stories/${selectedStory.key}`,
+        );
+      } else {
+        router.push(
+          `/app/connections/${selectedConnection.name}/projects/${selectedProject.key}`,
+        );
+      }
     }
   };
 
-  const handleNavigate = (path: string) => {
+  const handleNavigate = async (path: string) => {
     router.push(`${basePath}/${path}`);
   };
 
@@ -165,6 +177,10 @@ const StoryDashboard: React.FC<StoryDashboardProps> = ({ dto }) => {
               selectedOption: selectedStory,
               onChange: handleStoryChange,
             }}
+            primaryAction={{
+              label: "Filter",
+              onClick: handleFilter,
+            }}
           />
         </Paper>
 
@@ -195,84 +211,66 @@ const StoryDashboard: React.FC<StoryDashboardProps> = ({ dto }) => {
               <StatsGrid stats={stats} title="Overview" />
             </Paper>
 
-            {/* Story Details */}
-            {selectedStory && (
-              <Paper
-                elevation={2}
-                sx={{
-                  p: 3,
-                  borderRadius: 1,
-                  bgcolor: "background.paper",
-                }}
-              >
-                <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-                  Story Details
-                </Typography>
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Paper
+              elevation={2}
+              sx={{
+                p: 3,
+                borderRadius: 1,
+                bgcolor: "background.paper",
+              }}
+            >
+              <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
+                Story Details
+              </Typography>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Typography
+                    variant="body2"
+                    fontWeight={600}
+                    color="text.secondary"
+                  >
+                    Key:
+                  </Typography>
+                  <Typography variant="body1" color="primary.main">
+                    {storyKey}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 2,
+                    flexDirection: "column",
+                  }}
+                >
+                  <Box>
                     <Typography
                       variant="body2"
                       fontWeight={600}
                       color="text.secondary"
                     >
-                      Key:
+                      Summary:
                     </Typography>
-                    <Typography variant="body1" color="primary.main">
-                      {selectedStory.key}
+                    <Typography variant="body1" color="text.primary">
+                      {storyDetails?.summary || "No summary available"}
                     </Typography>
                   </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      gap: 2,
-                      flexDirection: "column",
-                    }}
-                  >
-                    <Box>
-                      <Typography
-                        variant="body2"
-                        fontWeight={600}
-                        color="text.secondary"
-                      >
-                        Summary:
-                      </Typography>
-                      <Typography variant="body1" color="text.primary">
-                        {storyDetails?.data?.summary || "No summary available"}
-                      </Typography>
-                    </Box>
-                    <Box>
-                      <Typography
-                        variant="body2"
-                        fontWeight={600}
-                        color="text.secondary"
-                      >
-                        Description:
-                      </Typography>
-                      <Typography variant="body1" color="text.primary">
-                        {storyDetails?.data?.description ||
-                          "No description available"}
-                      </Typography>
-                    </Box>
+                  <Box>
+                    <Typography
+                      variant="body2"
+                      fontWeight={600}
+                      color="text.secondary"
+                    >
+                      Description:
+                    </Typography>
+                    <Typography variant="body1" color="text.primary">
+                      {storyDetails?.description || "No description available"}
+                    </Typography>
                   </Box>
                 </Box>
-              </Paper>
-            )}
+              </Box>
+            </Paper>
           </>
-        ) : selectedConnection && selectedProject && selectedStory ? (
-          <Paper
-            elevation={2}
-            sx={{
-              p: 3,
-              borderRadius: 2,
-              bgcolor: "background.paper",
-              textAlign: "center",
-            }}
-          >
-            <Typography variant="body1" color="text.secondary">
-              Unable to load dashboard data
-            </Typography>
-          </Paper>
         ) : (
           <Paper
             elevation={2}
@@ -284,8 +282,7 @@ const StoryDashboard: React.FC<StoryDashboardProps> = ({ dto }) => {
             }}
           >
             <Typography variant="body1" color="text.secondary">
-              Please select a connection, project, and story to view the
-              dashboard
+              Unable to load dashboard data
             </Typography>
           </Paper>
         )}

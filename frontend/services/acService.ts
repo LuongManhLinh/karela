@@ -1,6 +1,7 @@
 import api from "./api";
 import { ACDto, ACSummary, AIResponse } from "../types/ac";
 import { BasicResponse } from "@/types";
+import { StoryDto } from "@/types/connection";
 
 export const acService = {
   getSuggestions: async (
@@ -55,11 +56,10 @@ export const acService = {
   getAC: async (
     connectionName: string,
     projectKey: string,
-    storyKey: string,
     acIdOrKey: string,
   ): Promise<BasicResponse<ACDto>> => {
     const response = await api.get<BasicResponse<ACDto>>(
-      `/acs/connections/${connectionName}/projects/${projectKey}/stories/${storyKey}/acs/${acIdOrKey}`,
+      `/acs/connections/${connectionName}/projects/${projectKey}/acs/${acIdOrKey}`,
     );
     return response.data;
   },
@@ -75,5 +75,11 @@ export const acService = {
   },
   deleteAC: async (acId: string): Promise<void> => {
     await api.delete(`/acs/${acId}`);
+  },
+  getStoryByAC: async (acId: string): Promise<BasicResponse<StoryDto>> => {
+    const response = await api.get<BasicResponse<StoryDto>>(
+      `/acs/${acId}/story`,
+    );
+    return response.data;
   },
 };

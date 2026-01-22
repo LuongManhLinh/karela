@@ -1,31 +1,27 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
-import { CircularProgress, Typography } from "@mui/material";
-import { useRouter } from "next/navigation";
+import { CircularProgress } from "@mui/material";
+import { useParams, useRouter } from "next/navigation";
 
 const StoryPage = () => {
   const router = useRouter();
-  const { selectedConnection, selectedProject, selectedStory } =
-    useWorkspaceStore();
+  const params = useParams();
+  const { selectedStory } = useWorkspaceStore();
+  const { connectionName, projectKey } = useMemo(() => {
+    return {
+      connectionName: params.connectionName as string,
+      projectKey: params.projectKey as string,
+    };
+  }, [params]);
 
   useEffect(() => {
-    if (selectedConnection && selectedProject) {
-      if (selectedStory) {
-        router.replace(
-          `/app/connections/${selectedConnection.name}/projects/${selectedProject.key}/stories/${selectedStory.key}`,
-        );
-      } else {
-        router.replace(
-          `/app/connections/${selectedConnection.name}/projects/${selectedProject.key}`,
-        );
-      }
+    if (selectedStory) {
+      router.replace(
+        `/app/connections/${connectionName}/projects/${projectKey}/stories/${selectedStory.key}`,
+      );
     }
-  }, [selectedConnection, selectedProject, router]);
-
-  if (!selectedConnection || !selectedProject) {
-    return <Typography>Invalid connection or project</Typography>;
-  }
+  }, [selectedStory, connectionName, projectKey, router]);
 
   return <CircularProgress />;
 };

@@ -172,7 +172,7 @@ async def get_story_details(
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         story = service.fetch_stories(
-            connection_id=connection_id,
+            connection_name=connection_id,
             project_key=project_key,
             story_keys=[story_key],
         )
@@ -194,7 +194,7 @@ def get_connection_sync_status(
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         status_dto = service.get_connection_sync_status(
-            user_id=user_id, connection_id_or_name=connection_id
+            user_id=user_id, connection_id=connection_id
         )
         return BasicResponse(data=status_dto)
     except ValueError as e:

@@ -40,19 +40,21 @@ interface AnalysisPageLayoutProps {
   connectionName: string;
   projectKey: string;
   storyKey?: string; // Required if level is "story"
+  idOrKey?: string;
 }
 
 const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
   children,
   level,
   connectionName,
-  projectKey: projectKey,
-  storyKey: storyKey,
+  projectKey,
+  storyKey,
+  idOrKey,
 }) => {
   const { setHeaderProjectKey, setHeaderStoryKey } = useWorkspaceStore();
 
   const [selectedAnalysisKey, setSelectedAnalysisKey] = useState<string | null>(
-    null,
+    idOrKey || null,
   );
 
   // Analysis Hooks
@@ -157,6 +159,9 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
   return (
     <PageLayout
       level={level}
+      connectionName={connectionName}
+      projectKey={projectKey}
+      storyKey={storyKey}
       href="analyses"
       primarySessions={{
         sessions: sessionItems,

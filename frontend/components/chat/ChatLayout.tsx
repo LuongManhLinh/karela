@@ -24,6 +24,7 @@ interface ChatLayoutProps {
   connectionName: string;
   projectKey: string;
   storyKey?: string; // Required if level is "story"
+  idOrKey?: string;
 }
 const ChatLayout: React.FC<ChatLayoutProps> = ({
   children,
@@ -31,10 +32,11 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   connectionName,
   projectKey,
   storyKey,
+  idOrKey,
 }) => {
   const [sessions, setSessions] = useState<ChatSessionSummary[]>([]);
   const [selectedSessionKey, setSelectedSessionKey] = useState<string | null>(
-    null,
+    idOrKey || null,
   );
 
   const { setHeaderProjectKey, setHeaderStoryKey } = useWorkspaceStore();
@@ -100,6 +102,9 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   return (
     <PageLayout
       level={level}
+      connectionName={connectionName}
+      projectKey={projectKey}
+      storyKey={storyKey}
       href="chats"
       primarySessions={{
         sessions: sessionItems,

@@ -2,6 +2,7 @@
 
 import AcEditorLayout from "@/components/ac/AcEditorLayout";
 import { useParams } from "next/navigation";
+import { useMemo } from "react";
 
 interface PLAcEditorLayoutProps {
   children?: React.ReactNode;
@@ -9,12 +10,21 @@ interface PLAcEditorLayoutProps {
 
 const PLAcEditorLayout: React.FC<PLAcEditorLayoutProps> = ({ children }) => {
   const params = useParams();
+  const { connectionName, projectKey, idOrKey } = useMemo(
+    () => ({
+      connectionName: params.connectionName as string,
+      projectKey: params.projectKey as string,
+      idOrKey: (params.idOrKey as string) || undefined,
+    }),
+    [params],
+  );
 
   return (
     <AcEditorLayout
       level="project"
-      connectionName={params.connectionName as string}
-      projectKey={params.projectKey as string}
+      connectionName={connectionName}
+      projectKey={projectKey}
+      idOrKey={idOrKey}
     >
       {children}
     </AcEditorLayout>

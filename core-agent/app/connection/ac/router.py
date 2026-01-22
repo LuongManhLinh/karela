@@ -26,7 +26,7 @@ router = APIRouter(tags=["Gherkin AC"])
 def get_example_ai_response() -> AIResponse:
     example_suggestions = [
         AISuggestion(
-            new_content="suggested content here",
+            suggestions="suggested content here",
             explanation="explanation for the suggestion",
             type="CREATE",
             position={
@@ -37,7 +37,7 @@ def get_example_ai_response() -> AIResponse:
             },
         ),
         AISuggestion(
-            new_content="updated content here",
+            suggestions="updated content here",
             explanation="explanation for the update",
             type="UPDATE",
             position={
@@ -48,7 +48,7 @@ def get_example_ai_response() -> AIResponse:
             },
         ),
         AISuggestion(
-            new_content="deleted content",
+            suggestions="deleted content",
             explanation="explanation for the deletion",
             type="DELETE",
             position={
@@ -92,12 +92,13 @@ async def list_acs_by_story(
         else:
             acs = service.get_acs_by_story(
                 user_id=user_id,
-                connection_id=connection_name,
+                connection_name=connection_name,
                 project_key=project_key,
                 story_key=story_key,
             )
         return BasicResponse(data=acs)
     except ValueError as e:
+        traceback.print_exc()
         raise HTTPException(status_code=404, detail=str(e))
 
 
@@ -149,13 +150,10 @@ async def create_ac(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get(
-    "/connections/{connection_name}/projects/{project_key}/stories/{story_key}/acs/{ac_id_key}"
-)
+@router.get("/connections/{connection_name}/projects/{project_key}/acs/{ac_id_or_key}")
 async def get_ac(
     connection_name: str,
     project_key: str,
-    story_key: str,
     ac_id_or_key: str,
     service: ACService = Depends(get_ac_service),
     jwt_payload=Depends(get_jwt_payload),
@@ -168,7 +166,6 @@ async def get_ac(
             user_id=user_id,
             connection_name=connection_name,
             project_key=project_key,
-            story_key=story_key,
             ac_id_or_key=ac_id_or_key,
         )
         return BasicResponse(data=ac)
@@ -231,5 +228,23 @@ async def delete_ac(
             ac_id=ac_id,
         )
         return BasicResponse(detail="AC deleted successfully")
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.get("/{ac_id}/story")
+async def get_story_by_ac(
+    ac_id: str,
+    service: ACService = Depends(get_ac_service),
+    jwt_payload=Depends(get_jwt_payload),
+):
+    user_id = jwt_payload.get("sub")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+    try:
+        story_dto = service.get_story_by_ac(
+            ac_id=ac_id,
+        )
+        return BasicResponse(data=story_dto)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

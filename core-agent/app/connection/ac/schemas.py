@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List, Literal
 from datetime import datetime
 
@@ -32,25 +32,18 @@ class ACDto(ACSummary):
 
 
 class AIRequest(BaseModel):
-    story_key: str
+    ac_id: str
     content: str
     cursor_line: int
     cursor_column: int
     context: Optional[str] = None
 
 
-class AISuggestionPosition(BaseModel):
-    start_row: int
-    start_column: int
-    end_row: int
-    end_column: int
-
-
 class AISuggestion(BaseModel):
-    new_content: str
-    explanation: str
-    type: Literal["CREATE", "UPDATE", "DELETE"]
-    position: AISuggestionPosition
+    """AI Suggestion Schema"""
+
+    suggestions: str = Field(description="The suggested content")
+    explanation: str = Field(description="Explanation for the suggestion")
 
 
 class AIResponse(BaseModel):

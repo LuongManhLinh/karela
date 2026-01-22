@@ -37,7 +37,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
     try:
         while True:
             data = await websocket.receive_text()
-            print(f"DEBUG: WebSocket received: {data}")
             try:
                 message = json.loads(data)
                 action = message.get("action")
@@ -77,12 +76,9 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                     content = message.get("content")
                     cursor_line = message.get("cursor_line")
                     cursor_column = message.get("cursor_column")
-                    story_key = message.get("story_key")
-                    request_id = message.get(
-                        "request_id"
-                    )  # Optional correlation ID if we want
+                    ac_id = message.get("ac_id")
 
-                    if content and story_key:
+                    if content and ac_id:
                         from app.connection.ac.services import ACService
                         from app.connection.ac.schemas import AIRequest
                         from common.database import SessionLocal
@@ -92,29 +88,18 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                             try:
                                 service = ACService(db)
                                 request = AIRequest(
-                                    story_key=story_key,
+                                    ac_id=ac_id,
                                     content=content,
                                     cursor_line=cursor_line or 0,
                                     cursor_column=cursor_column or 0,
                                 )
                                 response = await service.get_ai_suggestions(request)
 
-                                # Send back results. We can use a topic convention or just send data.
-                                # Using topic convention: suggestions:{story_key}
-                                # Or if request_id is present, we could use that.
-                                # Plan said: topic: "suggestions:{storyKey}"
-
+                                # Send back result string wrapped in object
                                 result_payload = {
-                                    "topic": f"suggestions:{story_key}",
-                                    "data": response.model_dump(),
+                                    "topic": f"suggestions:{ac_id}",
+                                    "data": response,
                                 }
-                                # Send directly to this websocket? Or broadcast?
-                                # Since suggestions are likely personal context, direct send key.
-                                # But using manager.broadcast or just websocket.send_text?
-                                # If implementation plan says "subscribe", we should broadcast/publish to redis
-                                # OR we can just send it directly if the client is listening strictly to "onmessage".
-                                # BUT WebSocketProvider dispatches based on "topic" field in the message.
-                                # So as long as we send {"topic": "...", "data": ...} it works.
 
                                 await websocket.send_text(json.dumps(result_payload))
 

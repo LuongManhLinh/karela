@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -15,65 +15,25 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { StoryDto } from "@/types/connection";
-import { userService } from "@/services/userService";
-import { useWorkspaceStore } from "@/store/useWorkspaceStore";
+import { useStoryDetailsQuery } from "@/hooks/queries/useConnectionQueries";
+import { useStoryByACQuery } from "@/hooks/queries/useACQueries";
 
-interface StoryDetailDialogProps {
+export interface StoryDialogProps {
   open: boolean;
   onClose: () => void;
-  storyKey: string | null;
+  story: StoryDto | null;
+  loading: boolean;
+  error: any;
 }
-
-export const StoryDetailDialog: React.FC<StoryDetailDialogProps> = ({
+export const StoryDialog: React.FC<StoryDialogProps> = ({
   open,
   onClose,
-  storyKey,
+  story,
+  loading,
+  error,
 }) => {
-  const {
-    selectedConnection: selectedConnectionId,
-    selectedProject: selectedProjectKey,
-  } = useWorkspaceStore();
-  const [story, setStory] = useState<StoryDto | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!open || !storyKey || !selectedConnectionId || !selectedProjectKey) {
-      return;
-    }
-
-    const fetchStory = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await userService.getStory(
-          selectedConnectionId,
-          selectedProjectKey,
-          storyKey,
-        );
-        if (response.data) {
-          setStory(response.data);
-        } else {
-          setError("Failed to load story details");
-        }
-      } catch (err: any) {
-        setError(err.response?.data?.detail || "Failed to load story details");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStory();
-  }, [open, storyKey, selectedConnectionId, selectedProjectKey]);
-
-  const handleClose = () => {
-    setStory(null);
-    setError(null);
-    onClose();
-  };
-
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle
         sx={{
           display: "flex",
@@ -82,9 +42,9 @@ export const StoryDetailDialog: React.FC<StoryDetailDialogProps> = ({
         }}
       >
         <Typography variant="h6">
-          Story Details {storyKey && `- ${storyKey}`}
+          Story Details {story && `- ${story.key}`}
         </Typography>
-        <IconButton onClick={handleClose} size="small">
+        <IconButton onClick={onClose} size="small">
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -127,9 +87,77 @@ export const StoryDetailDialog: React.FC<StoryDetailDialogProps> = ({
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Close</Button>
+        <Button onClick={onClose}>Close</Button>
       </DialogActions>
     </Dialog>
+  );
+};
+
+interface StoryDetailDialogProps {
+  open: boolean;
+  onClose: () => void;
+  connectionName: string;
+  projectKey: string;
+  storyKey: string;
+}
+
+export const StoryDetailDialog: React.FC<StoryDetailDialogProps> = ({
+  open,
+  onClose,
+  connectionName,
+  projectKey,
+  storyKey,
+}) => {
+  const {
+    data: storyData,
+    isLoading: loading,
+    error,
+  } = useStoryDetailsQuery(connectionName, projectKey, storyKey!);
+
+  const story = useMemo(() => {
+    return storyData?.data || null;
+  }, [storyData]);
+
+  return (
+    <StoryDialog
+      open={open}
+      onClose={onClose}
+      story={story}
+      loading={loading}
+      error={error}
+    />
+  );
+};
+
+export interface StoryByACDialogProps {
+  open: boolean;
+  onClose: () => void;
+  acId: string;
+}
+
+export const StoryByACDialog: React.FC<StoryByACDialogProps> = ({
+  open,
+  onClose,
+  acId,
+}) => {
+  const {
+    data: storyData,
+    isLoading: loading,
+    error,
+  } = useStoryByACQuery(acId);
+
+  const story = useMemo(() => {
+    return storyData?.data || null;
+  }, [storyData]);
+
+  return (
+    <StoryDialog
+      open={open}
+      onClose={onClose}
+      story={story}
+      loading={loading}
+      error={error}
+    />
   );
 };
 

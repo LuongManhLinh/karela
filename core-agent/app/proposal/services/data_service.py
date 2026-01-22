@@ -174,7 +174,7 @@ class ProposalService:
             if update_keys:
                 # Search for existing issues to back up their versions before modification
                 existing_stories = self.jira_service.fetch_stories(
-                    connection_id=connection_id,
+                    connection_name=connection_id,
                     project_key=project_key,
                     story_keys=update_keys,
                 )
@@ -208,7 +208,7 @@ class ProposalService:
             if delete_keys:
                 # Search for existing issues to back up their versions before deletion
                 existing_stories = self.jira_service.fetch_stories(
-                    connection_id=connection_id,
+                    connection_name=connection_id,
                     project_key=project_key,
                     story_keys=delete_keys,
                 )

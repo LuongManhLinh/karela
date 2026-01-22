@@ -16,14 +16,14 @@ export const DASHBOARD_KEYS = {
 };
 
 export const useProjectDashboardQuery = (
-  connectionId: string | undefined,
+  connectionName: string | undefined,
   projectKey: string | undefined,
 ) => {
   return useQuery({
-    queryKey: DASHBOARD_KEYS.project(connectionId || "", projectKey || ""),
+    queryKey: DASHBOARD_KEYS.project(connectionName || "", projectKey || ""),
     queryFn: () =>
-      connectionService.getProjectDashboardInfo(connectionId!, projectKey!),
-    enabled: !!connectionId && !!projectKey,
+      connectionService.getProjectDashboardInfo(connectionName!, projectKey!),
+    enabled: !!connectionName && !!projectKey,
   });
 };
 

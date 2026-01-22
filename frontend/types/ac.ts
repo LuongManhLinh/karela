@@ -12,15 +12,8 @@ export interface ACDto extends ACSummary {
 }
 
 export interface AISuggestion {
-  new_content: string;
+  suggestions: string;
   explanation: string;
-  type: "CREATE" | "UPDATE" | "DELETE";
-  position: {
-    start_row: number;
-    start_column: number;
-    end_row: number;
-    end_column: number;
-  };
 }
 
 export interface AIResponse {

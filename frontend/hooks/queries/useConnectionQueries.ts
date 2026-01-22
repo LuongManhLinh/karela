@@ -10,11 +10,15 @@ export const CONNECTION_KEYS = {
     [...CONNECTION_KEYS.all, "stories", connectionId, projectKey] as const,
   syncStatus: (connectionId: string) =>
     [...CONNECTION_KEYS.all, "syncStatus", connectionId] as const,
-  storyDetails: (connectionId: string, projectKey: string, storyKey: string) =>
+  storyDetails: (
+    connectionName: string,
+    projectKey: string,
+    storyKey: string,
+  ) =>
     [
       ...CONNECTION_KEYS.all,
       "storyDetails",
-      connectionId,
+      connectionName,
       projectKey,
       storyKey,
     ] as const,
@@ -58,18 +62,18 @@ export const useStorySummariesQuery = (
 };
 
 export const useStoryDetailsQuery = (
-  connectionId: string | undefined,
+  connectionName: string | undefined,
   projectKey: string | undefined,
   storyKey: string | undefined,
 ) => {
   return useQuery({
     queryKey: CONNECTION_KEYS.storyDetails(
-      connectionId || "",
+      connectionName || "",
       projectKey || "",
       storyKey || "",
     ),
     queryFn: () =>
-      connectionService.getStory(connectionId!, projectKey!, storyKey!),
-    enabled: !!connectionId && !!projectKey && !!storyKey,
+      connectionService.getStory(connectionName!, projectKey!, storyKey!),
+    enabled: !!connectionName && !!projectKey && !!storyKey,
   });
 };
