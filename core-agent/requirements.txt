@@ -24,4 +24,3 @@ jira2markdown
 # sentence-transformers
 # torch
 python-dotenv
-gherlint

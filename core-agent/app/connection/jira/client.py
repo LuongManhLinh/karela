@@ -73,7 +73,11 @@ class JiraClient:
         }
         resp = requests.post(url, json=payload, headers=headers)
         resp.raise_for_status()
-        return resp.json()["access_token"]
+        data = resp.json()
+        # Dump data to a file for debugging
+        with open("jira_refresh_token_response.json", "w") as f:
+            json.dump(data, f, indent=4)
+        return data["access_token"]
 
     @staticmethod
     def create_issues(cloud_id: str, access_token: str, payload: CreateIssuesRequest):
