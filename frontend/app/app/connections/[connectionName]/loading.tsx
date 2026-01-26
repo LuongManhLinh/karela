@@ -22,8 +22,6 @@ const ConnectionItemLoading: React.FC = () => {
 
   console.log("Loading projects for connection:", selectedConnection);
 
-  const router = useRouter();
-
   useEffect(() => {
     console.log("Fetched projects:", projectDtosData?.data);
     setProjects(projectDtosData?.data || []);

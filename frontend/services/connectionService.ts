@@ -1,7 +1,7 @@
 import apiClient from "./api";
 import type { BasicResponse } from "@/types";
-import { ACDto, ACSummary } from "@/types/ac";
 import {
+  ConnectionDashboardDto,
   ConnectionSyncStatusDto,
   ProjectDashboardDto,
   ProjectDto,
@@ -81,6 +81,15 @@ export const connectionService = {
   ): Promise<BasicResponse<StoryDashboardDto>> => {
     const response = await apiClient.get<BasicResponse<StoryDashboardDto>>(
       `/connections/${connectionName}/projects/${projectKey}/stories/${storyKey}/dashboard`,
+    );
+    return response.data;
+  },
+
+  getConnectionDashboardInfo: async (
+    connectionName: string,
+  ): Promise<BasicResponse<ConnectionDashboardDto>> => {
+    const response = await apiClient.get<BasicResponse<ConnectionDashboardDto>>(
+      `/connections/${connectionName}/dashboard`,
     );
     return response.data;
   },

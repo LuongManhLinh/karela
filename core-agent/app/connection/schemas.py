@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 
-from .jira.schemas import StorySummary
+from .jira.schemas import ProjectDto, StorySummary
 
 
 class DashboardDto(BaseModel):
@@ -22,3 +22,11 @@ class ProjectDashboardDto(DashboardDto):
 
 class StoryDashboardDto(DashboardDto):
     pass
+
+
+class ConnectionDashboardDto(DashboardDto):
+    num_projects: int
+    projects_with_analyses: list[ProjectDto]
+    projects_with_chats: list[ProjectDto]
+    projects_with_proposals: list[ProjectDto]
+    projects_with_acs: list[ProjectDto]

@@ -1,20 +1,9 @@
 "use client";
-import { useEffect, useMemo } from "react";
-import { CircularProgress } from "@mui/material";
-import { useParams, useRouter } from "next/navigation";
+
+import ConnectionDashboard from "./ConnectionDashboard";
 
 const ConnectionIdPage = () => {
-  const params = useParams();
-  const connectionName = useMemo(() => {
-    return params.connectionName as string;
-  }, [params]);
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace(`/app/connections/${connectionName}/projects`);
-  }, [connectionName, router]);
-
-  return <CircularProgress />;
+  return <ConnectionDashboard />;
 };
 
 export default ConnectionIdPage;

@@ -18,6 +18,9 @@ const ProjectPage = () => {
       router.replace(
         `/app/connections/${connectionName}/projects/${selectedProject.key}`,
       );
+    } else {
+      console.log("No project selected, redirecting to connections page.");
+      router.replace(`/app/connections/${connectionName}`);
     }
   }, [selectedProject, connectionName, router]);
 

@@ -89,7 +89,7 @@ def get_story_details(story_key: str, runtime: ToolRuntime) -> str:
     story_service = JiraService(db_session)
 
     fetched_stories = story_service.fetch_stories(
-        connection_name=connection_id,
+        connection_id=connection_id,
         project_key=project_key,
         story_keys=[story_key],
     )

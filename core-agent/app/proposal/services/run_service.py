@@ -1,4 +1,3 @@
-from html2text import html2text
 from sqlalchemy.orm import Session
 from typing import Literal
 
@@ -54,21 +53,19 @@ class ProposalRunService:
             project_key=project_key,
         )
 
-        jira_issues = self.jira_service.fetch_issues(
+        stories = self.jira_service.fetch_stories(
             connection_id=connection_id,
-            jql=f"project = '{project_key}' AND key in ({', '.join(involved_story_keys)}) AND issuetype in (Story)",
-            fields=["summary", "description"],
-            max_results=len(involved_story_keys),
-            expand_rendered_fields=True,
+            project_key=project_key,
+            story_keys=list(involved_story_keys),
         )
 
         stories = [
             WorkItemMinimal(
-                key=i.key,
-                title=i.fields.summary,
-                description=html2text(i.rendered_fields.description or ""),
+                key=story.key,
+                summary=story.summary,
+                description=story.description,
             )
-            for i in jira_issues
+            for story in stories
         ]
 
         return stories, defects, context_input, defect_key_id_map

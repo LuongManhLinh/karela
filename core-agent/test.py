@@ -1,11 +1,18 @@
-from app.connection.ac.services import ACService
+from app.connection.jira.services import JiraService
+from common.database import get_db
+import time
 
-example_gherkin = """Feature: User Login
-  Scenario: Successful login with valid credentials
-    Given the user is on the login page
-    Whe the user enters valid username and password
-"""
+service = JiraService(db=next(get_db()))
+connection_id = "d7ec6fae-7625-406e-8fd8-855916367d03"
+project_keys = ["RD", "MK", "AS", "SAF", "VBS"]
 
-service = ACService(db=None)
-response = service.lint_ac(example_gherkin)
-print(response)
+for project_key in project_keys:
+    stories = service.fetch_stories(
+        connection_id=connection_id,
+        project_key=project_key,
+        story_keys=None,
+        local=False,
+    )
+    print(f"Project: {project_key}, Stories fetched: {len(stories)}")
+    # Delay to avoid overwhelming the server
+    time.sleep(2)

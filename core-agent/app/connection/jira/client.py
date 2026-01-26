@@ -60,7 +60,7 @@ class JiraClient:
         client_id: str,
         client_secret: str,
         refresh_token: str,
-    ) -> str:
+    ) -> tuple[str, str]:
         url = "https://auth.atlassian.com/oauth/token"
         payload = {
             "grant_type": "refresh_token",
@@ -77,7 +77,7 @@ class JiraClient:
         # Dump data to a file for debugging
         with open("jira_refresh_token_response.json", "w") as f:
             json.dump(data, f, indent=4)
-        return data["access_token"]
+        return data["access_token"], data["refresh_token"]
 
     @staticmethod
     def create_issues(cloud_id: str, access_token: str, payload: CreateIssuesRequest):

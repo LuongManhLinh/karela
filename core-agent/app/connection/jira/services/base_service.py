@@ -24,20 +24,24 @@ class JiraBaseService:
             connection.refresh_token, connection.refresh_token_iv
         )
 
-        new_token = JiraClient.refresh_access_token(
+        access_token, refresh_token = JiraClient.refresh_access_token(
             client_id=JiraConfig.CLIENT_ID,
             client_secret=JiraConfig.CLIENT_SECRET,
             refresh_token=refresh_token,
         )
 
-        encrypted_token, token_iv = encrypt_token(new_token)
-        connection.token = encrypted_token
-        connection.token_iv = token_iv
+        encrypted_atok, atok_iv = encrypt_token(access_token, refresh_token)
+        connection.token = encrypted_atok
+        connection.token_iv = atok_iv
+
+        encrypted_rtok, rtok_iv = encrypt_token(refresh_token, refresh_token)
+        connection.refresh_token = encrypted_rtok
+        connection.refresh_token_iv = rtok_iv
 
         self.db.add(connection)
         self.db.commit()
 
-        return new_token
+        return access_token
 
     def _exec_refreshing_access_token(
         self,
@@ -56,6 +60,25 @@ class JiraBaseService:
                 return func(access_token=access_token, *args, **kwargs)
             else:
                 raise e
+
+    def _fetch_issues(
+        self,
+        connection: Connection,
+        jql: str,
+        fields: list[str],
+        max_results: int | None = None,
+        expand_rendered_fields: bool = False,
+    ):
+        response = self._exec_refreshing_access_token(
+            connection,
+            JiraClient.search_issues,
+            cloud_id=connection.id_,
+            jql=jql,
+            fields=fields,
+            max_results=max_results,
+            expand_rendered_fields=expand_rendered_fields,
+        )
+        return response.issues
 
     def fetch_issues(
         self,
@@ -83,13 +106,6 @@ class JiraBaseService:
         if not connection:
             raise ValueError("Connection not found")
 
-        response = self._exec_refreshing_access_token(
-            connection,
-            JiraClient.search_issues,
-            cloud_id=connection.id_,
-            jql=jql,
-            fields=fields,
-            max_results=max_results,
-            expand_rendered_fields=expand_rendered_fields,
+        return self._fetch_issues(
+            connection, jql, fields, max_results, expand_rendered_fields
         )
-        return response.issues

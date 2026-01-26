@@ -195,19 +195,20 @@ def build_graph() -> StateGraph:
     workflow = StateGraph(State, context=Context)
 
     workflow.add_node("ac_generator", ac_generator)
-    workflow.add_node("ac_reviewer", ac_reviewer)
-    workflow.add_node("ac_rewriter", ac_rewriter)
+    # workflow.add_node("ac_reviewer", ac_reviewer)
+    # workflow.add_node("ac_rewriter", ac_rewriter)
 
     workflow.add_edge(START, "ac_generator")
-    workflow.add_edge("ac_generator", "ac_reviewer")
+    workflow.add_edge("ac_generator", END)
+    # workflow.add_edge("ac_generator", "ac_reviewer")
 
-    workflow.add_conditional_edges(
-        "ac_reviewer",
-        should_continue,
-        {"end": END, "rewriter": "ac_rewriter"},
-    )
+    # workflow.add_conditional_edges(
+    #     "ac_reviewer",
+    #     should_continue,
+    #     {"end": END, "rewriter": "ac_rewriter"},
+    # )
 
-    workflow.add_edge("ac_rewriter", "ac_reviewer")
+    # workflow.add_edge("ac_rewriter", "ac_reviewer")
 
     return workflow.compile()
 

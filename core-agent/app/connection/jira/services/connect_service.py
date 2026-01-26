@@ -228,7 +228,7 @@ class JiraConnectService(JiraBaseService):
         connection.sync_status = "Updating issue types for projects..."
         self.db.add(connection)
         self.db.commit()
-        self._publish_status(connection.id, "Updating issue types for projects...")
+        self._publish_status(connection, "Updating issue types for projects...")
         try:
             self._exec_refreshing_access_token(
                 connection=connection,

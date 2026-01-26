@@ -52,3 +52,11 @@ export interface ProjectDashboardDto extends DashboardDto {
 }
 
 export interface StoryDashboardDto extends DashboardDto {}
+
+export interface ConnectionDashboardDto extends DashboardDto {
+  num_projects: number;
+  projects_with_analyses: ProjectDto[];
+  projects_with_chats: ProjectDto[];
+  projects_with_proposals: ProjectDto[];
+  projects_with_acs: ProjectDto[];
+}

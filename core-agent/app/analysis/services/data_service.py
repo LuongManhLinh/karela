@@ -68,7 +68,7 @@ class AnalysisDataService:
     ) -> List[AnalysisSummary]:
         analyses = (
             self.db.query(Analysis)
-            .join(Analysis.connection)
+            .join(Connection, Connection.id == Analysis.connection_id)
             .filter(
                 Connection.user_id == user_id,
                 Connection.name == connection_name,

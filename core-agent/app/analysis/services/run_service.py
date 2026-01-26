@@ -1,9 +1,7 @@
 from app.analysis.agents.schemas import DefectByLlm, WorkItemMinimal, DefectInput
+from app.connection.jira.models import Connection
 from app.proposal.services.run_service import ProposalRunService
 from app.settings.services import SettingsService
-from common.agents.input_schemas import (
-    Documentation,
-)
 from app.analysis.agents.all import (
     run_analysis as run_user_stories_analysis_all,
 )
@@ -12,7 +10,6 @@ from app.analysis.agents.target import (
 )
 from app.analysis.models import (
     Analysis,
-    AnalysisType,
     AnalysisStatus,
     Defect,
     DefectSeverity,
@@ -29,14 +26,12 @@ from sqlalchemy import func, select
 import time
 import traceback
 from datetime import datetime
-from typing import List, Optional, Literal
+from typing import List
 
-from app.settings.models import Settings
-from common.agents.input_schemas import ContextInput, LlmContext
+from common.agents.input_schemas import ContextInput
 
 
-from redis import Redis
-from common.configs import RedisConfig
+from common.redis_app import redis_client
 import json
 
 
@@ -44,12 +39,7 @@ class AnalysisRunService:
     def __init__(self, db: Session):
         self.db = db
         self.settings_service = SettingsService(db=db)
-        self.redis_client = Redis(
-            host=RedisConfig.REDIS_HOST,
-            port=RedisConfig.REDIS_PORT,
-            db=RedisConfig.REDIS_DB,
-            decode_responses=True,
-        )
+        self.redis_client = redis_client
         self.jira_service = JiraService(db=db)
 
     def _publish_update(self, analysis_id: str, status: str):
@@ -96,9 +86,10 @@ class AnalysisRunService:
             analysis.id, status.value if hasattr(status, "value") else status
         )
 
-    def _fetch_stories(self, connection_id: str, project_key: str):
+    def _fetch_stories(self, analysis: Analysis):
         return self.jira_service.fetch_stories(
-            connection_name=connection_id, project_key=project_key
+            connection_id=analysis.connection_id,
+            project_key=analysis.project_key,
         )
 
     def _count_defects(self, connection_id: str, project_key: str) -> int:
@@ -145,14 +136,11 @@ class AnalysisRunService:
         try:
             self._start_analysis(analysis)
 
-            stories = self._fetch_stories(
-                connection_id=analysis.connection_id,
-                project_key=analysis.project_key,
-            )
+            stories = self._fetch_stories(analysis=analysis)
             normalized_stories = [
                 WorkItemMinimal(
                     key=i.key,
-                    title=i.summary,
+                    summary=i.summary,
                     description=i.description or "",
                 )
                 for i in stories
@@ -218,16 +206,13 @@ class AnalysisRunService:
         try:
             self._start_analysis(analysis)
 
-            stories = self._fetch_stories(
-                connection_id=analysis.connection_id,
-                project_key=analysis.project_key,
-            )
+            stories = self._fetch_stories(analysis=analysis)
 
             normalized_stories = []
             target = None
             for i in stories:
                 wi = WorkItemMinimal(
-                    key=i.key, title=i.summary, description=i.description or ""
+                    key=i.key, summary=i.summary, description=i.description or ""
                 )
 
                 if wi.key == target_key:

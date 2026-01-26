@@ -6,6 +6,7 @@ redis_client = Redis(
     host=RedisConfig.REDIS_HOST,
     port=RedisConfig.REDIS_PORT,
     db=RedisConfig.REDIS_DB,
+    decode_responses=True,
 )
 
 task_queue = Queue("karela", connection=redis_client)

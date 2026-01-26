@@ -58,7 +58,7 @@ class UserStoryDto(BaseModel):
 
 class WorkItemMinimal(BaseModel):
     key: Optional[str] = None
-    title: Optional[str] = None
+    summary: Optional[str] = None
     description: Optional[str] = None
 
     model_config = ConfigDict(

@@ -13,6 +13,8 @@ export const DASHBOARD_KEYS = {
       projectKey,
       storyKey,
     ] as const,
+  connection: (connectionId: string) =>
+    [...DASHBOARD_KEYS.all, "connection", connectionId] as const,
 };
 
 export const useProjectDashboardQuery = (
@@ -45,5 +47,16 @@ export const useStoryDashboardQuery = (
         storyKey!,
       ),
     enabled: !!connectionId && !!projectKey && !!storyKey,
+  });
+};
+
+export const useConnectionDashboardQuery = (
+  connectionName: string | undefined,
+) => {
+  return useQuery({
+    queryKey: DASHBOARD_KEYS.connection(connectionName || ""),
+    queryFn: () =>
+      connectionService.getConnectionDashboardInfo(connectionName!),
+    enabled: !!connectionName,
   });
 };

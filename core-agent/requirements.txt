@@ -1,6 +1,5 @@
 pandas
 requests
-tqdm
 scikit-learn
 fastapi[all]
 sqlalchemy
@@ -8,19 +7,19 @@ uvicorn
 langchain
 langgraph
 langchain-google-genai
-langchain-openai
+# langchain-openai
 langchain-chroma
 pydantic
 pymysql
-html2text
 rq
 redis
 argon2-cffi
 PyJWT
 cryptography
 jira2markdown
+python-dotenv
+
 
 # nltk
 # sentence-transformers
 # torch
-python-dotenv

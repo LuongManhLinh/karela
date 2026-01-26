@@ -137,11 +137,11 @@ const PageLayout: React.FC<PageLayoutProps> = ({
     if (selectedConnection && selectedProject) {
       if (selectedStory && selectedStory.id !== NO_STORY_FILTER.id) {
         router.push(
-          `/app/connections/${selectedConnection.id}/projects/${selectedProject.key}/stories/${selectedStory.key}/${href}`,
+          `/app/connections/${selectedConnection.name}/projects/${selectedProject.key}/stories/${selectedStory.key}/${href}`,
         );
       } else {
         router.push(
-          `/app/connections/${selectedConnection.id}/projects/${selectedProject.key}/${href}`,
+          `/app/connections/${selectedConnection.name}/projects/${selectedProject.key}/${href}`,
         );
       }
     }
