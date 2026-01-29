@@ -1,0 +1,347 @@
+{
+  "ac": {
+    "AcChatPopover": {
+      "feedback": "Phản hồi",
+      "typeYourFeedback": "Nhập phản hồi của bạn..."
+    },
+    "AcEditorItemPage": {
+      "acceptanceCriteria": "Tiêu chí chấp nhận",
+      "acNotFound": "Không tìm thấy AC"
+    },
+    "AcEditorLayout": {
+      "noAcceptanceCriteriaFound": "Không tìm thấy Tiêu chí chấp nhận",
+      "forStory": "cho câu chuyện",
+      "acceptanceCriteria": "Tiêu chí chấp nhận",
+      "newGherkin": "Gherkin Mới",
+      "createAcceptanceCriteria": "Tạo Tiêu chí chấp nhận",
+      "create": "Tạo",
+      "generateWithAI": "Tạo bằng AI"
+    },
+    "AcEditorPage": {
+      "welcome": "Chào mừng bạn đến với Trình soạn thảo Gherkin",
+      "instruction": "Chọn một Câu chuyện và một Tiêu chí chấp nhận từ thanh bên để bắt đầu chỉnh sửa, hoặc tạo mới."
+    },
+    "GherkinEditorWrapper": {
+      "save": "Lưu",
+      "theme": "Giao diện",
+      "themes": {
+        "jira": "Jira (Sáng)",
+        "cucumber": "Cucumber (Tối)",
+        "github": "GitHub",
+        "monokai": "Monokai",
+        "twilight": "Twilight",
+        "solarized_light": "Solarized Sáng",
+        "solarized_dark": "Solarized Tối"
+      },
+      "errors": "Lỗi",
+      "noErrors": "Không có lỗi",
+      "aiSuggestions": "Gợi ý AI",
+      "aiTip": "Sử dụng TAB để chấp nhận gợi ý AI, hoặc SHIFT + TAB để bỏ qua.",
+      "reason": "Lý do",
+      "usageTip": "Tab để áp dụng, Shift+Tab để bỏ qua",
+      "regenerateAC": "Tái tạo AC"
+    },
+    "SuggestionPanel": {
+      "aiSuggestions": "Gợi ý AI",
+      "apply": "Áp dụng"
+    }
+  },
+  "MyAppBar": {
+    "profile": "Hồ sơ",
+    "changeTheme": "Đổi giao diện",
+    "logout": "Đăng xuất",
+    "language": "Ngôn ngữ",
+    "analysis": "Phân tích",
+    "chat": "Trò chuyện",
+    "proposals": "Đề xuất",
+    "ac": "AC",
+    "documentation": "Tài liệu"
+  },
+  "Common": {
+    "workspace": "Không gian làm việc",
+    "filter": "Lọc",
+    "new": "Mới",
+    "submit": "Gửi",
+    "cancel": "Hủy",
+    "notFound": "Không tìm thấy"
+  },
+  "SessionStartForm": {
+    "selectConnection": "Chọn kết nối",
+    "selectProject": "Chọn dự án",
+    "selectStory": "Chọn câu chuyện",
+    "noStory": "(Không có câu chuyện)",
+    "projects": "Dự án",
+    "stories": "Câu chuyện"
+  },
+  "SessionList": {
+    "noSessions": "Không có phiên nào"
+  },
+  "NoConnection": {
+    "noConnections": "Không có kết nối nào",
+    "setupConnection": "Thiết lập kết nối"
+  },
+  "PageLayout": {
+    "gherkinEditor": "Trình soạn thảo Gherkin",
+    "createNewItem": "Tạo mục mới"
+  },
+  "analysis": {
+    "AnalysisItemPage": {
+      "analysisRunning": "Đang phân tích...",
+      "rerunAnalysis": "Phân tích lại",
+      "defects": "Lỗi",
+      "exportToJson": "Xuất ra JSON",
+      "noDefectsFound": "Không tìm thấy lỗi nào trong phân tích này.",
+      "proposals": "Đề xuất",
+      "generating": "Đang tạo...",
+      "generateFromDefects": "Tạo từ các lỗi",
+      "noProposalsGenerated": "Chưa có đề xuất nào được tạo.",
+      "errorOccurred": "Rất tiếc! Đã xảy ra lỗi. Vui lòng tải lại trang.",
+      "errors": {
+        "failedToUpdateDefect": "Cập nhật trạng thái lỗi thất bại",
+        "failedToStartProposalGen": "Bắt đầu tạo đề xuất thất bại",
+        "failedToUpdateProposal": "Cập nhật đề xuất thất bại",
+        "failedToUpdateProposalContent": "Cập nhật nội dung đề xuất thất bại",
+        "failedToRerunAnalysis": "Phân tích lại thất bại"
+      }
+    },
+    "AnalysisLayout": {
+      "failedToStartAnalysis": "Bắt đầu phân tích thất bại",
+      "noAnalysesYet": "Chưa có phân tích nào",
+      "analyses": "Phân tích",
+      "runAnalysis": "Chạy phân tích",
+      "run": "Chạy"
+    },
+    "AnalysisPage": {
+      "selectAnalysis": "Chọn một phân tích để xem chi tiết."
+    },
+    "DefectCard": {
+      "severity": "Mức độ nghiêm trọng",
+      "confidence": "Độ tin cậy",
+      "markUnsolved": "Đánh dấu chưa giải quyết",
+      "markSolved": "Đánh dấu đã giải quyết",
+      "explanation": "Giải thích",
+      "suggestedFix": "Đề xuất sửa lỗi",
+      "relatedStories": "Các câu chuyện liên quan"
+    }
+  },
+  "chat": {
+    "AnalysisProgressMessage": {
+      "title": "Tiến trình phân tích"
+    },
+    "ChatItemPage": {
+      "connectionLost": "Mất kết nối. Vui lòng thử lại.",
+      "failedToUpdateProposal": "Cập nhật đề xuất thất bại",
+      "failedToUpdateProposalContent": "Cập nhật nội dung đề xuất thất bại",
+      "noMessages": "Không có tin nhắn nào trong phiên này",
+      "proposalsTitle": "Đề xuất ({count})",
+      "noProposals": "Chưa có đề xuất nào trong phiên này."
+    },
+    "ChatLayout": {
+      "noSessions": "Không tìm thấy phiên trò chuyện nào",
+      "sessionsLabel": "Phiên trò chuyện",
+      "newChat": "Trò chuyện mới",
+      "createChatLabel": "Tạo phiên trò chuyện"
+    },
+    "ChatPage": {
+      "gettingStarted": "Chọn hoặc tạo mới một phiên trò chuyện để bắt đầu."
+    },
+    "ChatSection": {
+      "placeholder": "Nhập tin nhắn của bạn..."
+    },
+    "ErrorMessage": {
+      "title": "Lỗi"
+    },
+    "FunctionCallMessage": {
+      "title": "Gọi hàm"
+    },
+    "ToolMessage": {
+      "title": "Kết quả công cụ"
+    }
+  },
+  "dashboard": {
+    "ProjectListSection": {
+      "noProjects": "Không có dự án nào"
+    },
+    "StoryListSection": {
+      "noStories": "Không có câu chuyện nào",
+      "noSummary": "Không có tóm tắt"
+    },
+    "ProjectDashboard": {
+      "title": "Bảng điều khiển Dự án",
+      "selectProject": "Chọn Dự án",
+      "filter": "Lọc",
+      "overview": "Tổng quan",
+      "storiesByActivity": "Câu chuyện theo hoạt động",
+      "withAnalyses": "Có Phân tích",
+      "noStoriesWithAnalyses": "Không có câu chuyện nào có phân tích",
+      "withChats": "Có Trò chuyện",
+      "noStoriesWithChats": "Không có câu chuyện nào có trò chuyện",
+      "withProposals": "Có Đề xuất",
+      "noStoriesWithProposals": "Không có câu chuyện nào có đề xuất",
+      "withAcs": "Có AC",
+      "noStoriesWithAcs": "Không có câu chuyện nào có AC",
+      "unableToLoad": "Không thể tải dữ liệu bảng điều khiển",
+      "selectToView": "Vui lòng chọn kết nối và dự án để xem bảng điều khiển"
+    },
+    "StoryDashboard": {
+      "title": "Bảng điều khiển Câu chuyện",
+      "selectStory": "Chọn Câu chuyện",
+      "filter": "Lọc",
+      "overview": "Tổng quan",
+      "storyDetails": "Chi tiết câu chuyện",
+      "key": "Mã",
+      "summary": "Tóm tắt",
+      "noSummary": "Không có tóm tắt",
+      "description": "Mô tả",
+      "noDescription": "Không có mô tả",
+      "unableToLoad": "Không thể tải dữ liệu bảng điều khiển"
+    },
+    "stats": {
+      "stories": "Câu chuyện",
+      "analyses": "Phân tích",
+      "chats": "Trò chuyện",
+      "proposals": "Đề xuất",
+      "acs": "Tiêu chí chấp nhận"
+    }
+  },
+  "errors": {
+    "ConnectionNotFound": {
+      "title": "Không tìm thấy kết nối",
+      "message": "Kết nối bạn đang tìm kiếm không tồn tại hoặc bạn không có quyền xem nó.",
+      "goDashboard": "Đi tới Bảng điều khiển"
+    },
+    "ProjectNotFound": {
+      "title": "Không tìm thấy dự án",
+      "message": "Dự án bạn đang tìm kiếm không tồn tại trong kết nối này.",
+      "goBack": "Quay lại"
+    }
+  },
+  "profile": {
+    "JiraConnectionItem": {
+      "error": "Lỗi",
+      "synced": "Đã đồng bộ",
+      "syncing": "Đang đồng bộ...",
+      "defaultName": "Kết nối Jira"
+    },
+    "ProfilePage": {
+      "title": "Hồ sơ",
+      "userInformation": "Thông tin người dùng",
+      "username": "Tên đăng nhập",
+      "email": "Email",
+      "jiraConnections": "Kết nối Jira",
+      "connectJiraToStart": "Kết nối tài khoản Jira của bạn để bắt đầu.",
+      "connectJiraButton": "Kết nối tài khoản Jira",
+      "connecting": "Đang kết nối...",
+      "update": "Cập nhật",
+      "delete": "Xóa",
+      "changePassword": "Đổi mật khẩu",
+      "currentPassword": "Mật khẩu hiện tại",
+      "newPassword": "Mật khẩu mới",
+      "confirmNewPassword": "Xác nhận mật khẩu mới",
+      "settings": "Cài đặt",
+      "editSettings": "Chỉnh sửa cài đặt",
+      "messages": {
+        "connectJiraPrompt": "Vui lòng kết nối tài khoản Jira của bạn để bắt đầu.",
+        "initiateFailed": "Không thể khởi tạo kết nối Jira",
+        "passwordsDoNotMatch": "Mật khẩu mới không khớp",
+        "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự",
+        "passwordChanged": "Đổi mật khẩu thành công",
+        "changePasswordFailed": "Không thể đổi mật khẩu"
+      }
+    }
+  },
+  "proposals": {
+    "ProposalCard": {
+      "status": {
+        "accepted": "Đã chấp nhận",
+        "rejected": "Đã từ chối",
+        "pending": "Đang chờ"
+      },
+      "actions": {
+        "accept": "Chấp nhận",
+        "reject": "Từ chối",
+        "revert": "Hoàn tác",
+        "edit": "Chỉnh sửa",
+        "save": "Lưu",
+        "cancel": "Hủy",
+        "acceptAll": "Chấp nhận tất cả",
+        "rejectAll": "Từ chối tất cả",
+        "revertAll": "Hoàn tác tất cả"
+      },
+      "project": "Dự án",
+      "changeCount": "{count} thay đổi",
+      "targetDefects": "Defect mục tiêu",
+      "created": "Đã tạo",
+      "explanation": "Giải thích",
+      "summary": "Tóm tắt",
+      "description": "Mô tả",
+      "viewChanges": "Nhấn để xem thay đổi"
+    },
+    "ProposalContentDiffDialog": {
+      "noChanges": "Không có thay đổi",
+      "summary": "Tóm tắt",
+      "description": "Mô tả",
+      "loadFailed": "Không thể tải câu chuyện hiện tại",
+      "type": {
+        "create": "Câu chuyện mới",
+        "update": "Cập nhật câu chuyện",
+        "delete": "Xóa câu chuyện",
+        "unknown": "Không xác định"
+      },
+      "title": "Thay đổi đề xuất",
+      "diffView": "Xem khác biệt",
+      "compareView": "Xem so sánh",
+      "showLineNumbers": "Hiển thị số dòng",
+      "renderMarkdown": "Hiển thị mô tả dưới dạng Markdown",
+      "createMessage": "Đề xuất này tạo một câu chuyện mới với nội dung sau:",
+      "updateMessage": "So sánh câu chuyện hiện tại với các thay đổi đề xuất:",
+      "deleteMessage": "Đề xuất này sẽ xóa câu chuyện sau:",
+      "explanation": "Giải thích",
+      "noContent": "Chưa chọn nội dung"
+    },
+    "ProposalLayout": {
+      "noAnalysisSessions": "Không có phiên phân tích nào có đề xuất",
+      "analysisProposals": "Đề xuất phân tích",
+      "noChatSessions": "Không có phiên trò chuyện nào có đề xuất",
+      "chatProposals": "Đề xuất trò chuyện"
+    },
+    "ProposalPage": {
+      "selectProposal": "Chọn một đề xuất để xem chi tiết."
+    },
+    "PropsalItemPage": {
+      "updateFailed": "Không thể cập nhật đề xuất",
+      "updateContentFailed": "Không thể cập nhật nội dung đề xuất",
+      "noProposals": "Không tìm thấy đề xuất nào cho kết nối này.",
+      "exportJson": "Xuất ra JSON"
+    }
+  },
+  "StoryDialog": {
+    "title": "Chi tiết câu chuyện",
+    "summary": "Tóm tắt",
+    "noSummary": "Không có tóm tắt",
+    "description": "Mô tả",
+    "noDescription": "Không có mô tả",
+    "noStoriesFound": "Không tìm thấy câu chuyện nào",
+    "failedToLoadStoryDetails": "Tải chi tiết câu chuyện thất bại"
+  },
+  "auth": {
+    "login": {
+      "signIn": "Đăng nhập",
+      "usernameOrEmail": "Tên đăng nhập hoặc Email",
+      "password": "Mật khẩu",
+      "noAccount": "Chưa có tài khoản? Đăng ký",
+      "failed": "Đăng nhập thất bại. Vui lòng thử lại."
+    },
+    "register": {
+      "signUp": "Đăng ký",
+      "username": "Tên đăng nhập",
+      "email": "Email (Không bắt buộc)",
+      "password": "Mật khẩu",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "alreadyHaveAccount": "Đã có tài khoản? Đăng nhập",
+      "passwordMismatch": "Mật khẩu không khớp",
+      "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự",
+      "failed": "Đăng ký thất bại. Vui lòng thử lại."
+    }
+  }
+}

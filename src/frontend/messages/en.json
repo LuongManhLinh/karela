@@ -1,0 +1,347 @@
+{
+  "ac": {
+    "AcChatPopover": {
+      "feedback": "Feedback",
+      "typeYourFeedback": "Type your feedback..."
+    },
+    "AcEditorItemPage": {
+      "acceptanceCriteria": "Acceptance Criteria",
+      "acNotFound": "AC Not Found"
+    },
+    "AcEditorLayout": {
+      "noAcceptanceCriteriaFound": "No Acceptance Criteria found",
+      "forStory": "for story",
+      "acceptanceCriteria": "Acceptance Criteria",
+      "newGherkin": "New Gherkin",
+      "createAcceptanceCriteria": "Create Acceptance Criteria",
+      "create": "Create",
+      "generateWithAI": "Generate with AI"
+    },
+    "AcEditorPage": {
+      "welcome": "Welcome to Gherkin Editor",
+      "instruction": "Select a Story and an Acceptance Criteria from the sidebar to start editing, or create a new one."
+    },
+    "GherkinEditorWrapper": {
+      "save": "Save",
+      "theme": "Theme",
+      "themes": {
+        "jira": "Jira (Light)",
+        "cucumber": "Cucumber (Dark)",
+        "github": "GitHub",
+        "monokai": "Monokai",
+        "twilight": "Twilight",
+        "solarized_light": "Solarized Light",
+        "solarized_dark": "Solarized Dark"
+      },
+      "errors": "Errors",
+      "noErrors": "No errors",
+      "aiSuggestions": "AI Suggestions",
+      "aiTip": "Use TAB to accept the AI suggestion, or SHIFT + TAB to dismiss it.",
+      "reason": "Reason",
+      "usageTip": "Tab to apply, Shift+Tab to dismiss",
+      "regenerateAC": "Regenerate AC"
+    },
+    "SuggestionPanel": {
+      "aiSuggestions": "AI Suggestions",
+      "apply": "Apply"
+    }
+  },
+  "MyAppBar": {
+    "profile": "Profile",
+    "changeTheme": "Change Theme",
+    "logout": "Logout",
+    "language": "Language",
+    "analysis": "Analysis",
+    "chat": "Chat",
+    "proposals": "Proposals",
+    "ac": "AC",
+    "documentation": "Documentation"
+  },
+  "Common": {
+    "workspace": "Workspace",
+    "filter": "Filter",
+    "new": "New",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "notFound": "Not Found"
+  },
+  "SessionStartForm": {
+    "selectConnection": "Select Connection",
+    "selectProject": "Select Project",
+    "selectStory": "Select Story",
+    "noStory": "(No Story)",
+    "projects": "Projects",
+    "stories": "Stories"
+  },
+  "SessionList": {
+    "noSessions": "No sessions available"
+  },
+  "NoConnection": {
+    "noConnections": "No Connections Available",
+    "setupConnection": "Set up connection"
+  },
+  "PageLayout": {
+    "gherkinEditor": "Gherkin Editor",
+    "createNewItem": "Create New Item"
+  },
+  "analysis": {
+    "AnalysisItemPage": {
+      "analysisRunning": "Analysis Running...",
+      "rerunAnalysis": "Rerun Analysis",
+      "defects": "Defects",
+      "exportToJson": "Export to JSON",
+      "noDefectsFound": "No defects found in this analysis.",
+      "proposals": "Proposals",
+      "generating": "Generating...",
+      "generateFromDefects": "Generate from defects",
+      "noProposalsGenerated": "No proposals generated yet.",
+      "errorOccurred": "Oops! Some error occurred. Please reload the page.",
+      "errors": {
+        "failedToUpdateDefect": "Failed to update defect status",
+        "failedToStartProposalGen": "Failed to start proposal generation",
+        "failedToUpdateProposal": "Failed to update proposal",
+        "failedToUpdateProposalContent": "Failed to update proposal content",
+        "failedToRerunAnalysis": "Failed to rerun analysis"
+      }
+    },
+    "AnalysisLayout": {
+      "failedToStartAnalysis": "Failed to start analysis",
+      "noAnalysesYet": "No analyses yet",
+      "analyses": "Analyses",
+      "runAnalysis": "Run Analysis",
+      "run": "Run"
+    },
+    "AnalysisPage": {
+      "selectAnalysis": "Select an analysis to view details."
+    },
+    "DefectCard": {
+      "severity": "Severity",
+      "confidence": "Confidence",
+      "markUnsolved": "Mark Unsolved",
+      "markSolved": "Mark Solved",
+      "explanation": "Explanation",
+      "suggestedFix": "Suggested Fix",
+      "relatedStories": "Related Stories"
+    }
+  },
+  "chat": {
+    "AnalysisProgressMessage": {
+      "title": "Analysis Progress"
+    },
+    "ChatItemPage": {
+      "connectionLost": "Connection lost. Please try again.",
+      "failedToUpdateProposal": "Failed to update proposal",
+      "failedToUpdateProposalContent": "Failed to update proposal content",
+      "noMessages": "No messages in this session",
+      "proposalsTitle": "Proposals ({count})",
+      "noProposals": "No proposals yet in this session."
+    },
+    "ChatLayout": {
+      "noSessions": "No chat sessions found",
+      "sessionsLabel": "Chat Sessions",
+      "newChat": "New Chat",
+      "createChatLabel": "Create Chat Session"
+    },
+    "ChatPage": {
+      "gettingStarted": "Select or create a chat session to get started."
+    },
+    "ChatSection": {
+      "placeholder": "Type your message..."
+    },
+    "ErrorMessage": {
+      "title": "Error"
+    },
+    "FunctionCallMessage": {
+      "title": "Function Call"
+    },
+    "ToolMessage": {
+      "title": "Tool Output"
+    }
+  },
+  "dashboard": {
+    "ProjectListSection": {
+      "noProjects": "No projects"
+    },
+    "StoryListSection": {
+      "noStories": "No stories",
+      "noSummary": "No summary"
+    },
+    "ProjectDashboard": {
+      "title": "Project Dashboard",
+      "selectProject": "Select Project",
+      "filter": "Filter",
+      "overview": "Overview",
+      "storiesByActivity": "Stories by Activity",
+      "withAnalyses": "With Analyses",
+      "noStoriesWithAnalyses": "No stories with analyses",
+      "withChats": "With Chats",
+      "noStoriesWithChats": "No stories with chats",
+      "withProposals": "With Proposals",
+      "noStoriesWithProposals": "No stories with proposals",
+      "withAcs": "With ACs",
+      "noStoriesWithAcs": "No stories with ACs",
+      "unableToLoad": "Unable to load dashboard data",
+      "selectToView": "Please select a connection and project to view the dashboard"
+    },
+    "StoryDashboard": {
+      "title": "Story Dashboard",
+      "selectStory": "Select Story",
+      "filter": "Filter",
+      "overview": "Overview",
+      "storyDetails": "Story Details",
+      "key": "Key",
+      "summary": "Summary",
+      "noSummary": "No summary available",
+      "description": "Description",
+      "noDescription": "No description available",
+      "unableToLoad": "Unable to load dashboard data"
+    },
+    "stats": {
+      "stories": "Stories",
+      "analyses": "Analyses",
+      "chats": "Chats",
+      "proposals": "Proposals",
+      "acs": "Acceptance Criteria"
+    }
+  },
+  "errors": {
+    "ConnectionNotFound": {
+      "title": "Connection Not Found",
+      "message": "The connection you are looking for does not exist or you do not have permission to view it.",
+      "goDashboard": "Go to Dashboard"
+    },
+    "ProjectNotFound": {
+      "title": "Project Not Found",
+      "message": "The project you are looking for does not exist in this connection.",
+      "goBack": "Go Back"
+    }
+  },
+  "profile": {
+    "JiraConnectionItem": {
+      "error": "Error",
+      "synced": "Synced",
+      "syncing": "Syncing...",
+      "defaultName": "Jira Connection"
+    },
+    "ProfilePage": {
+      "title": "Profile",
+      "userInformation": "User Information",
+      "username": "Username",
+      "email": "Email",
+      "jiraConnections": "Jira Connections",
+      "connectJiraToStart": "Connect your Jira account to get started.",
+      "connectJiraButton": "Connect Jira Account",
+      "connecting": "Connecting...",
+      "update": "Update",
+      "delete": "Delete",
+      "changePassword": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmNewPassword": "Confirm New Password",
+      "settings": "Settings",
+      "editSettings": "Edit Settings",
+      "messages": {
+        "connectJiraPrompt": "Please connect your Jira account to get started.",
+        "initiateFailed": "Failed to initiate Jira connection",
+        "passwordsDoNotMatch": "New passwords do not match",
+        "passwordTooShort": "Password must be at least 6 characters long",
+        "passwordChanged": "Password changed successfully",
+        "changePasswordFailed": "Failed to change password"
+      }
+    }
+  },
+  "proposals": {
+    "ProposalCard": {
+      "status": {
+        "accepted": "Accepted",
+        "rejected": "Rejected",
+        "pending": "Pending"
+      },
+      "actions": {
+        "accept": "Accept",
+        "reject": "Reject",
+        "revert": "Revert",
+        "edit": "Edit",
+        "save": "Save",
+        "cancel": "Cancel",
+        "acceptAll": "Accept All",
+        "rejectAll": "Reject All",
+        "revertAll": "Revert All"
+      },
+      "project": "Project",
+      "changeCount": "{count} {count, plural, one {change} other {changes}}",
+      "targetDefects": "Target Defects",
+      "created": "Created",
+      "explanation": "Explanation",
+      "summary": "Summary",
+      "description": "Description",
+      "viewChanges": "Click to view changes"
+    },
+    "ProposalContentDiffDialog": {
+      "noChanges": "No changes",
+      "summary": "Summary",
+      "description": "Description",
+      "loadFailed": "Failed to load current story",
+      "type": {
+        "create": "New Story",
+        "update": "Update Story",
+        "delete": "Delete Story",
+        "unknown": "Unknown"
+      },
+      "title": "Proposal Changes",
+      "diffView": "Diff View",
+      "compareView": "Compare View",
+      "showLineNumbers": "Show line numbers",
+      "renderMarkdown": "Render descriptions as Markdown",
+      "createMessage": "This proposal creates a new story with the following content:",
+      "updateMessage": "Comparing current story with proposed changes:",
+      "deleteMessage": "This proposal will delete the following story:",
+      "explanation": "Explanation",
+      "noContent": "No content selected"
+    },
+    "ProposalLayout": {
+      "noAnalysisSessions": "No analysis sessions having proposals",
+      "analysisProposals": "Analysis Proposals",
+      "noChatSessions": "No chat sessions having proposals",
+      "chatProposals": "Chat Proposals"
+    },
+    "ProposalPage": {
+      "selectProposal": "Select a proposal to view details."
+    },
+    "PropsalItemPage": {
+      "updateFailed": "Failed to update proposal",
+      "updateContentFailed": "Failed to update proposal content",
+      "noProposals": "No proposals found for this connection.",
+      "exportJson": "Export to JSON"
+    }
+  },
+  "StoryDialog": {
+    "title": "Story Details",
+    "summary": "Summary",
+    "noSummary": "No summary",
+    "description": "Description",
+    "noDescription": "No description",
+    "noStoriesFound": "No stories found",
+    "failedToLoadStoryDetails": "Failed to load story details"
+  },
+  "auth": {
+    "login": {
+      "signIn": "Sign In",
+      "usernameOrEmail": "Username or Email",
+      "password": "Password",
+      "noAccount": "Don't have an account? Sign Up",
+      "failed": "Login failed. Please try again."
+    },
+    "register": {
+      "signUp": "Sign Up",
+      "username": "Username",
+      "email": "Email (Optional)",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "alreadyHaveAccount": "Already have an account? Sign In",
+      "passwordMismatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 6 characters long",
+      "failed": "Registration failed. Please try again."
+    }
+  }
+}
