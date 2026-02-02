@@ -3,24 +3,47 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface WorkspaceState {
+  connections: ConnectionDto[];
+
   selectedConnection: ConnectionDto | null;
   selectedProject: ProjectDto | null;
   selectedStory: StorySummary | null;
+  projects: ProjectDto[];
+  stories: StorySummary[];
+
+  runSelectedConnection: ConnectionDto | null;
+  runSelectedProject: ProjectDto | null;
+  runSelectedStory: StorySummary | null;
+  runProjects: ProjectDto[];
+  runStories: StorySummary[];
+
+  urlSelectedConnection: ConnectionDto | null;
+  urlSelectedProject: ProjectDto | null;
+  urlSelectedStory: StorySummary | null;
+
   headerProjectKey: string;
   headerStoryKey: string;
 
-  connections: ConnectionDto[];
-  projects: ProjectDto[];
-  stories: StorySummary[];
+  setConnections: (connections: ConnectionDto[]) => void;
 
   setSelectedConnection: (connection: ConnectionDto | null) => void;
   setSelectedProject: (project: ProjectDto | null) => void;
   setSelectedStory: (story: StorySummary | null) => void;
-  setHeaderProjectKey: (key: string) => void;
-  setHeaderStoryKey: (key: string) => void;
-  setConnections: (connections: ConnectionDto[]) => void;
   setProjects: (projects: ProjectDto[]) => void;
   setStories: (stories: StorySummary[]) => void;
+
+  setRunSelectedConnection: (connection: ConnectionDto | null) => void;
+  setRunSelectedProject: (project: ProjectDto | null) => void;
+  setRunSelectedStory: (story: StorySummary | null) => void;
+  setRunProjects: (projects: ProjectDto[]) => void;
+  setRunStories: (stories: StorySummary[]) => void;
+
+  setUrlSelectedConnection: (connection: ConnectionDto | null) => void;
+  setUrlSelectedProject: (project: ProjectDto | null) => void;
+  setUrlSelectedStory: (story: StorySummary | null) => void;
+
+  setHeaderProjectKey: (key: string) => void;
+  setHeaderStoryKey: (key: string) => void;
 
   // Actions to reset dependent states
   resetSelection: () => void;
@@ -30,14 +53,25 @@ interface WorkspaceState {
 export const useWorkspaceStore = create<WorkspaceState>()(
   persist(
     (set) => ({
+      connections: [],
+
       selectedConnection: null,
       selectedProject: null,
       selectedStory: null,
+      runSelectedConnection: null,
+      runSelectedProject: null,
+      runSelectedStory: null,
+      urlSelectedConnection: null,
+      urlSelectedProject: null,
+      urlSelectedStory: null,
       headerProjectKey: "",
       headerStoryKey: "",
-      connections: [],
       projects: [],
       stories: [],
+      runProjects: [],
+      runStories: [],
+
+      setConnections: (connections) => set({ connections: connections }),
 
       setSelectedConnection: (conn) =>
         set((state) => ({
@@ -53,18 +87,46 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         })),
 
       setSelectedStory: (story) => set({ selectedStory: story }),
+
+      setRunSelectedConnection: (conn) =>
+        set((state) => ({
+          runSelectedConnection: conn,
+          runSelectedProject: null,
+          runSelectedStory: null,
+        })),
+
+      setRunSelectedProject: (proj) =>
+        set((state) => ({
+          runSelectedProject: proj,
+          runSelectedStory: null,
+        })),
+
+      setRunSelectedStory: (story) => set({ runSelectedStory: story }),
+
+      setUrlSelectedConnection: (conn) => set({ urlSelectedConnection: conn }),
+      setUrlSelectedProject: (proj) => set({ urlSelectedProject: proj }),
+      setUrlSelectedStory: (story) => set({ urlSelectedStory: story }),
+
       setHeaderProjectKey: (key) => set({ headerProjectKey: key }),
       setHeaderStoryKey: (key) => set({ headerStoryKey: key }),
 
-      setConnections: (connections) => set({ connections }),
-      setProjects: (projects) => set({ projects }),
-      setStories: (stories) => set({ stories }),
+      setProjects: (projects) => set({ projects: projects }),
+      setStories: (stories) => set({ stories: stories }),
+
+      setRunProjects: (projects) => set({ runProjects: projects }),
+      setRunStories: (stories) => set({ runStories: stories }),
 
       resetSelection: () =>
         set({
           selectedConnection: null,
           selectedProject: null,
           selectedStory: null,
+          runSelectedConnection: null,
+          runSelectedProject: null,
+          runSelectedStory: null,
+          urlSelectedConnection: null,
+          urlSelectedProject: null,
+          urlSelectedStory: null,
         }),
       resetHeaderKeys: () =>
         set({

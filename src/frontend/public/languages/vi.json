@@ -15,7 +15,8 @@
       "newGherkin": "Gherkin Mới",
       "createAcceptanceCriteria": "Tạo Tiêu chí chấp nhận",
       "create": "Tạo",
-      "generateWithAI": "Tạo bằng AI"
+      "generateWithAI": "Tạo bằng AI",
+      "headerText": "Trình soạn thảo Gherkin"
     },
     "AcEditorPage": {
       "welcome": "Chào mừng bạn đến với Trình soạn thảo Gherkin",
@@ -82,7 +83,8 @@
   },
   "PageLayout": {
     "gherkinEditor": "Trình soạn thảo Gherkin",
-    "createNewItem": "Tạo mục mới"
+    "createNewItem": "Tạo mục mới",
+    "filterSessions": "Lọc phiên"
   },
   "analysis": {
     "AnalysisItemPage": {
@@ -109,7 +111,8 @@
       "noAnalysesYet": "Chưa có phân tích nào",
       "analyses": "Phân tích",
       "runAnalysis": "Chạy phân tích",
-      "run": "Chạy"
+      "run": "Chạy",
+      "headerText": "Phân tích"
     },
     "AnalysisPage": {
       "selectAnalysis": "Chọn một phân tích để xem chi tiết."
@@ -140,7 +143,8 @@
       "noSessions": "Không tìm thấy phiên trò chuyện nào",
       "sessionsLabel": "Phiên trò chuyện",
       "newChat": "Trò chuyện mới",
-      "createChatLabel": "Tạo phiên trò chuyện"
+      "createChatLabel": "Tạo phiên trò chuyện",
+      "headerText": "Trò chuyện"
     },
     "ChatPage": {
       "gettingStarted": "Chọn hoặc tạo mới một phiên trò chuyện để bắt đầu."
@@ -166,9 +170,25 @@
       "noStories": "Không có câu chuyện nào",
       "noSummary": "Không có tóm tắt"
     },
+    "ConnectionDashboard": {
+      "title": "Bảng điều khiển Kết nối",
+      "connectionInformation": "Thông tin URL",
+      "overview": "Tổng quan",
+      "projectsByActivity": "Dự án theo hoạt động",
+      "withAnalyses": "Có Phân tích",
+      "noProjectsWithAnalyses": "Không có dự án nào có phân tích",
+      "withChats": "Có Trò chuyện",
+      "noProjectsWithChats": "Không có dự án nào có trò chuyện",
+      "withProposals": "Có Đề xuất",
+      "noProjectsWithProposals": "Không có dự án nào có đề xuất",
+      "withAcs": "Có AC",
+      "noProjectsWithAcs": "Không có dự án nào có AC",
+      "unableToLoad": "Không thể tải dữ liệu bảng điều khiển",
+      "selectToView": "Vui lòng chọn kết nối để xem bảng điều khiển"
+    },
     "ProjectDashboard": {
       "title": "Bảng điều khiển Dự án",
-      "selectProject": "Chọn Dự án",
+      "selectProject": "Thông tin URL",
       "filter": "Lọc",
       "overview": "Tổng quan",
       "storiesByActivity": "Câu chuyện theo hoạt động",
@@ -185,7 +205,7 @@
     },
     "StoryDashboard": {
       "title": "Bảng điều khiển Câu chuyện",
-      "selectStory": "Chọn Câu chuyện",
+      "selectStory": "Thông tin URL",
       "filter": "Lọc",
       "overview": "Tổng quan",
       "storyDetails": "Chi tiết câu chuyện",
@@ -197,6 +217,7 @@
       "unableToLoad": "Không thể tải dữ liệu bảng điều khiển"
     },
     "stats": {
+      "projects": "Dự án",
       "stories": "Câu chuyện",
       "analyses": "Phân tích",
       "chats": "Trò chuyện",
@@ -213,6 +234,11 @@
     "ProjectNotFound": {
       "title": "Không tìm thấy dự án",
       "message": "Dự án bạn đang tìm kiếm không tồn tại trong kết nối này.",
+      "goBack": "Quay lại"
+    },
+    "StoryNotFound": {
+      "title": "Không tìm thấy câu chuyện",
+      "message": "Câu chuyện bạn đang tìm kiếm không tồn tại trong dự án này.",
       "goBack": "Quay lại"
     }
   },
@@ -303,7 +329,8 @@
       "noAnalysisSessions": "Không có phiên phân tích nào có đề xuất",
       "analysisProposals": "Đề xuất phân tích",
       "noChatSessions": "Không có phiên trò chuyện nào có đề xuất",
-      "chatProposals": "Đề xuất trò chuyện"
+      "chatProposals": "Đề xuất trò chuyện",
+      "headerText": "Đề xuất"
     },
     "ProposalPage": {
       "selectProposal": "Chọn một đề xuất để xem chi tiết."

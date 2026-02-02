@@ -20,7 +20,8 @@ export default function ProjectLayout({
     };
   }, [params]);
 
-  const { setStories } = useWorkspaceStore();
+  const { projects, setUrlSelectedProject, setUrlSelectedStory, setStories } =
+    useWorkspaceStore();
   const [isValidProject, setIsValidProject] = useState<boolean | null>(null);
 
   // Fetch stories for the valid project
@@ -29,13 +30,23 @@ export default function ProjectLayout({
 
   useEffect(() => {
     const stories = storiesData?.data;
-    if (stories === null || stories === undefined) {
+    const project = projects.find((proj) => proj.key === projectKey);
+    if (!project || stories === null || stories === undefined) {
       setIsValidProject(false);
     } else {
       setIsValidProject(true);
+      setUrlSelectedProject(project);
+      setUrlSelectedStory(null);
       setStories(stories);
     }
-  }, [storiesData, setStories]);
+  }, [
+    storiesData,
+    projectKey,
+    projects,
+    setUrlSelectedProject,
+    setStories,
+    setUrlSelectedStory,
+  ]);
 
   if (isValidProject === null) {
     return <AppLoading />;

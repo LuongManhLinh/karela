@@ -18,7 +18,13 @@ export default function ConnectionLayout({
     return params?.connectionName as string;
   }, [params]);
 
-  const { setProjects, setSelectedProject } = useWorkspaceStore();
+  const {
+    connections,
+    setUrlSelectedConnection,
+    setUrlSelectedProject,
+    setUrlSelectedStory,
+    setProjects,
+  } = useWorkspaceStore();
   const [isValidConnection, setIsValidConnection] = useState<boolean | null>(
     null,
   );
@@ -30,19 +36,28 @@ export default function ConnectionLayout({
 
   useEffect(() => {
     const projects = projectsData?.data;
-    if (projects === null || projects === undefined) {
+    const connection = connections.find((conn) => conn.name === connectionName);
+    if (!connection || projects === null || projects === undefined) {
       setIsValidConnection(false);
     } else {
       setIsValidConnection(true);
+      setUrlSelectedConnection(connection);
+      setUrlSelectedProject(null);
+      setUrlSelectedStory(null);
       setProjects(projects);
       if (projects.length === 0) {
         setIsProjectsEmpty(true);
       } else {
         setIsProjectsEmpty(false);
-        // Don't auto-select the first project - let the user select it
       }
     }
-  }, [projectsData, setProjects]);
+  }, [
+    projectsData,
+    connectionName,
+    connections,
+    setUrlSelectedConnection,
+    setProjects,
+  ]);
 
   if (isValidConnection === null) {
     return <AppLoading />;

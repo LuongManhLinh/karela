@@ -1,18 +1,11 @@
 "use client";
 
 import React, { use, useMemo } from "react";
-import {
-  Box,
-  Container,
-  Paper,
-  Typography,
-  useTheme,
-  Stack,
-} from "@mui/material";
+import { Box, Paper, Typography, useTheme } from "@mui/material";
 import { Analytics, Assistant, EmojiObjects, Code } from "@mui/icons-material";
 import { useParams, useRouter } from "next/navigation";
 
-import { Layout } from "@/components/Layout";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { SessionStartForm } from "@/components/SessionStartForm";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { StatsGrid } from "@/components/dashboard/StatsGrid";
@@ -20,7 +13,6 @@ import { useStoryDashboardQuery } from "@/hooks/queries/useDashboardQueries";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { useTranslations } from "next-intl";
 import type {
-  StoryDashboardDto,
   ConnectionDto,
   ProjectDto,
   StorySummary,
@@ -44,15 +36,15 @@ const StoryDashboard: React.FC = () => {
   }, [params]);
 
   const {
-    selectedConnection,
-    setSelectedConnection,
-    selectedProject,
-    setSelectedProject,
-    selectedStory,
-    setSelectedStory,
-    connections,
-    projects,
-    stories,
+    selectedConnection: selectedConnection,
+    setSelectedConnection: setSelectedConnection,
+    selectedProject: selectedProject,
+    setSelectedProject: setSelectedProject,
+    selectedStory: selectedStory,
+    setSelectedStory: setSelectedStory,
+    connections: connections,
+    projects: projects,
+    stories: stories,
   } = useWorkspaceStore();
 
   const { data: dashboardData, isLoading } = useStoryDashboardQuery(
@@ -136,161 +128,119 @@ const StoryDashboard: React.FC = () => {
     : [];
 
   return (
-    <Layout
-      appBarLeftContent={
-        <Stack direction="row" alignItems="center" spacing={2} py={2}>
-          <Typography variant="h5">{t("title")}</Typography>
-          {selectedStory && (
-            <Typography variant="h6" color="text.secondary">
-              {selectedStory.key} - {selectedStory.summary}
-            </Typography>
-          )}
-        </Stack>
+    <DashboardLayout
+      title={t("title")}
+      subtitle={
+        selectedStory
+          ? `${selectedStory.key} - ${selectedStory.summary}`
+          : undefined
       }
-      appBarTransparent
       basePath={basePath}
+      filterSectionTitle={t("selectStory")}
     >
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4, overflowY: "auto" }}>
-        {/* Filter Section */}
-        <Paper
-          elevation={2}
+      {/* Dashboard Content */}
+      {isLoading ? (
+        <Box
           sx={{
-            p: 3,
-            mb: 3,
-            borderRadius: 1,
-            bgcolor: "background.paper",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: 300,
           }}
         >
-          <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-            {t("selectStory")}
-          </Typography>
-          <SessionStartForm
-            connectionOptions={{
-              options: connections,
-              selectedOption: selectedConnection,
-              onChange: handleConnectionChange,
-            }}
-            projectOptions={{
-              options: projects,
-              selectedOption: selectedProject,
-              onChange: handleProjectChange,
-            }}
-            storyOptions={{
-              options: stories,
-              selectedOption: selectedStory,
-              onChange: handleStoryChange,
-            }}
-            primaryAction={{
-              label: t("filter"),
-              onClick: handleFilter,
-            }}
-          />
-        </Paper>
-
-        {/* Dashboard Content */}
-        {isLoading ? (
-          <Box
+          <LoadingSpinner />
+        </Box>
+      ) : dashboard ? (
+        <>
+          {/* Statistics Grid */}
+          <Paper
+            elevation={2}
             sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              minHeight: 300,
+              p: 3,
+              mb: 3,
+              borderRadius: 1,
+              bgcolor: "background.paper",
             }}
           >
-            <LoadingSpinner />
-          </Box>
-        ) : dashboard ? (
-          <>
-            {/* Statistics Grid */}
-            <Paper
-              elevation={2}
-              sx={{
-                p: 3,
-                mb: 3,
-                borderRadius: 1,
-                bgcolor: "background.paper",
-              }}
-            >
-              <StatsGrid stats={stats} title={t("overview")} />
-            </Paper>
+            <StatsGrid stats={stats} title={t("overview")} />
+          </Paper>
 
-            <Paper
-              elevation={2}
-              sx={{
-                p: 3,
-                borderRadius: 1,
-                bgcolor: "background.paper",
-              }}
-            >
-              <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-                {t("storyDetails")}
-              </Typography>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Paper
+            elevation={2}
+            sx={{
+              p: 3,
+              borderRadius: 1,
+              bgcolor: "background.paper",
+            }}
+          >
+            <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
+              {t("storyDetails")}
+            </Typography>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Typography
+                  variant="body2"
+                  fontWeight={600}
+                  color="text.secondary"
+                >
+                  {t("key")}:
+                </Typography>
+                <Typography variant="body1" color="primary.main">
+                  {storyKey}
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 2,
+                  flexDirection: "column",
+                }}
+              >
+                <Box>
                   <Typography
                     variant="body2"
                     fontWeight={600}
                     color="text.secondary"
                   >
-                    {t("key")}:
+                    {t("summary")}:
                   </Typography>
-                  <Typography variant="body1" color="primary.main">
-                    {storyKey}
+                  <Typography variant="body1" color="text.primary">
+                    {storyDetails?.summary || t("noSummary")}
                   </Typography>
                 </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: 2,
-                    flexDirection: "column",
-                  }}
-                >
-                  <Box>
-                    <Typography
-                      variant="body2"
-                      fontWeight={600}
-                      color="text.secondary"
-                    >
-                      {t("summary")}:
-                    </Typography>
-                    <Typography variant="body1" color="text.primary">
-                      {storyDetails?.summary || t("noSummary")}
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography
-                      variant="body2"
-                      fontWeight={600}
-                      color="text.secondary"
-                    >
-                      {t("description")}:
-                    </Typography>
-                    <Typography variant="body1" color="text.primary">
-                      {storyDetails?.description || t("noDescription")}
-                    </Typography>
-                  </Box>
+                <Box>
+                  <Typography
+                    variant="body2"
+                    fontWeight={600}
+                    color="text.secondary"
+                  >
+                    {t("description")}:
+                  </Typography>
+                  <Typography variant="body1" color="text.primary">
+                    {storyDetails?.description || t("noDescription")}
+                  </Typography>
                 </Box>
               </Box>
-            </Paper>
-          </>
-        ) : (
-          <Paper
-            elevation={2}
-            sx={{
-              p: 3,
-              borderRadius: 2,
-              bgcolor: "background.paper",
-              textAlign: "center",
-            }}
-          >
-            <Typography variant="body1" color="text.secondary">
-              {t("unableToLoad")}
-            </Typography>
+            </Box>
           </Paper>
-        )}
-      </Container>
-    </Layout>
+        </>
+      ) : (
+        <Paper
+          elevation={2}
+          sx={{
+            p: 3,
+            borderRadius: 2,
+            bgcolor: "background.paper",
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="body1" color="text.secondary">
+            {t("unableToLoad")}
+          </Typography>
+        </Paper>
+      )}
+    </DashboardLayout>
   );
 };
 

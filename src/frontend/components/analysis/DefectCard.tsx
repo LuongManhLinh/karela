@@ -47,6 +47,8 @@ const DefectCard: React.FC<DefectCardProps> = ({
       elevation={1}
       sx={{
         borderRadius: 1,
+        bgcolor: "secondaryContainer",
+        color: "onSecondaryContainer",
       }}
     >
       <CardContent sx={{ p: 3 }}>

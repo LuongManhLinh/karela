@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ThemeProvider } from "@/components/ThemeProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 import QueryProvider from "@/components/providers/QueryProvider";
 import { WebSocketProvider } from "@/providers/WebSocketProvider";
 import { NextIntlClientProvider } from "next-intl";

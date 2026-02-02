@@ -36,7 +36,7 @@ export interface SubmitAction {
 }
 
 export interface SessionStartFormProps {
-  connectionOptions?: SelectableOptions<ConnectionDto>;
+  connectionOptions: SelectableOptions<ConnectionDto>;
   projectOptions?: SelectableOptions<ProjectDto>;
   storyOptions?: SelectableOptions<StorySummary>;
   primaryAction?: SubmitAction;
@@ -289,10 +289,10 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
             variant="contained"
             fullWidth
             disabled={
+              primaryAction.disabled ||
               connectionOptions?.loading ||
               projectOptions?.loading ||
-              storyOptions?.loading ||
-              primaryAction.disabled
+              storyOptions?.loading
             }
             onClick={primaryAction.onClick}
           >
@@ -305,10 +305,10 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
             variant="outlined"
             fullWidth
             disabled={
+              secondaryAction.disabled ||
               connectionOptions?.loading ||
               projectOptions?.loading ||
-              storyOptions?.loading ||
-              secondaryAction.disabled
+              storyOptions?.loading
             }
             onClick={secondaryAction.onClick}
           >

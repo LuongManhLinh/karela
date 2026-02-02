@@ -81,7 +81,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
     isLoading: loadingProposals,
     refetch: fetchSessionProposals,
   } = useSessionProposalsQuery(
-    idOrKey,
+    sessionData?.data?.id,
     "CHAT",
     connectionName,
     projectFilterKey,

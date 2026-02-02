@@ -2,23 +2,32 @@
 
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { WorkspaceSessions, WorkspaceShell } from "@/components/WorkspaceShell";
+import { WorkspaceSessions } from "@/components/WorkspaceShell";
 import type {
   ConnectionDto,
   ProjectDto,
   StorySummary,
 } from "@/types/connection";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
-import { NO_STORY_FILTER, USE_NO_STORY } from "@/constants/selectable";
-import { SessionStartDialog } from "@/components/SessionStartDialog";
+import {
+  DefaultSessionFilterDialog,
+  SessionFilterDialog,
+  SessionStartDialog,
+} from "@/components/SessionDialog";
 
 import { connectionService } from "@/services/connectionService";
 import { useTranslations } from "next-intl";
 import { PageLevel } from "@/types";
+import HeaderContent from "./HeaderContent";
+import { DoubleLayout } from "./Layout";
+import { Box, Button, Divider, Typography } from "@mui/material";
+import SessionList from "./SessionList";
+import { UrlInformation } from "./UrlInformation";
 
 export interface PageLayoutProps {
   children: React.ReactNode;
   level: PageLevel;
+  headerText?: string;
   connectionName: string;
   projectKey?: string;
   storyKey?: string;
@@ -32,23 +41,24 @@ export interface PageLayoutProps {
   primaryAction?: (
     connection: ConnectionDto,
     project: ProjectDto,
-    story: StorySummary,
+    story?: StorySummary,
   ) => Promise<string | null | undefined>;
   primaryActionLabel?: string;
   secondaryAction?: (
     connection: ConnectionDto,
     project: ProjectDto,
-    story: StorySummary,
+    story?: StorySummary,
   ) => Promise<string | null | undefined>;
   secondaryActionLabel?: string;
-  useNoStoryFilter?: boolean;
-  useNoStoryRunner?: boolean;
+  showStoryCheckbox?: boolean;
+  requireStory?: boolean;
 }
 
 const PageLayout: React.FC<PageLayoutProps> = ({
   children,
   level,
   href,
+  headerText,
   connectionName,
   projectKey,
   storyKey,
@@ -62,36 +72,35 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   secondaryAction,
   primaryActionLabel,
   secondaryActionLabel,
-  useNoStoryFilter,
-  useNoStoryRunner,
+  showStoryCheckbox = true,
+  requireStory = false,
 }) => {
   const tCommon = useTranslations("Common");
   const tPage = useTranslations("PageLayout");
   const [startDialogOpen, setStartDialogOpen] = useState(false);
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 
   const {
     connections,
-    projects,
-    stories,
     selectedConnection,
     setSelectedConnection,
-    setProjects,
     selectedProject,
     setSelectedProject,
-    setStories,
     selectedStory,
     setSelectedStory,
+    runSelectedConnection,
+    runSelectedProject,
+    runSelectedStory,
+    runProjects,
+    runStories,
+    setRunSelectedConnection,
+    setRunSelectedProject,
+    setRunSelectedStory,
+    setRunProjects,
+    setRunStories,
     headerProjectKey,
     headerStoryKey,
   } = useWorkspaceStore();
-
-  const filterableStories = useMemo(() => {
-    let storyOptions = stories;
-    if (useNoStoryFilter && stories.length > 0) {
-      storyOptions = [NO_STORY_FILTER, ...stories];
-    }
-    return storyOptions;
-  }, [stories, useNoStoryFilter]);
 
   const basePath = useMemo(() => {
     switch (level) {
@@ -106,52 +115,41 @@ const PageLayout: React.FC<PageLayoutProps> = ({
 
   const router = useRouter();
 
-  const [isProjectsLoading, setIsProjectsLoading] = useState(false);
-  const [isStoriesLoading, setIsStoriesLoading] = useState(false);
+  const [dialogIsProjectsLoading, setDialogIsProjectsLoading] = useState(false);
+  const [dialogIsStoriesLoading, setDialogIsStoriesLoading] = useState(false);
 
-  const handleConnectionChange = async (conn: ConnectionDto | null) => {
-    setIsProjectsLoading(true);
-    setSelectedConnection(conn);
-    setSelectedProject(null);
-    setSelectedStory(null);
+  const handleDialogConnectionChange = async (conn: ConnectionDto | null) => {
+    setDialogIsProjectsLoading(true);
+    setRunSelectedConnection(conn);
+    setRunSelectedProject(null);
+    setRunSelectedStory(null);
+    setRunProjects([]);
+    setRunStories([]);
 
     if (conn) {
       const projectsData = await connectionService.getProjects(conn.name);
-      setProjects(projectsData?.data || []);
+      setRunProjects(projectsData?.data || []);
     }
-    setIsProjectsLoading(false);
+    setDialogIsProjectsLoading(false);
   };
 
-  const handleProjectChange = async (proj: ProjectDto | null) => {
-    setIsStoriesLoading(true);
-    setSelectedProject(proj);
-    setSelectedStory(null);
-    if (proj) {
+  const handleDialogProjectChange = async (proj: ProjectDto | null) => {
+    setDialogIsStoriesLoading(true);
+    setRunSelectedProject(proj);
+    setRunSelectedStory(null);
+    setRunStories([]);
+    if (proj && runSelectedConnection) {
       const storiesData = await connectionService.getStorySummaries(
-        selectedConnection!.name,
+        runSelectedConnection.name,
         proj.key,
       );
-      setStories(storiesData?.data || []);
+      setRunStories(storiesData?.data || []);
     }
-    setIsStoriesLoading(false);
+    setDialogIsStoriesLoading(false);
   };
 
-  const handleStoryChange = async (story: StorySummary | null) => {
-    setSelectedStory(story);
-  };
-
-  const handleFilter = async () => {
-    if (selectedConnection && selectedProject) {
-      if (selectedStory && selectedStory.id !== NO_STORY_FILTER.id) {
-        router.push(
-          `/app/connections/${selectedConnection.name}/projects/${selectedProject.key}/stories/${selectedStory.key}/${href}`,
-        );
-      } else {
-        router.push(
-          `/app/connections/${selectedConnection.name}/projects/${selectedProject.key}/${href}`,
-        );
-      }
-    }
+  const handleDialogStoryChange = async (story: StorySummary | null) => {
+    setRunSelectedStory(story);
   };
 
   const handleSelectPrimarySession = async (sessionId: string) => {
@@ -173,7 +171,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   const handlePrimarySubmit = async (
     connection: ConnectionDto,
     project: ProjectDto,
-    story: StorySummary,
+    story?: StorySummary,
   ) => {
     const newId =
       primaryAction && (await primaryAction(connection, project, story));
@@ -181,7 +179,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
     if (newId) {
       setSelectedConnection(connection);
       setSelectedProject(project);
-      setSelectedStory(story);
+      setSelectedStory(story || null);
       router.push(`${basePath}/${href}/${newId}`);
     }
   };
@@ -189,7 +187,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   const handleSecondarySubmit = async (
     connection: ConnectionDto,
     project: ProjectDto,
-    story: StorySummary,
+    story?: StorySummary,
   ) => {
     const newId =
       secondaryAction && (await secondaryAction(connection, project, story));
@@ -197,68 +195,93 @@ const PageLayout: React.FC<PageLayoutProps> = ({
     if (newId) {
       setSelectedConnection(connection);
       setSelectedProject(project);
-      setSelectedStory(story);
+      setSelectedStory(story || null);
       router.push(`${basePath}/${href}/${newId}`);
     }
   };
 
-  const getDialogSelectedStoryOption = () => {
-    if (!selectedStory) {
-      return null;
-    }
-    if (selectedStory.id !== NO_STORY_FILTER.id) {
-      return selectedStory;
-    }
-
-    if (useNoStoryRunner) {
-      return USE_NO_STORY;
-    }
-
-    return null;
-  };
-
   return (
     <>
-      <WorkspaceShell
-        connectionOptions={{
-          options: connections,
-          onChange: handleConnectionChange,
-          selectedOption: selectedConnection,
-        }}
-        projectOptions={{
-          options: projects,
-          onChange: handleProjectChange,
-          selectedOption: selectedProject,
-        }}
-        storyOptions={{
-          options: filterableStories,
-          onChange: handleStoryChange,
-          selectedOption: selectedStory,
-        }}
-        primaryAction={{
-          label: tCommon("filter"),
-          onClick: handleFilter,
-        }}
-        secondaryAction={{
-          label: onNewLabel || tCommon("new"),
-          onClick: () => setStartDialogOpen(true),
-        }}
-        primarySessions={{
-          ...primarySessions,
-          onSelectSession: handleSelectPrimarySession,
-        }}
-        secondarySessions={
-          secondarySessions && {
-            ...secondarySessions,
-            onSelectSession: handleSelectSecondarySession,
-          }
+      <DoubleLayout
+        leftChildren={
+          <Box
+            sx={{
+              p: 2,
+              height: "100%",
+              flexDirection: "column",
+              display: "flex",
+              gap: 2,
+            }}
+          >
+            <UrlInformation />
+            <Button
+              variant="contained"
+              onClick={() => setStartDialogOpen(true)}
+            >
+              {onNewLabel || tPage("createNewItem")}
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => setFilterDialogOpen(true)}
+            >
+              {tCommon("filter")}
+            </Button>
+            <Divider />
+            <Typography
+              variant="subtitle2"
+              sx={{
+                textTransform: "uppercase",
+                color: "text.secondary",
+              }}
+            >
+              {primarySessions.label || "Sessions"}
+            </Typography>
+            <SessionList
+              sessions={primarySessions.sessions}
+              selectedId={primarySessions.selectedSessionId}
+              onSelect={handleSelectPrimarySession}
+              loading={primarySessions.loading}
+              emptyStateText={primarySessions.emptyStateText}
+            />
+            {secondarySessions && (
+              <>
+                <Divider sx={{ my: 2 }} />
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    textTransform: "uppercase",
+      
+                    color: "text.secondary",
+                  }}
+                >
+                  {secondarySessions.label || "Sessions"}
+                </Typography>
+                <SessionList
+                  sessions={secondarySessions.sessions}
+                  selectedId={secondarySessions.selectedSessionId}
+                  onSelect={handleSelectSecondarySession}
+                  loading={secondarySessions.loading}
+                  emptyStateText={secondarySessions.emptyStateText}
+                />
+              </>
+            )}
+          </Box>
         }
         rightChildren={children}
-        headerText={tPage("gherkinEditor")}
-        headerProjectKey={headerProjectKey}
-        headerStoryKey={headerStoryKey}
-        appBarTransparent
+        appBarLeftContent={
+          <HeaderContent
+            headerText={headerText}
+            headerProjectKey={headerProjectKey}
+            headerStoryKey={headerStoryKey}
+          />
+        }
+        appBarTransparent={true}
         basePath={basePath}
+      />
+      <DefaultSessionFilterDialog
+        open={filterDialogOpen}
+        onClose={() => setFilterDialogOpen(false)}
+        href={href}
       />
       <SessionStartDialog
         open={startDialogOpen}
@@ -266,22 +289,27 @@ const PageLayout: React.FC<PageLayoutProps> = ({
         title={dialogLabel || tPage("createNewItem")}
         connectionOptions={{
           options: connections,
-          selectedOption: selectedConnection,
+          onChange: handleDialogConnectionChange,
+          selectedOption: runSelectedConnection,
         }}
         projectOptions={{
-          options: projects,
-          selectedOption: selectedProject,
-          loading: isProjectsLoading,
+          options: runProjects,
+          onChange: handleDialogProjectChange,
+          selectedOption: runSelectedProject,
+          loading: dialogIsProjectsLoading,
         }}
         storyOptions={{
-          options: useNoStoryRunner ? stories : [USE_NO_STORY, ...stories],
-          selectedOption: getDialogSelectedStoryOption(),
-          loading: isStoriesLoading,
+          options: runStories,
+          onChange: handleDialogStoryChange,
+          selectedOption: runSelectedStory,
+          loading: dialogIsStoriesLoading,
         }}
         onPrimarySubmit={primaryAction ? handlePrimarySubmit : undefined}
         primaryLabel={primaryActionLabel}
         onSecondarySubmit={secondaryAction ? handleSecondarySubmit : undefined}
         secondaryLabel={secondaryActionLabel}
+        showUseStoryCheckbox={showStoryCheckbox}
+        requireStory={requireStory}
       />
     </>
   );

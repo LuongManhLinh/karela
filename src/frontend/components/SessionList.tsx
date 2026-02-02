@@ -38,8 +38,8 @@ const SessionList: React.FC<SessionListProps> = ({
   loading,
   emptyStateText,
 }) => {
-  const t = useTranslations('SessionList');
-  const finalEmptyStateText = emptyStateText || t('noSessions');
+  const t = useTranslations("SessionList");
+  const finalEmptyStateText = emptyStateText || t("noSessions");
 
   if (loading) {
     return <LoadingSpinner />;
@@ -69,16 +69,6 @@ const SessionList: React.FC<SessionListProps> = ({
             selected={selectedId === session.id}
             sx={{
               borderRadius: 1,
-              "&.Mui-selected": {
-                bgcolor: "primary.main",
-                color: "text.primary",
-                "&:hover": {
-                  bgcolor: "primary.light",
-                },
-              },
-              "&:hover": {
-                bgcolor: "action.hover",
-              },
             }}
           >
             <ListItemText

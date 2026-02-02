@@ -8,10 +8,8 @@ import {
   Box,
   Button,
   Card,
-  CardActionArea,
   CardContent,
   Chip,
-  Divider,
   Stack,
   TextField,
   Typography,
@@ -41,12 +39,12 @@ interface ProposalCardProps {
   proposal: ProposalDto;
   onProposalAction?: (
     proposalId: string,
-    flag: ProposalActionFlag
+    flag: ProposalActionFlag,
   ) => Promise<void> | void;
   onProposalContentAction?: (
     proposalId: string,
     content: ProposalContentDto,
-    flag: ProposalActionFlag
+    flag: ProposalActionFlag,
   ) => Promise<void> | void;
   defaultExpanded?: boolean;
   onProposalContentClick?: (content: ProposalContentDto) => void;
@@ -91,7 +89,7 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
 
   const runWithLoading = async (
     key: string,
-    fn: () => Promise<void> | void
+    fn: () => Promise<void> | void,
   ) => {
     setLoadingTarget(key);
     try {
@@ -104,17 +102,17 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
   const handleProposalAction = async (flag: ProposalActionFlag) => {
     if (!onProposalAction) return;
     await runWithLoading(`proposal-${proposal.id}`, () =>
-      onProposalAction(proposal.id, flag)
+      onProposalAction(proposal.id, flag),
     );
   };
 
   const handleContentAction = async (
     content: ProposalContentDto,
-    flag: ProposalActionFlag
+    flag: ProposalActionFlag,
   ) => {
     if (!onProposalContentAction || !content.id) return;
     await runWithLoading(`content-${content.id}`, () =>
-      onProposalContentAction(proposal.id, content, flag)
+      onProposalContentAction(proposal.id, content, flag),
     );
   };
 
@@ -189,7 +187,7 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
     const acceptDisabled = !onAccept || isLoading;
     const rejectDisabled = !onReject || isLoading;
     const revertDisabled = !onRevert || isLoading;
-    
+
     const finalAcceptButtonText = acceptButtonText || t("actions.accept");
     const finalRejectButtonText = rejectButtonText || t("actions.reject");
     const finalRevertButtonText = revertButtonText || t("actions.revert");
@@ -254,6 +252,7 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
       sx={{
         borderRadius: 1,
         bgcolor: "background.paper",
+        color: "onBackground",
         "&.Mui-expanded": {
           margin: "0",
 
@@ -380,7 +379,7 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
                     <Chip
                       label={content.type}
                       size="small"
-                       color={typeChipColor(content.type) as any}
+                      color={typeChipColor(content.type) as any}
                     />
                     {statusChip(content.accepted, t)}
                   </Box>
@@ -400,7 +399,7 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
                       content.type === "UPDATE"
                         ? () => startEditing(content)
                         : undefined,
-                     loadingKey: `content-${content.id}`,
+                    loadingKey: `content-${content.id}`,
                     acceptButtonText: t("actions.accept"),
                     rejectButtonText: t("actions.reject"),
                     revertButtonText: t("actions.revert"),
@@ -426,7 +425,7 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
                   editingContentId === content.id ? (
                     <Stack
                       direction="column"
-                       spacing={1}
+                      spacing={1}
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Typography variant="body1">{t("summary")}:</Typography>
@@ -440,7 +439,7 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
                         size="small"
                       />
                     </Stack>
-                   ) : (
+                  ) : (
                     content.summary && (
                       <Typography variant="body1" sx={{ mt: 1 }}>
                         {t("summary")}:
@@ -461,10 +460,12 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
                   editingContentId === content.id ? (
                     <Stack
                       direction="column"
-                       spacing={1}
+                      spacing={1}
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <Typography variant="body1">{t("description")}:</Typography>
+                      <Typography variant="body1">
+                        {t("description")}:
+                      </Typography>
                       <TextField
                         fullWidth
                         multiline
@@ -484,7 +485,7 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
                           startIcon={<Save />}
                           color="primary"
                           variant="contained"
-                           disabled={
+                          disabled={
                             loadingTarget === `content-${content.id}-edit`
                           }
                           onClick={() => content.id && saveEditing(content.id)}
@@ -501,10 +502,12 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
                         </Button>
                       </Stack>
                     </Stack>
-                   ) : (
+                  ) : (
                     content.description && (
                       <Stack direction="column" spacing={1} sx={{ mt: 1 }}>
-                        <Typography variant="body1">{t("description")}:</Typography>
+                        <Typography variant="body1">
+                          {t("description")}:
+                        </Typography>
                         <Typography
                           variant="body2"
                           color="text.secondary"
@@ -516,7 +519,7 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
                     )
                   )}
                 </Stack>
-                 <Box
+                <Box
                   sx={{ mt: 2, display: "flex", alignItems: "center", gap: 1 }}
                 >
                   <CompareArrows fontSize="small" color="action" />

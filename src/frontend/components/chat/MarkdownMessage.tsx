@@ -4,7 +4,7 @@ import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Box, useTheme } from "@mui/material";
-import { useThemeMode } from "../ThemeProvider";
+import { useThemeMode } from "../../providers/ThemeProvider";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 

@@ -8,7 +8,7 @@ const ProjectPage = () => {
   const router = useRouter();
 
   const params = useParams();
-  const { selectedProject } = useWorkspaceStore();
+  const { selectedProject: selectedProject } = useWorkspaceStore();
   const connectionName = useMemo(() => {
     return params.connectionName as string;
   }, [params]);
@@ -19,8 +19,7 @@ const ProjectPage = () => {
         `/app/connections/${connectionName}/projects/${selectedProject.key}`,
       );
     } else {
-      console.log("No project selected, redirecting to connections page.");
-      router.replace(`/app/connections/${connectionName}`);
+      console.log("No selected project to navigate to.");
     }
   }, [selectedProject, connectionName, router]);
 

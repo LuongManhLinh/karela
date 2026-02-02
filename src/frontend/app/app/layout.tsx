@@ -8,7 +8,7 @@ import { getToken } from "@/utils/jwtUtils";
 import AppLoading from "./loading";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const { setConnections } = useWorkspaceStore();
+  const { setConnections: setConnections } = useWorkspaceStore();
   const { data: connectionsData, isLoading: isConnectionsLoading } =
     useUserConnectionsQuery();
   const router = useRouter();

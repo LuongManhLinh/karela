@@ -7,7 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 const StoryPage = () => {
   const router = useRouter();
   const params = useParams();
-  const { selectedStory } = useWorkspaceStore();
+  const { selectedStory: selectedStory } = useWorkspaceStore();
   const { connectionName, projectKey } = useMemo(() => {
     return {
       connectionName: params.connectionName as string,

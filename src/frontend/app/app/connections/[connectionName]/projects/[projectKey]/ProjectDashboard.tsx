@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { Box, Container, Paper, Typography, Grid, Stack } from "@mui/material";
+import { Box, Paper, Typography, Grid } from "@mui/material";
 import {
   Analytics,
   Assistant,
@@ -11,7 +11,7 @@ import {
 } from "@mui/icons-material";
 import { useParams, useRouter } from "next/navigation";
 
-import { Layout } from "@/components/Layout";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { SessionStartForm } from "@/components/SessionStartForm";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { StatsGrid } from "@/components/dashboard/StatsGrid";
@@ -39,13 +39,13 @@ const ProjectDashboard: React.FC = () => {
   const router = useRouter();
 
   const {
-    selectedConnection,
-    setSelectedConnection,
-    selectedProject,
-    setSelectedProject,
-    setSelectedStory,
-    connections,
-    projects,
+    selectedConnection: selectedConnection,
+    setSelectedConnection: setSelectedConnection,
+    selectedProject: selectedProject,
+    setSelectedProject: setSelectedProject,
+    setSelectedStory: setSelectedStory,
+    connections: connections,
+    projects: projects,
   } = useWorkspaceStore();
 
   const { data: dashboardData, isLoading } = useProjectDashboardQuery(
@@ -117,162 +117,123 @@ const ProjectDashboard: React.FC = () => {
     : [];
 
   return (
-    <Layout
-      appBarLeftContent={
-        <Stack direction="row" alignItems="center" spacing={2} py={2}>
-          <Typography variant="h5">{t("title")}</Typography>
-          {selectedProject && (
-            <Typography variant="h6" color="text.secondary">
-              {selectedProject.key} - {selectedProject.name}
-            </Typography>
-          )}
-        </Stack>
+    <DashboardLayout
+      title={t("title")}
+      subtitle={
+        selectedProject
+          ? `${selectedProject.key} - ${selectedProject.name}`
+          : undefined
       }
-      appBarTransparent
       basePath={basePath}
+      filterSectionTitle={t("selectProject")}
     >
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4, overflowY: "auto" }}>
-        {/* Filter Section */}
+      {/* Dashboard Content */}
+      {isLoading ? (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: 300,
+          }}
+        >
+          <LoadingSpinner />
+        </Box>
+      ) : dashboard ? (
+        <>
+          {/* Statistics Grid */}
+          <Paper
+            elevation={2}
+            sx={{
+              p: 3,
+              mb: 3,
+              borderRadius: 1,
+            }}
+          >
+            <StatsGrid stats={stats} title={t("overview")} />
+          </Paper>
+
+          {/* Story Lists */}
+          <Paper
+            elevation={2}
+            sx={{
+              p: 3,
+              borderRadius: 1,
+            }}
+          >
+            <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
+              {t("storiesByActivity")}
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <StoryListSection
+                  title={t("withAnalyses")}
+                  stories={dashboard.stories_with_analyses}
+                  emptyText={t("noStoriesWithAnalyses")}
+                  onStoryClick={handleStoryClick}
+                  maxHeight={250}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <StoryListSection
+                  title={t("withChats")}
+                  stories={dashboard.stories_with_chats}
+                  emptyText={t("noStoriesWithChats")}
+                  onStoryClick={handleStoryClick}
+                  maxHeight={250}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <StoryListSection
+                  title={t("withProposals")}
+                  stories={dashboard.stories_with_proposals}
+                  emptyText={t("noStoriesWithProposals")}
+                  onStoryClick={handleStoryClick}
+                  maxHeight={250}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <StoryListSection
+                  title={t("withAcs")}
+                  stories={dashboard.stories_with_acs}
+                  emptyText={t("noStoriesWithAcs")}
+                  onStoryClick={handleStoryClick}
+                  maxHeight={250}
+                />
+              </Grid>
+            </Grid>
+          </Paper>
+        </>
+      ) : selectedConnection && selectedProject ? (
         <Paper
           elevation={2}
           sx={{
             p: 3,
-            mb: 3,
             borderRadius: 1,
             bgcolor: "background.paper",
+            textAlign: "center",
           }}
         >
-          <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-            {t("selectProject")}
+          <Typography variant="body1" color="text.secondary">
+            {t("unableToLoad")}
           </Typography>
-          <SessionStartForm
-            connectionOptions={{
-              options: connections,
-              selectedOption: selectedConnection,
-              onChange: handleConnectionChange,
-            }}
-            projectOptions={{
-              options: projects,
-              selectedOption: selectedProject,
-              onChange: handleProjectChange,
-            }}
-            primaryAction={{
-              label: t("filter"),
-              onClick: handleFilter,
-            }}
-          />
         </Paper>
-
-        {/* Dashboard Content */}
-        {isLoading ? (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              minHeight: 300,
-            }}
-          >
-            <LoadingSpinner />
-          </Box>
-        ) : dashboard ? (
-          <>
-            {/* Statistics Grid */}
-            <Paper
-              elevation={2}
-              sx={{
-                p: 3,
-                mb: 3,
-                borderRadius: 1,
-                bgcolor: "background.paper",
-              }}
-            >
-              <StatsGrid stats={stats} title={t("overview")} />
-            </Paper>
-
-            {/* Story Lists */}
-            <Paper
-              elevation={2}
-              sx={{
-                p: 3,
-                borderRadius: 1,
-                bgcolor: "background.paper",
-              }}
-            >
-              <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-                {t("storiesByActivity")}
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                  <StoryListSection
-                    title={t("withAnalyses")}
-                    stories={dashboard.stories_with_analyses}
-                    emptyText={t("noStoriesWithAnalyses")}
-                    onStoryClick={handleStoryClick}
-                    maxHeight={250}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                  <StoryListSection
-                    title={t("withChats")}
-                    stories={dashboard.stories_with_chats}
-                    emptyText={t("noStoriesWithChats")}
-                    onStoryClick={handleStoryClick}
-                    maxHeight={250}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                  <StoryListSection
-                    title={t("withProposals")}
-                    stories={dashboard.stories_with_proposals}
-                    emptyText={t("noStoriesWithProposals")}
-                    onStoryClick={handleStoryClick}
-                    maxHeight={250}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                  <StoryListSection
-                    title={t("withAcs")}
-                    stories={dashboard.stories_with_acs}
-                    emptyText={t("noStoriesWithAcs")}
-                    onStoryClick={handleStoryClick}
-                    maxHeight={250}
-                  />
-                </Grid>
-              </Grid>
-            </Paper>
-          </>
-        ) : selectedConnection && selectedProject ? (
-          <Paper
-            elevation={2}
-            sx={{
-              p: 3,
-              borderRadius: 1,
-              bgcolor: "background.paper",
-              textAlign: "center",
-            }}
-          >
-            <Typography variant="body1" color="text.secondary">
-              {t("unableToLoad")}
-            </Typography>
-          </Paper>
-        ) : (
-          <Paper
-            elevation={2}
-            sx={{
-              p: 3,
-              borderRadius: 1,
-              bgcolor: "background.paper",
-              textAlign: "center",
-            }}
-          >
-            <Typography variant="body1" color="text.secondary">
-              {t("selectToView")}
-            </Typography>
-          </Paper>
-        )}
-      </Container>
-    </Layout>
+      ) : (
+        <Paper
+          elevation={2}
+          sx={{
+            p: 3,
+            borderRadius: 1,
+            bgcolor: "background.paper",
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="body1" color="text.secondary">
+            {t("selectToView")}
+          </Typography>
+        </Paper>
+      )}
+    </DashboardLayout>
   );
 };
 

@@ -32,12 +32,14 @@ export const StatCard: React.FC<StatCardProps> = ({
         minWidth: 140,
         cursor: onClick ? "pointer" : "default",
         transition: "all 0.2s ease-in-out",
-        bgcolor: "tertiary.main",
+        bgcolor: "tertiaryContainer",
+        color: "onTertiaryContainer",
         "&:hover": onClick
           ? {
               transform: "translateY(-2px)",
               boxShadow: theme.shadows[4],
-              bgcolor: "action.hover",
+              bgcolor: "onTertiaryFixed",
+              color: "tertiaryFixed",
             }
           : {},
       }}
@@ -52,10 +54,10 @@ export const StatCard: React.FC<StatCardProps> = ({
       >
         {icon}
       </Box>
-      <Typography variant="h4" fontWeight="bold" color="text.primary">
+      <Typography variant="h4" fontWeight="bold">
         {value}
       </Typography>
-      <Typography variant="body2" color="text.secondary" textAlign="center">
+      <Typography variant="body2" textAlign="center">
         {title}
       </Typography>
     </Paper>

@@ -15,7 +15,6 @@ import {
 } from "@/hooks/queries/useAnalysisQueries";
 import { useQueryClient } from "@tanstack/react-query";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
-import { USE_NO_STORY } from "@/constants/selectable";
 import { useWebSocketContext } from "@/providers/WebSocketProvider";
 import PageLayout from "../PageLayout";
 import { useTranslations } from "next-intl";
@@ -118,12 +117,12 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
   const handleRunAnalysis = async (
     connection: ConnectionDto,
     project: ProjectDto,
-    story: StorySummary,
+    story?: StorySummary,
   ) => {
     try {
       let analysisType: "ALL" | "TARGETED" = "ALL";
       let targetStoryKey: string | undefined = undefined;
-      if (story.id !== USE_NO_STORY.id) {
+      if (story) {
         analysisType = "TARGETED";
         targetStoryKey = story.key;
       }
@@ -175,6 +174,7 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
   return (
     <PageLayout
       level={level}
+      headerText={t("headerText")}
       connectionName={connectionName}
       projectKey={projectKey}
       storyKey={storyKey}
@@ -191,8 +191,6 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
       dialogLabel={t("runAnalysis")}
       primaryAction={handleRunAnalysis}
       primaryActionLabel={t("run")}
-      useNoStoryFilter
-      useNoStoryRunner
     >
       {children}
     </PageLayout>

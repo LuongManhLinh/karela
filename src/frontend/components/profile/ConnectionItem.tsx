@@ -22,7 +22,7 @@ import { useConnectionSyncStatusQuery } from "@/hooks/queries/useConnectionQueri
 import { getSupportMessageForSyncError } from "@/constants/supportMessageSyncError";
 import { useWebSocketContext } from "@/providers/WebSocketProvider";
 
-interface JiraConnectionItemProps {
+interface ConnectionItemProps {
   connection: ConnectionDto;
   onMenuOpen: (
     event: React.MouseEvent<HTMLElement>,
@@ -30,7 +30,7 @@ interface JiraConnectionItemProps {
   ) => void;
 }
 
-export const JiraConnectionItem: React.FC<JiraConnectionItemProps> = ({
+export const ConnectionItem: React.FC<ConnectionItemProps> = ({
   connection,
   onMenuOpen,
 }) => {
@@ -168,8 +168,9 @@ export const JiraConnectionItem: React.FC<JiraConnectionItemProps> = ({
           ? theme.vars
             ? "error.soft"
             : alpha(theme.palette.error.main, 0.05)
-          : "tertiary.main",
+          : "tertiaryContainer",
         overflow: "hidden", // Extra safety
+        color: syncError ? theme.palette.error.main : "onTertiaryContainer",
       }}
     >
       {connection.avatar_url && (

@@ -40,7 +40,8 @@ export const StoryListSection: React.FC<StoryListSectionProps> = ({
       sx={{
         p: 2,
         borderRadius: 1,
-        bgcolor: "tertiary.main",
+            bgcolor: "tertiaryContainer",
+        color: "onTertiaryContainer",
         height: "100%",
         display: "flex",
         flexDirection: "column",
@@ -54,14 +55,13 @@ export const StoryListSection: React.FC<StoryListSectionProps> = ({
           mb: 1,
         }}
       >
-        <Typography variant="subtitle1" fontWeight={600} color="text.primary">
+        <Typography variant="subtitle1" fontWeight={600} >
           {title}
         </Typography>
         <Chip
           label={stories.length}
           size="small"
-          color="primary"
-          variant="outlined"
+
         />
       </Box>
 
@@ -75,7 +75,7 @@ export const StoryListSection: React.FC<StoryListSectionProps> = ({
             py: 3,
           }}
         >
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" >
             {emptyText || t("noStories")}
           </Typography>
         </Box>
@@ -94,9 +94,7 @@ export const StoryListSection: React.FC<StoryListSectionProps> = ({
                 onClick={() => onStoryClick?.(story)}
                 sx={{
                   borderRadius: 1,
-                  "&:hover": {
-                    bgcolor: "action.hover",
-                  },
+      
                 }}
               >
                 <ListItemText
@@ -108,7 +106,7 @@ export const StoryListSection: React.FC<StoryListSectionProps> = ({
                   secondary={
                     <Typography
                       variant="body2"
-                      color="text.secondary"
+             
                       sx={{
                         overflow: "hidden",
                         textOverflow: "ellipsis",

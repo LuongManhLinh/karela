@@ -409,9 +409,9 @@ class ProposalService:
         )
 
         if source_enum == ProposalSource.CHAT:
-            query = query.join(ChatSession).filter(ChatSession.id == session_id)
+            query = query.filter(Proposal.chat_session_id == session_id)
         else:
-            query = query.join(Analysis).filter(Analysis.id == session_id)
+            query = query.filter(Proposal.analysis_session_id == session_id)
         if project_filter_key:
             query = query.filter(Proposal.project_key == project_filter_key)
         if story_filter_key:

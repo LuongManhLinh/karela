@@ -36,11 +36,11 @@ const MAX_TEXTFIELD_ROWS = 20;
 export default function DocumentationPage() {
   // Global State
   const {
-    selectedConnection,
-    setSelectedConnection,
-    selectedProject,
-    setSelectedProject,
-    connections,
+    selectedConnection: selectedConnection,
+    setSelectedConnection: setSelectedConnection,
+    selectedProject: selectedProject,
+    setSelectedProject: setSelectedProject,
+    connections: connections,
     projects: projectDtos,
   } = useWorkspaceStore();
 

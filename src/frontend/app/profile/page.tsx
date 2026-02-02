@@ -28,21 +28,21 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useRouter } from "next/navigation";
 import type { ConnectionDto } from "@/types/connection";
 import { Add, Edit, Delete } from "@mui/icons-material";
-import { JiraConnectionItem } from "@/components/profile/JiraConnectionItem";
+import { ConnectionItem } from "@/components/profile/ConnectionItem";
 import { connectionService } from "@/services/connectionService";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 
 export default function ProfilePage() {
   const t = useTranslations("profile.ProfilePage");
   const {
-    selectedConnection,
-    setSelectedConnection,
-    setConnections,
-    selectedProject,
-    setSelectedProject,
-    setProjects,
-    setSelectedStory,
-    setStories,
+    selectedConnection: selectedConnection,
+    setSelectedConnection: setSelectedConnection,
+    setConnections: setConnections,
+    selectedProject: selectedProject,
+    setSelectedProject: setSelectedProject,
+    setProjects: setProjects,
+    setSelectedStory: setSelectedStory,
+    setStories: setStories,
   } = useWorkspaceStore();
   const router = useRouter();
   const [oldPassword, setOldPassword] = useState("");
@@ -261,7 +261,7 @@ export default function ProfilePage() {
           <Stack spacing={2}>
             {connections && connections.length > 0 ? (
               connections.map((conn: ConnectionDto) => (
-                <JiraConnectionItem
+                <ConnectionItem
                   key={conn.id}
                   connection={conn}
                   onMenuOpen={handleMenuOpen}

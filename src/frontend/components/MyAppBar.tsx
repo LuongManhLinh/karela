@@ -24,7 +24,7 @@ import {
   Segment,
   Language,
 } from "@mui/icons-material";
-import { useThemeMode } from "./ThemeProvider";
+import { useThemeMode } from "../providers/ThemeProvider";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { removeToken } from "@/utils/jwtUtils";
@@ -73,7 +73,7 @@ export const MyAppBar: React.FC<AppBarProps> = ({
         },
       ];
     return [];
-  }, [routes, basePath]);
+  }, [routes, basePath, t]);
 
   const handleLogout = () => {
     removeToken();
@@ -81,6 +81,7 @@ export const MyAppBar: React.FC<AppBarProps> = ({
   };
 
   const handleLanguageChange = (locale: string) => {
+    setLanguageMenuOpen(false);
     document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=31536000; SameSite=Lax`;
     router.refresh();
   };
@@ -106,6 +107,7 @@ export const MyAppBar: React.FC<AppBarProps> = ({
 
   const handleMenuClose = () => {
     setMenuAnchorEl(null);
+    setMenuOpen(false);
   };
 
   const handleLanguageMenuOpen = (event: React.MouseEvent<HTMLElement>) => {

@@ -111,7 +111,7 @@ class ChatService:
             for chunk, _ in stream_with_agent(
                 messages=history_messages,
                 session_id=session.id,
-                connection_name=session.connection_id,
+                connection_id=session.connection_id,
                 db_session=self.db,
                 project_key=project_key,
                 story_key=story_key,

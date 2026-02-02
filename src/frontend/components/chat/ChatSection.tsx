@@ -1,3 +1,5 @@
+"use client";
+
 import { Box, IconButton, TextField, Paper } from "@mui/material";
 import React, { useState, useRef } from "react";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";

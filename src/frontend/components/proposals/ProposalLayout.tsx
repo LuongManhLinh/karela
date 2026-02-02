@@ -10,7 +10,6 @@ import {
 } from "@/hooks/queries/useProposalQueries";
 import PageLayout from "../PageLayout";
 import { useTranslations } from "next-intl";
-import { idID } from "@mui/material/locale";
 import { PageLevel } from "@/types";
 
 export interface ProposalLayoutProps {
@@ -96,6 +95,7 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({
     <PageLayout
       level={level}
       href="proposals"
+      headerText={t("headerText")}
       connectionName={connectionName}
       projectKey={projectKey}
       storyKey={storyKey}
@@ -117,7 +117,6 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({
       }}
       disablePrimaryAutoRoute
       disableSecondaryAutoRoute
-      useNoStoryFilter
     >
       {children}
     </PageLayout>

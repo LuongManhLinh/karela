@@ -15,7 +15,8 @@
       "newGherkin": "New Gherkin",
       "createAcceptanceCriteria": "Create Acceptance Criteria",
       "create": "Create",
-      "generateWithAI": "Generate with AI"
+      "generateWithAI": "Generate with AI",
+      "headerText": "Gherkin Editor"
     },
     "AcEditorPage": {
       "welcome": "Welcome to Gherkin Editor",
@@ -82,7 +83,8 @@
   },
   "PageLayout": {
     "gherkinEditor": "Gherkin Editor",
-    "createNewItem": "Create New Item"
+    "createNewItem": "Create New Item",
+    "filterSessions": "Filter Sessions"
   },
   "analysis": {
     "AnalysisItemPage": {
@@ -109,7 +111,8 @@
       "noAnalysesYet": "No analyses yet",
       "analyses": "Analyses",
       "runAnalysis": "Run Analysis",
-      "run": "Run"
+      "run": "Run",
+      "headerText": "Analysis"
     },
     "AnalysisPage": {
       "selectAnalysis": "Select an analysis to view details."
@@ -140,7 +143,8 @@
       "noSessions": "No chat sessions found",
       "sessionsLabel": "Chat Sessions",
       "newChat": "New Chat",
-      "createChatLabel": "Create Chat Session"
+      "createChatLabel": "Create Chat Session",
+      "headerText": "Chat"
     },
     "ChatPage": {
       "gettingStarted": "Select or create a chat session to get started."
@@ -166,9 +170,25 @@
       "noStories": "No stories",
       "noSummary": "No summary"
     },
+    "ConnectionDashboard": {
+      "title": "Connection Dashboard",
+      "connectionInformation": "URL Information",
+      "overview": "Overview",
+      "projectsByActivity": "Projects by Activity",
+      "withAnalyses": "With Analyses",
+      "noProjectsWithAnalyses": "No projects with analyses",
+      "withChats": "With Chats",
+      "noProjectsWithChats": "No projects with chats",
+      "withProposals": "With Proposals",
+      "noProjectsWithProposals": "No projects with proposals",
+      "withAcs": "With ACs",
+      "noProjectsWithAcs": "No projects with ACs",
+      "unableToLoad": "Unable to load dashboard data",
+      "selectToView": "Please select a connection to view the dashboard"
+    },
     "ProjectDashboard": {
       "title": "Project Dashboard",
-      "selectProject": "Select Project",
+      "selectProject": "URL Information",
       "filter": "Filter",
       "overview": "Overview",
       "storiesByActivity": "Stories by Activity",
@@ -185,7 +205,7 @@
     },
     "StoryDashboard": {
       "title": "Story Dashboard",
-      "selectStory": "Select Story",
+      "selectStory": "URL Information",
       "filter": "Filter",
       "overview": "Overview",
       "storyDetails": "Story Details",
@@ -197,6 +217,7 @@
       "unableToLoad": "Unable to load dashboard data"
     },
     "stats": {
+      "projects": "Projects",
       "stories": "Stories",
       "analyses": "Analyses",
       "chats": "Chats",
@@ -213,6 +234,11 @@
     "ProjectNotFound": {
       "title": "Project Not Found",
       "message": "The project you are looking for does not exist in this connection.",
+      "goBack": "Go Back"
+    },
+    "StoryNotFound": {
+      "title": "Story Not Found",
+      "message": "The story you are looking for does not exist in this project.",
       "goBack": "Go Back"
     }
   },
@@ -303,7 +329,8 @@
       "noAnalysisSessions": "No analysis sessions having proposals",
       "analysisProposals": "Analysis Proposals",
       "noChatSessions": "No chat sessions having proposals",
-      "chatProposals": "Chat Proposals"
+      "chatProposals": "Chat Proposals",
+      "headerText": "Proposals"
     },
     "ProposalPage": {
       "selectProposal": "Select a proposal to view details."

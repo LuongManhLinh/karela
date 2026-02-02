@@ -3,7 +3,7 @@ from fastapi import Depends
 from .analysis.services import AnalysisDataService, AnalysisRunService, DefectService
 from .chat.services import ChatService, ChatDataService
 from .connection.jira.services import JiraService
-from .connection.ac.services import ACService
+from .ac.services import ACService
 from .connection.services import DashboardService
 from .proposal.services import ProposalService
 from .settings.services import SettingsService

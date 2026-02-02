@@ -14,7 +14,6 @@ import {
   useChatSessionsByStoryQuery,
 } from "@/hooks/queries/useChatQueries";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
-import { USE_NO_STORY } from "@/constants/selectable";
 
 import { chatService } from "@/services/chatService";
 import PageLayout from "../PageLayout";
@@ -80,12 +79,12 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   const handleNewChat = async (
     connection: ConnectionDto,
     project: ProjectDto,
-    story: StorySummary,
+    story?: StorySummary,
   ) => {
     const newIdData = await chatService.createChatSession(
       connection.id,
       project.key,
-      story.id === USE_NO_STORY.id ? undefined : story.key,
+      story ? story.key : undefined,
     );
     const newId = newIdData.data;
     if (newId) {
@@ -119,6 +118,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   return (
     <PageLayout
       level={level}
+      headerText={t("headerText")}
       connectionName={connectionName}
       projectKey={projectKey}
       storyKey={storyKey}
@@ -134,8 +134,6 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
       onNewLabel={t("newChat")}
       dialogLabel={t("createChatLabel")}
       primaryAction={handleNewChat}
-      useNoStoryFilter
-      useNoStoryRunner
     >
       {children}
     </PageLayout>

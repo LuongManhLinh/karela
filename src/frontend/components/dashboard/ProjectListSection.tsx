@@ -40,7 +40,8 @@ export const ProjectListSection: React.FC<ProjectListSectionProps> = ({
       sx={{
         p: 2,
         borderRadius: 1,
-        bgcolor: "tertiary.main",
+        bgcolor: "tertiaryContainer",
+        color: "onTertiaryContainer",
         height: "100%",
         display: "flex",
         flexDirection: "column",
@@ -54,15 +55,10 @@ export const ProjectListSection: React.FC<ProjectListSectionProps> = ({
           mb: 1,
         }}
       >
-        <Typography variant="subtitle1" fontWeight={600} color="text.primary">
+        <Typography variant="subtitle1" fontWeight={600}>
           {title}
         </Typography>
-        <Chip
-          label={projects.length}
-          size="small"
-          color="primary"
-          variant="outlined"
-        />
+        <Chip label={projects.length} size="small" />
       </Box>
 
       {projects.length === 0 ? (
@@ -75,7 +71,7 @@ export const ProjectListSection: React.FC<ProjectListSectionProps> = ({
             py: 3,
           }}
         >
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2">
             {emptyText || t("noProjects")}
           </Typography>
         </Box>
@@ -94,9 +90,6 @@ export const ProjectListSection: React.FC<ProjectListSectionProps> = ({
                 onClick={() => onProjectClick?.(project)}
                 sx={{
                   borderRadius: 1,
-                  "&:hover": {
-                    bgcolor: "action.hover",
-                  },
                 }}
               >
                 <ListItemText
@@ -109,7 +102,6 @@ export const ProjectListSection: React.FC<ProjectListSectionProps> = ({
                     project.name && (
                       <Typography
                         variant="caption"
-                        color="text.secondary"
                         sx={{
                           display: "block",
                           overflow: "hidden",

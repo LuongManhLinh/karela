@@ -38,24 +38,16 @@ const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
     idOrKey || null,
   );
 
-
   const getDataQuery = () => {
     switch (level) {
       case "connection":
         return useACsByConnectionQuery(connectionName);
       case "project":
-        return useACsByProjectQuery(
-          connectionName,
-          projectKey!,
-        );
+        return useACsByProjectQuery(connectionName, projectKey!);
       case "story":
-        return useACsByStoryQuery(
-          connectionName,
-          projectKey!,
-          storyKey!,
-        );
+        return useACsByStoryQuery(connectionName, projectKey!, storyKey!);
     }
-  }
+  };
 
   const {
     data: acsData,
@@ -74,8 +66,11 @@ const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
   const handleNewGherkin = async (
     connection: ConnectionDto,
     project: ProjectDto,
-    story: StorySummary,
+    story?: StorySummary,
   ) => {
+    if (!story) {
+      return null;
+    }
     const newId = await acService.createAC(
       connection.id,
       project.key,
@@ -89,8 +84,11 @@ const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
   const handleNewGherkinWithAI = async (
     connection: ConnectionDto,
     project: ProjectDto,
-    story: StorySummary,
+    story?: StorySummary,
   ) => {
+    if (!story) {
+      return null;
+    }
     const newId = await acService.createAC(
       connection.id,
       project.key,
@@ -112,6 +110,7 @@ const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
   return (
     <PageLayout
       level={level}
+      headerText={t("headerText")}
       connectionName={connectionName}
       projectKey={projectKey}
       storyKey={storyKey}
@@ -132,7 +131,8 @@ const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
       primaryActionLabel={t("create")}
       secondaryAction={handleNewGherkinWithAI}
       secondaryActionLabel={t("generateWithAI")}
-      useNoStoryFilter
+      showStoryCheckbox={false}
+      requireStory={true}
     >
       {children}
     </PageLayout>
