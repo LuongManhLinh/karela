@@ -75,8 +75,11 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
   };
 
   // Analysis Hooks
-  const { data: summariesData, isLoading: isSummariesLoading } =
-    getAnalysisQuery();
+  const {
+    data: summariesData,
+    isLoading: isSummariesLoading,
+    refetch: refetchSummaries,
+  } = getAnalysisQuery();
   const summaries = useMemo(() => summariesData?.data || [], [summariesData]);
 
   // Mutations
@@ -135,6 +138,7 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
           target_story_key: targetStoryKey,
         },
       });
+      await refetchSummaries();
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.detail || t("failedToStartAnalysis");

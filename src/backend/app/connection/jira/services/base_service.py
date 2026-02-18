@@ -30,11 +30,11 @@ class JiraBaseService:
             refresh_token=refresh_token,
         )
 
-        encrypted_atok, atok_iv = encrypt_token(access_token, refresh_token)
+        encrypted_atok, atok_iv = encrypt_token(access_token)
         connection.token = encrypted_atok
         connection.token_iv = atok_iv
 
-        encrypted_rtok, rtok_iv = encrypt_token(refresh_token, refresh_token)
+        encrypted_rtok, rtok_iv = encrypt_token(refresh_token)
         connection.refresh_token = encrypted_rtok
         connection.refresh_token_iv = rtok_iv
 

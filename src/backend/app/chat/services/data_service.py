@@ -2,7 +2,6 @@ from sqlalchemy.orm import Session
 
 from app.connection.jira.models import Connection
 
-from ...proposal.schemas import ProposalContentDto, ProposalDto
 
 from ..models import (
     ChatSession,
@@ -30,7 +29,6 @@ class ChatDataService:
         self,
         connection_id: str,
         project_key: str,
-        story_key: str = None,
     ):
         stmt = select(func.count(ChatSession.id)).filter(
             ChatSession.connection_id == connection_id,
@@ -41,7 +39,6 @@ class ChatDataService:
             key=f"{project_key}-CHAT-{chat_session_count + 1}",
             connection_id=connection_id,
             project_key=project_key,
-            story_key=story_key,
         )
 
         self.db.add(chat_session)

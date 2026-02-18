@@ -58,7 +58,6 @@ const SessionList: React.FC<SessionListProps> = ({
       sx={{
         minHeight: 0,
         overflowY: "auto",
-        pr: 1,
         ...scrollBarSx,
       }}
     >

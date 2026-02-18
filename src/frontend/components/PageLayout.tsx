@@ -52,6 +52,7 @@ export interface PageLayoutProps {
   secondaryActionLabel?: string;
   showStoryCheckbox?: boolean;
   requireStory?: boolean;
+  createable?: boolean;
 }
 
 const PageLayout: React.FC<PageLayoutProps> = ({
@@ -74,6 +75,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   secondaryActionLabel,
   showStoryCheckbox = true,
   requireStory = false,
+  createable = true,
 }) => {
   const tCommon = useTranslations("Common");
   const tPage = useTranslations("PageLayout");
@@ -82,6 +84,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
 
   const {
     connections,
+    projects,
     selectedConnection,
     setSelectedConnection,
     selectedProject,
@@ -180,7 +183,18 @@ const PageLayout: React.FC<PageLayoutProps> = ({
       setSelectedConnection(connection);
       setSelectedProject(project);
       setSelectedStory(story || null);
-      router.push(`${basePath}/${href}/${newId}`);
+
+      if (level === "connection") {
+        router.push(`/app/connections/${connection.name}/${href}/${newId}`);
+      } else if (level === "story" && story) {
+        router.push(
+          `/app/connections/${connection.name}/projects/${project.key}/stories/${story.key}/${href}/${newId}`,
+        );
+      } else {
+        router.push(
+          `/app/connections/${connection.name}/projects/${project.key}/${href}/${newId}`,
+        );
+      }
     }
   };
 
@@ -196,7 +210,18 @@ const PageLayout: React.FC<PageLayoutProps> = ({
       setSelectedConnection(connection);
       setSelectedProject(project);
       setSelectedStory(story || null);
-      router.push(`${basePath}/${href}/${newId}`);
+
+      if (level === "connection") {
+        router.push(`/app/connections/${connection.name}/${href}/${newId}`);
+      } else if (level === "story" && story) {
+        router.push(
+          `/app/connections/${connection.name}/projects/${project.key}/stories/${story.key}/${href}/${newId}`,
+        );
+      } else {
+        router.push(
+          `/app/connections/${connection.name}/projects/${project.key}/${href}/${newId}`,
+        );
+      }
     }
   };
 
@@ -206,7 +231,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
         leftChildren={
           <Box
             sx={{
-              p: 2,
+              px: 2,
               height: "100%",
               flexDirection: "column",
               display: "flex",
@@ -214,18 +239,14 @@ const PageLayout: React.FC<PageLayoutProps> = ({
             }}
           >
             <UrlInformation />
-            <Button
-              variant="contained"
-              onClick={() => setStartDialogOpen(true)}
-            >
-              {onNewLabel || tPage("createNewItem")}
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={() => setFilterDialogOpen(true)}
-            >
-              {tCommon("filter")}
-            </Button>
+            {createable && (
+              <Button
+                variant="contained"
+                onClick={() => setStartDialogOpen(true)}
+              >
+                {onNewLabel || tPage("createNewItem")}
+              </Button>
+            )}
             <Divider />
             <Typography
               variant="subtitle2"
@@ -250,7 +271,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
                   variant="subtitle2"
                   sx={{
                     textTransform: "uppercase",
-      
+
                     color: "text.secondary",
                   }}
                 >
@@ -268,6 +289,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
           </Box>
         }
         rightChildren={children}
+        onFilterClick={() => setFilterDialogOpen(true)}
         appBarLeftContent={
           <HeaderContent
             headerText={headerText}

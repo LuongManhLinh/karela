@@ -20,18 +20,22 @@ export const ANALYSIS_KEYS = {
       projectKey,
       storyKey,
     ] as const,
-  details: (
+  details: (connectionName: string, analysisIdOrKey: string) =>
+    [...ANALYSIS_KEYS.all, "details", connectionName, analysisIdOrKey] as const,
+  statuses: (ids: string[]) =>
+    [...ANALYSIS_KEYS.all, "statuses", ...ids.sort()] as const,
+  defectsByStory: (
     connectionName: string,
-    analysisIdOrKey: string,
+    projectKey: string,
+    storyKey: string,
   ) =>
     [
       ...ANALYSIS_KEYS.all,
-      "details",
+      "defects",
       connectionName,
-      analysisIdOrKey,
+      projectKey,
+      storyKey,
     ] as const,
-  statuses: (ids: string[]) =>
-    [...ANALYSIS_KEYS.all, "statuses", ...ids.sort()] as const,
 };
 
 export const useAnalysisSummariesByConnectionQuery = (
@@ -84,6 +88,23 @@ export const useAnalysisSummariesByStoryQuery = (
   });
 };
 
+export const useDefectsByStoryQuery = (
+  connectionId: string | undefined,
+  projectKey: string | undefined,
+  storyKey: string | undefined,
+) => {
+  return useQuery({
+    queryKey: ANALYSIS_KEYS.defectsByStory(
+      connectionId || "",
+      projectKey || "",
+      storyKey || "",
+    ),
+    queryFn: () =>
+      analysisService.listDefectsByStory(connectionId!, projectKey!, storyKey!),
+    enabled: !!connectionId && !!projectKey && !!storyKey,
+  });
+};
+
 export const useAnalysisDetailsQuery = (
   connectionName: string | undefined,
   analysisIdOrKey: string | null,
@@ -94,10 +115,7 @@ export const useAnalysisDetailsQuery = (
       analysisIdOrKey || "",
     ),
     queryFn: () =>
-      analysisService.getAnalysisDetails(
-        connectionName!,
-        analysisIdOrKey!,
-      ),
+      analysisService.getAnalysisDetails(connectionName!, analysisIdOrKey!),
     enabled: !!connectionName && !!analysisIdOrKey,
   });
 };

@@ -146,6 +146,7 @@ class DefectStoryKey(Base):
         ForeignKey("defects.id", ondelete="CASCADE"),
         nullable=False,
     )
+    # The key of the story
     key = Column(String(64), nullable=False, index=True)
 
     defect = relationship("Defect", back_populates="story_keys")

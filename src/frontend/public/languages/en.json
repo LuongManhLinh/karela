@@ -97,6 +97,8 @@
       "generating": "Generating...",
       "generateFromDefects": "Generate from defects",
       "noProposalsGenerated": "No proposals generated yet.",
+      "showProposals": "Show Proposals",
+      "hideProposals": "Hide Proposals",
       "errorOccurred": "Oops! Some error occurred. Please reload the page.",
       "errors": {
         "failedToUpdateDefect": "Failed to update defect status",
@@ -124,7 +126,18 @@
       "markSolved": "Mark Solved",
       "explanation": "Explanation",
       "suggestedFix": "Suggested Fix",
-      "relatedStories": "Related Stories"
+      "relatedStories": "Related Stories",
+      "proposalLink": "Proposal Link",
+      "HIGH": "High",
+      "MEDIUM": "Medium",
+      "LOW": "Low",
+      "UNKNOWN": "Unknown",
+      "CONFLICT": "Conflict",
+      "DUPLICATION": "Duplication",
+      "OUT_OF_SCOPE": "Out of Scope",
+      "IRRELEVANCE": "Irrelevance",
+      "type": "Type",
+      "markSolvedTooltip": "Mark this defect as solved. Solved defects will be ignored in future analyses and proposal generations."
     }
   },
   "chat": {
@@ -200,6 +213,9 @@
       "noStoriesWithProposals": "No stories with proposals",
       "withAcs": "With ACs",
       "noStoriesWithAcs": "No stories with ACs",
+      "readyStories": "Ready Stories",
+      "noReadyStories": "No ready stories yet",
+      "readinessScore": "Readiness Score",
       "unableToLoad": "Unable to load dashboard data",
       "selectToView": "Please select a connection and project to view the dashboard"
     },
@@ -350,6 +366,58 @@
     "noDescription": "No description",
     "noStoriesFound": "No stories found",
     "failedToLoadStoryDetails": "Failed to load story details"
+  },
+  "workspace": {
+    "WorkspaceLayout": {
+      "headerText": "Story Workspace",
+      "stories": "Stories",
+      "noStoriesYet": "No stories in this project"
+    },
+    "WorkspacePage": {
+      "selectStory": "Select a story to view its workspace.",
+      "information": "Information",
+      "defects": "Defects",
+      "proposals": "Proposals",
+      "acceptanceCriteria": "Acceptance Criteria",
+      "summary": "Summary",
+      "noSummary": "No summary available",
+      "description": "Description",
+      "noDescription": "No description available",
+      "noDefects": "No defects found for this story.",
+      "noProposals": "No proposals found for this story.",
+      "noACs": "No acceptance criteria found for this story.",
+      "acEditorHint": "For a richer editing experience with AI suggestions, visit the",
+      "acEditorLink": "AC Editor",
+      "save": "Save",
+      "saving": "Saving...",
+      "saved": "Saved!",
+      "saveFailed": "Save failed",
+      "errors": {
+        "failedToLoadDefects": "Failed to load defects",
+        "failedToLoadProposals": "Failed to load proposals",
+        "failedToLoadACs": "Failed to load acceptance criteria",
+        "failedToUpdateDefect": "Failed to update defect",
+        "failedToUpdateProposal": "Failed to update proposal",
+        "failedToUpdateAC": "Failed to update acceptance criteria"
+      },
+      "layoutSettings": {
+        "title": "Layout Settings",
+        "layoutType": "Layout Type",
+        "stacked": "Stacked Column",
+        "grid": "Grid (2×2)",
+        "preview": "Preview",
+        "panelPositions": "Panel Positions",
+        "panelPositionsHint": "Assign each panel to a position. Swapping is automatic — each panel can only occupy one slot.",
+        "position": "Position {n}",
+        "topLeft": "Top Left",
+        "topRight": "Top Right",
+        "bottomLeft": "Bottom Left",
+        "bottomRight": "Bottom Right",
+        "apply": "Apply",
+        "cancel": "Cancel",
+        "resetToDefault": "Reset to default"
+      }
+    }
   },
   "auth": {
     "login": {

@@ -97,6 +97,8 @@
       "generating": "Đang tạo...",
       "generateFromDefects": "Tạo từ các lỗi",
       "noProposalsGenerated": "Chưa có đề xuất nào được tạo.",
+      "showProposals": "Hiện đề xuất",
+      "hideProposals": "Ẩn đề xuất",
       "errorOccurred": "Rất tiếc! Đã xảy ra lỗi. Vui lòng tải lại trang.",
       "errors": {
         "failedToUpdateDefect": "Cập nhật trạng thái lỗi thất bại",
@@ -124,7 +126,18 @@
       "markSolved": "Đánh dấu đã giải quyết",
       "explanation": "Giải thích",
       "suggestedFix": "Đề xuất sửa lỗi",
-      "relatedStories": "Các câu chuyện liên quan"
+      "relatedStories": "Các câu chuyện liên quan",
+      "proposalLink": "Liên kết đề xuất",
+      "HIGH": "Cao",
+      "MEDIUM": "Trung bình",
+      "LOW": "Thấp",
+      "UNKNOWN": "Không xác định",
+      "CONFLICT": "Xung đột",
+      "DUPLICATION": "Trùng lặp",
+      "OUT_OF_SCOPE": "Ngoài phạm vi",
+      "IRRELEVANCE": "Không liên quan",
+      "type": "Loại",
+      "markSolvedTooltip": "Đánh dấu lỗi này là đã giải quyết. Lỗi đã giải quyết sẽ không xuất hiện trong các phân tích trong tương lai và sẽ không được sử dụng để tạo đề xuất."
     }
   },
   "chat": {
@@ -200,6 +213,9 @@
       "noStoriesWithProposals": "Không có câu chuyện nào có đề xuất",
       "withAcs": "Có AC",
       "noStoriesWithAcs": "Không có câu chuyện nào có AC",
+      "readyStories": "Câu chuyện sẵn sàng",
+      "noReadyStories": "Chưa có câu chuyện sẵn sàng",
+      "readinessScore": "Điểm sẵn sàng",
       "unableToLoad": "Không thể tải dữ liệu bảng điều khiển",
       "selectToView": "Vui lòng chọn kết nối và dự án để xem bảng điều khiển"
     },
@@ -350,6 +366,58 @@
     "noDescription": "Không có mô tả",
     "noStoriesFound": "Không tìm thấy câu chuyện nào",
     "failedToLoadStoryDetails": "Tải chi tiết câu chuyện thất bại"
+  },
+  "workspace": {
+    "WorkspaceLayout": {
+      "headerText": "Không gian làm việc câu chuyện",
+      "stories": "Câu chuyện",
+      "noStoriesYet": "Chưa có câu chuyện nào trong dự án này"
+    },
+    "WorkspacePage": {
+      "selectStory": "Chọn một câu chuyện để xem không gian làm việc.",
+      "information": "Thông tin",
+      "defects": "Lỗi",
+      "proposals": "Đề xuất",
+      "acceptanceCriteria": "Tiêu chí chấp nhận",
+      "summary": "Tóm tắt",
+      "noSummary": "Không có tóm tắt",
+      "description": "Mô tả",
+      "noDescription": "Không có mô tả",
+      "noDefects": "Không tìm thấy lỗi nào cho câu chuyện này.",
+      "noProposals": "Không tìm thấy đề xuất nào cho câu chuyện này.",
+      "noACs": "Không tìm thấy tiêu chí chấp nhận nào cho câu chuyện này.",
+      "acEditorHint": "Để có trải nghiệm chỉnh sửa phong phú hơn với gợi ý AI, hãy truy cập",
+      "acEditorLink": "Trình chỉnh sửa AC",
+      "save": "Lưu",
+      "saving": "Đang lưu...",
+      "saved": "Đã lưu!",
+      "saveFailed": "Lưu thất bại",
+      "errors": {
+        "failedToLoadDefects": "Tải lỗi thất bại",
+        "failedToLoadProposals": "Tải đề xuất thất bại",
+        "failedToLoadACs": "Tải tiêu chí chấp nhận thất bại",
+        "failedToUpdateDefect": "Cập nhật lỗi thất bại",
+        "failedToUpdateProposal": "Cập nhật đề xuất thất bại",
+        "failedToUpdateAC": "Cập nhật tiêu chí chấp nhận thất bại"
+      },
+      "layoutSettings": {
+        "title": "Cài đặt bố cục",
+        "layoutType": "Kiểu bố cục",
+        "stacked": "Xếp chồng theo cột",
+        "grid": "Lưới (2×2)",
+        "preview": "Xem trước",
+        "panelPositions": "Vị trí bảng điều khiển",
+        "panelPositionsHint": "Gán mỗi bảng điều khiển vào một vị trí. Việc hoán đổi được thực hiện tự động — mỗi bảng chỉ có thể chiếm một ô.",
+        "position": "Vị trí {n}",
+        "topLeft": "Trên trái",
+        "topRight": "Trên phải",
+        "bottomLeft": "Dưới trái",
+        "bottomRight": "Dưới phải",
+        "apply": "Áp dụng",
+        "cancel": "Hủy",
+        "resetToDefault": "Đặt lại mặc định"
+      }
+    }
   },
   "auth": {
     "login": {

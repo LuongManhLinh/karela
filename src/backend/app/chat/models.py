@@ -5,7 +5,6 @@ from sqlalchemy import (
     Enum as SqlEnum,
     Index,
     Text,
-    text,
     DateTime,
 )
 from sqlalchemy.orm import relationship
@@ -43,8 +42,7 @@ class ChatSession(Base):
     )
 
     project_key = Column(String(32), nullable=False, index=True)
-    # If not null, the chat session is associated with a specific story
-    story_key = Column(String(32), nullable=True, index=True)
+
     created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
 
     # user = relationship("User", back_populates="sessions")
@@ -61,10 +59,9 @@ class ChatSession(Base):
 
     __table_args__ = (
         Index(
-            "ix_chat_sessions_project_story",
+            "ix_chat_sessions_connection_project",
             "connection_id",
             "project_key",
-            "story_key",
         ),
     )
 

@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
-import { Box, Paper } from "@mui/material";
+import React, { useLayoutEffect, useRef, useState } from "react";
+import { Box, IconButton, Paper, useTheme } from "@mui/material";
+import { Menu, FilterAltOutlined as Filter } from "@mui/icons-material";
 import { MyAppBar } from "./MyAppBar";
 import { scrollBarSx } from "@/constants/scrollBarSx";
 
@@ -41,6 +42,7 @@ interface DoubleLayoutProps {
   appBarLeftContent?: React.ReactNode;
   appBarTransparent?: boolean;
   basePath?: string;
+  onFilterClick?: () => void;
 }
 export const DoubleLayout: React.FC<DoubleLayoutProps> = ({
   leftChildren,
@@ -48,29 +50,82 @@ export const DoubleLayout: React.FC<DoubleLayoutProps> = ({
   appBarLeftContent,
   appBarTransparent,
   basePath,
+  onFilterClick,
 }) => {
+  const [menuOpen, setMenuOpen] = useState(true);
+  const [collapsedWidth, setCollapsedWidth] = useState<number | null>(null);
+  const menuButtonRef = useRef<HTMLButtonElement | null>(null);
+  const theme = useTheme();
+
+  const onMenuClick = () => {
+    setMenuOpen(!menuOpen);
+  };
+
+  useLayoutEffect(() => {
+    if (!menuButtonRef.current) {
+      return;
+    }
+
+    const updateCollapsedWidth = () => {
+      if (!menuButtonRef.current) {
+        return;
+      }
+      const menuButtonWidth =
+        menuButtonRef.current.getBoundingClientRect().width;
+      const padding = parseFloat(theme.spacing(1)) * 2;
+      setCollapsedWidth(Math.ceil(menuButtonWidth + padding));
+    };
+
+    updateCollapsedWidth();
+
+    const observer = new ResizeObserver(updateCollapsedWidth);
+    observer.observe(menuButtonRef.current);
+    return () => {
+      observer.disconnect();
+    };
+  }, [theme]);
+
   return (
     <Box
       sx={{
         display: "flex",
         flexDirection: "row",
-        minHeight: "100vh",
-        ...scrollBarSx,
+        maxHeight: "100vh",
+        overflow: "hidden",
       }}
     >
-      <Paper
+      <Paper // Paper for left sidebar
         elevation={2}
         sx={{
-          width: "300px",
+          width: menuOpen
+            ? "18vw"
+            : collapsedWidth
+              ? `${collapsedWidth}px`
+              : "auto",
           height: "100vh",
-          overflow: "auto",
           borderRadius: 0,
           flexShrink: 0,
           bgcolor: "background.paper",
-          boxShadow: "2px 0 8px rgba(0, 0, 0, 0.08)",
+          transition: "width 200ms ease",
         }}
       >
-        {leftChildren}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: menuOpen ? "row" : "column",
+            alignItems: "center",
+            justifyContent: "space-between",
+            px: 0.8,
+          }}
+        >
+          <IconButton onClick={onMenuClick} ref={menuButtonRef}>
+            <Menu />
+          </IconButton>
+          <IconButton onClick={onFilterClick}>
+            <Filter />
+          </IconButton>
+        </Box>
+        {menuOpen && leftChildren}
       </Paper>
       <Box
         sx={{
@@ -90,8 +145,8 @@ export const DoubleLayout: React.FC<DoubleLayoutProps> = ({
           sx={{
             flexGrow: 1,
             width: "100%",
-            maxHeight: "100%",
-            overflow: "auto",
+            minHeight: 0,
+            overflow: "hidden",
           }}
         >
           {rightChildren}

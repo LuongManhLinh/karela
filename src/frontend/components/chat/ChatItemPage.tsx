@@ -63,6 +63,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
   const [showError, setShowError] = useState(false);
   const [proposalExpanded, setProposalExpanded] = useState(true);
   const [waitingForResponse, setWaitingForResponse] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollThrottleRef = useRef<NodeJS.Timeout | null>(null);
   const streamingBufferRef = useRef<string>("");
@@ -166,7 +167,10 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
   }, [messages, streamingContent]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop =
+        scrollContainerRef.current.scrollHeight;
+    }
   };
 
   const handleIncomingProposals = useCallback(
@@ -406,64 +410,81 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
   );
 
   const chatContent = (
-    <>
-      <Box
-        sx={{
-          overflow: "auto",
-          display: "flex",
-          flexDirection: "column",
-          alignContent: "center",
-          alignItems: "center",
-          justifyContent: "flex-start",
-          width: "100%",
-          // height: "100%",
-          ...scrollBarSx,
-        }}
-      >
-        <Box sx={{ width: "60%" }}>
-          {messages.length === 0 && !streamingId ? (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Typography color="text.secondary" variant="h4">
-                {t("noMessages")}
-              </Typography>
-            </Box>
-          ) : (
-            <>
-              {messages.map((message) => renderMessage(message))}
-              {streamingId && streamingRole ? (
-                <MessageBubble
-                  key="streaming-message"
-                  message={{
-                    id: streamingId || "streaming",
-                    role: streamingRole,
-                    content: streamingContent,
-                    created_at: new Date().toISOString(),
-                  }}
+    <Box
+      ref={scrollContainerRef}
+      sx={{
+        overflow: "auto",
+        display: "flex",
+        flexDirection: "column",
+        alignContent: "center",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        width: "100%",
+        flexGrow: 1,
+        minHeight: 0,
+        ...scrollBarSx,
+      }}
+    >
+      <Box sx={{ width: "60%" }}>
+        {messages.length === 0 && !streamingId ? (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Typography color="text.secondary" variant="h4">
+              {t("noMessages")}
+            </Typography>
+          </Box>
+        ) : (
+          <>
+            {messages.map((message) => renderMessage(message))}
+            {streamingId && streamingRole ? (
+              <MessageBubble
+                key="streaming-message"
+                message={{
+                  id: streamingId || "streaming",
+                  role: streamingRole,
+                  content: streamingContent,
+                  created_at: new Date().toISOString(),
+                }}
+              />
+            ) : (
+              waitingForResponse && (
+                <Skeleton
+                  variant="text"
+                  animation="wave"
+                  width="100%"
+                  height={40}
+                  sx={{ mb: 2, borderRadius: 1 }}
                 />
-              ) : (
-                waitingForResponse && (
-                  <Skeleton
-                    variant="text"
-                    animation="wave"
-                    width="100%"
-                    height={40}
-                    sx={{ mb: 2, borderRadius: 1 }}
-                  />
-                )
-              )}
+              )
+            )}
 
-              <div ref={messagesEndRef} />
-              <Box sx={{ height: 200 }} />
-            </>
-          )}
-        </Box>
+            <div ref={messagesEndRef} />
+            {/* <Box sx={{ height: 200 }} /> */}
+          </>
+        )}
       </Box>
+    </Box>
+  );
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: messages.length === 0 ? "center" : "flex-start",
+        alignItems: "center",
+        width: "100%",
+        height: "100%",
+        overflow: "hidden",
+        position: "relative",
+      }}
+    >
+      {loadingSession ? <CircularProgress /> : chatContent}
 
       <Box
         sx={{
@@ -565,23 +586,6 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
 
         <ChatSection sendMessage={handleSendMessage} disabled={!isConnected} />
       </Box>
-    </>
-  );
-
-  return (
-    <Box
-      sx={{
-        flexGrow: 1,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: messages.length === 0 ? "center" : "flex-start",
-        alignItems: "center",
-        width: "100%",
-        height: "100%",
-        position: "relative",
-      }}
-    >
-      {loadingSession ? <CircularProgress /> : chatContent}
 
       <AppSnackbar
         open={showError}

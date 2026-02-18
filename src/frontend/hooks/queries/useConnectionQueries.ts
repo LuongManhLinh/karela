@@ -84,18 +84,16 @@ export const useStorySummariesQuery = (
 
 export const useStoryDetailsQuery = (
   connectionName: string | undefined,
-  projectKey: string | undefined,
   storyKey: string | undefined,
 ) => {
   return useQuery({
     queryKey: CONNECTION_KEYS.storyDetails(
       connectionName || "",
-      projectKey || "",
+      "",
       storyKey || "",
     ),
-    queryFn: () =>
-      connectionService.getStory(connectionName!, projectKey!, storyKey!),
-    enabled: !!connectionName && !!projectKey && !!storyKey,
+    queryFn: () => connectionService.getStory(connectionName!, storyKey!),
+    enabled: !!connectionName && !!storyKey,
   });
 };
 

@@ -206,3 +206,21 @@ async def mark_defect_as_solved(
         return BasicResponse(detail="Defect marked as solved successfully")
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.get(
+    "/connections/{connection_id}/projects/{project_key}/stories/{story_key}/defects"
+)
+async def get_defect_by_story(
+    connection_id: str,
+    project_key: str,
+    story_key: str,
+    service: DefectService = Depends(get_defect_service),
+):
+    try:
+        defects = service.get_defects_by_story_key(
+            connection_id=connection_id, project_key=project_key, story_key=story_key
+        )
+        return BasicResponse(data=defects)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))

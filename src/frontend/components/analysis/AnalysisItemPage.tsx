@@ -1,14 +1,7 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-import {
-  Box,
-  Button,
-  Stack,
-  Typography,
-  Divider,
-  Skeleton,
-} from "@mui/material";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Box, Button, Typography, Skeleton } from "@mui/material";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { AppSnackbar } from "@/components/AppSnackbar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -90,6 +83,13 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
   const [selectedContentForDiff, setSelectedContentForDiff] =
     useState<ProposalContentDto | null>(null);
 
+  const [highlightedProposalId, setHighlightedProposalId] = useState<
+    string | null
+  >(null);
+  const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const proposalRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const proposalsContainerRef = useRef<HTMLDivElement | null>(null);
+
   const { subscribe, unsubscribe } = useWebSocketContext();
   const queryClient = useQueryClient();
 
@@ -118,6 +118,14 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
     unsubscribe,
     queryClient,
   ]);
+
+  useEffect(() => {
+    return () => {
+      if (highlightTimerRef.current) {
+        clearTimeout(highlightTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleDefectCardStoriesClick = (storyKeys: string[]) => {
     setSelectedStoryKeys(storyKeys);
@@ -220,6 +228,38 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
     downloadAsJson(selectedAnalysisDetail.defects, filename);
   };
 
+  const handleProposalLinkClick = (defectKey: string) => {
+    const matchingProposals = analysisProposals.filter((proposal) =>
+      proposal.target_defect_keys?.includes(defectKey),
+    );
+
+    if (matchingProposals.length > 0) {
+      const proposalToHighlight = matchingProposals[0];
+      if (highlightTimerRef.current) {
+        clearTimeout(highlightTimerRef.current);
+      }
+      setHighlightedProposalId(proposalToHighlight.id);
+
+      requestAnimationFrame(() => {
+        const node = proposalRefs.current[proposalToHighlight.id];
+        const container = proposalsContainerRef.current;
+        if (node && container) {
+          const containerRect = container.getBoundingClientRect();
+          const nodeRect = node.getBoundingClientRect();
+          const scrollTop =
+            container.scrollTop + (nodeRect.top - containerRect.top);
+          container.scrollTo({ top: scrollTop, behavior: "smooth" });
+        }
+      });
+
+      highlightTimerRef.current = setTimeout(() => {
+        setHighlightedProposalId((current) =>
+          current === proposalToHighlight.id ? null : current,
+        );
+      }, 2000);
+    }
+  };
+
   const rerunButton = () => {
     const running =
       isRerunning ||
@@ -241,159 +281,212 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
         alignItems: "center",
         width: "100%",
         height: "100%",
-        position: "relative",
+        p: 2,
+        overflow: "hidden", // Added: Prevents page-level scroll
       }}
     >
-      <Box
-        sx={{
-          flex: 1,
-          overflow: "auto",
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          ...scrollBarSx,
-        }}
-      >
-        <Box sx={{ width: "70%", py: 2 }}>
-          {isDetailsLoading ? (
-            <LoadingSpinner />
-          ) : selectedAnalysisDetail ? (
-            <Stack spacing={3}>
-              <Stack spacing={2}>
-                <Stack
-                  direction={{ xs: "column", md: "row" }}
-                  spacing={2}
-                  justifyContent="space-between"
-                  alignItems={{ xs: "flex-start", md: "center" }}
-                  sx={{ mb: 2 }}
-                >
-                  <Typography variant="h6">{t("defects")}</Typography>
-                  <Stack direction="row" spacing={2}>
-                    {selectedAnalysisDetail.defects.length > 0 && (
-                      <Button
-                        variant="outlined"
-                        startIcon={<FileDownloadIcon />}
-                        onClick={handleExportDefects}
-                      >
-                        {t("exportToJson")}
-                      </Button>
-                    )}
-                    {rerunButton()}
-                  </Stack>
-                </Stack>
-                {selectedAnalysisDetail.defects.length === 0 ? (
-                  <Typography color="text.secondary">
-                    {t("noDefectsFound")}
-                  </Typography>
-                ) : (
-                  selectedAnalysisDetail.defects.map((defect) => (
-                    <DefectCard
-                      key={defect.id}
-                      defect={defect}
-                      onMarkSolved={handleMarkSolved}
-                      onStoriesClick={handleDefectCardStoriesClick}
-                    />
-                  ))
-                )}
-                {(selectedAnalysisDetail.status === "IN_PROGRESS" ||
-                  selectedAnalysisDetail.status === "PENDING") && (
-                  <Stack spacing={2}>
-                    <Skeleton
-                      variant="rectangular"
-                      height={100}
-                      sx={{ borderRadius: 2 }}
-                    />
-                    <Skeleton
-                      variant="rectangular"
-                      height={100}
-                      sx={{ borderRadius: 2 }}
-                    />
-                    <Skeleton
-                      variant="rectangular"
-                      height={100}
-                      sx={{ borderRadius: 2 }}
-                    />
-                  </Stack>
-                )}
-              </Stack>
-              <Divider />
-              <Box>
-                <Stack
-                  direction={{ xs: "column", md: "row" }}
-                  spacing={2}
-                  justifyContent="space-between"
-                  alignItems={{ xs: "flex-start", md: "center" }}
-                  sx={{ mb: 2 }}
-                >
-                  <Typography variant="h6">{t("proposals")}</Typography>
-                  <Button
-                    variant="contained"
-                    onClick={handleGenerateProposals}
-                    disabled={
-                      isGenerating ||
-                      selectedAnalysisDetail.status === "IN_PROGRESS"
-                    }
-                  >
-                    {isGenerating ? t("generating") : t("generateFromDefects")}
-                  </Button>
-                </Stack>
-                {isProposalsLoading ? (
-                  <LoadingSpinner />
-                ) : analysisProposals.length === 0 && !isGenerating ? (
-                  <Typography color="text.secondary">
-                    {t("noProposalsGenerated")}
-                  </Typography>
-                ) : (
-                  <Stack spacing={1}>
-                    {analysisProposals.map((proposal) => (
-                      <ProposalCard
-                        key={proposal.id}
-                        proposal={proposal}
-                        onProposalAction={handleProposalAction}
-                        onProposalContentAction={handleProposalContentAction}
-                        onProposalContentClick={handleProposalContentClick}
-                      />
-                    ))}
-                    {isGenerating && (
-                      <>
-                        <Skeleton
-                          variant="rectangular"
-                          height={120}
-                          sx={{ borderRadius: 2 }}
-                        />
-                        <Skeleton
-                          variant="rectangular"
-                          height={120}
-                          sx={{ borderRadius: 2 }}
-                        />
-                        <Skeleton
-                          variant="rectangular"
-                          height={120}
-                          sx={{ borderRadius: 2 }}
-                        />
-                      </>
-                    )}
-                  </Stack>
-                )}
-              </Box>
-              <Box sx={{ height: 100 }} />
-            </Stack>
-          ) : (
+      {isDetailsLoading ? (
+        <LoadingSpinner />
+      ) : selectedAnalysisDetail ? (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            width: "100%",
+            flex: 1,
+            minHeight: 0, // Added: Vital for nested scrolling
+            ...scrollBarSx,
+          }}
+        >
+          {/* // Left: Defects */}
+          <Box
+            sx={{
+              flex: 1,
+              display: "flex", // Added
+              flexDirection: "column", // Added
+              minHeight: 0, // Added: Forces constraint so child can scroll
+            }}
+          >
             <Box
               sx={{
                 display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100%",
+                flexDirection: { xs: "column", md: "row" },
+                justifyContent: "space-between",
+                alignItems: { xs: "flex-start", md: "center" },
+                mb: 2,
+                flexShrink: 0, // Added: Ensures header doesn't squash
               }}
             >
-              <Typography color="text.secondary" variant="h5">
-                {t("errorOccurred")}
-              </Typography>
+              <Typography variant="h6">{t("defects")}</Typography>
+              <Box sx={{ display: "flex", gap: 2 }}>
+                {selectedAnalysisDetail.defects.length > 0 && (
+                  <Button
+                    variant="outlined"
+                    startIcon={<FileDownloadIcon />}
+                    onClick={handleExportDefects}
+                  >
+                    {t("exportToJson")}
+                  </Button>
+                )}
+                {rerunButton()}
+              </Box>
             </Box>
-          )}
+            {selectedAnalysisDetail.defects.length === 0 ? (
+              <Typography color="text.secondary">
+                {t("noDefectsFound")}
+              </Typography>
+            ) : (
+              <Box
+                sx={{
+                  display: "flex",
+                  flex: 1,
+                  flexDirection: "column",
+                  gap: 2,
+                  overflowY: "auto", // Changed to overflowY for clarity
+                  minHeight: 0,
+                  pr: 1, // Optional: Add padding for scrollbar space
+                }}
+              >
+                {selectedAnalysisDetail.defects.map((defect) => (
+                  <DefectCard
+                    key={defect.id}
+                    defect={defect}
+                    onMarkSolved={handleMarkSolved}
+                    onStoriesClick={handleDefectCardStoriesClick}
+                    onProposalLinkClick={handleProposalLinkClick}
+                  />
+                ))}
+
+                {/* Moved Skeletons inside the scrollable area so they scroll too */}
+                {(selectedAnalysisDetail.status === "IN_PROGRESS" ||
+                  selectedAnalysisDetail.status === "PENDING") && (
+                  <>
+                    <Skeleton
+                      variant="rectangular"
+                      height={100}
+                      sx={{ borderRadius: 2, flexShrink: 0 }}
+                    />
+                    <Skeleton
+                      variant="rectangular"
+                      height={100}
+                      sx={{ borderRadius: 2, flexShrink: 0 }}
+                    />
+                    <Skeleton
+                      variant="rectangular"
+                      height={100}
+                      sx={{ borderRadius: 2, flexShrink: 0 }}
+                    />
+                  </>
+                )}
+              </Box>
+            )}
+          </Box>
+
+          {/* // Right: Proposals */}
+          <Box
+            sx={{
+              ml: 4,
+              flex: 1,
+              display: "flex", // Added
+              flexDirection: "column", // Added
+              minHeight: 0, // Added
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", md: "row" },
+                justifyContent: "space-between",
+                alignItems: { xs: "flex-start", md: "center" },
+                mb: 2,
+                flexShrink: 0, // Added
+              }}
+            >
+              <Typography variant="h6">{t("proposals")}</Typography>
+              <Button
+                variant="contained"
+                onClick={handleGenerateProposals}
+                disabled={
+                  isGenerating ||
+                  selectedAnalysisDetail.status === "IN_PROGRESS"
+                }
+              >
+                {isGenerating ? t("generating") : t("generateFromDefects")}
+              </Button>
+            </Box>
+            {isProposalsLoading ? (
+              <LoadingSpinner />
+            ) : analysisProposals.length === 0 && !isGenerating ? (
+              <Typography color="text.secondary">
+                {t("noProposalsGenerated")}
+              </Typography>
+            ) : (
+              <Box
+                ref={proposalsContainerRef}
+                sx={{
+                  display: "flex",
+                  flex: 1,
+                  flexDirection: "column",
+                  gap: 2,
+                  overflowY: "auto", // Changed to overflowY
+                  minHeight: 0,
+                  pr: 1,
+                }}
+              >
+                {analysisProposals.map((proposal) => (
+                  <Box
+                    key={proposal.id}
+                    ref={(el: HTMLDivElement) => {
+                      proposalRefs.current[proposal.id] = el;
+                    }}
+                  >
+                    <ProposalCard
+                      proposal={proposal}
+                      onProposalAction={handleProposalAction}
+                      onProposalContentAction={handleProposalContentAction}
+                      onProposalContentClick={handleProposalContentClick}
+                      highlight={proposal.id === highlightedProposalId}
+                    />
+                  </Box>
+                ))}
+                {isGenerating && (
+                  <>
+                    <Skeleton
+                      variant="rectangular"
+                      height={120}
+                      sx={{ borderRadius: 2, flexShrink: 0 }}
+                    />
+                    <Skeleton
+                      variant="rectangular"
+                      height={120}
+                      sx={{ borderRadius: 2, flexShrink: 0 }}
+                    />
+                    <Skeleton
+                      variant="rectangular"
+                      height={120}
+                      sx={{ borderRadius: 2, flexShrink: 0 }}
+                    />
+                  </>
+                )}
+              </Box>
+            )}
+          </Box>
         </Box>
-      </Box>
+      ) : (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+          }}
+        >
+          <Typography color="text.secondary" variant="h5">
+            {t("errorOccurred")}
+          </Typography>
+        </Box>
+      )}
+
       <AppSnackbar
         open={showError}
         message={error}

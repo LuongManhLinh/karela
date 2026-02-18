@@ -8,7 +8,7 @@ import { getToken } from "@/utils/jwtUtils";
 import AppLoading from "./loading";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const { setConnections: setConnections } = useWorkspaceStore();
+  const { setConnections, setUrlSelectedConnection } = useWorkspaceStore();
   const { data: connectionsData, isLoading: isConnectionsLoading } =
     useUserConnectionsQuery();
   const router = useRouter();
@@ -21,13 +21,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   useEffect(() => {
+    setUrlSelectedConnection(null);
     const connections = connectionsData?.data || [];
     if (connections.length > 0) {
       setConnections(connections);
     } else if (!isConnectionsLoading) {
       router.push("/profile");
     }
-  }, [connectionsData, setConnections, isConnectionsLoading]);
+  }, [
+    connectionsData,
+    setConnections,
+    setUrlSelectedConnection,
+    isConnectionsLoading,
+  ]);
 
   if (isConnectionsLoading) {
     return <AppLoading />;

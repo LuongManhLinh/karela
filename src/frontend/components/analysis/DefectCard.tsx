@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { DefectDto } from "@/types/analysis";
+import { DefectDto, DefectSeverity } from "@/types/analysis";
 import {
   Box,
   Button,
@@ -11,6 +11,7 @@ import {
   Stack,
   Typography,
   Link,
+  Tooltip,
 } from "@mui/material";
 import StoryChip from "../StoryChip";
 import DefectChip from "../DefectChip";
@@ -20,9 +21,10 @@ interface DefectCardProps {
   defect: DefectDto;
   onMarkSolved: (defectId: string, flag: boolean) => void;
   onStoriesClick?: (storyKeys: string[]) => void;
+  onProposalLinkClick?: (defectKey: string) => void;
 }
 
-const getSeverityColor = (severity?: string) => {
+const getSeverityColor = (severity?: DefectSeverity) => {
   switch (severity?.toUpperCase()) {
     case "HIGH":
       return "error";
@@ -39,6 +41,7 @@ const DefectCard: React.FC<DefectCardProps> = ({
   defect,
   onMarkSolved,
   onStoriesClick,
+  onProposalLinkClick,
 }) => {
   const t = useTranslations("analysis.DefectCard");
   return (
@@ -47,8 +50,9 @@ const DefectCard: React.FC<DefectCardProps> = ({
       elevation={1}
       sx={{
         borderRadius: 1,
-        bgcolor: "secondaryContainer",
-        color: "onSecondaryContainer",
+        flexShrink: 0,
+        bgcolor: "background.paper",
+        color: "onBackground",
       }}
     >
       <CardContent sx={{ p: 3 }}>
@@ -70,10 +74,16 @@ const DefectCard: React.FC<DefectCardProps> = ({
             }}
           >
             <DefectChip defectKey={defect.key} />
-            {defect.type && <Chip label={defect.type} size="small" />}
+            {defect.type && (
+              <Chip
+                label={`${t("type")}: ${t(defect.type)}`}
+                size="small"
+                color="info"
+              />
+            )}
             {defect.severity && (
               <Chip
-                label={`${t("severity")}: ${defect.severity}`}
+                label={`${t("severity")}: ${t(defect.severity)}`}
                 size="small"
                 color={getSeverityColor(defect.severity)}
               />
@@ -86,14 +96,16 @@ const DefectCard: React.FC<DefectCardProps> = ({
               />
             )}
           </Box>
-          <Button
-            size="small"
-            variant={defect.solved ? "outlined" : "contained"}
-            color={defect.solved ? "success" : "primary"}
-            onClick={() => onMarkSolved(defect.id, !defect.solved)}
-          >
-            {defect.solved ? t("markUnsolved") : t("markSolved")}
-          </Button>
+          <Tooltip title={t("markSolvedTooltip")}>
+            <Button
+              size="small"
+              variant={defect.solved ? "outlined" : "contained"}
+              color={defect.solved ? "success" : "primary"}
+              onClick={() => onMarkSolved(defect.id, !defect.solved)}
+            >
+              {defect.solved ? t("markUnsolved") : t("markSolved")}
+            </Button>
+          </Tooltip>
         </Box>
         <Stack direction="column" spacing={2} sx={{ mt: 2, mb: 1 }}>
           {defect.explanation && (
@@ -159,6 +171,19 @@ const DefectCard: React.FC<DefectCardProps> = ({
                 ))}
               </Box>
             </Stack>
+          )}
+          {onProposalLinkClick && (
+            <Box sx={{ mt: 1 }}>
+              <Link
+                component="button"
+                variant="body1"
+                onClick={() => onProposalLinkClick(defect.key)}
+                sx={{ cursor: "pointer" }}
+                color="textPrimary"
+              >
+                {t("proposalLink")}
+              </Link>
+            </Box>
           )}
         </Stack>
       </CardContent>

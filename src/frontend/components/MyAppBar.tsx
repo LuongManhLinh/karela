@@ -23,6 +23,8 @@ import {
   Code,
   Segment,
   Language,
+  Workspaces,
+  Work,
 } from "@mui/icons-material";
 import { useThemeMode } from "../providers/ThemeProvider";
 import { usePathname, useRouter } from "next/navigation";
@@ -70,6 +72,11 @@ export const MyAppBar: React.FC<AppBarProps> = ({
           name: t("documentation"),
           href: `/documentation`,
           icon: <Article />,
+        },
+        {
+          name: "Workspace",
+          href: `/workspace`,
+          icon: <Workspaces />,
         },
       ];
     return [];
@@ -148,26 +155,43 @@ export const MyAppBar: React.FC<AppBarProps> = ({
             flexWrap: "wrap",
           }}
         >
-          {internalRoutes.map((page) => (
-            <Button
-              color="inherit"
-              size="small"
-              component={Link}
-              href={`${basePath || ""}${page.href}`}
-              key={page.name}
-              startIcon={page.icon}
-              onClick={resetHeaderKeys}
-              sx={{
-                px: 1,
-                py: 0.4,
-                bgcolor: pathname.includes(page.href)
-                  ? "action.selected"
-                  : "transparent",
-              }}
-            >
-              {page.name}
-            </Button>
-          ))}
+          {internalRoutes.map((page) =>
+            menuOpen ? (
+              <Button
+                color="inherit"
+                size="small"
+                component={Link}
+                href={`${basePath || ""}${page.href}`}
+                key={page.name}
+                startIcon={page.icon}
+                onClick={resetHeaderKeys}
+                sx={{
+                  px: 1,
+                  py: 0.4,
+                  bgcolor: pathname.includes(page.href)
+                    ? "action.selected"
+                    : "transparent",
+                }}
+              >
+                {page.name}
+              </Button>
+            ) : (
+              <IconButton
+                color="inherit"
+                component={Link}
+                href={`${basePath || ""}${page.href}`}
+                key={page.name}
+                onClick={resetHeaderKeys}
+                sx={{
+                  bgcolor: pathname.includes(page.href)
+                    ? "action.selected"
+                    : "transparent",
+                }}
+              >
+                {page.icon}
+              </IconButton>
+            ),
+          )}
 
           <IconButton onClick={handleMenuOpen} color="inherit">
             <Segment />

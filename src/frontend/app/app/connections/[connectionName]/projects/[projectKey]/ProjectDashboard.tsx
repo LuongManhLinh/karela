@@ -1,13 +1,21 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { Box, Paper, Typography, Grid } from "@mui/material";
+import {
+  Box,
+  Paper,
+  Typography,
+  Grid,
+  CircularProgress,
+  useTheme,
+} from "@mui/material";
 import {
   Analytics,
   Assistant,
   EmojiObjects,
   Code,
   MenuBook,
+  CheckCircle,
 } from "@mui/icons-material";
 import { useParams, useRouter } from "next/navigation";
 
@@ -25,9 +33,16 @@ import type {
   StorySummary,
 } from "@/types/connection";
 
+const getReadinessColor = (score: number) => {
+  if (score >= 75) return "success";
+  if (score >= 50) return "warning";
+  return "error";
+};
+
 const ProjectDashboard: React.FC = () => {
   const t = useTranslations("dashboard.ProjectDashboard");
   const ts = useTranslations("dashboard.stats");
+  const theme = useTheme();
   const params = useParams();
   const { connectionName, projectKey, basePath } = useMemo(() => {
     return {
@@ -55,22 +70,6 @@ const ProjectDashboard: React.FC = () => {
 
   const dashboard = useMemo(() => dashboardData?.data || null, [dashboardData]);
 
-  const handleConnectionChange = async (conn: ConnectionDto | null) => {
-    setSelectedConnection(conn);
-    setSelectedProject(null);
-  };
-
-  const handleProjectChange = async (proj: ProjectDto | null) => {
-    setSelectedProject(proj);
-  };
-
-  const handleFilter = async () => {
-    if (selectedConnection && selectedProject) {
-      router.push(
-        `/app/connections/${selectedConnection.name}/projects/${selectedProject.key}`,
-      );
-    }
-  };
   const handleStoryClick = async (story: StorySummary) => {
     setSelectedStory(story);
     if (selectedConnection && selectedProject) {
@@ -140,17 +139,98 @@ const ProjectDashboard: React.FC = () => {
           <LoadingSpinner />
         </Box>
       ) : dashboard ? (
-        <>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {/* Statistics Grid */}
           <Paper
             elevation={2}
             sx={{
               p: 3,
-              mb: 3,
               borderRadius: 1,
             }}
           >
             <StatsGrid stats={stats} title={t("overview")} />
+          </Paper>
+
+          {/* Readiness section */}
+          <Paper
+            elevation={2}
+            sx={{
+              p: 3,
+              borderRadius: 1,
+            }}
+          >
+            <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
+              {t("readinessScore")}
+            </Typography>
+            <Grid container spacing={3}>
+              {/* Readiness Score Gauge */}
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    py: 2,
+                  }}
+                >
+                  <Box sx={{ position: "relative", display: "inline-flex" }}>
+                    <CircularProgress
+                      variant="determinate"
+                      value={100}
+                      size={140}
+                      thickness={4}
+                      sx={{
+                        color:
+                          theme.palette.mode === "dark"
+                            ? "rgba(255,255,255,0.08)"
+                            : "rgba(0,0,0,0.08)",
+                        position: "absolute",
+                      }}
+                    />
+                    <CircularProgress
+                      variant="determinate"
+                      value={dashboard.readiness_score}
+                      size={140}
+                      thickness={4}
+                      color={getReadinessColor(dashboard.readiness_score)}
+                    />
+                    <Box
+                      sx={{
+                        top: 0,
+                        left: 0,
+                        bottom: 0,
+                        right: 0,
+                        position: "absolute",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Typography
+                        variant="h3"
+                        fontWeight="bold"
+                        color={`${getReadinessColor(dashboard.readiness_score)}.main`}
+                      >
+                        {Math.round(dashboard.readiness_score)}%
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
+              </Grid>
+
+              {/* Ready Stories List */}
+              <Grid size={{ xs: 12, md: 8 }}>
+                <StoryListSection
+                  title={t("readyStories")}
+                  stories={dashboard.ready_stories}
+                  emptyText={t("noReadyStories")}
+                  onStoryClick={handleStoryClick}
+                  maxHeight={250}
+                />
+              </Grid>
+            </Grid>
           </Paper>
 
           {/* Story Lists */}
@@ -203,7 +283,7 @@ const ProjectDashboard: React.FC = () => {
               </Grid>
             </Grid>
           </Paper>
-        </>
+        </Box>
       ) : selectedConnection && selectedProject ? (
         <Paper
           elevation={2}

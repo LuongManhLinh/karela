@@ -115,4 +115,14 @@ export const analysisService = {
     } as AnalysisStatusesRequest);
     return response.data;
   },
+  listDefectsByStory: async (
+    connectionId: string,
+    projectKey: string,
+    storyKey: string,
+  ): Promise<BasicResponse<DefectDto[]>> => {
+    const response = await apiClient.get<BasicResponse<DefectDto[]>>(
+      `/analyses/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}/defects`,
+    );
+    return response.data;
+  },
 };

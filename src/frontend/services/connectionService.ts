@@ -10,7 +10,6 @@ import {
   StoryDto,
   StorySummary,
 } from "@/types/connection";
-import type { UserConnections } from "@/types/user";
 
 export const connectionService = {
   getUserConnections: async (): Promise<BasicResponse<ConnectionDto[]>> => {

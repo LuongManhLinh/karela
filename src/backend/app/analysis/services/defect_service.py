@@ -32,13 +32,13 @@ class DefectService:
         self.db.commit()
 
     def get_defects_by_story_key(
-        self, connection_id, project_key, key: str
+        self, connection_id: str, project_key: str, story_key: str
     ) -> List[DefectDto]:
         defects = (
             self.db.query(Defect)
             .join(DefectStoryKey, Defect.id == DefectStoryKey.defect_id)
             .join(Analysis, Defect.analysis_id == Analysis.id)
-            .filter(DefectStoryKey.key == key)
+            .filter(DefectStoryKey.key == story_key)
             .filter(
                 Analysis.connection_id == connection_id,
                 Analysis.project_key == project_key,

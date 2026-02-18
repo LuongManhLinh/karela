@@ -19,6 +19,9 @@ class ProjectDashboardDto(DashboardDto):
     stories_with_proposals: list[StorySummary]
     stories_with_acs: list[StorySummary]
 
+    ready_stories: list[StorySummary]
+    readiness_score: float
+
 
 class StoryDashboardDto(DashboardDto):
     pass

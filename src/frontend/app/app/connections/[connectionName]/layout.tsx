@@ -35,6 +35,9 @@ export default function ConnectionLayout({
     useProjectDtosQuery(connectionName);
 
   useEffect(() => {
+    setUrlSelectedProject(null);
+    setUrlSelectedStory(null);
+
     const projects = projectsData?.data;
     const connection = connections.find((conn) => conn.name === connectionName);
     if (!connection || projects === null || projects === undefined) {
@@ -42,8 +45,6 @@ export default function ConnectionLayout({
     } else {
       setIsValidConnection(true);
       setUrlSelectedConnection(connection);
-      setUrlSelectedProject(null);
-      setUrlSelectedStory(null);
       setProjects(projects);
       if (projects.length === 0) {
         setIsProjectsEmpty(true);

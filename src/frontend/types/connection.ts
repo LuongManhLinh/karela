@@ -51,6 +51,8 @@ export interface ProjectDashboardDto extends DashboardDto {
   stories_with_chats: StorySummary[];
   stories_with_proposals: StorySummary[];
   stories_with_acs: StorySummary[];
+  ready_stories: StorySummary[];
+  readiness_score: number;
 }
 
 export interface StoryDashboardDto extends DashboardDto {}

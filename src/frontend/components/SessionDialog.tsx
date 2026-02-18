@@ -134,8 +134,12 @@ export const SessionFilterDialog: React.FC<SessionFilterDialogProps> = ({
               if (onPrimarySubmit && connectionOptions.selectedOption) {
                 onPrimarySubmit(
                   connectionOptions.selectedOption,
-                  projectOptions?.selectedOption || undefined,
-                  storyOptions?.selectedOption || undefined,
+                  (projectFilterable && projectOptions?.selectedOption) ||
+                    undefined,
+                  (projectFilterable &&
+                    storyFilterable &&
+                    storyOptions?.selectedOption) ||
+                    undefined,
                 );
               }
             },
@@ -153,8 +157,12 @@ export const SessionFilterDialog: React.FC<SessionFilterDialogProps> = ({
                     if (onSecondarySubmit && connectionOptions.selectedOption) {
                       onSecondarySubmit(
                         connectionOptions.selectedOption,
-                        projectOptions?.selectedOption || undefined,
-                        storyOptions?.selectedOption || undefined,
+                        (projectFilterable && projectOptions?.selectedOption) ||
+                          undefined,
+                        (projectFilterable &&
+                          storyFilterable &&
+                          storyOptions?.selectedOption) ||
+                          undefined,
                       );
                     }
                   },
@@ -318,12 +326,15 @@ export const DefaultSessionFilterDialog: React.FC<
     story?: StorySummary,
   ) => {
     if (!project) {
+      console.log("Navigating to connection level:", connection.name);
       router.push(`/app/connections/${connection.name}/${href || ""}`);
     } else if (!story) {
+      console.log("Navigating to project level:", project.key);
       router.push(
         `/app/connections/${connection.name}/projects/${project.key}/${href || ""}`,
       );
     } else {
+      console.log("Navigating to story level:", story.key);
       router.push(
         `/app/connections/${connection.name}/projects/${project.key}/stories/${story.key}/${href || ""}`,
       );

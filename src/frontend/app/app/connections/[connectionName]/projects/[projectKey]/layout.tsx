@@ -29,6 +29,7 @@ export default function ProjectLayout({
     useStorySummariesQuery(connectionName, projectKey);
 
   useEffect(() => {
+    setUrlSelectedStory(null);
     const stories = storiesData?.data;
     const project = projects.find((proj) => proj.key === projectKey);
     if (!project || stories === null || stories === undefined) {
@@ -36,7 +37,6 @@ export default function ProjectLayout({
     } else {
       setIsValidProject(true);
       setUrlSelectedProject(project);
-      setUrlSelectedStory(null);
       setStories(stories);
     }
   }, [

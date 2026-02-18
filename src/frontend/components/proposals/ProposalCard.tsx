@@ -48,6 +48,9 @@ interface ProposalCardProps {
   ) => Promise<void> | void;
   defaultExpanded?: boolean;
   onProposalContentClick?: (content: ProposalContentDto) => void;
+  showProjectChip?: boolean;
+  showSourceChip?: boolean;
+  highlight?: boolean;
 }
 
 const statusChip = (value: boolean | null | undefined, t: any) => {
@@ -79,6 +82,9 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
   onProposalContentAction,
   defaultExpanded = true,
   onProposalContentClick,
+  showProjectChip = true,
+  showSourceChip = true,
+  highlight = false,
 }) => {
   const t = useTranslations("proposals.ProposalCard");
   const [expanded, setExpanded] = useState(defaultExpanded);
@@ -249,22 +255,44 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
     <Accordion
       expanded={expanded}
       onChange={() => setExpanded((prev) => !prev)}
-      sx={{
+      sx={(theme) => ({
         borderRadius: 1,
-        bgcolor: "background.paper",
-        color: "onBackground",
+        border: highlight
+          ? `2px solid ${theme.palette.primary.main}`
+          : undefined,
+        boxShadow: highlight ? theme.shadows[4] : undefined,
+        transition: "border-color 200ms ease, box-shadow 200ms ease",
+        animation: highlight
+          ? "proposalFlicker 1.2s ease-in-out 0s 3"
+          : undefined,
+
+        "@keyframes proposalFlicker": {
+          "0%": {
+            boxShadow: theme.shadows[1],
+            borderColor: theme.palette.primary.main,
+          },
+          "50%": {
+            boxShadow: `0 0 0 6px ${theme.palette.primary.main}33`,
+            borderColor: theme.palette.primary.light,
+          },
+          "100%": {
+            boxShadow: theme.shadows[1],
+            borderColor: theme.palette.primary.main,
+          },
+        },
+
         "&.Mui-expanded": {
           margin: "0",
 
           // 2. IMPORTANT: Re-apply the Stack's margin (space={1} = 8px by default)
-          marginTop: (theme) => theme.spacing(1),
-          marginBottom: (theme) => theme.spacing(1),
+          marginTop: theme.spacing(1),
+          marginBottom: theme.spacing(1),
         },
         // The optional fix for the line/shadow:
         "&:before": {
           display: "none",
         },
-      }}
+      })}
     >
       <AccordionSummary expandIcon={<ExpandMore fontSize="medium" />}>
         <Stack
@@ -284,12 +312,16 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
             }}
           >
             <Chip label={proposal.key} size="medium" color="primary" />
-            <Chip
-              label={`${t("project")}: ${proposal.project_key}`}
-              size="medium"
-              color="secondary"
-            />
-            <Chip label={proposal.source} size="medium" color="info" />
+            {showProjectChip && (
+              <Chip
+                label={`${t("project")}: ${proposal.project_key}`}
+                size="medium"
+                color="secondary"
+              />
+            )}
+            {showSourceChip && (
+              <Chip label={proposal.source} size="medium" color="info" />
+            )}
             <Chip
               label={t("changeCount", { count: proposal.contents.length })}
               size="medium"
