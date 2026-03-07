@@ -43,6 +43,8 @@ export const CONNECTION_KEYS = {
     ] as const,
   connectionDashboard: (connectionName: string) =>
     [...CONNECTION_KEYS.all, "connectionDashboard", connectionName] as const,
+  projectsSync: (connectionId: string) =>
+    [...CONNECTION_KEYS.all, "syncProjects", connectionId] as const,
 };
 
 export const useConnectionSyncStatusQuery = (connectionId: string) => {
@@ -141,5 +143,13 @@ export const useConnectionDashboardQuery = (
     queryFn: () =>
       connectionService.getConnectionDashboardInfo(connectionName!),
     enabled: !!connectionName,
+  });
+};
+
+export const useProjectsSyncQuery = (connectionId: string | undefined) => {
+  return useQuery({
+    queryKey: CONNECTION_KEYS.projectsSync(connectionId || ""),
+    queryFn: () => connectionService.getProjectsSyncStatus(connectionId!),
+    enabled: !!connectionId,
   });
 };

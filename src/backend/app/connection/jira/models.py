@@ -1,4 +1,12 @@
-from sqlalchemy import Column, String, ForeignKey, Text, DateTime, Enum as SqlEnum
+from sqlalchemy import (
+    Column,
+    String,
+    ForeignKey,
+    Text,
+    DateTime,
+    Enum as SqlEnum,
+    Boolean,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mysql import BINARY, LONGBLOB
 from enum import Enum
@@ -7,13 +15,24 @@ from enum import Enum
 from common.database import Base, uuid_generator, utcnow
 
 
-class JiraSyncError(Enum):
+class SyncError(Enum):
     DATA_SYNC_ERROR = "data_sync_error"
     AUTH_ERROR = "auth_error"
     WEBHOOK_ERROR = "webhook_error"
     ISSUE_TYPE_ERROR = "issue_type_error"
     ISSUE_TYPE_SCHEME_ERROR = "issue_type_scheme_error"
     UNKNOWN_ERROR = "unknown_error"
+
+
+class SyncStatus(Enum):
+    NOT_STARTED = "not_started"
+    SETTING_UP = "setting_up"
+    SETUP_DONE = "setup_done"
+    SETUP_FAILED = "setup_failed"
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    DONE = "done"
+    FAILED = "failed"
 
 
 class Connection(Base):
@@ -41,9 +60,14 @@ class Connection(Base):
     created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
     updated_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
 
-    sync_status = Column(String(512), nullable=True)
+    sync_status = Column(
+        SqlEnum(SyncStatus),
+        default=SyncStatus.NOT_STARTED,
+        nullable=False,
+    )
+    sync_message = Column(String(512), nullable=True)
     sync_error = Column(
-        SqlEnum(JiraSyncError),
+        SqlEnum(SyncError),
         default=None,
         nullable=True,
     )
@@ -73,6 +97,10 @@ class Project(Base):
         nullable=False,
         index=True,
     )
+
+    synced = Column(
+        Boolean, default=False, nullable=False
+    )  # New field to track sync status
 
     connection = relationship("Connection", back_populates="projects")
     stories = relationship(

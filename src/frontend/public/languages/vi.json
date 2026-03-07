@@ -245,7 +245,10 @@
     "ConnectionNotFound": {
       "title": "Không tìm thấy kết nối",
       "message": "Kết nối bạn đang tìm kiếm không tồn tại hoặc bạn không có quyền xem nó.",
-      "goDashboard": "Đi tới Bảng điều khiển"
+      "goDashboard": "Đi tới Bảng điều khiển",
+      "goProfile": "Đi tới Hồ sơ",
+      "notSynced": "Chưa đồng bộ",
+      "setupDone": "Thiết lập xong. Hãy chọn các dự án để đồng bộ hóa."
     },
     "ProjectNotFound": {
       "title": "Không tìm thấy dự án",
@@ -275,6 +278,7 @@
       "connectJiraButton": "Kết nối tài khoản Jira",
       "connecting": "Đang kết nối...",
       "update": "Cập nhật",
+      "sync": "Đồng bộ",
       "delete": "Xóa",
       "changePassword": "Đổi mật khẩu",
       "currentPassword": "Mật khẩu hiện tại",

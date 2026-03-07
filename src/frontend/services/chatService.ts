@@ -40,16 +40,6 @@ export const chatService = {
     );
     return response.data;
   },
-  listChatSessionsByStory: async (
-    connectionName: string,
-    projectKey: string,
-    storyKey: string,
-  ): Promise<BasicResponse<ChatSessionSummary[]>> => {
-    const response = await apiClient.get<BasicResponse<ChatSessionSummary[]>>(
-      `/chat/connections/${connectionName}/projects/${projectKey}/stories/${storyKey}`,
-    );
-    return response.data;
-  },
 
   getChatSession: async (
     connectionName: string,

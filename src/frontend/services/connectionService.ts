@@ -6,6 +6,7 @@ import {
   ConnectionSyncStatusDto,
   ProjectDashboardDto,
   ProjectDto,
+  ProjectDtoSync,
   StoryDashboardDto,
   StoryDto,
   StorySummary,
@@ -89,6 +90,28 @@ export const connectionService = {
   ): Promise<BasicResponse<ConnectionDashboardDto>> => {
     const response = await apiClient.get<BasicResponse<ConnectionDashboardDto>>(
       `/connections/${connectionName}/dashboard`,
+    );
+    return response.data;
+  },
+  getProjectsSyncStatus: async (
+    connectionId: string,
+  ): Promise<BasicResponse<ProjectDtoSync[]>> => {
+    const response = await apiClient.get<BasicResponse<ProjectDtoSync[]>>(
+      `/connections/${connectionId}/projects/sync-status`,
+    );
+    return response.data;
+  },
+  syncProjects: async (
+    connectionId: string,
+    projectKeys: string[],
+    runAnalysisAfterSync: boolean,
+  ): Promise<BasicResponse> => {
+    const response = await apiClient.post<BasicResponse>(
+      `/connections/${connectionId}/projects/sync`,
+      {
+        project_keys: projectKeys,
+        run_analysis_after_sync: runAnalysisAfterSync,
+      },
     );
     return response.data;
   },

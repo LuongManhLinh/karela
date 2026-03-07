@@ -292,12 +292,16 @@ class JiraClient:
         cloud_id: str,
         access_token: str,
         max_results: int = 1000,
+        project_keys: Optional[List[str]] = None,
     ) -> List[ProjectDto]:
         """Fetch all project info from Jira
 
         Args:
             cloud_id (str): Jira cloud ID
             access_token (str): OAuth2 access token
+            max_results (int): Maximum number of projects to fetch
+            project_keys (List[str], optional): List of specific project keys to fetch
+
         Returns:
             List[dict]: List of project info dictionaries, including id, key and name
         """
@@ -305,6 +309,8 @@ class JiraClient:
         params = {
             "maxResults": str(max_results),
         }
+        if project_keys:
+            params["keys"] = project_keys
         resp = requests.get(
             url, headers=_get_auth_header(access_token), params=params, timeout=60
         )

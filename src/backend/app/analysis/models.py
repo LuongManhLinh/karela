@@ -133,7 +133,7 @@ class Defect(Base):
         "DefectStoryKey",
         cascade="all, delete-orphan",
         back_populates="defect",
-        lazy="joined",  # eager fetch equivalent to FetchType.EAGER
+        lazy="joined",
     )
 
 
@@ -145,8 +145,14 @@ class DefectStoryKey(Base):
         String(64),
         ForeignKey("defects.id", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
     # The key of the story
-    key = Column(String(64), nullable=False, index=True)
+    story_key = Column(
+        String(64),
+        # ForeignKey("stories.key", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
 
     defect = relationship("Defect", back_populates="story_keys")

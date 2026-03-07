@@ -5,7 +5,6 @@ from .jira.schemas import ProjectDto, StorySummary
 
 class DashboardDto(BaseModel):
     num_analyses: int
-    num_chats: int
     num_proposals: int
     num_acs: int
 
@@ -13,9 +12,9 @@ class DashboardDto(BaseModel):
 
 
 class ProjectDashboardDto(DashboardDto):
+    num_chats: int
     num_stories: int
     stories_with_analyses: list[StorySummary]
-    stories_with_chats: list[StorySummary]
     stories_with_proposals: list[StorySummary]
     stories_with_acs: list[StorySummary]
 
@@ -28,6 +27,7 @@ class StoryDashboardDto(DashboardDto):
 
 
 class ConnectionDashboardDto(DashboardDto):
+    num_chats: int
     num_projects: int
     projects_with_analyses: list[ProjectDto]
     projects_with_chats: list[ProjectDto]

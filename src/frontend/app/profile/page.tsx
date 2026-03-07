@@ -27,31 +27,31 @@ import { AppSnackbar } from "@/components/AppSnackbar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useRouter } from "next/navigation";
 import type { ConnectionDto } from "@/types/connection";
-import { Add, Edit, Delete } from "@mui/icons-material";
+import { Add, Edit, Delete, Sync } from "@mui/icons-material";
 import { ConnectionItem } from "@/components/profile/ConnectionItem";
 import { connectionService } from "@/services/connectionService";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
+import { SyncProjectsDialog } from "@/components/profile/SyncProjectsDialog";
 
 export default function ProfilePage() {
   const t = useTranslations("profile.ProfilePage");
   const {
-    selectedConnection: selectedConnection,
-    setSelectedConnection: setSelectedConnection,
-    setConnections: setConnections,
-    selectedProject: selectedProject,
-    setSelectedProject: setSelectedProject,
-    setProjects: setProjects,
-    setSelectedStory: setSelectedStory,
-    setStories: setStories,
+    selectedConnection,
+    setSelectedConnection,
+    setConnections,
+    selectedProject,
+    setSelectedProject,
+    setProjects,
+    setSelectedStory,
+    setStories,
   } = useWorkspaceStore();
   const router = useRouter();
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedConnectionId, setSelectedConnectionId] = useState<
-    string | null
-  >(null);
+  const [menuSelectedConnection, setMenuSelectedConnection] =
+    useState<ConnectionDto | null>(null);
   const menuOpen = Boolean(menuAnchorEl);
 
   const { data: userData, isLoading: isUserLoading } = useCurrentUserQuery();
@@ -77,6 +77,7 @@ export default function ProfilePage() {
     "info",
   );
   const [showSnackbar, setShowSnackbar] = useState(false);
+  const [syncDialogOpen, setSyncDialogOpen] = useState(false);
 
   // Show snackbar to alert to connect Jira if no connections exist
   useEffect(() => {
@@ -89,7 +90,10 @@ export default function ProfilePage() {
 
   const basePath = useMemo(() => {
     if (!selectedConnection) {
-      return "/app";
+      if (connections.length > 0) {
+        return `/app/connections/${connections[0].name}`;
+      }
+      return undefined;
     }
     if (!selectedProject) {
       return `/app/connections/${selectedConnection.name}`;
@@ -102,24 +106,28 @@ export default function ProfilePage() {
 
   const handleMenuOpen = async (
     event: React.MouseEvent<HTMLElement>,
-    connectionId: string,
+    connection: ConnectionDto,
   ) => {
     setMenuAnchorEl(event.currentTarget);
-    setSelectedConnectionId(connectionId);
+    setMenuSelectedConnection(connection);
   };
 
   const handleMenuClose = async () => {
     setMenuAnchorEl(null);
-    setSelectedConnectionId(null);
   };
 
   const handleUpdateConnection = async () => {
     handleMenuClose();
-    await handleConnectJira();
+    handleConnectJira();
+  };
+
+  const handleSyncConnection = async () => {
+    handleMenuClose();
+    setSyncDialogOpen(true);
   };
 
   const handleDeleteConnection = async () => {
-    connectionService.deleteConnection(selectedConnectionId!).then(() => {
+    connectionService.deleteConnection(menuSelectedConnection!.id).then(() => {
       // Optionally, you can refetch the connections or update the state to reflect the deletion
       refetchConnections().then((res) => {
         setSelectedConnection(null);
@@ -308,6 +316,12 @@ export default function ProfilePage() {
                 },
               }}
             >
+              <MenuItem onClick={handleSyncConnection}>
+                <ListItemIcon>
+                  <Sync fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>{t("sync")}</ListItemText>
+              </MenuItem>
               <MenuItem onClick={handleUpdateConnection}>
                 <ListItemIcon>
                   <Edit fontSize="small" />
@@ -413,6 +427,13 @@ export default function ProfilePage() {
         severity={severity}
         onClose={() => setShowSnackbar(false)}
       />
+      {menuSelectedConnection && (
+        <SyncProjectsDialog
+          open={syncDialogOpen}
+          connection={menuSelectedConnection}
+          onClose={() => setSyncDialogOpen(false)}
+        />
+      )}
     </Layout>
   );
 }

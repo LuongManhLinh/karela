@@ -42,9 +42,9 @@ const StoryDashboard: React.FC = () => {
     setSelectedProject: setSelectedProject,
     selectedStory: selectedStory,
     setSelectedStory: setSelectedStory,
-    connections: connections,
-    projects: projects,
-    stories: stories,
+    connections,
+    projects,
+    stories,
   } = useWorkspaceStore();
 
   const { data: dashboardData, isLoading } = useStoryDashboardQuery(
@@ -55,7 +55,6 @@ const StoryDashboard: React.FC = () => {
 
   const { data: storyDetailsData } = useStoryDetailsQuery(
     connectionName,
-    projectKey,
     storyKey,
   );
 
@@ -105,12 +104,6 @@ const StoryDashboard: React.FC = () => {
           value: dashboard.num_analyses,
           icon: <Analytics fontSize="large" />,
           onClick: () => handleNavigate("analyses"),
-        },
-        {
-          title: ts("chats"),
-          value: dashboard.num_chats,
-          icon: <Assistant fontSize="large" />,
-          onClick: () => handleNavigate("chats"),
         },
         {
           title: ts("proposals"),

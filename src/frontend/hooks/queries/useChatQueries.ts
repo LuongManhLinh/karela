@@ -1,4 +1,4 @@
-import {useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { chatService } from "@/services/chatService";
 
 export const CHAT_KEYS = {
@@ -7,25 +7,8 @@ export const CHAT_KEYS = {
     [...CHAT_KEYS.all, "sessions", connectionName] as const,
   sessionsByProject: (connectionName: string, projectKey: string) =>
     [...CHAT_KEYS.all, "sessions", connectionName, projectKey] as const,
-  sessionsByStory: (
-    connectionName: string,
-    projectKey: string,
-    storyKey: string,
-  ) =>
-    [
-      ...CHAT_KEYS.all,
-      "sessions",
-      connectionName,
-      projectKey,
-      storyKey,
-    ] as const,
   session: (connectionName: string, sessionOrKey: string) =>
-    [
-      ...CHAT_KEYS.all,
-      "session",
-      connectionName,
-      sessionOrKey,
-    ] as const,
+    [...CHAT_KEYS.all, "session", connectionName, sessionOrKey] as const,
 };
 
 export const useChatSessionsByConnectionQuery = (
@@ -53,38 +36,13 @@ export const useChatSessionsByProjectQuery = (
   });
 };
 
-export const useChatSessionsByStoryQuery = (
-  connectionName: string | undefined,
-  projectKey: string | undefined,
-  storyKey: string | undefined,
-) => {
-  return useQuery({
-    queryKey: CHAT_KEYS.sessionsByStory(
-      connectionName || "",
-      projectKey || "",
-      storyKey || "",
-    ),
-    queryFn: () =>
-      chatService.listChatSessionsByStory(
-        connectionName!,
-        projectKey!,
-        storyKey!,
-      ),
-    enabled: !!connectionName && !!projectKey && !!storyKey,
-  });
-};
-
 export const useChatSessionQuery = (
   connectionName: string | undefined,
   sessionIdOrKey: string | undefined,
 ) => {
   return useQuery({
-    queryKey: CHAT_KEYS.session(
-      connectionName || "",
-      sessionIdOrKey || "",
-    ),
-    queryFn: () =>
-      chatService.getChatSession(connectionName!, sessionIdOrKey!),
+    queryKey: CHAT_KEYS.session(connectionName || "", sessionIdOrKey || ""),
+    queryFn: () => chatService.getChatSession(connectionName!, sessionIdOrKey!),
     enabled: !!connectionName && !!sessionIdOrKey,
   });
 };

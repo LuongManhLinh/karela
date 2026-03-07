@@ -1,5 +1,4 @@
 from app.analysis.agents.schemas import DefectByLlm, WorkItemMinimal, DefectInput
-from app.connection.jira.models import Connection
 from app.proposal.services.run_service import ProposalRunService
 from app.settings.services import SettingsService
 from app.analysis.agents.all import (
@@ -122,7 +121,9 @@ class AnalysisRunService:
                     explanation=defect.explanation,
                     confidence=defect.confidence,
                     suggested_fix=defect.suggested_fix,
-                    story_keys=[DefectStoryKey(key=key) for key in defect.story_keys],
+                    story_keys=[
+                        DefectStoryKey(story_key=key) for key in defect.story_keys
+                    ],
                     analysis_id=analysis_id,
                 )
             )
@@ -244,7 +245,7 @@ class AnalysisRunService:
                 )
                 for d in self.db.query(Defect)
                 .join(DefectStoryKey)
-                .filter(DefectStoryKey.key == target_key, Defect.solved == False)
+                .filter(DefectStoryKey.story_key == target_key, Defect.solved == False)
                 .join(Analysis)
                 .filter(
                     Analysis.connection_id == analysis.connection_id,

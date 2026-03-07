@@ -16,8 +16,9 @@ import {
   Error as ErrorIcon,
   CheckCircle as CheckCircleIcon,
   Info as InfoIcon,
+  PermDataSetting,
 } from "@mui/icons-material";
-import { ConnectionDto } from "@/types/connection";
+import { ConnectionDto, SyncStatus } from "@/types/connection";
 import { useConnectionSyncStatusQuery } from "@/hooks/queries/useConnectionQueries";
 import { getSupportMessageForSyncError } from "@/constants/supportMessageSyncError";
 import { useWebSocketContext } from "@/providers/WebSocketProvider";
@@ -26,7 +27,7 @@ interface ConnectionItemProps {
   connection: ConnectionDto;
   onMenuOpen: (
     event: React.MouseEvent<HTMLElement>,
-    connectionId: string,
+    connection: ConnectionDto,
   ) => void;
 }
 
@@ -40,12 +41,18 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
     connection.id,
   );
 
-  const [localStatus, setLocalStatus] = useState<string | undefined>(undefined);
+  const [localStatus, setLocalStatus] = useState<SyncStatus | undefined>(
+    undefined,
+  );
+  const [localMessage, setLocalMessage] = useState<string | undefined>(
+    undefined,
+  );
   const [localError, setLocalError] = useState<any | undefined>(undefined);
 
   useEffect(() => {
     if (statusData?.data) {
       setLocalStatus(statusData.data.sync_status);
+      setLocalMessage(statusData.data.sync_message);
       setLocalError(statusData.data.sync_error);
     }
   }, [statusData]);
@@ -55,9 +62,9 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
 
   useEffect(() => {
     const handleMessage = (data: any) => {
-      console.log("Received WebSocket message for connection:", data);
       if (data.id === connection.id) {
         setLocalStatus(data.sync_status);
+        setLocalMessage(data.sync_message);
         setLocalError(data.sync_error);
         queryClient.invalidateQueries({
           queryKey: ["connection", "syncStatus", connection.id],
@@ -72,6 +79,8 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
   const statusDto = statusData?.data;
   const syncStatus =
     localStatus !== undefined ? localStatus : statusDto?.sync_status;
+  const syncMessage =
+    localMessage !== undefined ? localMessage : statusDto?.sync_message;
   const syncError =
     localError !== undefined ? localError : statusDto?.sync_error;
 
@@ -80,7 +89,15 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
       return <CircularProgress size={20} />;
     }
 
-    if (syncError) {
+    if (syncStatus === "not_started") {
+      return (
+        <Typography variant="body2" color="text.secondary" noWrap>
+          {t("notSynced")}
+        </Typography>
+      );
+    }
+
+    if (syncStatus === "failed" || syncStatus === "setup_failed") {
       return (
         <Box
           sx={{
@@ -91,7 +108,7 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
             color: theme.palette.error.main,
             width: "100%", // changed from maxWidth to width to fill available space
           }}
-          title={syncStatus}
+          title={syncMessage}
         >
           <Typography
             variant="body2"
@@ -104,7 +121,7 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
               display: "block", // Ensures noWrap behaves correctly
             }}
           >
-            {syncStatus || t("error")}
+            {syncMessage || t("error")}
           </Typography>
           <Tooltip title={getSupportMessageForSyncError(syncError)} arrow>
             <InfoIcon
@@ -119,7 +136,7 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
       );
     }
 
-    if (syncStatus === "SYNCED") {
+    if (syncStatus === "done") {
       return (
         <Box
           sx={{
@@ -137,6 +154,24 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
       );
     }
 
+    if (syncStatus === "setup_done") {
+      return (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            color: theme.palette.warning.main,
+          }}
+        >
+          <PermDataSetting fontSize="small" sx={{ flexShrink: 0 }} />
+          <Typography variant="body2" sx={{ fontWeight: 500 }} noWrap>
+            {t("setupDone")}
+          </Typography>
+        </Box>
+      );
+    }
+
     // Still syncing or unknown state not synced yet
     return (
       <Box
@@ -149,7 +184,7 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
       >
         <CircularProgress size={16} color="inherit" sx={{ flexShrink: 0 }} />
         <Typography variant="body2" noWrap>
-          {syncStatus || t("syncing")}
+          {syncMessage || t("syncing")}
         </Typography>
       </Box>
     );
@@ -206,7 +241,7 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
       <Box sx={{ mt: 0.5 }}>{getStatusContent()}</Box>
 
       <IconButton
-        onClick={(e) => onMenuOpen(e, connection.id)}
+        onClick={(e) => onMenuOpen(e, connection)}
         sx={{ flexShrink: 0 }}
       >
         <MoreVert />

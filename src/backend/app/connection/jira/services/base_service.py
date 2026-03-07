@@ -109,3 +109,31 @@ class JiraBaseService:
         return self._fetch_issues(
             connection, jql, fields, max_results, expand_rendered_fields
         )
+
+    def _run_analysis_targeted(
+        self, connection_id: str, project_key: str, story_key: str
+    ):
+        from app.analysis.services import AnalysisDataService
+        from app.analysis.tasks import analyze_target_user_story
+
+        ana_data_service = AnalysisDataService(db=self.db)
+        analysis_id, _ = ana_data_service.init_analysis(
+            connection_id=connection_id,
+            project_key=project_key,
+            story_key=story_key,
+            analysis_type="TARGETED",
+        )
+        analyze_target_user_story(analysis_id=analysis_id)
+
+    def _run_analysis_all(self, connection_id: str, project_key: str):
+        from app.analysis.services import AnalysisDataService
+        from app.analysis.tasks import analyze_all_user_stories
+
+        ana_data_service = AnalysisDataService(db=self.db)
+        analysis_id, _ = ana_data_service.init_analysis(
+            connection_id=connection_id,
+            project_key=project_key,
+            story_key=None,
+            analysis_type="ALL",
+        )
+        analyze_all_user_stories(analysis_id=analysis_id)

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 import traceback
 
+from app.connection.jira.schemas import SyncProjectsRequests
 from common.schemas import BasicResponse
 from app.service_factory import (
     get_jira_service,
@@ -110,8 +111,6 @@ async def get_story_details(
         return BasicResponse(data=story[0])
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
-    
-
 
 
 @router.get("/{connection_id}/sync-status")
@@ -193,4 +192,46 @@ async def get_connection_dashboard_info(
         return BasicResponse(data=dashboard_info)
     except ValueError as e:
         traceback.print_exc()
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.get("/{connection_id}/projects/sync-status")
+def get_projects_sync_status(
+    connection_id: str,
+    service: JiraService = Depends(get_jira_service),
+    jwt_payload=Depends(get_jwt_payload),
+):
+    user_id = jwt_payload.get("sub")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+    try:
+        projects_sync_status = service.fetch_all_projects_checked_sync(
+            user_id=user_id, connection_id=connection_id
+        )
+        return BasicResponse(data=projects_sync_status)
+    except ValueError as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.post("/{connection_id}/projects/sync")
+def sync_projects(
+    connection_id: str,
+    request: SyncProjectsRequests,
+    service: JiraService = Depends(get_jira_service),
+    jwt_payload=Depends(get_jwt_payload),
+):
+    user_id = jwt_payload.get("sub")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+    try:
+        print("Keys to sync:", request.project_keys)
+        service.sync_projects(
+            user_id=user_id,
+            connection_id=connection_id,
+            project_keys=request.project_keys,
+            run_analysis_after_sync=request.run_analysis_after_sync,
+        )
+        return BasicResponse(detail="Projects sync initiated successfully")
+    except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

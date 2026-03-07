@@ -63,21 +63,25 @@ const ConnectionDashboard: React.FC = () => {
           title: ts("analyses"),
           value: dashboard.num_analyses,
           icon: <Analytics fontSize="large" />,
+            onClick: () => handleNavigate("analyses"),
         },
         {
           title: ts("chats"),
           value: dashboard.num_chats,
           icon: <Assistant fontSize="large" />,
+          onClick: () => handleNavigate("chats"),
         },
         {
           title: ts("proposals"),
           value: dashboard.num_proposals,
           icon: <EmojiObjects fontSize="large" />,
+          onClick: () => handleNavigate("proposals"),
         },
         {
           title: ts("acs"),
           value: dashboard.num_acs,
           icon: <Code fontSize="large" />,
+          onClick: () => handleNavigate("acs"),
         },
       ]
     : [];

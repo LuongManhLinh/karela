@@ -195,6 +195,14 @@ class ProjectDto(BaseModel):
     )
 
 
+class ProjectDtoSync(BaseModel):
+    id: str
+    key: str
+    name: Optional[str] = None
+    avatar_url: Optional[str] = None
+    synced: bool = False
+
+
 class StoryDto(BaseModel):
     id: str
     key: str
@@ -249,9 +257,15 @@ class StorySummary(BaseModel):
 
 
 class ConnectionSyncStatusDto(BaseModel):
-    sync_status: Optional[str] = None
+    sync_status: str
+    sync_message: Optional[str] = None
     sync_error: Optional[str] = None
 
     model_config = ConfigDict(
         extra="ignore",
     )
+
+
+class SyncProjectsRequests(BaseModel):
+    project_keys: list[str] = Field(default_factory=list)
+    run_analysis_after_sync: bool = Field(default=False)

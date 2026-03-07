@@ -99,24 +99,12 @@ class DashboardService:
 
         # Story keys that have defects in this project's analyses
         defect_story_keys_subq = (
-            select(distinct(DefectStoryKey.key))
+            select(distinct(DefectStoryKey.story_key))
             .join(Defect)
             .join(Analysis)
             .where(
                 Analysis.connection_id == connection_id,
                 Analysis.project_key == project_key,
-            )
-            .correlate(None)
-            .subquery()
-        )
-
-        # Story keys that have chat sessions
-        chat_story_keys_subq = (
-            select(distinct(ChatSession.story_key))
-            .where(
-                ChatSession.connection_id == connection_id,
-                ChatSession.project_key == project_key,
-                ChatSession.story_key.isnot(None),
             )
             .correlate(None)
             .subquery()
@@ -142,7 +130,6 @@ class DashboardService:
 
         # --- Fetch all project stories once, with boolean flags ---
         has_analysis = Story.key.in_(select(defect_story_keys_subq))
-        has_chat = Story.key.in_(select(chat_story_keys_subq))
         has_proposal = Story.key.in_(select(proposal_story_keys_subq))
         has_ac = Story.id.in_(select(ac_story_ids_subq))
         has_defect = Story.key.in_(select(defect_story_keys_subq))
@@ -153,7 +140,6 @@ class DashboardService:
                 case((has_analysis, literal(True)), else_=literal(False)).label(
                     "has_analysis"
                 ),
-                case((has_chat, literal(True)), else_=literal(False)).label("has_chat"),
                 case((has_proposal, literal(True)), else_=literal(False)).label(
                     "has_proposal"
                 ),
@@ -167,7 +153,6 @@ class DashboardService:
         )
 
         stories_with_analyses = []
-        stories_with_chats = []
         stories_with_proposals = []
         stories_with_ac = []
         ready_stories = []
@@ -175,15 +160,12 @@ class DashboardService:
         for (
             story,
             flag_analysis,
-            flag_chat,
             flag_proposal,
             flag_ac,
             flag_defect,
         ) in stories_with_flags:
             if flag_analysis:
                 stories_with_analyses.append(story)
-            if flag_chat:
-                stories_with_chats.append(story)
             if flag_proposal:
                 stories_with_proposals.append(story)
             if flag_ac:
@@ -204,7 +186,6 @@ class DashboardService:
             num_proposals=num_proposals,
             num_acs=num_ac,
             stories_with_analyses=_to_story_summaries(stories_with_analyses),
-            stories_with_chats=_to_story_summaries(stories_with_chats),
             stories_with_proposals=_to_story_summaries(stories_with_proposals),
             stories_with_acs=_to_story_summaries(stories_with_ac),
             ready_stories=_to_story_summaries(ready_stories),
@@ -234,7 +215,7 @@ class DashboardService:
         story, connection_id = result
 
         # All counts in a single round-trip
-        num_analyses, num_chats, num_proposals, num_ac = self.db.query(
+        num_analyses, num_proposals, num_ac = self.db.query(
             # analyses referencing this story via defect_story_keys
             (
                 select(func.count(distinct(Analysis.id)))
@@ -243,18 +224,7 @@ class DashboardService:
                 .where(
                     Analysis.connection_id == connection_id,
                     Analysis.project_key == project_key,
-                    DefectStoryKey.key == story_key,
-                )
-                .correlate(None)
-                .scalar_subquery()
-            ),
-            # chat sessions
-            (
-                select(func.count(ChatSession.id))
-                .where(
-                    ChatSession.connection_id == connection_id,
-                    ChatSession.project_key == project_key,
-                    ChatSession.story_key == story_key,
+                    DefectStoryKey.story_key == story_key,
                 )
                 .correlate(None)
                 .scalar_subquery()
@@ -282,7 +252,6 @@ class DashboardService:
 
         return StoryDashboardDto(
             num_analyses=num_analyses,
-            num_chats=num_chats,
             num_proposals=num_proposals,
             num_acs=num_ac,
         )
@@ -345,7 +314,7 @@ class DashboardService:
         analysis_project_ids_subq = (
             select(distinct(Project.id))
             .join(Story)
-            .join(DefectStoryKey, Story.key == DefectStoryKey.key)
+            .join(DefectStoryKey, Story.key == DefectStoryKey.story_key)
             .join(Defect)
             .join(Analysis)
             .where(Analysis.connection_id == connection.id)

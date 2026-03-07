@@ -18,13 +18,7 @@ export default function ConnectionLayout({
     return params?.connectionName as string;
   }, [params]);
 
-  const {
-    connections,
-    setUrlSelectedConnection,
-    setUrlSelectedProject,
-    setUrlSelectedStory,
-    setProjects,
-  } = useWorkspaceStore();
+  const { connections, setProjects } = useWorkspaceStore();
   const [isValidConnection, setIsValidConnection] = useState<boolean | null>(
     null,
   );
@@ -35,16 +29,11 @@ export default function ConnectionLayout({
     useProjectDtosQuery(connectionName);
 
   useEffect(() => {
-    setUrlSelectedProject(null);
-    setUrlSelectedStory(null);
-
     const projects = projectsData?.data;
-    const connection = connections.find((conn) => conn.name === connectionName);
-    if (!connection || projects === null || projects === undefined) {
+    if (projects === null || projects === undefined) {
       setIsValidConnection(false);
     } else {
       setIsValidConnection(true);
-      setUrlSelectedConnection(connection);
       setProjects(projects);
       if (projects.length === 0) {
         setIsProjectsEmpty(true);
@@ -52,13 +41,7 @@ export default function ConnectionLayout({
         setIsProjectsEmpty(false);
       }
     }
-  }, [
-    projectsData,
-    connectionName,
-    connections,
-    setUrlSelectedConnection,
-    setProjects,
-  ]);
+  }, [projectsData, connectionName, connections, setProjects]);
 
   if (isValidConnection === null) {
     return <AppLoading />;

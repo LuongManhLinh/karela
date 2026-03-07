@@ -11,7 +11,6 @@ import { SessionItem } from "@/components/SessionList";
 import {
   useChatSessionsByConnectionQuery,
   useChatSessionsByProjectQuery,
-  useChatSessionsByStoryQuery,
 } from "@/hooks/queries/useChatQueries";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 
@@ -22,10 +21,9 @@ import { PageLevel } from "@/types";
 
 interface ChatLayoutProps {
   children?: React.ReactNode;
-  level: PageLevel;
+  level: "connection" | "project";
   connectionName: string;
   projectKey?: string;
-  storyKey?: string; // Required if level is "story"
   idOrKey?: string;
 }
 const ChatLayout: React.FC<ChatLayoutProps> = ({
@@ -33,7 +31,6 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   level,
   connectionName,
   projectKey,
-  storyKey,
   idOrKey,
 }) => {
   const t = useTranslations("chat.ChatLayout");
@@ -50,12 +47,6 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
         return useChatSessionsByConnectionQuery(connectionName);
       case "project":
         return useChatSessionsByProjectQuery(connectionName, projectKey!);
-      case "story":
-        return useChatSessionsByStoryQuery(
-          connectionName,
-          projectKey!,
-          storyKey!,
-        );
     }
   };
 
@@ -121,7 +112,6 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
       headerText={t("headerText")}
       connectionName={connectionName}
       projectKey={projectKey}
-      storyKey={storyKey}
       href="chats"
       primarySessions={{
         sessions: sessionItems,

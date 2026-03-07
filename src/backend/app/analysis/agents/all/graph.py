@@ -161,7 +161,7 @@ def single_check_node(state: State, runtime: Runtime[Context]) -> dict:
         ]
 
         if output.defects:
-            print(f"Single check found defects: {output.defects}")
+            print(f"Single check found number of defects: {len(output.defects)  }")
             detected = output.defects
         else:
             print("Single check found no defects.")

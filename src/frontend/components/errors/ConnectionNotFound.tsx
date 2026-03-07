@@ -19,11 +19,12 @@ export const ConnectionNotFound = () => {
       <Typography variant="h5" color="error">
         {t("title")}
       </Typography>
-      <Typography variant="body1">
-        {t("message")}
-      </Typography>
+      <Typography variant="body1">{t("message")}</Typography>
       <Button variant="contained" onClick={() => router.push("/app")}>
         {t("goDashboard")}
+      </Button>
+      <Button variant="outlined" onClick={() => router.push("/profile")}>
+        {t("goProfile")}
       </Button>
     </Box>
   );

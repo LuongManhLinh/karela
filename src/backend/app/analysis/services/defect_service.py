@@ -38,7 +38,7 @@ class DefectService:
             self.db.query(Defect)
             .join(DefectStoryKey, Defect.id == DefectStoryKey.defect_id)
             .join(Analysis, Defect.analysis_id == Analysis.id)
-            .filter(DefectStoryKey.key == story_key)
+            .filter(DefectStoryKey.story_key == story_key)
             .filter(
                 Analysis.connection_id == connection_id,
                 Analysis.project_key == project_key,

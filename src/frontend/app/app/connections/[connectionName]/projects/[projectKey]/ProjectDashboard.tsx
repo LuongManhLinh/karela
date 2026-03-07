@@ -54,13 +54,11 @@ const ProjectDashboard: React.FC = () => {
   const router = useRouter();
 
   const {
-    selectedConnection: selectedConnection,
-    setSelectedConnection: setSelectedConnection,
-    selectedProject: selectedProject,
-    setSelectedProject: setSelectedProject,
-    setSelectedStory: setSelectedStory,
-    connections: connections,
-    projects: projects,
+    selectedConnection,
+
+    selectedProject,
+
+    setSelectedStory,
   } = useWorkspaceStore();
 
   const { data: dashboardData, isLoading } = useProjectDashboardQuery(
@@ -250,15 +248,6 @@ const ProjectDashboard: React.FC = () => {
                   title={t("withAnalyses")}
                   stories={dashboard.stories_with_analyses}
                   emptyText={t("noStoriesWithAnalyses")}
-                  onStoryClick={handleStoryClick}
-                  maxHeight={250}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <StoryListSection
-                  title={t("withChats")}
-                  stories={dashboard.stories_with_chats}
-                  emptyText={t("noStoriesWithChats")}
                   onStoryClick={handleStoryClick}
                   maxHeight={250}
                 />

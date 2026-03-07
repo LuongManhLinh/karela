@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 
-const StoryWorkspacePage = () => {
+const StoryDocumentationPage = () => {
   const params = useParams();
   const { connectionName, projectKey } = useMemo(() => {
     return {
@@ -23,4 +23,4 @@ const StoryWorkspacePage = () => {
   return null;
 };
 
-export default StoryWorkspacePage;
+export default StoryDocumentationPage;

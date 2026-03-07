@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import or_, func
+from sqlalchemy import func
 from typing import List, Optional
 
 from utils.markdown_adf_bridge.markdown_adf_bridge import md_to_adf, adf_to_md
@@ -13,6 +13,7 @@ from ..schemas import (
     ConnectionDto,
     ConnectionSyncStatusDto,
     ProjectDto,
+    ProjectDtoSync,
     StoryDto,
     CreateIssuesRequest,
     StorySummary,
@@ -22,7 +23,7 @@ from ..schemas import (
     CreateStoryRequest,
     WebhookCallbackPayload,
 )
-from ..tasks import execute_update_connection
+from ..tasks import setup_connection, sync_projects
 
 
 class JiraService(JiraBaseService):
@@ -30,6 +31,7 @@ class JiraService(JiraBaseService):
         super().__init__(db)
 
     def save_connection(self, user_id: str, code: str):
+        print("Saving connection")
         exchange_resp = JiraClient.exchange_authorization_code(
             client_id=JiraConfig.CLIENT_ID,
             client_secret=JiraConfig.CLIENT_SECRET,
@@ -62,7 +64,7 @@ class JiraService(JiraBaseService):
         if existing_connection:
             jira_conn_id = existing_connection.id
             new = False
-            self.delete_connection(user_id=user_id, connection_id=jira_conn_id)
+            # self.delete_connection(user_id=user_id, connection_id=jira_conn_id)
 
         jira_connection = Connection(
             id=jira_conn_id,
@@ -81,9 +83,32 @@ class JiraService(JiraBaseService):
         self.db.add(jira_connection)
         self.db.commit()
 
-        execute_update_connection(connection_id=jira_conn_id, new=new)
+        if new:
+            setup_connection(connection_id=jira_conn_id)
+            return 1
+        return 2
 
-        return 1 if new else 2
+    def sync_projects(
+        self,
+        user_id: str,
+        connection_id: str,
+        project_keys: list[str],
+        run_analysis_after_sync: bool = False,
+    ):
+        """Sync selected projects: fetch stories from Jira and save to local DB and vector store"""
+        connection = (
+            self.db.query(Connection)
+            .filter(Connection.id == connection_id, Connection.user_id == user_id)
+            .first()
+        )
+        if not connection:
+            raise ValueError("Connection not found")
+
+        sync_projects(
+            connection_id=connection_id,
+            project_keys=project_keys,
+            run_analysis_after_sync=run_analysis_after_sync,
+        )
 
     def __get_connection_and_project(self, connection_id: str, project_key: str):
         connection_and_project = (
@@ -116,7 +141,8 @@ class JiraService(JiraBaseService):
             raise ValueError("Connection not found")
 
         return ConnectionSyncStatusDto(
-            sync_status=connection.sync_status,
+            sync_status=connection.sync_status.value,
+            sync_message=connection.sync_message,
             sync_error=connection.sync_error.value if connection.sync_error else None,
         )
 
@@ -359,9 +385,11 @@ class JiraService(JiraBaseService):
         summary: Optional[str] = None,
         description: Optional[str] = None,
     ):
-        connection, project = self.__get_connection_and_project(
-            connection_id, project_key
+        connection = (
+            self.db.query(Connection).filter(Connection.id == connection_id).first()
         )
+        if not connection:
+            raise ValueError("Connection not found")
 
         self._exec_refreshing_access_token(
             connection,
@@ -399,9 +427,11 @@ class JiraService(JiraBaseService):
             )
 
     def delete_issue(self, connection_id: str, project_key: str, issue_key: str):
-        connection, project = self.__get_connection_and_project(
-            connection_id, project_key
+        connection = (
+            self.db.query(Connection).filter(Connection.id == connection_id).first()
         )
+        if not connection:
+            raise ValueError("Connection not found")
 
         self._exec_refreshing_access_token(
             connection,
@@ -518,6 +548,7 @@ class JiraService(JiraBaseService):
             connection,
             JiraClient.fetch_projects,
             cloud_id=connection.id_,
+            project_keys=["RD", "VBS"],
         )
 
     def fetch_story_summaries(
@@ -572,6 +603,61 @@ class JiraService(JiraBaseService):
             )
         ]
 
+    def fetch_all_projects_checked_sync(
+        self, user_id: str, connection_id: str
+    ) -> list[ProjectDtoSync]:
+        """Fetch all projects and check sync status for each one"""
+        connection = (
+            self.db.query(Connection)
+            .filter(Connection.id == connection_id, Connection.user_id == user_id)
+            .first()
+        )
+        if not connection:
+            raise ValueError("Connection not found")
+
+        # Return local projects
+        projects = (
+            self.db.query(Project).filter(Project.connection_id == connection.id).all()
+        )
+
+        try:
+            remote_projects = self._exec_refreshing_access_token(
+                connection,
+                JiraClient.fetch_projects,
+                cloud_id=connection.id_,
+            )
+
+        except Exception as e:
+            print(f"Error fetching remote projects for sync check: {e}")
+
+            return [
+                ProjectDtoSync(
+                    id=proj.id_,
+                    key=proj.key,
+                    name=proj.name,
+                    avatar_url=proj.avatar_url,
+                    synced=proj.synced,
+                )
+                for proj in projects
+            ]
+
+        # If a remote project exists locally and is marked as synced -> synced=True, else False
+        projects_dict = {proj.key: proj for proj in projects}
+        project_dtos = []
+        for remote_proj in remote_projects:
+            local_proj = projects_dict.get(remote_proj.key)
+            synced = local_proj.synced if local_proj else False
+            project_dtos.append(
+                ProjectDtoSync(
+                    id=remote_proj.id,
+                    key=remote_proj.key,
+                    name=remote_proj.name,
+                    avatar_url=remote_proj.avatar_url,
+                    synced=synced,
+                )
+            )
+        return project_dtos
+
     def _on_stories_create(
         self, connection_id: str, project_key: str, story_keys: List[str]
     ):
@@ -616,6 +702,13 @@ class JiraService(JiraBaseService):
                 project_key=project.key,
                 stories=to_vector,
             )
+
+            for story_key in story_keys:
+                self._run_analysis_targeted(
+                    connection_id=connection.id,
+                    project_key=project.key,
+                    story_key=story_key,
+                )
 
         except Exception as e:
             self.db.rollback()
@@ -676,6 +769,13 @@ class JiraService(JiraBaseService):
                 project_key=project.key,
                 stories=to_vector,
             )
+
+            for story_key in story_keys:
+                self._run_analysis_targeted(
+                    connection_id=connection.id,
+                    project_key=project.key,
+                    story_key=story_key,
+                )
 
         except Exception as e:
             self.db.rollback()

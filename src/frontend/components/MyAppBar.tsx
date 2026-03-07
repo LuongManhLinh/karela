@@ -150,7 +150,7 @@ export const MyAppBar: React.FC<AppBarProps> = ({
         <Box
           sx={{
             display: "flex",
-            gap: 2,
+            gap: menuOpen ? 2 : 1,
             alignItems: "center",
             flexWrap: "wrap",
           }}

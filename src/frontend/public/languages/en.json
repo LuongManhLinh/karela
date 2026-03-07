@@ -245,7 +245,8 @@
     "ConnectionNotFound": {
       "title": "Connection Not Found",
       "message": "The connection you are looking for does not exist or you do not have permission to view it.",
-      "goDashboard": "Go to Dashboard"
+      "goDashboard": "Go to Dashboard",
+      "goProfile": "Go to Profile"
     },
     "ProjectNotFound": {
       "title": "Project Not Found",
@@ -263,7 +264,9 @@
       "error": "Error",
       "synced": "Synced",
       "syncing": "Syncing...",
-      "defaultName": "Jira Connection"
+      "defaultName": "Jira Connection",
+      "notSynced": "Not Synced",
+      "setupDone": "Setup Done. Please select projects to sync."
     },
     "ProfilePage": {
       "title": "Profile",
@@ -275,6 +278,7 @@
       "connectJiraButton": "Connect Jira Account",
       "connecting": "Connecting...",
       "update": "Update",
+      "sync": "Sync",
       "delete": "Delete",
       "changePassword": "Change Password",
       "currentPassword": "Current Password",

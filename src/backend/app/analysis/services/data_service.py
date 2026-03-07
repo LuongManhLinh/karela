@@ -200,7 +200,7 @@ class AnalysisDataService:
                     confidence=defect.confidence,
                     suggested_fix=defect.suggested_fix,
                     solved=defect.solved,
-                    story_keys=[work_item.key for work_item in defect.story_keys],
+                    story_keys=[work_item.story_key for work_item in defect.story_keys],
                 )
                 for defect in defects
             ],

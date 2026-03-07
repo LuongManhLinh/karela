@@ -11,28 +11,41 @@ from utils.markdown_adf_bridge.markdown_adf_bridge import adf_to_md
 from common.configs import JiraConfig
 from .base_service import JiraBaseService
 from ..client import JiraClient
-from ..models import GherkinAC, Connection, Project, Story, JiraSyncError
+from ..models import GherkinAC, Connection, Project, Story, SyncError, SyncStatus
 from ..schemas import (
     StoryDto,
 )
 
-
+from utils.security_utils import decrypt_token
 from common.redis_app import redis_client
 import json
 
 
-class JiraConnectService(JiraBaseService):
+class JiraSyncService(JiraBaseService):
     def __init__(self, db: Session):
         super().__init__(db)
         self.redis_client = redis_client
 
-    def _publish_status(self, connection: Connection, status: str, error: str = None):
-        connection.sync_status = status
+    def _publish_status(
+        self,
+        connection: Connection,
+        status: SyncStatus = None,
+        message: str = None,
+        error: SyncError = None,
+    ):
+        if status:
+            connection.sync_status = status
+        if message:
+            connection.sync_message = message
         if error:
             connection.sync_error = error
         self.db.commit()
         try:
-            payload = {"id": connection.id, "sync_status": status}
+            payload = {"id": connection.id}
+            if status:
+                payload["sync_status"] = connection.sync_status.value
+            if message:
+                payload["sync_message"] = connection.sync_message
             if error:
                 payload["sync_error"] = error if isinstance(error, str) else error.value
             self.redis_client.publish(
@@ -41,32 +54,54 @@ class JiraConnectService(JiraBaseService):
         except Exception as e:
             print(f"Failed to publish connection update: {e}")
 
-    def setup_connection(self, connection_id: str, new: bool = True):
+    def sync_projects(self, connection_id: str, project_keys: list[str]):
         connection = (
             self.db.query(Connection).filter(Connection.id == connection_id).first()
         )
         if not connection:
             raise ValueError("Connection not found")
 
-        self._on_connection_update(connection)
+        self._sync_projects(connection, project_keys=project_keys)
+        self._publish_status(
+            connection, status=SyncStatus.DONE, message="Sync completed"
+        )
 
-        if new:
+    def setup_new_connection(self, connection_id: str):
+        connection = (
+            self.db.query(Connection).filter(Connection.id == connection_id).first()
+        )
+        if not connection:
+            raise ValueError("Connection not found")
+        self._publish_status(connection, status=SyncStatus.SETTING_UP)
+        try:
             issue_type_id = self._create_ac_issue_type(connection)
             self._update_issue_type_for_connection(connection, issue_type_id)
-
             self._register_webhooks(connection)
+            self._publish_status(
+                connection,
+                status=SyncStatus.SETUP_DONE,
+                message="Connection setup completed",
+            )
+        except Exception as e:
+            print(f"Error setting up connection: {e}")
+            self._publish_status(
+                connection,
+                status=SyncStatus.SETUP_FAILED,
+                message=f"Connection setup failed: {e}",
+            )
 
-        connection.sync_status = "SYNCED"
-        self.db.commit()
-        self._publish_status(connection, "SYNCED")
-
-    def _on_connection_update(
-        self, connection: Connection, project_batch_size: int = 5
+    def _sync_projects(
+        self,
+        connection: Connection,
+        project_keys: list[str],
+        project_batch_size: int = 5,
     ):
         """Fetch projects and stories from Jira and cache them locally, including vector store"""
         self.db.add(connection)
         connection.sync_error = None
-        self._publish_status(connection, "Starting sync...")
+        self._publish_status(
+            connection, status=SyncStatus.IN_PROGRESS, message="Starting sync..."
+        )
 
         try:
             # Fetch all projects from Jira
@@ -75,6 +110,7 @@ class JiraConnectService(JiraBaseService):
                 connection,
                 JiraClient.fetch_projects,
                 cloud_id=connection.id_,
+                project_keys=project_keys,
             )
 
             # Get access token once for all concurrent operations
@@ -167,7 +203,7 @@ class JiraConnectService(JiraBaseService):
 
                 self._publish_status(
                     connection,
-                    f"Syncing projects {batch_start + 1}-{batch_end} of {total_projects}: {', '.join(p.key for p in batch)}",
+                    message=f"Syncing projects {batch_start + 1}-{batch_end} of {total_projects}: {', '.join(p.key for p in batch)}",
                 )
 
                 # Process batch concurrently
@@ -180,6 +216,7 @@ class JiraConnectService(JiraBaseService):
                     for future in as_completed(futures):
                         project, stories, gherkin_acs, story_dtos = future.result()
 
+                        project.synced = True
                         self.db.add(project)
                         self.db.add_all(stories)
                         self.db.add_all(gherkin_acs)
@@ -193,21 +230,22 @@ class JiraConnectService(JiraBaseService):
                             )
 
             self.db.commit()
-            self._publish_status(connection, "Completing sync...")
+            self._publish_status(
+                connection, status=SyncStatus.DONE, message="Sync completed"
+            )
 
         except Exception as e:
             self.db.rollback()
             print(f"Error updating connection: {e}")
             self._publish_status(
                 connection=connection,
-                status=f"Sync failed: {e}",
-                error=JiraSyncError.DATA_SYNC_ERROR,
+                message=f"Sync failed: {e}",
+                error=SyncError.DATA_SYNC_ERROR,
             )
             raise
 
     def _get_valid_access_token(self, connection: Connection) -> str:
         """Get a valid access token, refreshing if necessary"""
-        from utils.security_utils import decrypt_token
 
         access_token = decrypt_token(connection.token, connection.token_iv)
         # Test the token with a simple API call
@@ -225,10 +263,7 @@ class JiraConnectService(JiraBaseService):
     def _update_issue_type_for_connection(
         self, connection: Connection, issue_type_id: str
     ):
-        connection.sync_status = "Updating issue types for projects..."
-        self.db.add(connection)
-        self.db.commit()
-        self._publish_status(connection, "Updating issue types for projects...")
+        self._publish_status(connection, message="Updating issue types for projects...")
         try:
             self._exec_refreshing_access_token(
                 connection=connection,
@@ -238,16 +273,16 @@ class JiraConnectService(JiraBaseService):
             )
         except Exception as e:
             print(f"Error adding issue type to projects: {e}")
-            connection.sync_status = f"Failed to update issue types: {e}"
-            connection.sync_error = JiraSyncError.ISSUE_TYPE_SCHEME_ERROR
-            self.db.commit()
+            self._publish_status(
+                connection,
+                message=f"Failed to update issue types: {e}",
+                error=SyncError.ISSUE_TYPE_SCHEME_ERROR,
+            )
             raise
 
     def _register_webhooks(self, connection: Connection):
         """Register webhooks for the Jira connection"""
-        connection.sync_status = "Registering webhooks..."
-        self.db.add(connection)
-        self.db.commit()
+        self._publish_status(connection, message="Registering webhooks...")
         try:
             self._exec_refreshing_access_token(
                 connection=connection,
@@ -258,16 +293,16 @@ class JiraConnectService(JiraBaseService):
             )
         except Exception as e:
             print(f"Error registering webhooks: {e}")
-            connection.sync_status = f"Failed to register webhooks: {e}"
-            connection.sync_error = JiraSyncError.WEBHOOK_ERROR
-            self.db.commit()
+            self._publish_status(
+                connection,
+                message=f"Failed to register webhooks: {e}",
+                error=SyncError.WEBHOOK_ERROR,
+            )
             raise
 
     def _create_ac_issue_type(self, connection: Connection):
         """Create 'AC' issue type in Jira if it doesn't exist"""
-        connection.sync_status = "Creating AC issue type..."
-        self.db.add(connection)
-        self.db.commit()
+        self._publish_status(connection, message="Creating AC issue type...")
         try:
             issue_type_id = self._exec_refreshing_access_token(
                 connection=connection,
@@ -287,18 +322,20 @@ class JiraConnectService(JiraBaseService):
                     name=AC_ISSUE_TYPE_NAME,
                 )
                 if issue_type_id is None:
-                    connection.sync_error = JiraSyncError.ISSUE_TYPE_ERROR
-                    connection.sync_status = f"Failed to retrieve existing {AC_ISSUE_TYPE_NAME} issue type ID"
-                    self.db.commit()
+                    self._publish_status(
+                        connection,
+                        message=f"Failed to retrieve existing {AC_ISSUE_TYPE_NAME} issue type ID",
+                    )
                     raise ValueError(
                         f"Failed to retrieve existing {AC_ISSUE_TYPE_NAME} issue type ID"
                     )
 
                 return issue_type_id
             else:
-                connection.sync_status = (
-                    f"Error creating {AC_ISSUE_TYPE_NAME} issue type: {e}"
+                self._publish_status(
+                    connection,
+                    message=f"Error creating {AC_ISSUE_TYPE_NAME} issue type: {e}",
+                    error=SyncError.ISSUE_TYPE_ERROR,
                 )
-                connection.sync_error = JiraSyncError.ISSUE_TYPE_ERROR
                 self.db.commit()
                 raise

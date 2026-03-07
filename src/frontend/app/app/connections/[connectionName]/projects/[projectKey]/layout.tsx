@@ -20,7 +20,7 @@ export default function ProjectLayout({
     };
   }, [params]);
 
-  const { projects, setUrlSelectedProject, setUrlSelectedStory, setStories } =
+  const { projects, setStories } =
     useWorkspaceStore();
   const [isValidProject, setIsValidProject] = useState<boolean | null>(null);
 
@@ -29,23 +29,18 @@ export default function ProjectLayout({
     useStorySummariesQuery(connectionName, projectKey);
 
   useEffect(() => {
-    setUrlSelectedStory(null);
     const stories = storiesData?.data;
-    const project = projects.find((proj) => proj.key === projectKey);
-    if (!project || stories === null || stories === undefined) {
+    if (stories === null || stories === undefined) {
       setIsValidProject(false);
     } else {
       setIsValidProject(true);
-      setUrlSelectedProject(project);
       setStories(stories);
     }
   }, [
     storiesData,
     projectKey,
     projects,
-    setUrlSelectedProject,
     setStories,
-    setUrlSelectedStory,
   ]);
 
   if (isValidProject === null) {
