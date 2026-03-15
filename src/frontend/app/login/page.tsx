@@ -15,7 +15,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLoginMutation } from "@/hooks/queries/useUserQueries";
-import { AppSnackbar } from "@/components/AppSnackbar";
+import { useNotificationContext } from "@/providers/NotificationProvider";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { getToken, saveToken } from "@/utils/jwtUtils";
 import { useTranslations } from "next-intl";
@@ -26,8 +26,7 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { mutateAsync: login, isPending: isLoginPending } = useLoginMutation();
-  const [error, setError] = useState("");
-  const [showError, setShowError] = useState(false);
+  const { notify } = useNotificationContext();
 
   const theme = useTheme();
 
@@ -41,8 +40,6 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setShowError(false);
 
     try {
       const response = await login({
@@ -55,10 +52,8 @@ export default function LoginPage() {
         router.push("/app");
       }
     } catch (err: any) {
-      const errorMessage =
-        err.response?.data?.detail || t("failed");
-      setError(errorMessage);
-      setShowError(true);
+      const errorMessage = err.response?.data?.detail || t("failed");
+      notify(errorMessage, { severity: "error" });
     }
   };
 
@@ -160,11 +155,6 @@ export default function LoginPage() {
             </Box>
           </Box>
         </Paper>
-        <AppSnackbar
-          open={showError}
-          message={error}
-          onClose={() => setShowError(false)}
-        />
       </Container>
     </Box>
   );

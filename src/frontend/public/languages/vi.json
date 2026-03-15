@@ -404,25 +404,6 @@
         "failedToUpdateDefect": "Cập nhật lỗi thất bại",
         "failedToUpdateProposal": "Cập nhật đề xuất thất bại",
         "failedToUpdateAC": "Cập nhật tiêu chí chấp nhận thất bại"
-      },
-      "layoutSettings": {
-        "title": "Cài đặt bố cục",
-        "layoutType": "Kiểu bố cục",
-        "tabs": "Tab",
-        "stacked": "Xếp chồng theo cột",
-        "grid": "Lưới (2×2)",
-        "preview": "Xem trước",
-        "panelPositions": "Vị trí bảng điều khiển",
-        "panelPositionsHint": "Gán mỗi bảng điều khiển vào một vị trí. Việc hoán đổi được thực hiện tự động — mỗi bảng chỉ có thể chiếm một ô.",
-        "tab": "Tab {n}",
-        "position": "Vị trí {n}",
-        "topLeft": "Trên trái",
-        "topRight": "Trên phải",
-        "bottomLeft": "Dưới trái",
-        "bottomRight": "Dưới phải",
-        "apply": "Áp dụng",
-        "cancel": "Hủy",
-        "resetToDefault": "Đặt lại mặc định"
       }
     }
   },

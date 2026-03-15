@@ -89,19 +89,23 @@ export const useAnalysisSummariesByStoryQuery = (
 };
 
 export const useDefectsByStoryQuery = (
-  connectionId: string | undefined,
+  connectionName: string | undefined,
   projectKey: string | undefined,
   storyKey: string | undefined,
 ) => {
   return useQuery({
     queryKey: ANALYSIS_KEYS.defectsByStory(
-      connectionId || "",
+      connectionName || "",
       projectKey || "",
       storyKey || "",
     ),
     queryFn: () =>
-      analysisService.listDefectsByStory(connectionId!, projectKey!, storyKey!),
-    enabled: !!connectionId && !!projectKey && !!storyKey,
+      analysisService.listDefectsByStory(
+        connectionName!,
+        projectKey!,
+        storyKey!,
+      ),
+    enabled: !!connectionName && !!projectKey && !!storyKey,
   });
 };
 

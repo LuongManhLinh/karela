@@ -17,10 +17,6 @@ interface WorkspaceState {
   runProjects: ProjectDto[];
   runStories: StorySummary[];
 
-  urlSelectedConnection: ConnectionDto | null;
-  urlSelectedProject: ProjectDto | null;
-  urlSelectedStory: StorySummary | null;
-
   headerProjectKey: string;
   headerStoryKey: string;
 
@@ -37,10 +33,6 @@ interface WorkspaceState {
   setRunSelectedStory: (story: StorySummary | null) => void;
   setRunProjects: (projects: ProjectDto[]) => void;
   setRunStories: (stories: StorySummary[]) => void;
-
-  setUrlSelectedConnection: (connection: ConnectionDto | null) => void;
-  setUrlSelectedProject: (project: ProjectDto | null) => void;
-  setUrlSelectedStory: (story: StorySummary | null) => void;
 
   setHeaderProjectKey: (key: string) => void;
   setHeaderStoryKey: (key: string) => void;
@@ -61,9 +53,6 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       runSelectedConnection: null,
       runSelectedProject: null,
       runSelectedStory: null,
-      urlSelectedConnection: null,
-      urlSelectedProject: null,
-      urlSelectedStory: null,
       headerProjectKey: "",
       headerStoryKey: "",
       projects: [],
@@ -103,10 +92,6 @@ export const useWorkspaceStore = create<WorkspaceState>()(
 
       setRunSelectedStory: (story) => set({ runSelectedStory: story }),
 
-      setUrlSelectedConnection: (conn) => set({ urlSelectedConnection: conn }),
-      setUrlSelectedProject: (proj) => set({ urlSelectedProject: proj }),
-      setUrlSelectedStory: (story) => set({ urlSelectedStory: story }),
-
       setHeaderProjectKey: (key) => set({ headerProjectKey: key }),
       setHeaderStoryKey: (key) => set({ headerStoryKey: key }),
 
@@ -124,9 +109,6 @@ export const useWorkspaceStore = create<WorkspaceState>()(
           runSelectedConnection: null,
           runSelectedProject: null,
           runSelectedStory: null,
-          urlSelectedConnection: null,
-          urlSelectedProject: null,
-          urlSelectedStory: null,
         }),
       resetHeaderKeys: () =>
         set({

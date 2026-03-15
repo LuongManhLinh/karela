@@ -13,7 +13,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRegisterMutation } from "@/hooks/queries/useUserQueries";
-import { AppSnackbar } from "@/components/AppSnackbar";
+import { useNotificationContext } from "@/providers/NotificationProvider";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { getToken } from "@/utils/jwtUtils";
 import { useTranslations } from "next-intl";
@@ -27,8 +27,7 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const { mutateAsync: register, isPending: isRegisterPending } =
     useRegisterMutation();
-  const [error, setError] = useState("");
-  const [showError, setShowError] = useState(false);
+  const { notify } = useNotificationContext();
 
   useEffect(() => {
     // Check if already logged in
@@ -40,17 +39,14 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (password !== confirmPassword) {
-      setError(t("passwordMismatch"));
-      setShowError(true);
+      notify(t("passwordMismatch"), { severity: "error" });
       return;
     }
 
     if (password.length < 6) {
-      setError(t("passwordTooShort"));
-      setShowError(true);
+      notify(t("passwordTooShort"), { severity: "error" });
       return;
     }
 
@@ -62,10 +58,8 @@ export default function RegisterPage() {
       });
       router.push("/login");
     } catch (err: any) {
-      const errorMessage =
-        err.response?.data?.detail || t("failed");
-      setError(errorMessage);
-      setShowError(true);
+      const errorMessage = err.response?.data?.detail || t("failed");
+      notify(errorMessage, { severity: "error" });
     } finally {
       // Loading handled by mutation
     }
@@ -192,11 +186,6 @@ export default function RegisterPage() {
             </Box>
           </Box>
         </Paper>
-        <AppSnackbar
-          open={showError}
-          message={error}
-          onClose={() => setShowError(false)}
-        />
       </Container>
     </Box>
   );

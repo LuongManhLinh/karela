@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Button, Typography, Skeleton, Tab, Tabs } from "@mui/material";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
-import { AppSnackbar } from "@/components/AppSnackbar";
+import { useNotificationContext } from "@/providers/NotificationProvider";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ProposalCard } from "@/components/proposals/ProposalCard";
 import type { ProposalContentDto, ProposalActionFlag } from "@/types/proposal";
@@ -74,8 +74,7 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
   const { mutateAsync: actOnProposalContent } =
     useActOnProposalContentMutation();
 
-  const [error, setError] = useState("");
-  const [showError, setShowError] = useState(false);
+  const { notify } = useNotificationContext();
 
   const [multiStoryDialogOpen, setMultiStoryDialogOpen] = useState(false);
   const [selectedStoryKeys, setSelectedStoryKeys] = useState<string[]>([]);
@@ -156,22 +155,19 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.detail || t("errors.failedToUpdateDefect");
-      setError(errorMessage);
-      setShowError(true);
+      notify(errorMessage, { severity: "error" });
     }
   };
 
   const handleGenerateProposals = async () => {
     const analysisId = selectedAnalysisDetail?.id;
     if (!analysisId) return;
-    setError("");
     try {
       await generateProposals(analysisId);
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.detail || t("errors.failedToStartProposalGen");
-      setError(errorMessage);
-      setShowError(true);
+      notify(errorMessage, { severity: "error" });
     }
   };
 
@@ -185,8 +181,7 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.detail || t("errors.failedToUpdateProposal");
-      setError(errorMessage);
-      setShowError(true);
+      notify(errorMessage, { severity: "error" });
     }
   };
 
@@ -201,24 +196,20 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.detail || t("errors.failedToUpdateProposalContent");
-      setError(errorMessage);
-      setShowError(true);
+      notify(errorMessage, { severity: "error" });
     }
   };
 
   const handleRerunAnalysis = async () => {
     const analysisId = selectedAnalysisDetail?.id;
     if (!analysisId) return;
-    setError("");
-
     try {
       await rerunAnalysis(analysisId);
       // Invalidation handles state update
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.detail || t("errors.failedToRerunAnalysis");
-      setError(errorMessage);
-      setShowError(true);
+      notify(errorMessage, { severity: "error" });
     }
   };
 
@@ -528,11 +519,6 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
         </Box>
       )}
 
-      <AppSnackbar
-        open={showError}
-        message={error}
-        onClose={() => setShowError(false)}
-      />
       <MultiStoryDetailDialog
         open={multiStoryDialogOpen}
         onClose={handleCloseMultiStoryDialog}

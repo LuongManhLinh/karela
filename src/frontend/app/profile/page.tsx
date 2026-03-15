@@ -23,7 +23,7 @@ import {
 } from "@/hooks/queries/useUserQueries";
 import { useUserConnectionsQuery } from "@/hooks/queries/useConnectionQueries";
 import { jiraService } from "@/services/jiraService";
-import { AppSnackbar } from "@/components/AppSnackbar";
+import { useNotificationContext } from "@/providers/NotificationProvider";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useRouter } from "next/navigation";
 import type { ConnectionDto } from "@/types/connection";
@@ -71,22 +71,15 @@ export default function ProfilePage() {
   );
   const loading = isUserLoading || isConnectionsLoading;
   const [connectingJira, setConnectingJira] = useState(false);
-
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [severity, setSeverity] = useState<"error" | "success" | "info">(
-    "info",
-  );
-  const [showSnackbar, setShowSnackbar] = useState(false);
+  const { notify } = useNotificationContext();
   const [syncDialogOpen, setSyncDialogOpen] = useState(false);
 
   // Show snackbar to alert to connect Jira if no connections exist
   useEffect(() => {
     if (!loading && !isConnectionsLoading && connections.length === 0) {
-      setSnackbarMessage(t("messages.connectJiraPrompt"));
-      setSeverity("info");
-      setShowSnackbar(true);
+      notify(t("messages.connectJiraPrompt"), { severity: "info" });
     }
-  }, [loading, isConnectionsLoading, connections]);
+  }, [loading, isConnectionsLoading, connections, notify]);
 
   const basePath = useMemo(() => {
     if (!selectedConnection) {
@@ -143,16 +136,13 @@ export default function ProfilePage() {
 
   const handleConnectJira = async () => {
     setConnectingJira(true);
-    setSnackbarMessage("");
 
     try {
       await jiraService.startOAuth();
       // The redirect will happen in jiraService, so we don't need to do anything here
     } catch (err: any) {
       const errorMessage = err.message || t("messages.initiateFailed");
-      setSnackbarMessage(errorMessage);
-      setShowSnackbar(true);
-      setSeverity("error");
+      notify(errorMessage, { severity: "error" });
     } finally {
       setConnectingJira(false);
     }
@@ -160,19 +150,14 @@ export default function ProfilePage() {
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSnackbarMessage("");
 
     if (newPassword !== confirmPassword) {
-      setSnackbarMessage(t("messages.passwordsDoNotMatch"));
-      setShowSnackbar(true);
-      setSeverity("error");
+      notify(t("messages.passwordsDoNotMatch"), { severity: "error" });
       return;
     }
 
     if (newPassword.length < 6) {
-      setSnackbarMessage(t("messages.passwordTooShort"));
-      setSeverity("error");
-      setShowSnackbar(true);
+      notify(t("messages.passwordTooShort"), { severity: "error" });
       return;
     }
 
@@ -181,18 +166,14 @@ export default function ProfilePage() {
         old_password: oldPassword,
         new_password: newPassword,
       });
-      setSnackbarMessage(t("messages.passwordChanged"));
-      setShowSnackbar(true);
-      setSeverity("success");
+      notify(t("messages.passwordChanged"), { severity: "success" });
       setOldPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.detail || t("messages.changePasswordFailed");
-      setSnackbarMessage(errorMessage);
-      setSeverity("error");
-      setShowSnackbar(true);
+      notify(errorMessage, { severity: "error" });
     }
   };
 
@@ -421,12 +402,6 @@ export default function ProfilePage() {
           </Box>
         </Paper>
       </Container>
-      <AppSnackbar
-        open={showSnackbar}
-        message={snackbarMessage}
-        severity={severity}
-        onClose={() => setShowSnackbar(false)}
-      />
       {menuSelectedConnection && (
         <SyncProjectsDialog
           open={syncDialogOpen}

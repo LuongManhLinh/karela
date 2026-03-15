@@ -5,6 +5,7 @@ import QueryProvider from "@/components/providers/QueryProvider";
 import { WebSocketProvider } from "@/providers/WebSocketProvider";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
+import { NotificationProvider } from "@/providers/NotificationProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,7 +38,9 @@ export default async function RootLayout({
         <NextIntlClientProvider messages={messages}>
           <QueryProvider>
             <WebSocketProvider>
-              <ThemeProvider>{children}</ThemeProvider>
+              <NotificationProvider>
+                <ThemeProvider>{children}</ThemeProvider>
+              </NotificationProvider>
             </WebSocketProvider>
           </QueryProvider>
         </NextIntlClientProvider>

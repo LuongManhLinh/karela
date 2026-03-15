@@ -171,6 +171,7 @@ export const MyAppBar: React.FC<AppBarProps> = ({
                   bgcolor: pathname.includes(page.href)
                     ? "action.selected"
                     : "transparent",
+                  // color: "primary",
                 }}
               >
                 {page.name}
@@ -186,6 +187,7 @@ export const MyAppBar: React.FC<AppBarProps> = ({
                   bgcolor: pathname.includes(page.href)
                     ? "action.selected"
                     : "transparent",
+                  // color: "primary",
                 }}
               >
                 {page.icon}

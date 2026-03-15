@@ -116,12 +116,12 @@ export const analysisService = {
     return response.data;
   },
   listDefectsByStory: async (
-    connectionId: string,
+    connectionName: string,
     projectKey: string,
     storyKey: string,
   ): Promise<BasicResponse<DefectDto[]>> => {
     const response = await apiClient.get<BasicResponse<DefectDto[]>>(
-      `/analyses/connections/${connectionId}/projects/${projectKey}/stories/${storyKey}/defects`,
+      `/analyses/connections/${connectionName}/projects/${projectKey}/stories/${storyKey}/defects`,
     );
     return response.data;
   },

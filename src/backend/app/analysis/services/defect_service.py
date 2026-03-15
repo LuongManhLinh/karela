@@ -1,9 +1,8 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select
-from typing import List, Optional
 
 
 from ..models import Analysis, Defect, DefectStoryKey
+from app.connection.jira.models import Connection
 from ..schemas import DefectDto
 
 
@@ -32,8 +31,13 @@ class DefectService:
         self.db.commit()
 
     def get_defects_by_story_key(
-        self, connection_id: str, project_key: str, story_key: str
-    ) -> List[DefectDto]:
+        self, user_id: str, connection_name: str, project_key: str, story_key: str
+    ) -> list[DefectDto]:
+        connection_id = (
+            self.db.query(Connection.id)
+            .filter(Connection.user_id == user_id, Connection.name == connection_name)
+            .scalar()
+        )
         defects = (
             self.db.query(Defect)
             .join(DefectStoryKey, Defect.id == DefectStoryKey.defect_id)
@@ -63,7 +67,7 @@ class DefectService:
             for defect in defects
         ]
 
-    def get_defects_by_analysis_id(self, analysis_id: str) -> List[DefectDto]:
+    def get_defects_by_analysis_id(self, analysis_id: str) -> list[DefectDto]:
         defects = self.db.query(Defect).filter(Defect.analysis_id == analysis_id).all()
 
         return [

@@ -40,8 +40,8 @@ export const ProjectListSection: React.FC<ProjectListSectionProps> = ({
       sx={{
         p: 2,
         borderRadius: 1,
-        bgcolor: "tertiaryContainer",
-        color: "onTertiaryContainer",
+        bgcolor: "primaryContainer",
+        color: "onPrimaryContainer",
         height: "100%",
         display: "flex",
         flexDirection: "column",

@@ -5,8 +5,9 @@ import { Box } from "@mui/material";
 import { Info, BugReport, EmojiObjects, Code } from "@mui/icons-material";
 import { useTranslations } from "next-intl";
 
-import { PanelManager } from "./PanelManager";
-import { PanelConfig } from "./ResizablePanel";
+import PanelManager, {
+  type PanelConfig,
+} from "@/components/workspace/PanelManager";
 import {
   InformationPanelContent,
   DefectsPanelContent,
@@ -36,8 +37,7 @@ import type {
 import type { DefectDto } from "@/types/analysis";
 import type { ACDto, ACSummary } from "@/types/ac";
 import type { SessionSummary } from "@/types";
-import { AppSnackbar } from "@/components/AppSnackbar";
-import { scrollBarSx } from "@/constants/scrollBarSx";
+import { useNotificationContext } from "@/providers/NotificationProvider";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 
 interface WorkspacePageProps {
@@ -53,9 +53,7 @@ const WorkspacePage: React.FC<WorkspacePageProps> = ({
 }) => {
   const t = useTranslations("workspace.WorkspacePage");
 
-  // State for error handling
-  const [error, setError] = useState("");
-  const [showError, setShowError] = useState(false);
+  const { notify } = useNotificationContext();
 
   // State for AC details (since we need to fetch each AC individually for content)
   const [acDetails, setAcDetails] = useState<Record<string, ACDto>>({});
@@ -72,10 +70,8 @@ const WorkspacePage: React.FC<WorkspacePageProps> = ({
   );
   const story = useMemo(() => storyData?.data || null, [storyData]);
 
-  const { urlSelectedConnection } = useWorkspaceStore();
-
   const { data: defectsData, isLoading: isDefectsLoading } =
-    useDefectsByStoryQuery(urlSelectedConnection?.id, projectKey, storyKey);
+    useDefectsByStoryQuery(connectionName, projectKey, storyKey);
   const defects = useMemo<DefectDto[]>(
     () => defectsData?.data || [],
     [defectsData],
@@ -201,11 +197,10 @@ const WorkspacePage: React.FC<WorkspacePageProps> = ({
       } catch (err: any) {
         const errorMessage =
           err.response?.data?.detail || t("errors.failedToUpdateDefect");
-        setError(errorMessage);
-        setShowError(true);
+        notify(errorMessage, { severity: "error" });
       }
     },
-    [markDefectSolved, t],
+    [markDefectSolved, t, notify],
   );
 
   const handleProposalAction = useCallback(
@@ -215,11 +210,10 @@ const WorkspacePage: React.FC<WorkspacePageProps> = ({
       } catch (err: any) {
         const errorMessage =
           err.response?.data?.detail || t("errors.failedToUpdateProposal");
-        setError(errorMessage);
-        setShowError(true);
+        notify(errorMessage, { severity: "error" });
       }
     },
-    [actOnProposal, t],
+    [actOnProposal, t, notify],
   );
 
   const handleProposalContentAction = useCallback(
@@ -234,11 +228,10 @@ const WorkspacePage: React.FC<WorkspacePageProps> = ({
       } catch (err: any) {
         const errorMessage =
           err.response?.data?.detail || t("errors.failedToUpdateProposal");
-        setError(errorMessage);
-        setShowError(true);
+        notify(errorMessage, { severity: "error" });
       }
     },
-    [actOnProposalContent, t],
+    [actOnProposalContent, t, notify],
   );
 
   const handleSaveAC = useCallback(
@@ -259,12 +252,11 @@ const WorkspacePage: React.FC<WorkspacePageProps> = ({
       } catch (err: any) {
         const errorMessage =
           err.response?.data?.detail || t("errors.failedToUpdateAC");
-        setError(errorMessage);
-        setShowError(true);
+        notify(errorMessage, { severity: "error" });
         throw err;
       }
     },
-    [t],
+    [t, notify],
   );
 
   // Panel configurations
@@ -276,8 +268,6 @@ const WorkspacePage: React.FC<WorkspacePageProps> = ({
           title: t("information"),
           icon: <Info fontSize="small" />,
           defaultOpen: true,
-          defaultHeight: 250,
-          minHeight: 150,
         },
         content: (
           <InformationPanelContent story={story} loading={isStoryLoading} />
@@ -289,8 +279,6 @@ const WorkspacePage: React.FC<WorkspacePageProps> = ({
           title: t("defects"),
           icon: <BugReport fontSize="small" />,
           defaultOpen: true,
-          defaultHeight: 300,
-          minHeight: 150,
         },
         content: (
           <DefectsPanelContent
@@ -306,8 +294,6 @@ const WorkspacePage: React.FC<WorkspacePageProps> = ({
           title: t("proposals"),
           icon: <EmojiObjects fontSize="small" />,
           defaultOpen: true,
-          defaultHeight: 300,
-          minHeight: 150,
         },
         content: (
           <ProposalsPanelContent
@@ -324,8 +310,6 @@ const WorkspacePage: React.FC<WorkspacePageProps> = ({
           title: t("acceptanceCriteria"),
           icon: <Code fontSize="small" />,
           defaultOpen: true,
-          defaultHeight: 350,
-          minHeight: 200,
         },
         content: (
           <ACPanelContent
@@ -372,12 +356,6 @@ const WorkspacePage: React.FC<WorkspacePageProps> = ({
       }}
     >
       <PanelManager panels={panels} />
-
-      <AppSnackbar
-        open={showError}
-        message={error}
-        onClose={() => setShowError(false)}
-      />
     </Box>
   );
 };

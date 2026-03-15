@@ -198,8 +198,8 @@ class DashboardService:
         # Verify the story exists and get connection_id
         result = (
             self.db.query(Story, Connection.id.label("connection_id"))
-            .join(Project)
-            .join(Connection)
+            .join(Story.project)
+            .join(Project.connection)
             .filter(
                 Connection.user_id == user_id,
                 Connection.name == connection_name,

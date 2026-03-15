@@ -8,7 +8,7 @@ import {
   PaletteMode,
 } from "@mui/material";
 
-import themeData from "@/material-theme.json";
+import themeData from "@/public/themes/green-theme.json";
 
 type ThemeContextType = {
   mode: PaletteMode;

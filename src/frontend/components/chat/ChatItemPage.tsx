@@ -17,7 +17,7 @@ import { FunctionCallMessage } from "@/components/chat/FunctionCallMessage";
 import { ToolMessage } from "@/components/chat/ToolMessage";
 import { AnalysisProgressMessage } from "@/components/chat/AnalysisProgressMessage";
 import { proposalService } from "@/services/proposalService";
-import { AppSnackbar } from "@/components/AppSnackbar";
+import { useNotificationContext } from "@/providers/NotificationProvider";
 import type {
   ProposalDto,
   ProposalContentDto,
@@ -59,8 +59,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
   const [streamingContent, setStreamingContent] = useState<string>("");
   const [bufferUpdateTrigger, setBufferUpdateTrigger] = useState(0);
 
-  const [error, setError] = useState("");
-  const [showError, setShowError] = useState(false);
+  const { notify } = useNotificationContext();
   const [proposalExpanded, setProposalExpanded] = useState(true);
   const [waitingForResponse, setWaitingForResponse] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -334,11 +333,10 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
           message: messageToSend,
         });
       } else {
-        setError(t("connectionLost"));
-        setShowError(true);
+        notify(t("connectionLost"), { severity: "error" });
       }
     },
-    [isConnected, send, idOrKey, commitStreamingMessage, t],
+    [isConnected, send, idOrKey, commitStreamingMessage, t, notify],
   );
 
   useEffect(() => {
@@ -379,11 +377,10 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
       } catch (err: any) {
         const errorMessage =
           err.response?.data?.detail || t("failedToUpdateProposal");
-        setError(errorMessage);
-        setShowError(true);
+        notify(errorMessage, { severity: "error" });
       }
     },
-    [fetchSessionProposals, t],
+    [fetchSessionProposals, t, notify],
   );
 
   const handleProposalContentAction = useCallback(
@@ -402,11 +399,10 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
       } catch (err: any) {
         const errorMessage =
           err.response?.data?.detail || t("failedToUpdateProposalContent");
-        setError(errorMessage);
-        setShowError(true);
+        notify(errorMessage, { severity: "error" });
       }
     },
-    [fetchSessionProposals, t],
+    [fetchSessionProposals, t, notify],
   );
 
   const chatContent = (
@@ -586,12 +582,6 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
 
         <ChatSection sendMessage={handleSendMessage} disabled={!isConnected} />
       </Box>
-
-      <AppSnackbar
-        open={showError}
-        message={error}
-        onClose={() => setShowError(false)}
-      />
     </Box>
   );
 };

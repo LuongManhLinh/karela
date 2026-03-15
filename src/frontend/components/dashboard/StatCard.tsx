@@ -32,8 +32,8 @@ export const StatCard: React.FC<StatCardProps> = ({
         minWidth: 140,
         cursor: onClick ? "pointer" : "default",
         transition: "all 0.2s ease-in-out",
-        bgcolor: "tertiaryContainer",
-        color: "onTertiaryContainer",
+        bgcolor: "primaryContainer",
+        color: "onPrimaryContainer",
         "&:hover": onClick
           ? {
               transform: "translateY(-2px)",

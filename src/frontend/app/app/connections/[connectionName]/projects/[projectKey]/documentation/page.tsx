@@ -20,7 +20,6 @@ import {
   useUpdateSettingsMutation,
 } from "@/hooks/queries/useSettingsQueries";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
-import { AppSnackbar } from "@/components/AppSnackbar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import type {
   CreateSettingsRequest,
@@ -29,6 +28,7 @@ import type {
 import type { ConnectionDto, ProjectDto } from "@/types/connection";
 import { scrollBarSx } from "@/constants/scrollBarSx";
 import { SessionStartForm } from "@/components/SessionStartForm";
+import { useNotificationContext } from "@/providers/NotificationProvider";
 
 const MIN_TEXTFIELD_ROWS = 3;
 const MAX_TEXTFIELD_ROWS = 20;
@@ -57,11 +57,7 @@ export default function DocumentationPage() {
 
   const settings = settingsData?.data;
 
-  // Local state for form fields only
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [showError, setShowError] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const { notify } = useNotificationContext();
 
   // Form fields
   const [productVision, setProductVision] = useState("");
@@ -94,16 +90,12 @@ export default function DocumentationPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedConnection || !selectedProject) {
-      setError("Please select a connection and project");
-      setShowError(true);
+      notify("Please select a connection and project", { severity: "warning" });
       return;
     }
 
     const isSaving = isCreating || isUpdating;
     if (isSaving) return;
-
-    setError("");
-    setSuccess("");
 
     try {
       const data: CreateSettingsRequest | UpdateSettingsRequest = {
@@ -120,7 +112,7 @@ export default function DocumentationPage() {
           projectKey: selectedProject?.key,
           data,
         });
-        setSuccess("Settings updated successfully");
+        notify("Settings updated successfully", { severity: "success" });
       } else {
         await createSettings({
           connectionId: selectedConnection?.id,
@@ -131,14 +123,12 @@ export default function DocumentationPage() {
             project_key: selectedProject?.key,
           },
         });
-        setSuccess("Settings created successfully");
+        notify("Settings created successfully", { severity: "success" });
       }
-      setShowSuccess(true);
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.detail || "Failed to save settings";
-      setError(errorMessage);
-      setShowError(true);
+      notify(errorMessage, { severity: "error" });
     }
   };
 
@@ -308,22 +298,7 @@ export default function DocumentationPage() {
             )}
           </Paper>
         )}
-
-        {showSuccess && (
-          <Alert
-            severity="success"
-            sx={{ mt: 2 }}
-            onClose={() => setShowSuccess(false)}
-          >
-            {success}
-          </Alert>
-        )}
       </Container>
-      <AppSnackbar
-        open={showError}
-        message={error}
-        onClose={() => setShowError(false)}
-      />
     </Layout>
   );
 }
