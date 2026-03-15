@@ -56,7 +56,9 @@ class DefectService:
                 confidence=defect.confidence,
                 suggested_fix=defect.suggested_fix,
                 solved=defect.solved,
-                story_keys=[story_key_item.key for story_key_item in defect.story_keys],
+                story_keys=[
+                    story_key_item.story_key for story_key_item in defect.story_keys
+                ],
             )
             for defect in defects
         ]

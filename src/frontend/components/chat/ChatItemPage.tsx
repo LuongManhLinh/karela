@@ -489,7 +489,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
       <Box
         sx={{
           width: "60%",
-          mt: 2,
+          mb: 4,
           ...(messages.length > 0
             ? {
                 zIndex: 10,

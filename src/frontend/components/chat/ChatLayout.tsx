@@ -70,12 +70,10 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   const handleNewChat = async (
     connection: ConnectionDto,
     project: ProjectDto,
-    story?: StorySummary,
   ) => {
     const newIdData = await chatService.createChatSession(
       connection.id,
       project.key,
-      story ? story.key : undefined,
     );
     const newId = newIdData.data;
     if (newId) {
@@ -124,6 +122,8 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
       onNewLabel={t("newChat")}
       dialogLabel={t("createChatLabel")}
       primaryAction={handleNewChat}
+      requireStory={false}
+      showStoryCheckbox={false}
     >
       {children}
     </PageLayout>

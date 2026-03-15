@@ -56,6 +56,13 @@ export const LayoutSettingsDialog: React.FC<LayoutSettingsDialogProps> = ({
     }
   }, [open, layoutType, panelOrder]);
 
+  const tabsLabels = [
+    t("layoutSettings.tab", { n: 1 }),
+    t("layoutSettings.tab", { n: 2 }),
+    t("layoutSettings.tab", { n: 3 }),
+    t("layoutSettings.tab", { n: 4 }),
+  ];
+
   const handlePositionChange = (position: number, panelId: string) => {
     const newOrder = [...draftOrder];
     // Find where this panel currently is and swap
@@ -100,7 +107,12 @@ export const LayoutSettingsDialog: React.FC<LayoutSettingsDialogProps> = ({
     t("layoutSettings.position", { n: 4 }),
   ];
 
-  const positionLabels = draftLayout === "grid" ? gridLabels : stackedLabels;
+  const positionLabels =
+    draftLayout === "grid"
+      ? gridLabels
+      : draftLayout === "tabs"
+        ? tabsLabels
+        : stackedLabels;
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -125,6 +137,11 @@ export const LayoutSettingsDialog: React.FC<LayoutSettingsDialogProps> = ({
             value={draftLayout}
             onChange={(e) => setDraftLayout(e.target.value as LayoutType)}
           >
+            <FormControlLabel
+              value="tabs"
+              control={<Radio size="small" />}
+              label={t("layoutSettings.tabs")}
+            />
             <FormControlLabel
               value="stacked"
               control={<Radio size="small" />}
@@ -169,7 +186,7 @@ export const LayoutSettingsDialog: React.FC<LayoutSettingsDialogProps> = ({
                 </Box>
               ))}
             </Box>
-          ) : (
+          ) : draftLayout === "grid" ? (
             <Box sx={{ mt: 1 }}>
               {[0, 1].map((row) => (
                 <Box
@@ -203,6 +220,33 @@ export const LayoutSettingsDialog: React.FC<LayoutSettingsDialogProps> = ({
                       </Box>
                     );
                   })}
+                </Box>
+              ))}
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                display: "flex",
+                gap: 0.5,
+                mt: 1,
+                overflowX: "auto",
+              }}
+            >
+              {draftOrder.map((id) => (
+                <Box
+                  key={id}
+                  sx={{
+                    bgcolor: "action.hover",
+                    borderRadius: 1,
+                    px: 1.5,
+                    py: 0.75,
+                    textAlign: "center",
+                    border: 1,
+                    borderColor: "divider",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  <Typography variant="caption">{getPanelLabel(id)}</Typography>
                 </Box>
               ))}
             </Box>

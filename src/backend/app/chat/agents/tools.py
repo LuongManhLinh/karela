@@ -106,13 +106,12 @@ def get_story_details(story_key: str, runtime: ToolRuntime) -> str:
 
 
 @tool
-def get_defects_for_story(story_key: Optional[str], runtime: ToolRuntime) -> str:
+def get_defects_for_story(story_key: str, runtime: ToolRuntime) -> str:
     """Fetch defects for a User Story by its key.
 
     Args:
-        story_key (Optional[str]):
+        story_key (str):
             The key of the User Story to fetch defects for.
-            If None, use story_key from current context.
 
     Returns:
         str: A JSON string containing: the list of defects or an error message.
@@ -126,7 +125,10 @@ def get_defects_for_story(story_key: Optional[str], runtime: ToolRuntime) -> str
     )
 
     if not story_key:
-        story_key = runtime.context.story_key
+        return json.dumps(
+            {"error": "Story Key not provided. Cannot retrieve defects."},
+            indent=2,
+        )
 
     connection_id = runtime.context.connection_id
     project_key = runtime.context.project_key
@@ -155,7 +157,7 @@ def run_defect_analysis(story_key: Optional[str], runtime: ToolRuntime) -> str:
     """Run a defect analysis for a User Story.
 
     Args:
-        story_key (Optional[str]): The key of the Story to run defect analysis for. If None, use story_key from current context.
+        story_key (str): The key of the Story to run defect analysis for.
 
     Returns:
         str: A JSON string containing: the analysis ID and status, or an error message.
@@ -169,7 +171,10 @@ def run_defect_analysis(story_key: Optional[str], runtime: ToolRuntime) -> str:
 """
     )
     if not story_key:
-        story_key = runtime.context.story_key
+        return json.dumps(
+            {"error": "Story Key not provided. Cannot run defect analysis."},
+            indent=2,
+        )
 
     connection_id = runtime.context.connection_id
     project_key = runtime.context.project_key

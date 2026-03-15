@@ -13,6 +13,7 @@ export type DefectType =
   | "DUPLICATION"
   | "OUT_OF_SCOPE"
   | "IRRELEVANCE"
+  | "AMBIGUITY"
   | "UNKNOWN";
 
 export interface AnalysisSummary extends SessionSummary {

@@ -5,7 +5,7 @@ import { persist } from "zustand/middleware";
 export type PanelPosition = 0 | 1 | 2 | 3;
 
 /** Supported arrangement types. */
-export type LayoutType = "stacked" | "grid";
+export type LayoutType = "tabs" | "stacked" | "grid";
 
 /** Default panel IDs in order. */
 export const DEFAULT_PANEL_ORDER: string[] = [
@@ -35,7 +35,7 @@ interface WorkspaceLayoutStore extends WorkspaceLayoutState {
 }
 
 const DEFAULT_STATE: WorkspaceLayoutState = {
-  layoutType: "stacked",
+  layoutType: "tabs",
   panelOrder: [...DEFAULT_PANEL_ORDER],
   rowHeights: [300, 300], // two rows for grid; stacked uses individual heights
   columnRatios: [0.5, 0.5],

@@ -136,6 +136,7 @@
       "DUPLICATION": "Trùng lặp",
       "OUT_OF_SCOPE": "Ngoài phạm vi",
       "IRRELEVANCE": "Không liên quan",
+      "AMBIGUITY": "Mơ hồ",
       "type": "Loại",
       "markSolvedTooltip": "Đánh dấu lỗi này là đã giải quyết. Lỗi đã giải quyết sẽ không xuất hiện trong các phân tích trong tương lai và sẽ không được sử dụng để tạo đề xuất."
     }
@@ -407,11 +408,13 @@
       "layoutSettings": {
         "title": "Cài đặt bố cục",
         "layoutType": "Kiểu bố cục",
+        "tabs": "Tab",
         "stacked": "Xếp chồng theo cột",
         "grid": "Lưới (2×2)",
         "preview": "Xem trước",
         "panelPositions": "Vị trí bảng điều khiển",
         "panelPositionsHint": "Gán mỗi bảng điều khiển vào một vị trí. Việc hoán đổi được thực hiện tự động — mỗi bảng chỉ có thể chiếm một ô.",
+        "tab": "Tab {n}",
         "position": "Vị trí {n}",
         "topLeft": "Trên trái",
         "topRight": "Trên phải",

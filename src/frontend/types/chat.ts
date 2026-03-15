@@ -14,7 +14,6 @@ export type MessageRole =
 export interface ChatSessionCreateRequest {
   connection_id: string;
   project_key: string;
-  story_key?: string;
 }
 
 export interface ChatMessageDto {

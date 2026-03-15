@@ -31,7 +31,7 @@ class ProposalRunService:
         for d in input_defects:
             if d.solved:
                 continue
-            keys = [w.key for w in d.story_keys]
+            keys = [w.story_key for w in d.story_keys]
             involved_story_keys.update(keys)
             defects.append(
                 DefectInput(

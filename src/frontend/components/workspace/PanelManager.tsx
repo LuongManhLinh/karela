@@ -7,7 +7,7 @@ import React, {
   useRef,
   useEffect,
 } from "react";
-import { Box, Chip, Tooltip, IconButton } from "@mui/material";
+import { Box, Chip, Tooltip, IconButton, Tabs, Tab } from "@mui/material";
 import { Settings } from "@mui/icons-material";
 import { ResizableBox } from "react-resizable";
 
@@ -70,6 +70,7 @@ export const PanelManager: React.FC<PanelManagerProps> = ({ panels }) => {
   );
 
   const [maximizedPanelId, setMaximizedPanelId] = useState<string | null>(null);
+  const [activeTabPanelId, setActiveTabPanelId] = useState<string | null>(null);
 
   const handleTogglePanel = useCallback(
     (panelId: string) => {
@@ -97,12 +98,29 @@ export const PanelManager: React.FC<PanelManagerProps> = ({ panels }) => {
     [orderedPanels, panelStates],
   );
 
+  useEffect(() => {
+    if (openPanels.length === 0) {
+      setActiveTabPanelId(null);
+      return;
+    }
+
+    const hasActive = openPanels.some((p) => p.config.id === activeTabPanelId);
+    if (!hasActive) {
+      setActiveTabPanelId(openPanels[0].config.id);
+    }
+  }, [openPanels, activeTabPanelId]);
+
   const closedPanels = useMemo(
     () => orderedPanels.filter((p) => !panelStates[p.config.id]?.isOpen),
     [orderedPanels, panelStates],
   );
 
   const allConfigs = useMemo(() => panels.map((p) => p.config), [panels]);
+
+  const activePanel = useMemo(
+    () => openPanels.find((p) => p.config.id === activeTabPanelId) ?? null,
+    [openPanels, activeTabPanelId],
+  );
 
   /* ---- helpers to render a single panel ---- */
   const renderPanel = useCallback(
@@ -323,6 +341,37 @@ export const PanelManager: React.FC<PanelManagerProps> = ({ panels }) => {
     );
   };
 
+  const renderTabsLayout = () => (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        minHeight: 0,
+      }}
+    >
+      <Tabs
+        value={activeTabPanelId ?? false}
+        onChange={(_e, newValue) => setActiveTabPanelId(newValue)}
+        variant="scrollable"
+        scrollButtons="auto"
+        sx={{ borderBottom: 1, borderColor: "divider", px: 1, flexShrink: 0 }}
+      >
+        {openPanels.map((panel) => (
+          <Tab
+            key={panel.config.id}
+            value={panel.config.id}
+            label={panel.config.title}
+          />
+        ))}
+      </Tabs>
+
+      <Box sx={{ flex: 1, minHeight: 0, p: 1, overflow: "hidden" }}>
+        {activePanel ? renderPanel(activePanel) : null}
+      </Box>
+    </Box>
+  );
+
   /* ================================================================
      RENDER
      ================================================================ */
@@ -355,7 +404,10 @@ export const PanelManager: React.FC<PanelManagerProps> = ({ panels }) => {
             <Chip
               icon={<>{panel.config.icon}</>}
               label={panel.config.title}
-              onClick={() => handleTogglePanel(panel.config.id)}
+              onClick={() => {
+                handleTogglePanel(panel.config.id);
+                setActiveTabPanelId(panel.config.id);
+              }}
               variant="outlined"
               size="small"
               sx={{ cursor: "pointer", "&:hover": { bgcolor: "action.hover" } }}
@@ -394,7 +446,9 @@ export const PanelManager: React.FC<PanelManagerProps> = ({ panels }) => {
               ))
           : layoutType === "grid"
             ? renderGridLayout()
-            : renderStackedLayout()}
+            : layoutType === "stacked"
+              ? renderStackedLayout()
+              : renderTabsLayout()}
       </Box>
 
       {/* Settings dialog */}

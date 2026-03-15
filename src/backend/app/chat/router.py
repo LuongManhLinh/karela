@@ -82,9 +82,7 @@ async def create_chat_session(
     service: ChatDataService = Depends(get_chat_data_service),
 ):
     session_id = service.create_chat_session(
-        connection_id=request_body.connection_id,
-        project_key=request_body.project_key,
-        story_key=request_body.story_key,
+        connection_id=request_body.connection_id, project_key=request_body.project_key
     )
     return BasicResponse(data=session_id)
 

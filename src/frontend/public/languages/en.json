@@ -135,6 +135,7 @@
       "CONFLICT": "Conflict",
       "DUPLICATION": "Duplication",
       "OUT_OF_SCOPE": "Out of Scope",
+      "AMBIGUITY": "Ambiguity",
       "IRRELEVANCE": "Irrelevance",
       "type": "Type",
       "markSolvedTooltip": "Mark this defect as solved. Solved defects will be ignored in future analyses and proposal generations."
@@ -407,11 +408,13 @@
       "layoutSettings": {
         "title": "Layout Settings",
         "layoutType": "Layout Type",
+        "tabs": "Tabs",
         "stacked": "Stacked Column",
         "grid": "Grid (2×2)",
         "preview": "Preview",
         "panelPositions": "Panel Positions",
         "panelPositionsHint": "Assign each panel to a position. Swapping is automatic — each panel can only occupy one slot.",
+        "tab": "Tab {n}",
         "position": "Position {n}",
         "topLeft": "Top Left",
         "topRight": "Top Right",

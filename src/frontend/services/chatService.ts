@@ -10,12 +10,10 @@ export const chatService = {
   createChatSession: async (
     connectionId: string,
     projectKey: string,
-    storyKey?: string,
   ): Promise<BasicResponse<string>> => {
     const request: ChatSessionCreateRequest = {
       connection_id: connectionId,
       project_key: projectKey,
-      story_key: storyKey,
     };
     const response = await apiClient.post<BasicResponse<string>>(
       "/chat/",

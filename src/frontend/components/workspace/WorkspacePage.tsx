@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState, useCallback, useEffect } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { Info, BugReport, EmojiObjects, Code } from "@mui/icons-material";
 import { useTranslations } from "next-intl";
 
@@ -23,7 +23,6 @@ import {
   useStoryProposalsQuery,
   useActOnProposalMutation,
   useActOnProposalContentMutation,
-  useSessionProposalsQuery,
 } from "@/hooks/queries/useProposalQueries";
 import { useACsByStoryQuery } from "@/hooks/queries/useACQueries";
 import { acService } from "@/services/acService";

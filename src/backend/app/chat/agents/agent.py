@@ -31,13 +31,12 @@ from .tools import tools
 def user_context_prompt(request: ModelRequest) -> str:
     """Generate system prompt based on user role."""
     project_key = request.runtime.context.project_key
-    story_key = request.runtime.context.story_key
     documentation = request.runtime.context.context_input
     documentation_text = (
         f"Documentation: {json.dumps(documentation, indent=2)}" if documentation else ""
     )
     return SYSTEM_PROMPT.format(
-        context=f"Project Key: {project_key}\nStory Key: {story_key or 'N/A'}\n{documentation_text}"
+        context=f"Project Key: {project_key}\n{documentation_text}"
     )
 
 
@@ -57,7 +56,6 @@ class Context:
     session_id: str
     connection_id: str
     project_key: str
-    story_key: str = None
     db_session: Session = None
     context_input: ContextInput = None
 
@@ -104,7 +102,6 @@ def stream_with_agent(
     connection_id: str,
     db_session: Session,
     project_key: str,
-    story_key: str = None,
     context_input: ContextInput = None,
 ):
     """Chat with the resolver agent with streaming response.
@@ -125,7 +122,6 @@ def stream_with_agent(
             session_id=session_id,
             connection_id=connection_id,
             project_key=project_key,
-            story_key=story_key,
             db_session=db_session,
             context_input=context_input,
         ),

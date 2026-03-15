@@ -107,14 +107,12 @@ class ChatService:
                     )
             history_messages.append(HumanMessage(content=user_message))
             project_key = session.project_key
-            story_key = session.story_key
             for chunk, _ in stream_with_agent(
                 messages=history_messages,
                 session_id=session.id,
                 connection_id=session.connection_id,
                 db_session=self.db,
                 project_key=project_key,
-                story_key=story_key,
                 context_input=self.settings_service.get_agent_context_input(
                     connection_id=session.connection_id,
                     project_key=project_key,
