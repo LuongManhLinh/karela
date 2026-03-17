@@ -64,7 +64,8 @@
     "new": "New",
     "submit": "Submit",
     "cancel": "Cancel",
-    "notFound": "Not Found"
+    "notFound": "Not Found",
+    "filterWithStory": "Filter with Story"
   },
   "SessionStartForm": {
     "selectConnection": "Select Connection",
@@ -139,6 +140,9 @@
       "IRRELEVANCE": "Irrelevance",
       "type": "Type",
       "markSolvedTooltip": "Mark this defect as solved. Solved defects will be ignored in future analyses and proposal generations."
+    },
+    "DefectChip": {
+      "key": "Defect Key"
     }
   },
   "chat": {
@@ -280,21 +284,44 @@
       "connecting": "Connecting...",
       "update": "Update",
       "sync": "Sync",
+      "syncWithCount": "Sync ({synced}/{total})",
       "delete": "Delete",
       "changePassword": "Change Password",
       "currentPassword": "Current Password",
       "newPassword": "New Password",
       "confirmNewPassword": "Confirm New Password",
+      "theme": "Theme",
+      "chooseTheme": "Choose your theme color",
       "settings": "Settings",
       "editSettings": "Edit Settings",
       "messages": {
         "connectJiraPrompt": "Please connect your Jira account to get started.",
+        "syncProjectsToStart": "Please sync at least one project to get started.",
+        "themeLoadFailed": "Failed to load themes",
+        "themeUpdated": "Theme updated",
         "initiateFailed": "Failed to initiate Jira connection",
         "passwordsDoNotMatch": "New passwords do not match",
         "passwordTooShort": "Password must be at least 6 characters long",
         "passwordChanged": "Password changed successfully",
         "changePasswordFailed": "Failed to change password"
-      }
+      },
+      "logout": "Logout",
+      "confirmLogout": "Confirm Logout",
+      "areYouSureYouWantToLogout": "Are you sure you want to logout?",
+      "cancel": "Cancel"
+    },
+    "SyncProjectsDialog": {
+      "title": "Sync Projects",
+      "syncedCount": "({synced}/{total})",
+      "noProjectsFound": "No projects found for this connection.",
+      "availableToSync": "Available to sync ({count})",
+      "selectAll": "Select all",
+      "deselectAll": "Deselect all",
+      "alreadySynced": "Already synced ({count})",
+      "runAnalysisAfterSync": "Run analysis after sync",
+      "cancel": "Cancel",
+      "syncing": "Syncing...",
+      "sync": "Sync{count, plural, =0 {} other { ({count})}}"
     }
   },
   "proposals": {
@@ -413,18 +440,23 @@
       "usernameOrEmail": "Username or Email",
       "password": "Password",
       "noAccount": "Don't have an account? Sign Up",
-      "failed": "Login failed. Please try again."
+      "failed": "Login failed. Please try again.",
+      "signInWithJira": "Continue with Jira",
+      "redirectingToJira": "Redirecting to Jira for authentication..."
     },
-    "register": {
-      "signUp": "Sign Up",
-      "username": "Username",
-      "email": "Email (Optional)",
-      "password": "Password",
-      "confirmPassword": "Confirm Password",
-      "alreadyHaveAccount": "Already have an account? Sign In",
-      "passwordMismatch": "Passwords do not match",
-      "passwordTooShort": "Password must be at least 6 characters long",
-      "failed": "Registration failed. Please try again."
+    "loginCallback": {
+      "redirectingToConnections": "Login successful! Redirecting to your connections...",
+      "missingToken": "Login failed: Missing authentication token. Please try logging in again.",
+      "loginSuccessful": "Login successful!"
     }
+  },
+  "UrlInformation": {
+    "connection": "Connection",
+    "project": "Project",
+    "story": "Story",
+    "noConnection": "No connection found in URL",
+    "noProject": "No project found in URL",
+    "noStory": "No story found in URL",
+    "clickToNavigateToDashboard": "Click to navigate to dashboard"
   }
 }

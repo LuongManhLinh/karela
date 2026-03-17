@@ -18,32 +18,29 @@ export const proposalService = {
     return response.data;
   },
 
-  listProposalsByConnection: async (
-    connectionName: string,
-  ): Promise<BasicResponse<SessionsWithProposals>> => {
-    const response = await apiClient.get<BasicResponse<SessionsWithProposals>>(
-      `/proposals/connections/${connectionName}`,
-    );
+  listProposalsByConnection: async (): Promise<
+    BasicResponse<SessionsWithProposals>
+  > => {
+    const response =
+      await apiClient.get<BasicResponse<SessionsWithProposals>>(`/proposals/`);
     return response.data;
   },
 
   listProposalsByProject: async (
-    connectionName: string,
     projectKey: string,
   ): Promise<BasicResponse<SessionsWithProposals>> => {
     const response = await apiClient.get<BasicResponse<SessionsWithProposals>>(
-      `/proposals/connections/${connectionName}/projects/${projectKey}`,
+      `/proposals/projects/${projectKey}`,
     );
     return response.data;
   },
 
   listProposalsByStory: async (
-    connectionName: string,
     projectKey: string,
     storyKey: string,
   ): Promise<BasicResponse<SessionsWithProposals>> => {
     const response = await apiClient.get<BasicResponse<SessionsWithProposals>>(
-      `/proposals/connections/${connectionName}/projects/${projectKey}/stories/${storyKey}`,
+      `/proposals/projects/${projectKey}/stories/${storyKey}`,
     );
     return response.data;
   },
@@ -51,12 +48,11 @@ export const proposalService = {
   getProposalsBySession: async (
     sessionId: string,
     source: ProposalSource,
-    connectionName: string,
     projectFilterKey?: string,
     storyFilterKey?: string,
   ): Promise<BasicResponse<ProposalDto[]>> => {
     const response = await apiClient.get<BasicResponse<ProposalDto[]>>(
-      `/proposals/connections/${connectionName}/sessions/${sessionId}`,
+      `/proposals/sessions/${sessionId}`,
       {
         params: {
           source,

@@ -10,11 +10,9 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.websocket("/{client_id}")
-async def websocket_endpoint(websocket: WebSocket, client_id: str):
+@router.websocket("/")
+async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
-
-    print("Connected to client:", client_id)
 
     init_message = await websocket.receive_text()
     init_data = json.loads(init_message)
@@ -30,10 +28,14 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
         await websocket.close(code=4401, reason=str(e))
         return
 
-    user_id: str = payload.get("sub")
-    if not user_id:
+    conn_id: str = payload.get("sub")
+    if not conn_id:
         await websocket.close(code=4401, reason="Malformed token")
         return
+
+    # Always subscribe notifications for this connection
+    await manager.subscribe(websocket, f"notifications:{conn_id}")
+
     try:
         while True:
             data = await websocket.receive_text()
@@ -79,8 +81,8 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                     ac_id = message.get("ac_id")
 
                     if content and ac_id:
-                        from app.connection.ac.services import ACService
-                        from app.connection.ac.schemas import AIRequest
+                        from app.ac.services import ACService
+                        from app.ac.schemas import AIRequest
                         from common.database import SessionLocal
 
                         async def process_suggestion():

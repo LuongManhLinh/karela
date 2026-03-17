@@ -113,15 +113,13 @@ interface StoryDetailDialogProps {
 export const StoryDetailDialog: React.FC<StoryDetailDialogProps> = ({
   open,
   onClose,
-  connectionName,
-  projectKey,
   storyKey,
 }) => {
   const {
     data: storyData,
     isLoading: loading,
     error,
-  } = useStoryDetailsQuery(connectionName, projectKey, storyKey!);
+  } = useStoryDetailsQuery(storyKey!);
 
   const story = useMemo(() => {
     return storyData?.data || null;
@@ -175,14 +173,12 @@ export default StoryDetailDialog;
 interface MultiStoryDetailDialogProps {
   open: boolean;
   onClose: () => void;
-  connectionName: string;
   storyKeys: string[];
 }
 
 export const MultiStoryDetailDialog: React.FC<MultiStoryDetailDialogProps> = ({
   open,
   onClose,
-  connectionName,
   storyKeys,
 }) => {
   const [stories, setStories] = useState<StoryDto[]>([]);
@@ -201,7 +197,7 @@ export const MultiStoryDetailDialog: React.FC<MultiStoryDetailDialogProps> = ({
       setError(null);
       try {
         const storyPromises = storyKeys.map((key) =>
-          connectionService.getStory(connectionName, key),
+          connectionService.getStory(key),
         );
         const responses = await Promise.all(storyPromises);
         const loadedStories = responses
@@ -216,7 +212,7 @@ export const MultiStoryDetailDialog: React.FC<MultiStoryDetailDialogProps> = ({
     };
 
     fetchStories();
-  }, [open, connectionName, storyKeys, t]);
+  }, [open, storyKeys, t]);
 
   const handleClose = () => {
     setStories([]);
@@ -230,7 +226,7 @@ export const MultiStoryDetailDialog: React.FC<MultiStoryDetailDialogProps> = ({
       onClose={handleClose}
       maxWidth="md"
       fullWidth
-      sx={{ ...scrollBarSx }}
+      sx={{ ...scrollBarSx, borderRadius: 4 }}
     >
       <DialogTitle
         sx={{
@@ -254,7 +250,7 @@ export const MultiStoryDetailDialog: React.FC<MultiStoryDetailDialogProps> = ({
         ) : stories.length > 0 ? (
           <Stack spacing={2}>
             {stories.map((story) => (
-              <Card key={story.id} variant="outlined">
+              <Card key={story.id}>
                 <CardContent>
                   <Box
                     sx={{

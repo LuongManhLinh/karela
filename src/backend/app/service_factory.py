@@ -7,7 +7,6 @@ from .ac.services import ACService
 from .connection.services import DashboardService
 from .proposal.services import ProposalService
 from .settings.services import SettingsService
-from .user.services import UserService
 from common.database import get_db
 
 
@@ -37,10 +36,6 @@ def get_jira_service(db=Depends(get_db)):
 
 def get_settings_service(db=Depends(get_db)):
     return SettingsService(db)
-
-
-def get_user_service(db=Depends(get_db)):
-    return UserService(db)
 
 
 def get_defect_service(db=Depends(get_db)):

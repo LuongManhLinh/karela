@@ -24,7 +24,6 @@ import {
   Segment,
   Language,
   Workspaces,
-  Work,
 } from "@mui/icons-material";
 import { useThemeMode } from "../providers/ThemeProvider";
 import { usePathname, useRouter } from "next/navigation";
@@ -81,11 +80,6 @@ export const MyAppBar: React.FC<AppBarProps> = ({
       ];
     return [];
   }, [routes, basePath, t]);
-
-  const handleLogout = () => {
-    removeToken();
-    router.push("/login");
-  };
 
   const handleLanguageChange = (locale: string) => {
     setLanguageMenuOpen(false);
@@ -248,13 +242,6 @@ export const MyAppBar: React.FC<AppBarProps> = ({
                 <Language />
               </ListItemIcon>
               <ListItemText>{t("language")}</ListItemText>
-            </MenuItem>
-
-            <MenuItem onClick={handleLogout}>
-              <ListItemIcon>
-                <Logout />
-              </ListItemIcon>
-              <ListItemText>{t("logout")}</ListItemText>
             </MenuItem>
           </Menu>
           <Menu

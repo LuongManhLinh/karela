@@ -9,43 +9,38 @@ import type {
   DefectDto,
   RunAnalysisResponse,
 } from "@/types/analysis";
-import { connection } from "next/server";
 
 export const analysisService = {
-  getAnalysisSummariesByConnection: async (
-    connectionName: string,
-  ): Promise<BasicResponse<AnalysisSummary[]>> => {
-    const response = await apiClient.get<BasicResponse<AnalysisSummary[]>>(
-      `/analyses/connections/${connectionName}`,
-    );
+  getAnalysisSummariesByConnection: async (): Promise<
+    BasicResponse<AnalysisSummary[]>
+  > => {
+    const response =
+      await apiClient.get<BasicResponse<AnalysisSummary[]>>(`/analyses/`);
     return response.data;
   },
   getAnalysisSummariesByProject: async (
-    connectionName: string,
     projectKey: string,
   ): Promise<BasicResponse<AnalysisSummary[]>> => {
     const response = await apiClient.get<BasicResponse<AnalysisSummary[]>>(
-      `/analyses/connections/${connectionName}/projects/${projectKey}`,
+      `/analyses/projects/${projectKey}`,
     );
     return response.data;
   },
   getAnalysisSummariesByStory: async (
-    connectionName: string,
     projectKey: string,
     storyKey: string,
   ): Promise<BasicResponse<AnalysisSummary[]>> => {
     const response = await apiClient.get<BasicResponse<AnalysisSummary[]>>(
-      `/analyses/connections/${connectionName}/projects/${projectKey}/stories/${storyKey}`,
+      `/analyses/projects/${projectKey}/stories/${storyKey}`,
     );
     return response.data;
   },
 
   getAnalysisDetails: async (
-    connectionName: string,
     analysisIdOrKey: string,
   ): Promise<BasicResponse<AnalysisDto>> => {
     const response = await apiClient.get<BasicResponse<AnalysisDto>>(
-      `/analyses/connections/${connectionName}/items/${analysisIdOrKey}`,
+      `/analyses/items/${analysisIdOrKey}`,
     );
     return response.data;
   },
@@ -60,12 +55,11 @@ export const analysisService = {
   },
 
   runAnalysis: async (
-    connectionId: string,
     projectKey: string,
     data: RunAnalysisRequest,
   ): Promise<BasicResponse<RunAnalysisResponse>> => {
     const response = await apiClient.post<BasicResponse<RunAnalysisResponse>>(
-      `/analyses/connections/${connectionId}/projects/${projectKey}`,
+      `/analyses/projects/${projectKey}`,
       data,
     );
     return response.data;
@@ -116,12 +110,11 @@ export const analysisService = {
     return response.data;
   },
   listDefectsByStory: async (
-    connectionName: string,
     projectKey: string,
     storyKey: string,
   ): Promise<BasicResponse<DefectDto[]>> => {
     const response = await apiClient.get<BasicResponse<DefectDto[]>>(
-      `/analyses/connections/${connectionName}/projects/${projectKey}/stories/${storyKey}/defects`,
+      `/analyses/projects/${projectKey}/stories/${storyKey}/defects`,
     );
     return response.data;
   },

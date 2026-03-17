@@ -23,16 +23,12 @@ interface ACCardProps {
   ac: ACSummary;
   content?: string;
   onSave?: (acId: string, newContent: string) => Promise<void>;
-  connectionName: string;
-  projectKey: string;
 }
 
 const ACCard: React.FC<ACCardProps> = ({
   ac,
   content,
   onSave,
-  connectionName,
-  projectKey,
 }) => {
   const t = useTranslations("workspace.WorkspacePage");
   const [isEditing, setIsEditing] = useState(false);
@@ -192,7 +188,6 @@ interface ACPanelContentProps {
   acDetails: Record<string, ACDto>;
   loading?: boolean;
   onSaveAC?: (acId: string, newContent: string) => Promise<void>;
-  connectionName: string;
   projectKey: string;
 }
 
@@ -201,7 +196,6 @@ export const ACPanelContent: React.FC<ACPanelContentProps> = ({
   acDetails,
   loading,
   onSaveAC,
-  connectionName,
   projectKey,
 }) => {
   const t = useTranslations("workspace.WorkspacePage");
@@ -229,7 +223,7 @@ export const ACPanelContent: React.FC<ACPanelContentProps> = ({
         {t("acEditorHint")}{" "}
         <MuiLink
           component={Link}
-          href={`/app/connections/${connectionName}/projects/${projectKey}/acs`}
+          href={`/app/projects/${projectKey}/acs`}
           underline="hover"
         >
           {t("acEditorLink")}
@@ -244,8 +238,6 @@ export const ACPanelContent: React.FC<ACPanelContentProps> = ({
           ac={ac}
           content={acDetails[ac.id]?.description}
           onSave={onSaveAC}
-          connectionName={connectionName}
-          projectKey={projectKey}
         />
       ))}
     </Stack>

@@ -3,46 +3,34 @@ import { chatService } from "@/services/chatService";
 
 export const CHAT_KEYS = {
   all: ["chat"] as const,
-  sessionsByConnection: (connectionName: string) =>
-    [...CHAT_KEYS.all, "sessions", connectionName] as const,
-  sessionsByProject: (connectionName: string, projectKey: string) =>
-    [...CHAT_KEYS.all, "sessions", connectionName, projectKey] as const,
-  session: (connectionName: string, sessionOrKey: string) =>
-    [...CHAT_KEYS.all, "session", connectionName, sessionOrKey] as const,
+  sessionsByConnection: () => [...CHAT_KEYS.all, "sessions"] as const,
+  sessionsByProject: (projectKey: string) =>
+    [...CHAT_KEYS.all, "sessions", projectKey] as const,
+  session: (sessionOrKey: string) =>
+    [...CHAT_KEYS.all, "session", sessionOrKey] as const,
 };
 
-export const useChatSessionsByConnectionQuery = (
-  connectionName: string | undefined,
-) => {
+export const useChatSessionsByConnectionQuery = () => {
   return useQuery({
-    queryKey: CHAT_KEYS.sessionsByConnection(connectionName || ""),
-    queryFn: () => chatService.listChatSessionsByConnection(connectionName!),
-    enabled: !!connectionName,
+    queryKey: CHAT_KEYS.sessionsByConnection(),
+    queryFn: () => chatService.listChatSessionsByConnection(),
   });
 };
 
 export const useChatSessionsByProjectQuery = (
-  connectionName: string | undefined,
   projectKey: string | undefined,
 ) => {
   return useQuery({
-    queryKey: CHAT_KEYS.sessionsByProject(
-      connectionName || "",
-      projectKey || "",
-    ),
-    queryFn: () =>
-      chatService.listChatSessionsByProject(connectionName!, projectKey!),
-    enabled: !!connectionName && !!projectKey,
+    queryKey: CHAT_KEYS.sessionsByProject(projectKey || ""),
+    queryFn: () => chatService.listChatSessionsByProject(projectKey!),
+    enabled: !!projectKey,
   });
 };
 
-export const useChatSessionQuery = (
-  connectionName: string | undefined,
-  sessionIdOrKey: string | undefined,
-) => {
+export const useChatSessionQuery = (sessionIdOrKey: string | undefined) => {
   return useQuery({
-    queryKey: CHAT_KEYS.session(connectionName || "", sessionIdOrKey || ""),
-    queryFn: () => chatService.getChatSession(connectionName!, sessionIdOrKey!),
-    enabled: !!connectionName && !!sessionIdOrKey,
+    queryKey: CHAT_KEYS.session(sessionIdOrKey || ""),
+    queryFn: () => chatService.getChatSession(sessionIdOrKey!),
+    enabled: !!sessionIdOrKey,
   });
 };

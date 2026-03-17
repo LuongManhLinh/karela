@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/providers/ThemeProvider";
-import QueryProvider from "@/components/providers/QueryProvider";
+import QueryProvider from "@/providers/QueryProvider";
 import { WebSocketProvider } from "@/providers/WebSocketProvider";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
@@ -36,13 +36,13 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <NextIntlClientProvider messages={messages}>
-          <QueryProvider>
-            <WebSocketProvider>
-              <NotificationProvider>
+          <NotificationProvider>
+            <QueryProvider>
+              <WebSocketProvider>
                 <ThemeProvider>{children}</ThemeProvider>
-              </NotificationProvider>
-            </WebSocketProvider>
-          </QueryProvider>
+              </WebSocketProvider>
+            </QueryProvider>
+          </NotificationProvider>
         </NextIntlClientProvider>
       </body>
     </html>

@@ -65,7 +65,6 @@ class WebSocketManager:
 
     async def broadcast(self, topic: str, message: str):
         """Send message to all clients subscribed to the topic."""
-        # Clean up closed connections first/during
         to_remove = []
 
         try:

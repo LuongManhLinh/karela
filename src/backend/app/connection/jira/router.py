@@ -5,7 +5,6 @@ import httpx
 import traceback
 
 from app.service_factory import get_jira_service
-from app.auth_factory import get_jwt_payload
 from .services import JiraService
 from .schemas import WebhookCallbackPayload
 from common.configs import JiraConfig
@@ -15,10 +14,7 @@ router = APIRouter()
 
 
 @router.get("/oauth/start")
-async def oauth_start(jwt_payload=Depends(get_jwt_payload)):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
-        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+async def oauth_start():
     params = {
         "audience": "api.atlassian.com",
         "client_id": JiraConfig.CLIENT_ID,
@@ -26,7 +22,6 @@ async def oauth_start(jwt_payload=Depends(get_jwt_payload)):
         "redirect_uri": JiraConfig.OAUTH_URL,
         "response_type": "code",
         "prompt": "consent",
-        "state": user_id,
     }
     url = httpx.URL("https://auth.atlassian.com/authorize")
     for k, v in params.items():
@@ -48,21 +43,14 @@ async def oauth_callback(
     """
     try:
         code = request.query_params.get("code")
-        user_id = request.query_params.get("state")
 
-        result_code = service.save_connection(
-            user_id=user_id,
+        token = service.save_connection(
             code=code,
         )
 
-        base_url = "http://localhost:3000/oauth/callback"
+        base_url = "http://localhost:3000/login-callback"
 
-        if result_code == 1:
-            return RedirectResponse(f"{base_url}?status=success")
-        elif result_code == 2:
-            return RedirectResponse(f"{base_url}?status=update")
-        else:
-            return RedirectResponse(f"{base_url}?status=failure")
+        return RedirectResponse(f"{base_url}?token={token}")
 
     except Exception as e:
         print("Error during Jira OAuth callback:", str(e))

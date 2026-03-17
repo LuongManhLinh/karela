@@ -19,26 +19,15 @@ export interface SessionFilterDialogProps {
   open: boolean;
   onClose: () => void;
   title: string;
-  connectionOptions: SelectableOptions<ConnectionDto>;
-  projectOptions?: SelectableOptions<ProjectDto>;
+  projectOptions: SelectableOptions<ProjectDto>;
   storyOptions?: SelectableOptions<StorySummary>;
-  onPrimarySubmit?: (
-    connection: ConnectionDto,
-    project?: ProjectDto,
-    story?: StorySummary,
-  ) => void;
+  onPrimarySubmit?: (project: ProjectDto, story?: StorySummary) => void;
   primaryLabel?: string;
   primaryDisabled?: boolean;
-  onSecondarySubmit?: (
-    connection: ConnectionDto,
-    project?: ProjectDto,
-    story?: StorySummary,
-  ) => void;
+  onSecondarySubmit?: (project: ProjectDto, story?: StorySummary) => void;
   secondaryLabel?: string;
   secondaryDisabled?: boolean;
-  showUseProjectCheckbox?: boolean;
   showUseStoryCheckbox?: boolean;
-  requireProject?: boolean;
   requireStory?: boolean;
 }
 
@@ -46,7 +35,6 @@ export const SessionFilterDialog: React.FC<SessionFilterDialogProps> = ({
   open,
   onClose,
   title,
-  connectionOptions,
   projectOptions,
   storyOptions,
   onPrimarySubmit,
@@ -55,29 +43,14 @@ export const SessionFilterDialog: React.FC<SessionFilterDialogProps> = ({
   onSecondarySubmit,
   secondaryLabel,
   secondaryDisabled,
-  showUseProjectCheckbox,
   showUseStoryCheckbox,
-  requireProject,
   requireStory,
 }) => {
   const t = useTranslations("Common");
-  const [projectFilterable, setProjectFilterable] = useState(
-    Boolean(requireProject),
-  );
   const [storyFilterable, setStoryFilterable] = useState(Boolean(requireStory));
-
-  const handleProjectCheckboxChange = (value: boolean) => {
-    setProjectFilterable(value);
-    if (!value) {
-      setStoryFilterable(false);
-    }
-  };
 
   const handleStoryCheckboxChange = (value: boolean) => {
     setStoryFilterable(value);
-    if (value) {
-      setProjectFilterable(true);
-    }
   };
 
   return (
@@ -103,50 +76,34 @@ export const SessionFilterDialog: React.FC<SessionFilterDialogProps> = ({
             flexWrap: "wrap",
           }}
         >
-          {showUseProjectCheckbox && (
-            <>
-              <Checkbox
-                checked={projectFilterable}
-                onChange={(e) => handleProjectCheckboxChange(e.target.checked)}
-                title="Use Project"
-              />
-              Use Project
-            </>
-          )}
           {showUseStoryCheckbox && (
             <>
               <Checkbox
                 checked={storyFilterable}
                 onChange={(e) => handleStoryCheckboxChange(e.target.checked)}
-                title="Use Story"
+                title="Filter with story"
               />
-              Use Story
+              {t("filterWithStory")}
             </>
           )}
         </Box>
         <SessionStartForm
-          connectionOptions={connectionOptions}
-          projectOptions={projectFilterable ? projectOptions : undefined}
+          projectOptions={projectOptions}
           storyOptions={storyFilterable ? storyOptions : undefined}
           primaryAction={{
             label: primaryLabel || t("submit"),
             onClick: () => {
-              if (onPrimarySubmit && connectionOptions.selectedOption) {
+              if (onPrimarySubmit && projectOptions.selectedOption) {
                 onPrimarySubmit(
-                  connectionOptions.selectedOption,
-                  (projectFilterable && projectOptions?.selectedOption) ||
-                    undefined,
-                  (projectFilterable &&
-                    storyFilterable &&
-                    storyOptions?.selectedOption) ||
+                  projectOptions?.selectedOption,
+                  (storyFilterable && storyOptions?.selectedOption) ||
                     undefined,
                 );
               }
             },
             disabled:
               primaryDisabled ||
-              !connectionOptions.selectedOption ||
-              (requireProject && !projectOptions?.selectedOption) ||
+              !projectOptions?.selectedOption ||
               (requireStory && !storyOptions?.selectedOption),
           }}
           secondaryAction={
@@ -154,22 +111,18 @@ export const SessionFilterDialog: React.FC<SessionFilterDialogProps> = ({
               ? {
                   label: secondaryLabel || t("submit"),
                   onClick: () => {
-                    if (onSecondarySubmit && connectionOptions.selectedOption) {
+                    if (onSecondarySubmit && projectOptions.selectedOption) {
                       onSecondarySubmit(
-                        connectionOptions.selectedOption,
-                        (projectFilterable && projectOptions?.selectedOption) ||
-                          undefined,
-                        (projectFilterable &&
-                          storyFilterable &&
-                          storyOptions?.selectedOption) ||
+                        projectOptions.selectedOption,
+
+                        (storyFilterable && storyOptions?.selectedOption) ||
                           undefined,
                       );
                     }
                   },
                   disabled:
                     secondaryDisabled ||
-                    !connectionOptions.selectedOption ||
-                    (requireProject && !projectOptions?.selectedOption) ||
+                    !projectOptions?.selectedOption ||
                     (requireStory && !storyOptions?.selectedOption),
                 }
               : undefined
@@ -184,21 +137,12 @@ export interface SessionStartDialogProps {
   open: boolean;
   onClose: () => void;
   title: string;
-  connectionOptions: SelectableOptions<ConnectionDto>;
-  projectOptions?: SelectableOptions<ProjectDto>;
+  projectOptions: SelectableOptions<ProjectDto>;
   storyOptions?: SelectableOptions<StorySummary>;
-  onPrimarySubmit?: (
-    connection: ConnectionDto,
-    project: ProjectDto,
-    story?: StorySummary,
-  ) => void;
+  onPrimarySubmit?: (project: ProjectDto, story?: StorySummary) => void;
   primaryLabel?: string;
   primaryDisabled?: boolean;
-  onSecondarySubmit?: (
-    connection: ConnectionDto,
-    project: ProjectDto,
-    story?: StorySummary,
-  ) => void;
+  onSecondarySubmit?: (project: ProjectDto, story?: StorySummary) => void;
   secondaryLabel?: string;
   secondaryDisabled?: boolean;
   showUseStoryCheckbox?: boolean;
@@ -209,7 +153,6 @@ export const SessionStartDialog: React.FC<SessionStartDialogProps> = ({
   open,
   onClose,
   title,
-  connectionOptions,
   projectOptions,
   storyOptions,
   onPrimarySubmit,
@@ -226,34 +169,15 @@ export const SessionStartDialog: React.FC<SessionStartDialogProps> = ({
       open={open}
       onClose={onClose}
       title={title}
-      connectionOptions={connectionOptions}
       projectOptions={projectOptions}
       storyOptions={storyOptions}
-      onPrimarySubmit={
-        onPrimarySubmit
-          ? (connection, project, story) => {
-              if (project) {
-                onPrimarySubmit(connection, project, story);
-              }
-            }
-          : undefined
-      }
+      onPrimarySubmit={onPrimarySubmit ? onPrimarySubmit : undefined}
       primaryLabel={primaryLabel}
       primaryDisabled={primaryDisabled}
-      onSecondarySubmit={
-        onSecondarySubmit
-          ? (connection, project, story) => {
-              if (project) {
-                onSecondarySubmit(connection, project, story);
-              }
-            }
-          : undefined
-      }
+      onSecondarySubmit={onSecondarySubmit ? onSecondarySubmit : undefined}
       secondaryLabel={secondaryLabel}
       secondaryDisabled={secondaryDisabled}
-      showUseProjectCheckbox={false}
       showUseStoryCheckbox={showUseStoryCheckbox}
-      requireProject={true}
       requireStory={requireStory}
     />
   );
@@ -271,12 +195,8 @@ export const DefaultSessionFilterDialog: React.FC<
   const tPage = useTranslations("PageLayout");
 
   const {
-    connections,
     projects,
     stories,
-    selectedConnection,
-    setSelectedConnection,
-    setProjects,
     selectedProject,
     setSelectedProject,
     setStories,
@@ -289,28 +209,12 @@ export const DefaultSessionFilterDialog: React.FC<
   const [isProjectsLoading, setIsProjectsLoading] = useState(false);
   const [isStoriesLoading, setIsStoriesLoading] = useState(false);
 
-  const handleConnectionChange = async (conn: ConnectionDto | null) => {
-    setIsProjectsLoading(true);
-    setSelectedConnection(conn);
-    setSelectedProject(null);
-    setSelectedStory(null);
-
-    if (conn) {
-      const projectsData = await connectionService.getProjects(conn.name);
-      setProjects(projectsData?.data || []);
-    }
-    setIsProjectsLoading(false);
-  };
-
   const handleProjectChange = async (proj: ProjectDto | null) => {
     setIsStoriesLoading(true);
     setSelectedProject(proj);
     setSelectedStory(null);
     if (proj) {
-      const storiesData = await connectionService.getStorySummaries(
-        selectedConnection!.name,
-        proj.key,
-      );
+      const storiesData = await connectionService.getStorySummaries(proj.key);
       setStories(storiesData?.data || []);
     }
     setIsStoriesLoading(false);
@@ -320,23 +224,16 @@ export const DefaultSessionFilterDialog: React.FC<
     setSelectedStory(story);
   };
 
-  const handleFilter = async (
-    connection: ConnectionDto,
-    project?: ProjectDto,
-    story?: StorySummary,
-  ) => {
+  const handleFilter = async (project: ProjectDto, story?: StorySummary) => {
     if (!project) {
-      console.log("Navigating to connection level:", connection.name);
-      router.push(`/app/connections/${connection.name}/${href || ""}`);
+      router.push(`/app/${href || ""}`);
     } else if (!story) {
       console.log("Navigating to project level:", project.key);
-      router.push(
-        `/app/connections/${connection.name}/projects/${project.key}/${href || ""}`,
-      );
+      router.push(`/app/projects/${project.key}/${href || ""}`);
     } else {
       console.log("Navigating to story level:", story.key);
       router.push(
-        `/app/connections/${connection.name}/projects/${project.key}/stories/${story.key}/${href || ""}`,
+        `/app/projects/${project.key}/stories/${story.key}/${href || ""}`,
       );
     }
     onClose();
@@ -346,11 +243,6 @@ export const DefaultSessionFilterDialog: React.FC<
     <SessionFilterDialog
       open={open}
       onClose={onClose}
-      connectionOptions={{
-        options: connections,
-        onChange: handleConnectionChange,
-        selectedOption: selectedConnection,
-      }}
       projectOptions={{
         options: projects,
         onChange: handleProjectChange,
@@ -366,7 +258,6 @@ export const DefaultSessionFilterDialog: React.FC<
       title={tPage("filterSessions")}
       onPrimarySubmit={handleFilter}
       primaryLabel={tCommon("filter")}
-      showUseProjectCheckbox={true}
       showUseStoryCheckbox={true}
     />
   );

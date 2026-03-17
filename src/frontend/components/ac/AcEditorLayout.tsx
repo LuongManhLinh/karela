@@ -20,7 +20,6 @@ import { PageLevel } from "@/types";
 interface AcEditorLayoutProps {
   children?: React.ReactNode;
   level: PageLevel;
-  connectionName: string;
   projectKey?: string; // Required if level is "project" or "story"
   storyKey?: string; // Required if level is "story"
   idOrKey?: string;
@@ -29,7 +28,6 @@ interface AcEditorLayoutProps {
 const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
   children,
   level,
-  connectionName,
   projectKey,
   storyKey,
   idOrKey,
@@ -41,11 +39,11 @@ const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
   const getDataQuery = () => {
     switch (level) {
       case "connection":
-        return useACsByConnectionQuery(connectionName);
+        return useACsByConnectionQuery();
       case "project":
-        return useACsByProjectQuery(connectionName, projectKey!);
+        return useACsByProjectQuery(projectKey!);
       case "story":
-        return useACsByStoryQuery(connectionName, projectKey!, storyKey!);
+        return useACsByStoryQuery(projectKey!, storyKey!);
     }
   };
 
@@ -64,37 +62,25 @@ const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
   };
 
   const handleNewGherkin = async (
-    connection: ConnectionDto,
     project: ProjectDto,
     story?: StorySummary,
   ) => {
     if (!story) {
       return null;
     }
-    const newId = await acService.createAC(
-      connection.id,
-      project.key,
-      story.key,
-      false,
-    );
+    const newId = await acService.createAC(project.key, story.key, false);
     await refetchACs();
     return newId?.data || null;
   };
 
   const handleNewGherkinWithAI = async (
-    connection: ConnectionDto,
     project: ProjectDto,
     story?: StorySummary,
   ) => {
     if (!story) {
       return null;
     }
-    const newId = await acService.createAC(
-      connection.id,
-      project.key,
-      story.key,
-      true,
-    );
+    const newId = await acService.createAC(project.key, story.key, true);
     await refetchACs();
     return newId?.data || null;
   };
@@ -111,7 +97,6 @@ const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
     <PageLayout
       level={level}
       headerText={t("headerText")}
-      connectionName={connectionName}
       projectKey={projectKey}
       storyKey={storyKey}
       href="acs"

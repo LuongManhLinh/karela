@@ -71,15 +71,14 @@ class ACService:
             .first()
         )
 
-    def list_acs_by_connection(self, user_id: str, connection_name: str):
+    def list_acs_by_connection(self, connection_id: str):
         acs = (
             self.db.query(GherkinAC, Story.key)
             .join(Story, GherkinAC.story_id == Story.id)
             .join(Project, Story.project_id == Project.id)
             .join(Connection, Project.connection_id == Connection.id)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
             )
             .all()
         )
@@ -96,15 +95,14 @@ class ACService:
             for ac, story_key in acs
         ]
 
-    def list_acs_by_project(self, user_id: str, connection_name: str, project_key: str):
+    def list_acs_by_project(self, connection_id: str, project_key: str):
         acs = (
             self.db.query(GherkinAC, Story.key)
             .join(Story, GherkinAC.story_id == Story.id)
             .join(Project, Story.project_id == Project.id)
             .join(Connection, Project.connection_id == Connection.id)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
                 Project.key == project_key,
             )
             .all()
@@ -122,17 +120,14 @@ class ACService:
             for ac, story_key in acs
         ]
 
-    def list_acs_by_story(
-        self, user_id: str, connection_name: str, project_key: str, story_key: str
-    ):
+    def list_acs_by_story(self, connection_id: str, project_key: str, story_key: str):
         acs = (
             self.db.query(GherkinAC, Story.key)
             .join(Story, GherkinAC.story_id == Story.id)
             .join(Project, Story.project_id == Project.id)
             .join(Connection, Project.connection_id == Connection.id)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
                 Project.key == project_key,
                 Story.key == story_key,
             )
@@ -153,8 +148,7 @@ class ACService:
 
     def get_ac(
         self,
-        user_id: str,
-        connection_name: str,
+        connection_id: str,
         ac_id_or_key: str,
     ):
         ac = (
@@ -163,8 +157,7 @@ class ACService:
             .join(Project, Story.project_id == Project.id)
             .join(Connection, Project.connection_id == Connection.id)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
                 or_(GherkinAC.id == ac_id_or_key, GherkinAC.key == ac_id_or_key),
             )
             .first()

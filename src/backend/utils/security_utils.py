@@ -6,14 +6,13 @@ from common.configs import AuthConfig
 from datetime import datetime, timedelta, timezone
 
 
-def generate_jwt(user_id: str, username: str) -> str:
+def generate_jwt(connection_id: str) -> str:
     now = datetime.now(timezone.utc)
     payload = {
-        "sub": user_id,
-        "username": username,
+        "sub": connection_id,
         "exp": now + timedelta(days=30),
         "iat": now,
-        "jti": f"{user_id}{now.timestamp()}",
+        "jti": f"{now.timestamp()}",
     }
     token = jwt.encode(payload, AuthConfig.JWT_SECRET_KEY, algorithm="HS256")
     return token

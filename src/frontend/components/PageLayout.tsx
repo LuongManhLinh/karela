@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { WorkspaceSessions } from "@/components/WorkspaceShell";
+import { WorkspaceSessions } from "@/types/workspace";
 import type {
   ConnectionDto,
   ProjectDto,
@@ -11,7 +11,6 @@ import type {
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import {
   DefaultSessionFilterDialog,
-  SessionFilterDialog,
   SessionStartDialog,
 } from "@/components/SessionDialog";
 
@@ -28,7 +27,6 @@ export interface PageLayoutProps {
   children: React.ReactNode;
   level: PageLevel;
   headerText?: string;
-  connectionName: string;
   projectKey?: string;
   storyKey?: string;
   href: string;
@@ -39,13 +37,11 @@ export interface PageLayoutProps {
   onNewLabel?: string;
   dialogLabel?: string;
   primaryAction?: (
-    connection: ConnectionDto,
     project: ProjectDto,
     story?: StorySummary,
   ) => Promise<string | null | undefined>;
   primaryActionLabel?: string;
   secondaryAction?: (
-    connection: ConnectionDto,
     project: ProjectDto,
     story?: StorySummary,
   ) => Promise<string | null | undefined>;
@@ -60,7 +56,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   level,
   href,
   headerText,
-  connectionName,
   projectKey,
   storyKey,
   primarySessions,
@@ -83,20 +78,16 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 
   const {
-    connections,
+    connection,
     projects,
-    selectedConnection,
-    setSelectedConnection,
     selectedProject,
     setSelectedProject,
     selectedStory,
     setSelectedStory,
-    runSelectedConnection,
     runSelectedProject,
     runSelectedStory,
     runProjects,
     runStories,
-    setRunSelectedConnection,
     setRunSelectedProject,
     setRunSelectedStory,
     setRunProjects,
@@ -108,13 +99,13 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   const basePath = useMemo(() => {
     switch (level) {
       case "connection":
-        return `/app/connections/${connectionName}`;
+        return `/app`;
       case "project":
-        return `/app/connections/${connectionName}/projects/${projectKey}`;
+        return `/app/projects/${projectKey}`;
       case "story":
-        return `/app/connections/${connectionName}/projects/${projectKey}/stories/${storyKey}`;
+        return `/app/projects/${projectKey}/stories/${storyKey}`;
     }
-  }, [level, selectedConnection, selectedProject, selectedStory]);
+  }, [level, selectedProject, selectedStory]);
 
   const router = useRouter();
 
@@ -123,14 +114,13 @@ const PageLayout: React.FC<PageLayoutProps> = ({
 
   const handleDialogConnectionChange = async (conn: ConnectionDto | null) => {
     setDialogIsProjectsLoading(true);
-    setRunSelectedConnection(conn);
     setRunSelectedProject(null);
     setRunSelectedStory(null);
     setRunProjects([]);
     setRunStories([]);
 
     if (conn) {
-      const projectsData = await connectionService.getProjects(conn.name);
+      const projectsData = await connectionService.getProjects();
       setRunProjects(projectsData?.data || []);
     }
     setDialogIsProjectsLoading(false);
@@ -141,11 +131,8 @@ const PageLayout: React.FC<PageLayoutProps> = ({
     setRunSelectedProject(proj);
     setRunSelectedStory(null);
     setRunStories([]);
-    if (proj && runSelectedConnection) {
-      const storiesData = await connectionService.getStorySummaries(
-        runSelectedConnection.name,
-        proj.key,
-      );
+    if (proj) {
+      const storiesData = await connectionService.getStorySummaries(proj.key);
       setRunStories(storiesData?.data || []);
     }
     setDialogIsStoriesLoading(false);
@@ -172,55 +159,45 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   };
 
   const handlePrimarySubmit = async (
-    connection: ConnectionDto,
     project: ProjectDto,
     story?: StorySummary,
   ) => {
-    const newId =
-      primaryAction && (await primaryAction(connection, project, story));
+    const newId = primaryAction && (await primaryAction(project, story));
     setStartDialogOpen(false);
     if (newId) {
-      setSelectedConnection(connection);
       setSelectedProject(project);
       setSelectedStory(story || null);
 
       if (level === "connection") {
-        router.push(`/app/connections/${connection.name}/${href}/${newId}`);
+        router.push(`/app/${href}/${newId}`);
       } else if (level === "story" && story) {
         router.push(
-          `/app/connections/${connection.name}/projects/${project.key}/stories/${story.key}/${href}/${newId}`,
+          `/app/projects/${project.key}/stories/${story.key}/${href}/${newId}`,
         );
       } else {
-        router.push(
-          `/app/connections/${connection.name}/projects/${project.key}/${href}/${newId}`,
-        );
+        router.push(`/app/projects/${project.key}/${href}/${newId}`);
       }
     }
   };
 
   const handleSecondarySubmit = async (
-    connection: ConnectionDto,
     project: ProjectDto,
     story?: StorySummary,
   ) => {
-    const newId =
-      secondaryAction && (await secondaryAction(connection, project, story));
+    const newId = secondaryAction && (await secondaryAction(project, story));
     setStartDialogOpen(false);
     if (newId) {
-      setSelectedConnection(connection);
       setSelectedProject(project);
       setSelectedStory(story || null);
 
       if (level === "connection") {
-        router.push(`/app/connections/${connection.name}/${href}/${newId}`);
+        router.push(`/app/${href}/${newId}`);
       } else if (level === "story" && story) {
         router.push(
-          `/app/connections/${connection.name}/projects/${project.key}/stories/${story.key}/${href}/${newId}`,
+          `/app/projects/${project.key}/stories/${story.key}/${href}/${newId}`,
         );
       } else {
-        router.push(
-          `/app/connections/${connection.name}/projects/${project.key}/${href}/${newId}`,
-        );
+        router.push(`/app/projects/${project.key}/${href}/${newId}`);
       }
     }
   };
@@ -309,11 +286,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({
         open={startDialogOpen}
         onClose={() => setStartDialogOpen(false)}
         title={dialogLabel || tPage("createNewItem")}
-        connectionOptions={{
-          options: connections,
-          onChange: handleDialogConnectionChange,
-          selectedOption: runSelectedConnection,
-        }}
         projectOptions={{
           options: runProjects,
           onChange: handleDialogProjectChange,

@@ -15,7 +15,6 @@ import { PageLevel } from "@/types";
 export interface ProposalLayoutProps {
   children?: React.ReactNode;
   level: PageLevel;
-  connectionName: string;
   projectKey?: string;
   storyKey?: string;
   idOrKey?: string;
@@ -24,7 +23,6 @@ export interface ProposalLayoutProps {
 const ProposalLayout: React.FC<ProposalLayoutProps> = ({
   children,
   level,
-  connectionName,
   projectKey,
   storyKey,
   idOrKey,
@@ -34,11 +32,11 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({
   const getDataQuery = () => {
     switch (level) {
       case "connection":
-        return useConnectionProposalsQuery(connectionName);
+        return useConnectionProposalsQuery();
       case "project":
-        return useProjectProposalsQuery(connectionName, projectKey!);
+        return useProjectProposalsQuery(projectKey!);
       case "story":
-        return useStoryProposalsQuery(connectionName, projectKey!, storyKey!);
+        return useStoryProposalsQuery(projectKey!, storyKey!);
     }
   };
 
@@ -47,13 +45,13 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({
   const basePath = useMemo(() => {
     switch (level) {
       case "connection":
-        return `/connections/${connectionName}`;
+        return `/app`;
       case "project":
-        return `/connections/${connectionName}/projects/${projectKey}`;
+        return `/app/projects/${projectKey}`;
       case "story":
-        return `/connections/${connectionName}/projects/${projectKey}/stories/${storyKey}`;
+        return `/app/projects/${projectKey}/stories/${storyKey}`;
     }
-  }, [level, connectionName, projectKey, storyKey]);
+  }, [level, projectKey, storyKey]);
 
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
     idOrKey || null,
@@ -96,7 +94,6 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({
       level={level}
       href="proposals"
       headerText={t("headerText")}
-      connectionName={connectionName}
       projectKey={projectKey}
       storyKey={storyKey}
       primarySessions={{

@@ -30,21 +30,21 @@ import ProposalContentDiffDialog from "@/components/proposals/ProposalContentDif
 import { AnalysisDto } from "@/types/analysis";
 
 export interface AnalysisItemPageProps {
-  connectionName: string;
   projectFilterKey?: string;
   storyFilterKey?: string;
   idOrKey: string;
 }
 
 const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
-  connectionName,
   projectFilterKey,
   storyFilterKey,
   idOrKey,
 }) => {
   const t = useTranslations("analysis.AnalysisItemPage");
+
   const { data: analysisDetailData, isLoading: isDetailsLoading } =
-    useAnalysisDetailsQuery(connectionName, idOrKey);
+    useAnalysisDetailsQuery(idOrKey);
+
   const selectedAnalysisDetail = useMemo(
     () => analysisDetailData?.data || null,
     [analysisDetailData],
@@ -55,10 +55,10 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
     useSessionProposalsQuery(
       selectedAnalysisDetail?.id,
       "ANALYSIS",
-      connectionName,
       projectFilterKey,
       storyFilterKey,
     );
+
   const analysisProposals = useMemo(
     () => proposalsData?.data || [],
     [proposalsData],
@@ -100,11 +100,10 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
     if (!analysisId) return;
 
     const handleMessage = (data: any) => {
-      console.log("Received WebSocket message for analysis:", data);
       if (data.id === analysisId) {
         // Invalidate details query to refresh status and defects
         queryClient.invalidateQueries({
-          queryKey: ["analysis", "details", connectionName, idOrKey],
+          queryKey: ["analysis", "details", idOrKey],
         });
         // Also invalidate summaries to keep sidebar in sync
         queryClient.invalidateQueries({ queryKey: ["analysis", "summaries"] });
@@ -267,27 +266,10 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
     );
   };
 
-  const defectTab = (selectedAnalysis: AnalysisDto) => (
-    <Box
-      sx={{
-        flex: 1,
-        display: "flex", // Added
-        flexDirection: "column", // Added
-        minHeight: 0, // Added: Forces constraint so child can scroll
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          justifyContent: "space-between",
-          alignItems: { xs: "flex-start", md: "center" },
-          mb: 2,
-          flexShrink: 0, // Added: Ensures header doesn't squash
-        }}
-      >
-        <Typography variant="h6">{t("defects")}</Typography>
-        <Box sx={{ display: "flex", gap: 2 }}>
+  const tabActions = (selectedAnalysis: AnalysisDto) => {
+    if (activeTab === 0) {
+      return (
+        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
           {selectedAnalysis.defects.length > 0 && (
             <Button
               variant="outlined"
@@ -299,7 +281,29 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
           )}
           {rerunButton()}
         </Box>
-      </Box>
+      );
+    }
+
+    return (
+      <Button
+        variant="contained"
+        onClick={handleGenerateProposals}
+        disabled={isGenerating || selectedAnalysis.status === "IN_PROGRESS"}
+      >
+        {isGenerating ? t("generating") : t("generateFromDefects")}
+      </Button>
+    );
+  };
+
+  const defectTab = (selectedAnalysis: AnalysisDto) => (
+    <Box
+      sx={{
+        flex: 1,
+        display: "flex", // Added
+        flexDirection: "column", // Added
+        minHeight: 0, // Added: Forces constraint so child can scroll
+      }}
+    >
       {selectedAnalysis.defects.length === 0 ? (
         <Typography color="text.secondary">{t("noDefectsFound")}</Typography>
       ) : (
@@ -359,25 +363,6 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
         minHeight: 0,
       }}
     >
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          justifyContent: "space-between",
-          alignItems: { xs: "flex-start", md: "center" },
-          mb: 2,
-          flexShrink: 0, // Added
-        }}
-      >
-        <Typography variant="h6">{t("proposals")}</Typography>
-        <Button
-          variant="contained"
-          onClick={handleGenerateProposals}
-          disabled={isGenerating || selectedAnalysis.status === "IN_PROGRESS"}
-        >
-          {isGenerating ? t("generating") : t("generateFromDefects")}
-        </Button>
-      </Box>
       {isProposalsLoading ? (
         <LoadingSpinner />
       ) : analysisProposals.length === 0 && !isGenerating ? (
@@ -465,18 +450,30 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
             ...scrollBarSx,
           }}
         >
-          <Tabs
-            value={activeTab}
-            onChange={(_, newValue) => setActiveTab(newValue)}
+          <Box
             sx={{
-              borderBottom: 1,
-              borderColor: "divider",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: 2,
               flexShrink: 0,
             }}
           >
-            <Tab label={t("defects")} />
-            <Tab label={t("proposals")} />
-          </Tabs>
+            <Tabs
+              value={activeTab}
+              onChange={(_, newValue) => setActiveTab(newValue)}
+            >
+              <Tab
+                label={t("defects")}
+                sx={{ fontSize: "1rem", fontWeight: 600 }}
+              />
+              <Tab
+                label={t("proposals")}
+                sx={{ fontSize: "1rem", fontWeight: 600 }}
+              />
+            </Tabs>
+            {tabActions(selectedAnalysisDetail)}
+          </Box>
           <Box
             role="tabpanel"
             hidden={activeTab !== 0}
@@ -522,14 +519,12 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
       <MultiStoryDetailDialog
         open={multiStoryDialogOpen}
         onClose={handleCloseMultiStoryDialog}
-        connectionName={connectionName}
         storyKeys={selectedStoryKeys}
       />
       <ProposalContentDiffDialog
         open={diffDialogOpen}
         onClose={handleCloseDiffDialog}
         content={selectedContentForDiff}
-        connectionName={connectionName}
       />
     </Box>
   );

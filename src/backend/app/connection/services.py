@@ -25,15 +25,14 @@ class DashboardService:
         self.db = db
 
     def get_project_dashboard_info(
-        self, user_id: str, connection_name: str, project_key: str
+        self, connection_id: str, project_key: str
     ) -> ProjectDashboardDto:
         # Check project exists
         project = (
             self.db.query(Project)
             .join(Connection)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
                 Project.key == project_key,
             )
             .first()
@@ -193,7 +192,7 @@ class DashboardService:
         )
 
     def get_story_dashboard_info(
-        self, user_id: str, connection_name: str, project_key: str, story_key: str
+        self, connection_id: str, project_key: str, story_key: str
     ) -> StoryDashboardDto:
         # Verify the story exists and get connection_id
         result = (
@@ -201,8 +200,7 @@ class DashboardService:
             .join(Story.project)
             .join(Project.connection)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
                 Project.key == project_key,
                 Story.key == story_key,
             )
@@ -257,14 +255,13 @@ class DashboardService:
         )
 
     def get_connection_dashboard_info(
-        self, user_id: str, connection_name: str
+        self, connection_id: str
     ) -> ConnectionDashboardDto:
         # Verify the connection exists
         connection = (
             self.db.query(Connection)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
             )
             .first()
         )

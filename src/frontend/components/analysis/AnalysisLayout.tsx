@@ -38,7 +38,6 @@ const getStatusColor = (status?: string) => {
 interface AnalysisPageLayoutProps {
   children?: React.ReactNode;
   level: PageLevel;
-  connectionName: string;
   projectKey?: string;
   storyKey?: string; // Required if level is "story"
   idOrKey?: string;
@@ -47,7 +46,6 @@ interface AnalysisPageLayoutProps {
 const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
   children,
   level,
-  connectionName,
   projectKey,
   storyKey,
   idOrKey,
@@ -62,12 +60,11 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
   const getAnalysisQuery = () => {
     switch (level) {
       case "connection":
-        return useAnalysisSummariesByConnectionQuery(connectionName);
+        return useAnalysisSummariesByConnectionQuery();
       case "project":
-        return useAnalysisSummariesByProjectQuery(connectionName, projectKey!);
+        return useAnalysisSummariesByProjectQuery(projectKey!);
       case "story":
         return useAnalysisSummariesByStoryQuery(
-          connectionName,
           projectKey!,
           storyKey!,
         );
@@ -118,7 +115,6 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
   };
 
   const handleRunAnalysis = async (
-    connection: ConnectionDto,
     project: ProjectDto,
     story?: StorySummary,
   ) => {
@@ -131,7 +127,6 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
       }
 
       await runAnalysis({
-        connectionId: connection.id,
         projectKey: project.key,
         data: {
           analysis_type: analysisType,
@@ -179,7 +174,6 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
     <PageLayout
       level={level}
       headerText={t("headerText")}
-      connectionName={connectionName}
       projectKey={projectKey}
       storyKey={storyKey}
       href="analyses"

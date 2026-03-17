@@ -1,16 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import ConnectionDashboard from "./ConnectionDashboard";
 
-const AppPage = () => {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace("/app/connections");
-  }, [router]);
-
-  return null;
+const ConnectionIdPage = () => {
+  return <ConnectionDashboard />;
 };
 
-export default AppPage;
+export default ConnectionIdPage;

@@ -35,14 +35,12 @@ import { useSessionProposalsQuery } from "@/hooks/queries/useProposalQueries";
 import { useTranslations } from "next-intl";
 
 export interface ChatItemPageProps {
-  connectionName: string;
   projectFilterKey?: string;
   storyFilterKey?: string;
   idOrKey: string;
 }
 
 const ChatItemPage: React.FC<ChatItemPageProps> = ({
-  connectionName,
   projectFilterKey,
   storyFilterKey,
   idOrKey,
@@ -72,7 +70,6 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
   const isCommittingRef = useRef<boolean>(false);
 
   const { data: sessionData, isLoading: loadingSession } = useChatSessionQuery(
-    connectionName,
     idOrKey,
   );
 
@@ -83,7 +80,6 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
   } = useSessionProposalsQuery(
     sessionData?.data?.id,
     "CHAT",
-    connectionName,
     projectFilterKey,
     storyFilterKey,
   );

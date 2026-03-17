@@ -1,6 +1,5 @@
-import { useProjectsSyncQuery } from "@/hooks/queries/useConnectionQueries";
 import { connectionService } from "@/services/connectionService";
-import { ConnectionDto, ProjectDtoSync } from "@/types/connection";
+import { ProjectDtoSync } from "@/types/connection";
 import CloseIcon from "@mui/icons-material/Close";
 import SyncIcon from "@mui/icons-material/Sync";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -26,11 +25,15 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
 
 export interface SyncProjectsDialogProps {
   open: boolean;
-  connection: ConnectionDto;
+  isLoading: boolean;
+  syncStatuses: ProjectDtoSync[];
+  syncedProjectsCount: number;
+  totalProjectsCount: number;
   onClose: () => void;
 }
 
@@ -111,17 +114,16 @@ const ProjectSyncItem: React.FC<ProjectSyncItemProps> = ({
 
 export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
   open,
-  connection,
+  isLoading,
+  syncStatuses,
+  syncedProjectsCount,
+  totalProjectsCount,
   onClose,
 }) => {
-  const { data, isLoading } = useProjectsSyncQuery(connection.id);
+  const t = useTranslations("profile.SyncProjectsDialog");
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [runAnalysisAfterSync, setRunAnalysisAfterSync] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
-
-  const syncStatuses: ProjectDtoSync[] = useMemo(() => {
-    return data?.data || [];
-  }, [data]);
 
   const unsyncedProjects = useMemo(
     () => syncStatuses.filter((p) => !p.synced),
@@ -158,7 +160,6 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
     setIsSyncing(true);
     try {
       await connectionService.syncProjects(
-        connection.id,
         Array.from(selectedKeys),
         runAnalysisAfterSync,
       );
@@ -185,7 +186,13 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <SyncIcon fontSize="small" />
           <Typography variant="h6" component="span">
-            Sync Projects
+            {t("title")}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" component="span">
+            {t("syncedCount", {
+              synced: syncedProjectsCount,
+              total: totalProjectsCount,
+            })}
           </Typography>
         </Box>
         <IconButton edge="end" onClick={onClose} size="small">
@@ -208,7 +215,7 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
         ) : syncStatuses.length === 0 ? (
           <Box sx={{ py: 4, textAlign: "center" }}>
             <Typography color="text.secondary">
-              No projects found for this connection.
+              {t("noProjectsFound")}
             </Typography>
           </Box>
         ) : (
@@ -227,10 +234,12 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
                   }}
                 >
                   <Typography variant="subtitle2" color="text.secondary">
-                    Available to sync ({unsyncedProjects.length})
+                    {t("availableToSync", {
+                      count: totalProjectsCount - syncedProjectsCount,
+                    })}
                   </Typography>
                   <Button size="small" onClick={handleSelectAll}>
-                    {allSelected ? "Deselect all" : "Select all"}
+                    {allSelected ? t("deselectAll") : t("selectAll")}
                   </Button>
                 </Box>
                 <List dense sx={{ px: 1 }}>
@@ -251,7 +260,7 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
               <Box>
                 <Box sx={{ px: 2, pt: 1.5, pb: 0.5 }}>
                   <Typography variant="subtitle2" color="text.secondary">
-                    Already synced ({syncedProjects.length})
+                    {t("alreadySynced", { count: syncedProjectsCount })}
                   </Typography>
                 </Box>
                 <List dense sx={{ px: 1, opacity: 0.7 }}>
@@ -280,12 +289,12 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
             />
           }
           label={
-            <Typography variant="body2">Run analysis after sync</Typography>
+            <Typography variant="body2">{t("runAnalysisAfterSync")}</Typography>
           }
         />
         <Box sx={{ display: "flex", gap: 1 }}>
           <Button onClick={onClose} size="small">
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             variant="contained"
@@ -296,9 +305,7 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
               isSyncing ? <CircularProgress size={16} /> : <SyncIcon />
             }
           >
-            {isSyncing
-              ? "Syncing..."
-              : `Sync${selectedKeys.size > 0 ? ` (${selectedKeys.size})` : ""}`}
+            {isSyncing ? t("syncing") : t("sync", { count: selectedKeys.size })}
           </Button>
         </Box>
       </DialogActions>

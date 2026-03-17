@@ -15,55 +15,52 @@ router = APIRouter()
 
 
 @router.get("/")
-async def list_connections(
+async def get_connection(
     service: JiraService = Depends(get_jira_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
-        connections = service.list_user_connections(user_id)
-        return BasicResponse(data=connections)
+        connection = service.get_connection(connection_id=conn_id)
+        return BasicResponse(data=connection)
 
     except ValueError as e:
         traceback.print_exc()
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/{connection_name}/projects")
+@router.get("/projects")
 async def list_projects(
-    connection_name: str,
     service: JiraService = Depends(get_jira_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         data = service.fetch_project_dtos(
-            user_id=user_id, connection_name=connection_name
+            connection_id=conn_id,
         )
         return BasicResponse(data=data)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/{connection_name}/projects/{project_key}/stories")
+@router.get("/projects/{project_key}/stories")
 async def list_stories(
-    connection_name: str,
     project_key: str,
     service: JiraService = Depends(get_jira_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         return BasicResponse(
             data=service.fetch_story_summaries(
-                user_id=user_id,
-                connection_name=connection_name,
+                connection_id=conn_id,
                 project_key=project_key,
             )
         )
@@ -71,17 +68,16 @@ async def list_stories(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.delete("/{connection_id}")
+@router.delete("/")
 async def delete_connection(
-    connection_id: str,
     service: JiraService = Depends(get_jira_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
-        service.delete_connection(user_id=user_id, connection_id=connection_id)
+        service.delete_connection(connection_id=conn_id)
         return BasicResponse(detail="Connection deleted successfully")
 
     except ValueError as e:
@@ -90,20 +86,18 @@ async def delete_connection(
         raise HTTPException(status_code=403, detail=str(e))
 
 
-@router.get("/{connection_name}/stories/{story_key}")
+@router.get("/stories/{story_key}")
 async def get_story_details(
-    connection_name: str,
     story_key: str,
     service: JiraService = Depends(get_jira_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         story = service.fetch_stories(
-            user_id=user_id,
-            connection_name=connection_name,
+            connection_id=conn_id,
             story_keys=[story_key],
         )
         if not story:
@@ -113,38 +107,33 @@ async def get_story_details(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/{connection_id}/sync-status")
+@router.get("/sync-status")
 def get_connection_sync_status(
-    connection_id: str,
     service: JiraService = Depends(get_jira_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
-        status_dto = service.get_connection_sync_status(
-            user_id=user_id, connection_id=connection_id
-        )
+        status_dto = service.get_connection_sync_status(connection_id=conn_id)
         return BasicResponse(data=status_dto)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/{connection_name}/projects/{project_key}/dashboard")
+@router.get("/projects/{project_key}/dashboard")
 async def get_project_dashboard_info(
-    connection_name: str,
     project_key: str,
     service: DashboardService = Depends(get_dashboard_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         dashboard_info = service.get_project_dashboard_info(
-            user_id=user_id,
-            connection_name=connection_name,
+            connection_id=conn_id,
             project_key=project_key,
         )
         return BasicResponse(data=dashboard_info)
@@ -152,21 +141,19 @@ async def get_project_dashboard_info(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/{connection_name}/projects/{project_key}/stories/{story_key}/dashboard")
+@router.get("/projects/{project_key}/stories/{story_key}/dashboard")
 async def get_story_dashboard_info(
-    connection_name: str,
     project_key: str,
     story_key: str,
     service: DashboardService = Depends(get_dashboard_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         dashboard_info = service.get_story_dashboard_info(
-            user_id=user_id,
-            connection_name=connection_name,
+            connection_id=conn_id,
             project_key=project_key,
             story_key=story_key,
         )
@@ -175,19 +162,17 @@ async def get_story_dashboard_info(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/{connection_name}/dashboard")
+@router.get("/dashboard")
 async def get_connection_dashboard_info(
-    connection_name: str,
     service: DashboardService = Depends(get_dashboard_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         dashboard_info = service.get_connection_dashboard_info(
-            user_id=user_id,
-            connection_name=connection_name,
+            connection_id=conn_id,
         )
         return BasicResponse(data=dashboard_info)
     except ValueError as e:
@@ -195,18 +180,17 @@ async def get_connection_dashboard_info(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/{connection_id}/projects/sync-status")
+@router.get("/projects/sync-status")
 def get_projects_sync_status(
-    connection_id: str,
     service: JiraService = Depends(get_jira_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         projects_sync_status = service.fetch_all_projects_checked_sync(
-            user_id=user_id, connection_id=connection_id
+            connection_id=conn_id,
         )
         return BasicResponse(data=projects_sync_status)
     except ValueError as e:
@@ -214,21 +198,18 @@ def get_projects_sync_status(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.post("/{connection_id}/projects/sync")
+@router.post("/projects/sync")
 def sync_projects(
-    connection_id: str,
     request: SyncProjectsRequests,
     service: JiraService = Depends(get_jira_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
-        print("Keys to sync:", request.project_keys)
         service.sync_projects(
-            user_id=user_id,
-            connection_id=connection_id,
+            connection_id=conn_id,
             project_keys=request.project_keys,
             run_analysis_after_sync=request.run_analysis_after_sync,
         )

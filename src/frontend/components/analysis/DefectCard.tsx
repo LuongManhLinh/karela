@@ -47,9 +47,9 @@ const DefectCard: React.FC<DefectCardProps> = ({
   return (
     <Card
       key={defect.id}
-      elevation={4}
+      elevation={2}
       sx={{
-        borderRadius: 2,
+        borderRadius: 3,
         flexShrink: 0,
         bgcolor: "background.paper",
         color: "onBackground",

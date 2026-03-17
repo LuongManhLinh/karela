@@ -6,7 +6,6 @@ export const PROPOSAL_KEYS = {
   all: ["proposals"] as const,
   bySession: (
     sessionId: string,
-    connectionName: string,
     projectFilterKey?: string,
     storyFilterKey?: string,
   ) =>
@@ -14,37 +13,27 @@ export const PROPOSAL_KEYS = {
       ...PROPOSAL_KEYS.all,
       "session",
       sessionId,
-      connectionName,
       projectFilterKey,
       storyFilterKey,
     ] as const,
   item: (proposalId: string) =>
     [...PROPOSAL_KEYS.all, "item", proposalId] as const,
-  byConnection: (connectionName: string) =>
-    [...PROPOSAL_KEYS.all, "connection", connectionName] as const,
-  byProject: (connectionName: string, projectKey: string) =>
-    [...PROPOSAL_KEYS.all, "project", connectionName, projectKey] as const,
-  byStory: (connectionName: string, projectKey: string, storyKey: string) =>
-    [
-      ...PROPOSAL_KEYS.all,
-      "story",
-      connectionName,
-      projectKey,
-      storyKey,
-    ] as const,
+  byConnection: () => [...PROPOSAL_KEYS.all, "connection"] as const,
+  byProject: (projectKey: string) =>
+    [...PROPOSAL_KEYS.all, "project", projectKey] as const,
+  byStory: (projectKey: string, storyKey: string) =>
+    [...PROPOSAL_KEYS.all, "story", projectKey, storyKey] as const,
 };
 
 export const useSessionProposalsQuery = (
   sessionIdOrKey: string | undefined,
   source: "CHAT" | "ANALYSIS" = "CHAT",
-  connectionName: string | undefined,
   projectFilterKey: string | undefined,
   storyFilterKey: string | undefined,
 ) => {
   return useQuery({
     queryKey: PROPOSAL_KEYS.bySession(
       sessionIdOrKey || "",
-      connectionName || "",
       projectFilterKey || "",
       storyFilterKey || "",
     ),
@@ -52,11 +41,10 @@ export const useSessionProposalsQuery = (
       proposalService.getProposalsBySession(
         sessionIdOrKey!,
         source,
-        connectionName!,
         projectFilterKey,
         storyFilterKey,
       ),
-    enabled: !!sessionIdOrKey && !!connectionName,
+    enabled: !!sessionIdOrKey,
   });
 };
 
@@ -108,45 +96,28 @@ export const useActOnProposalContentMutation = () => {
     },
   });
 };
-export const useConnectionProposalsQuery = (
-  connectionName: string | undefined,
-) => {
+export const useConnectionProposalsQuery = () => {
   return useQuery({
-    queryKey: PROPOSAL_KEYS.byConnection(connectionName || ""),
-    queryFn: () => proposalService.listProposalsByConnection(connectionName!),
-    enabled: !!connectionName,
+    queryKey: PROPOSAL_KEYS.byConnection(),
+    queryFn: () => proposalService.listProposalsByConnection(),
   });
 };
 
-export const useProjectProposalsQuery = (
-  connectionName: string | undefined,
-  projectKey: string | undefined,
-) => {
+export const useProjectProposalsQuery = (projectKey: string | undefined) => {
   return useQuery({
-    queryKey: PROPOSAL_KEYS.byProject(connectionName || "", projectKey || ""),
-    queryFn: () =>
-      proposalService.listProposalsByProject(connectionName!, projectKey!),
-    enabled: !!connectionName && !!projectKey,
+    queryKey: PROPOSAL_KEYS.byProject(projectKey || ""),
+    queryFn: () => proposalService.listProposalsByProject(projectKey!),
+    enabled: !!projectKey,
   });
 };
 
 export const useStoryProposalsQuery = (
-  connectionName: string | undefined,
   projectKey: string | undefined,
   storyKey: string | undefined,
 ) => {
   return useQuery({
-    queryKey: PROPOSAL_KEYS.byStory(
-      connectionName || "",
-      projectKey || "",
-      storyKey || "",
-    ),
-    queryFn: () =>
-      proposalService.listProposalsByStory(
-        connectionName!,
-        projectKey!,
-        storyKey!,
-      ),
-    enabled: !!connectionName && !!projectKey && !!storyKey,
+    queryKey: PROPOSAL_KEYS.byStory(projectKey || "", storyKey || ""),
+    queryFn: () => proposalService.listProposalsByStory(projectKey!, storyKey!),
+    enabled: !!projectKey && !!storyKey,
   });
 };

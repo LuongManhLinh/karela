@@ -43,12 +43,10 @@ class AnalysisRunService:
 
     def _publish_update(self, analysis_id: str, status: str):
         try:
-            print(f"Publishing update to Redis: analysis:{analysis_id} status:{status}")
-            subscribers = self.redis_client.publish(
+            self.redis_client.publish(
                 f"analysis:{analysis_id}",
                 json.dumps({"id": analysis_id, "status": status}),
             )
-            print(f"Published to {subscribers} subscribers")
         except Exception as e:
             print(f"Failed to publish update: {e}")
 

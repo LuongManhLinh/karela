@@ -10,6 +10,7 @@ import React, {
   useCallback,
 } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { useNotificationContext } from "./NotificationProvider";
 
 interface WebSocketContextType {
   isConnected: boolean;
@@ -39,20 +40,16 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     new Map(),
   );
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const clientIdRef = useRef(uuidv4());
+
+  const { notify } = useNotificationContext();
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const host = process.env.NEXT_PUBLIC_API_URL
-      ? process.env.NEXT_PUBLIC_API_URL.replace(/^http/, "ws")
-      : `${protocol}//${window.location.host}/api/v1`; // Adjust based on your API URL
-
     const wsUrl =
       process.env.NEXT_PUBLIC_WEBSOCKET_URL || "ws://localhost:8000/api/v1/ws";
 
-    const ws = new WebSocket(`${wsUrl}/${clientIdRef.current}`);
+    const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
       console.log("WebSocket connected");
@@ -80,7 +77,12 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
         if (message.type === "pong") return;
 
         const { topic, data } = message;
-        if (topic && subscribersRef.current.has(topic)) {
+
+        if (topic instanceof String && topic.includes("notification")) {
+          notify(data.message, {
+            severity: data.severity || "info",
+          });
+        } else if (topic && subscribersRef.current.has(topic)) {
           subscribersRef.current
             .get(topic)
             ?.forEach((callback) => callback(data));

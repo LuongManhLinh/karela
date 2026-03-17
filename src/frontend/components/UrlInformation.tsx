@@ -4,9 +4,10 @@ import {
   AccountTreeOutlined,
   FolderOpenOutlined,
   SubdirectoryArrowRight,
-  SummarizeOutlined,
+  BookmarkBorderTwoTone,
 } from "@mui/icons-material";
 import { Avatar, Box, Chip, Typography } from "@mui/material";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
@@ -14,15 +15,16 @@ import { useMemo } from "react";
 export const UrlInformation: React.FC = () => {
   const params = useParams();
 
-  const { connectionName, projectKey, storyKey } = useMemo(() => {
+  const t = useTranslations("UrlInformation");
+
+  const { projectKey, storyKey } = useMemo(() => {
     return {
-      connectionName: params?.connectionName as string | undefined,
       projectKey: params?.projectKey as string | undefined,
       storyKey: params?.storyKey as string | undefined,
     };
   }, [params]);
 
-  const { connections, projects, stories } = useWorkspaceStore();
+  const { connection, projects, stories } = useWorkspaceStore();
 
   type HierarchyItem = {
     id: "connection" | "project" | "story";
@@ -37,27 +39,23 @@ export const UrlInformation: React.FC = () => {
 
   const items: HierarchyItem[] = [];
 
-  if (connectionName) {
-    const connection = connections.find((conn) => conn.name === connectionName);
-    if (!connection) {
-      return null;
-    }
+  if (connection) {
     items.push({
       id: "connection",
-      label: "Connection",
-      href: `/app/connections/${connectionName}`,
-      title: connection.name,
+      label: t("connection"),
+      href: `/app`,
+      title: `${t("clickToNavigateToDashboard")} ${connection.name}}`,
       value: connection.name,
       avatarUrl: connection.avatar_url,
       icon: <AccountTreeOutlined fontSize="small" />,
       helperText:
         typeof connection.num_projects === "number"
           ? `${connection.num_projects} projects`
-          : undefined,
+          : t("noProject"),
     });
   }
 
-  if (connectionName && projectKey) {
+  if (connection && projectKey) {
     const project = projects.find((proj) => proj.key === projectKey);
     if (!project) {
       return null;
@@ -65,20 +63,20 @@ export const UrlInformation: React.FC = () => {
 
     items.push({
       id: "project",
-      label: "Project",
-      href: `/app/connections/${connectionName}/projects/${projectKey}`,
-      title: `${project.key} - ${project.name}`,
+      label: t("project"),
+      href: `/app/projects/${projectKey}`,
+      title: `${t("clickToNavigateToDashboard")} ${project.key} - ${project.name}`,
       value: `${project.key} - ${project.name}`,
       avatarUrl: project.avatar_url,
       icon: <FolderOpenOutlined fontSize="small" />,
       helperText:
         typeof project.num_stories === "number"
           ? `${project.num_stories} stories`
-          : undefined,
+          : t("noStory"),
     });
   }
 
-  if (connectionName && projectKey && storyKey) {
+  if (connection && projectKey && storyKey) {
     const story = stories.find((s) => s.key === storyKey);
     if (!story) {
       return null;
@@ -87,11 +85,11 @@ export const UrlInformation: React.FC = () => {
 
     items.push({
       id: "story",
-      label: "Story",
-      href: `/app/connections/${connectionName}/projects/${projectKey}/stories/${storyKey}`,
-      title: `${story.key} - ${storySummary}`,
+      label: t("story"),
+      href: `/app/projects/${projectKey}/stories/${storyKey}`,
+      title: `${t("clickToNavigateToDashboard")} ${story.key} - ${storySummary}`,
       value: `${story.key} - ${storySummary}`,
-      icon: <SummarizeOutlined fontSize="small" />,
+      icon: <BookmarkBorderTwoTone fontSize="large" color="success" />,
     });
   }
 
@@ -109,7 +107,6 @@ export const UrlInformation: React.FC = () => {
         gap: 0,
         borderRadius: 2,
         p: 1,
-        // backgroundColor: "background.paper",
       }}
     >
       {items.map((item, index) => (
@@ -151,7 +148,7 @@ export const UrlInformation: React.FC = () => {
             <Avatar
               src={item.avatarUrl}
               alt={item.label}
-              sx={{ width: 20, height: 20 }}
+              sx={{ height: "100%" }}
               variant="rounded"
             />
           ) : (
@@ -169,7 +166,7 @@ export const UrlInformation: React.FC = () => {
             }}
           >
             <Typography
-              variant="body1"
+              variant="caption"
               sx={{ color: "text.secondary", lineHeight: 1.2 }}
             >
               {item.label}
@@ -177,7 +174,7 @@ export const UrlInformation: React.FC = () => {
             <Typography
               variant="body2"
               sx={{
-                fontWeight: 500,
+                fontWeight: 800,
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",

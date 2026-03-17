@@ -64,14 +64,13 @@ class AnalysisDataService:
         return None
 
     def get_analysis_summaries_by_connection(
-        self, user_id: str, connection_name: str
+        self, connection_id: str
     ) -> List[AnalysisSummary]:
         analyses = (
             self.db.query(Analysis)
             .join(Connection, Connection.id == Analysis.connection_id)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
             )
             .order_by(Analysis.created_at.desc())
             .all()
@@ -92,14 +91,13 @@ class AnalysisDataService:
         ]
 
     def get_analysis_summaries_by_project(
-        self, user_id: str, connection_name: str, project_key: str
+        self, connection_id: str, project_key: str
     ) -> List[AnalysisSummary]:
         analyses = (
             self.db.query(Analysis)
             .join(Connection, Connection.id == Analysis.connection_id)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
                 Analysis.project_key == project_key,
             )
             .order_by(Analysis.created_at.desc())
@@ -121,14 +119,13 @@ class AnalysisDataService:
         ]
 
     def get_analysis_summaries_by_story(
-        self, user_id: str, connection_name: str, project_key: str, story_key: str
+        self, connection_id: str, project_key: str, story_key: str
     ) -> List[AnalysisSummary]:
         analyses = (
             self.db.query(Analysis)
             .join(Connection, Connection.id == Analysis.connection_id)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
                 Analysis.project_key == project_key,
                 Analysis.story_key == story_key,
             )
@@ -152,16 +149,14 @@ class AnalysisDataService:
 
     def get_analysis_details(
         self,
-        user_id: str,
-        connection_name: str,
+        connection_id: str,
         analysis_id_or_key: str,
     ) -> Optional[AnalysisDto]:
         analysis = (
             self.db.query(Analysis)
             .join(Connection, Connection.id == Analysis.connection_id)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
                 or_(
                     Analysis.id == analysis_id_or_key,
                     Analysis.key == analysis_id_or_key,

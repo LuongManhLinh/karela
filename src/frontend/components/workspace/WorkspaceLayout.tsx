@@ -12,14 +12,12 @@ import type { StorySummary } from "@/types/connection";
 
 interface WorkspaceLayoutProps {
   children?: React.ReactNode;
-  connectionName: string;
   projectKey: string;
   storyKey?: string;
 }
 
 const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
   children,
-  connectionName,
   projectKey,
   storyKey,
 }) => {
@@ -39,7 +37,7 @@ const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
 
   // Fetch story summaries for the project
   const { data: storiesData, isLoading: isStoriesLoading } =
-    useStorySummariesQuery(connectionName, projectKey);
+    useStorySummariesQuery(projectKey);
 
   const storySummaries = useMemo(() => storiesData?.data || [], [storiesData]);
 
@@ -93,12 +91,11 @@ const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
     }));
   }, [storySummaries]);
 
-  const basePath = `/app/connections/${connectionName}/projects/${projectKey}`;
+  const basePath = `/app/projects/${projectKey}`;
 
   return (
     <PageLayout
       level="project"
-      connectionName={connectionName}
       projectKey={projectKey}
       href="workspace"
       headerText={t("headerText")}

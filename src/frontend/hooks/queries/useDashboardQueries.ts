@@ -3,60 +3,36 @@ import { connectionService } from "@/services/connectionService";
 
 export const DASHBOARD_KEYS = {
   all: ["dashboard"] as const,
-  project: (connectionId: string, projectKey: string) =>
-    [...DASHBOARD_KEYS.all, "project", connectionId, projectKey] as const,
-  story: (connectionId: string, projectKey: string, storyKey: string) =>
-    [
-      ...DASHBOARD_KEYS.all,
-      "story",
-      connectionId,
-      projectKey,
-      storyKey,
-    ] as const,
-  connection: (connectionId: string) =>
-    [...DASHBOARD_KEYS.all, "connection", connectionId] as const,
+  project: (projectKey: string) =>
+    [...DASHBOARD_KEYS.all, "project", projectKey] as const,
+  story: (projectKey: string, storyKey: string) =>
+    [...DASHBOARD_KEYS.all, "story", projectKey, storyKey] as const,
+  connection: () => [...DASHBOARD_KEYS.all, "connection"] as const,
 };
 
-export const useProjectDashboardQuery = (
-  connectionName: string | undefined,
-  projectKey: string | undefined,
-) => {
+export const useProjectDashboardQuery = (projectKey: string | undefined) => {
   return useQuery({
-    queryKey: DASHBOARD_KEYS.project(connectionName || "", projectKey || ""),
-    queryFn: () =>
-      connectionService.getProjectDashboardInfo(connectionName!, projectKey!),
-    enabled: !!connectionName && !!projectKey,
+    queryKey: DASHBOARD_KEYS.project(projectKey || ""),
+    queryFn: () => connectionService.getProjectDashboardInfo(projectKey!),
+    enabled: !!projectKey,
   });
 };
 
 export const useStoryDashboardQuery = (
-  connectionId: string | undefined,
   projectKey: string | undefined,
   storyKey: string | undefined,
 ) => {
   return useQuery({
-    queryKey: DASHBOARD_KEYS.story(
-      connectionId || "",
-      projectKey || "",
-      storyKey || "",
-    ),
+    queryKey: DASHBOARD_KEYS.story(projectKey || "", storyKey || ""),
     queryFn: () =>
-      connectionService.getStoryDashboardInfo(
-        connectionId!,
-        projectKey!,
-        storyKey!,
-      ),
-    enabled: !!connectionId && !!projectKey && !!storyKey,
+      connectionService.getStoryDashboardInfo(projectKey!, storyKey!),
+    enabled: !!projectKey && !!storyKey,
   });
 };
 
-export const useConnectionDashboardQuery = (
-  connectionName: string | undefined,
-) => {
+export const useConnectionDashboardQuery = () => {
   return useQuery({
-    queryKey: DASHBOARD_KEYS.connection(connectionName || ""),
-    queryFn: () =>
-      connectionService.getConnectionDashboardInfo(connectionName!),
-    enabled: !!connectionName,
+    queryKey: DASHBOARD_KEYS.connection(),
+    queryFn: () => connectionService.getConnectionDashboardInfo(),
   });
 };

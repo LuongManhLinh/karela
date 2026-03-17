@@ -11,18 +11,11 @@ import StoryChip from "../StoryChip";
 import { useTranslations } from "next-intl";
 
 export interface AcEditorItemPageProps {
-  connectionName: string;
   idOrKey: string;
 }
 
-const AcEditorItemPage: React.FC<AcEditorItemPageProps> = ({
-  connectionName,
-  idOrKey,
-}) => {
-  const { data, isLoading, refetch } = useACQuery(
-    connectionName,
-    idOrKey,
-  );
+const AcEditorItemPage: React.FC<AcEditorItemPageProps> = ({ idOrKey }) => {
+  const { data, isLoading, refetch } = useACQuery(idOrKey);
   const currentAC = useMemo(() => data?.data || null, [data]);
 
   const t = useTranslations("ac.AcEditorItemPage");

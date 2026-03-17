@@ -7,8 +7,7 @@ import {
   CssBaseline,
   PaletteMode,
 } from "@mui/material";
-
-import themeData from "@/public/themes/green-theme.json";
+import { getThemeName } from "@/utils/themeStorageUtil";
 
 type ThemeContextType = {
   mode: PaletteMode;
@@ -29,6 +28,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [mode, setMode] = useState<PaletteMode>("light");
+  const [themeName, setThemeName] = useState("green-theme");
 
   useEffect(() => {
     // Load theme preference from localStorage
@@ -36,6 +36,18 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
     if (savedMode) {
       setMode(savedMode);
     }
+
+    setThemeName(getThemeName());
+
+    const handleThemeChange = () => {
+      setThemeName(getThemeName());
+    };
+
+    window.addEventListener("theme-change", handleThemeChange);
+
+    return () => {
+      window.removeEventListener("theme-change", handleThemeChange);
+    };
   }, []);
 
   const toggleColorMode = () => {
@@ -43,6 +55,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
     setMode(newMode);
     localStorage.setItem("themeMode", newMode);
   };
+
+  const resolvedThemeName = themeName.replace(/\.json$/, "");
+  const themeData = require(`@/public/themes/${resolvedThemeName}.json`);
 
   const scheme = themeData.schemes[mode];
 
@@ -133,7 +148,32 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
             fontWeight: 600,
             boxShadow: "none",
             "&:hover": {
-              boxShadow: `0 4px 12px ${scheme.shadow}`,
+              boxShadow: `0 2px 4px ${scheme.shadow}`,
+            },
+          },
+        },
+      },
+      MuiIconButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: 8,
+            padding: 6,
+            // "&:hover": {
+            //   boxShadow: `0 4px 12px ${scheme.shadow}`,
+            // },
+          },
+        },
+      },
+      MuiListItemButton: {
+        // When selected, make the color more intense
+        styleOverrides: {
+          root: {
+            "&.Mui-selected": {
+              backgroundColor: scheme.primaryContainer,
+              color: scheme.onPrimaryContainer,
+              "&:hover": {
+                backgroundColor: scheme.secondaryContainer,
+              },
             },
           },
         },

@@ -3,15 +3,12 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface WorkspaceState {
-  connections: ConnectionDto[];
-
-  selectedConnection: ConnectionDto | null;
+  connection: ConnectionDto | null;
   selectedProject: ProjectDto | null;
   selectedStory: StorySummary | null;
   projects: ProjectDto[];
   stories: StorySummary[];
 
-  runSelectedConnection: ConnectionDto | null;
   runSelectedProject: ProjectDto | null;
   runSelectedStory: StorySummary | null;
   runProjects: ProjectDto[];
@@ -20,15 +17,13 @@ interface WorkspaceState {
   headerProjectKey: string;
   headerStoryKey: string;
 
-  setConnections: (connections: ConnectionDto[]) => void;
+  setConnection: (connection: ConnectionDto) => void;
 
-  setSelectedConnection: (connection: ConnectionDto | null) => void;
   setSelectedProject: (project: ProjectDto | null) => void;
   setSelectedStory: (story: StorySummary | null) => void;
   setProjects: (projects: ProjectDto[]) => void;
   setStories: (stories: StorySummary[]) => void;
 
-  setRunSelectedConnection: (connection: ConnectionDto | null) => void;
   setRunSelectedProject: (project: ProjectDto | null) => void;
   setRunSelectedStory: (story: StorySummary | null) => void;
   setRunProjects: (projects: ProjectDto[]) => void;
@@ -45,12 +40,10 @@ interface WorkspaceState {
 export const useWorkspaceStore = create<WorkspaceState>()(
   persist(
     (set) => ({
-      connections: [],
+      connection: null,
 
-      selectedConnection: null,
       selectedProject: null,
       selectedStory: null,
-      runSelectedConnection: null,
       runSelectedProject: null,
       runSelectedStory: null,
       headerProjectKey: "",
@@ -60,14 +53,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       runProjects: [],
       runStories: [],
 
-      setConnections: (connections) => set({ connections: connections }),
-
-      setSelectedConnection: (conn) =>
-        set((state) => ({
-          selectedConnection: conn,
-          selectedProject: null, // Reset project when connection changes
-          selectedStory: null, // Reset story when connection changes
-        })),
+      setConnection: (connection) => set({ connection: connection }),
 
       setSelectedProject: (proj) =>
         set((state) => ({
@@ -76,13 +62,6 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         })),
 
       setSelectedStory: (story) => set({ selectedStory: story }),
-
-      setRunSelectedConnection: (conn) =>
-        set((state) => ({
-          runSelectedConnection: conn,
-          runSelectedProject: null,
-          runSelectedStory: null,
-        })),
 
       setRunSelectedProject: (proj) =>
         set((state) => ({
@@ -103,10 +82,8 @@ export const useWorkspaceStore = create<WorkspaceState>()(
 
       resetSelection: () =>
         set({
-          selectedConnection: null,
           selectedProject: null,
           selectedStory: null,
-          runSelectedConnection: null,
           runSelectedProject: null,
           runSelectedStory: null,
         }),

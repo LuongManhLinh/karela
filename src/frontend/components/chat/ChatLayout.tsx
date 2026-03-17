@@ -22,14 +22,12 @@ import { PageLevel } from "@/types";
 interface ChatLayoutProps {
   children?: React.ReactNode;
   level: "connection" | "project";
-  connectionName: string;
   projectKey?: string;
   idOrKey?: string;
 }
 const ChatLayout: React.FC<ChatLayoutProps> = ({
   children,
   level,
-  connectionName,
   projectKey,
   idOrKey,
 }) => {
@@ -44,9 +42,9 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   const getDataQuery = () => {
     switch (level) {
       case "connection":
-        return useChatSessionsByConnectionQuery(connectionName);
+        return useChatSessionsByConnectionQuery();
       case "project":
-        return useChatSessionsByProjectQuery(connectionName, projectKey!);
+        return useChatSessionsByProjectQuery(projectKey!);
     }
   };
 
@@ -68,11 +66,9 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   };
 
   const handleNewChat = async (
-    connection: ConnectionDto,
     project: ProjectDto,
   ) => {
     const newIdData = await chatService.createChatSession(
-      connection.id,
       project.key,
     );
     const newId = newIdData.data;
@@ -108,7 +104,6 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
     <PageLayout
       level={level}
       headerText={t("headerText")}
-      connectionName={connectionName}
       projectKey={projectKey}
       href="chats"
       primarySessions={{

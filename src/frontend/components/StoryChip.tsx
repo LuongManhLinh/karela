@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import BookmarkBorderTwoToneIcon from "@mui/icons-material/BookmarkBorderTwoTone";
 import { Chip } from "@mui/material";
-import StoryDetailDialog from "./StoryDialog";
 
 interface StoryChipProps {
   storyKey: string;

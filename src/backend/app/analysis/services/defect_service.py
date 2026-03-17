@@ -31,13 +31,8 @@ class DefectService:
         self.db.commit()
 
     def get_defects_by_story_key(
-        self, user_id: str, connection_name: str, project_key: str, story_key: str
+        self, connection_id: str, project_key: str, story_key: str
     ) -> list[DefectDto]:
-        connection_id = (
-            self.db.query(Connection.id)
-            .filter(Connection.user_id == user_id, Connection.name == connection_name)
-            .scalar()
-        )
         defects = (
             self.db.query(Defect)
             .join(DefectStoryKey, Defect.id == DefectStoryKey.defect_id)

@@ -12,7 +12,6 @@ export type MessageRole =
   | "error";
 
 export interface ChatSessionCreateRequest {
-  connection_id: string;
   project_key: string;
 }
 

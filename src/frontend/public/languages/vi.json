@@ -64,7 +64,8 @@
     "new": "Mới",
     "submit": "Gửi",
     "cancel": "Hủy",
-    "notFound": "Không tìm thấy"
+    "notFound": "Không tìm thấy",
+    "filterWithStory": "Lọc theo câu chuyện"
   },
   "SessionStartForm": {
     "selectConnection": "Chọn kết nối",
@@ -139,6 +140,9 @@
       "AMBIGUITY": "Mơ hồ",
       "type": "Loại",
       "markSolvedTooltip": "Đánh dấu lỗi này là đã giải quyết. Lỗi đã giải quyết sẽ không xuất hiện trong các phân tích trong tương lai và sẽ không được sử dụng để tạo đề xuất."
+    },
+    "DefectChip": {
+      "key": "Mã lỗi"
     }
   },
   "chat": {
@@ -185,7 +189,7 @@
       "noSummary": "Không có tóm tắt"
     },
     "ConnectionDashboard": {
-      "title": "Bảng điều khiển Kết nối",
+      "title": "Bảng điều khiển",
       "connectionInformation": "Thông tin URL",
       "overview": "Tổng quan",
       "projectsByActivity": "Dự án theo hoạt động",
@@ -280,21 +284,44 @@
       "connecting": "Đang kết nối...",
       "update": "Cập nhật",
       "sync": "Đồng bộ",
+      "syncWithCount": "Đồng bộ ({synced}/{total})",
       "delete": "Xóa",
       "changePassword": "Đổi mật khẩu",
       "currentPassword": "Mật khẩu hiện tại",
       "newPassword": "Mật khẩu mới",
       "confirmNewPassword": "Xác nhận mật khẩu mới",
+      "theme": "Giao diện",
+      "chooseTheme": "Chọn màu giao diện",
       "settings": "Cài đặt",
       "editSettings": "Chỉnh sửa cài đặt",
       "messages": {
         "connectJiraPrompt": "Vui lòng kết nối tài khoản Jira của bạn để bắt đầu.",
+        "syncProjectsToStart": "Vui lòng đồng bộ ít nhất một dự án để bắt đầu.",
+        "themeLoadFailed": "Không thể tải danh sách giao diện",
+        "themeUpdated": "Đã cập nhật giao diện",
         "initiateFailed": "Không thể khởi tạo kết nối Jira",
         "passwordsDoNotMatch": "Mật khẩu mới không khớp",
         "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự",
         "passwordChanged": "Đổi mật khẩu thành công",
         "changePasswordFailed": "Không thể đổi mật khẩu"
-      }
+      },
+      "logout": "Đăng xuất",
+      "confirmLogout": "Xác nhận đăng xuất",
+      "areYouSureYouWantToLogout": "Bạn có chắc chắn muốn đăng xuất không?",
+      "cancel": "Hủy"
+    },
+    "SyncProjectsDialog": {
+      "title": "Đồng bộ dự án",
+      "syncedCount": "({synced}/{total})",
+      "noProjectsFound": "Không tìm thấy dự án nào cho kết nối này.",
+      "availableToSync": "Có thể đồng bộ ({count})",
+      "selectAll": "Chọn tất cả",
+      "deselectAll": "Bỏ chọn tất cả",
+      "alreadySynced": "Đã đồng bộ ({count})",
+      "runAnalysisAfterSync": "Chạy phân tích sau khi đồng bộ",
+      "cancel": "Hủy",
+      "syncing": "Đang đồng bộ...",
+      "sync": "Đồng bộ{count, plural, =0 {} other { ({count})}}"
     }
   },
   "proposals": {
@@ -317,7 +344,7 @@
       },
       "project": "Dự án",
       "changeCount": "{count} thay đổi",
-      "targetDefects": "Defect mục tiêu",
+      "targetDefects": "Lỗi mục tiêu",
       "created": "Đã tạo",
       "explanation": "Giải thích",
       "summary": "Tóm tắt",
@@ -413,18 +440,23 @@
       "usernameOrEmail": "Tên đăng nhập hoặc Email",
       "password": "Mật khẩu",
       "noAccount": "Chưa có tài khoản? Đăng ký",
-      "failed": "Đăng nhập thất bại. Vui lòng thử lại."
+      "failed": "Đăng nhập thất bại. Vui lòng thử lại.",
+      "signInWithJira": "Tiếp tục với Jira",
+      "redirectingToJira": "Đang chuyển hướng đến Jira để đăng nhập..."
     },
-    "register": {
-      "signUp": "Đăng ký",
-      "username": "Tên đăng nhập",
-      "email": "Email (Không bắt buộc)",
-      "password": "Mật khẩu",
-      "confirmPassword": "Xác nhận mật khẩu",
-      "alreadyHaveAccount": "Đã có tài khoản? Đăng nhập",
-      "passwordMismatch": "Mật khẩu không khớp",
-      "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự",
-      "failed": "Đăng ký thất bại. Vui lòng thử lại."
+    "loginCallback": {
+      "redirectingToConnections": "Đăng nhập thành công! Đang chuyển hướng đến kết nối của bạn...",
+      "missingToken": "Không tìm thấy token đăng nhập. Vui lòng thử lại.",
+      "loginSuccessful": "Đăng nhập thành công!"
     }
+  },
+  "UrlInformation": {
+    "connection": "Kết nối",
+    "project": "Dự án",
+    "story": "Câu chuyện",
+    "noConnection": "Không có kết nối nào",
+    "noProject": "Không có dự án nào",
+    "noStory": "Không có câu chuyện nào",
+    "clickToNavigateToDashboard": "Nhấn để điều hướng đến bảng điều khiển"
   }
 }

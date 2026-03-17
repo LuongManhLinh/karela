@@ -11,7 +11,6 @@ import {
   Paper,
 } from "@mui/material";
 import type {
-  ConnectionDto,
   ProjectDto,
   StorySummary,
 } from "@/types/connection";
@@ -36,15 +35,13 @@ export interface SubmitAction {
 }
 
 export interface SessionStartFormProps {
-  connectionOptions: SelectableOptions<ConnectionDto>;
-  projectOptions?: SelectableOptions<ProjectDto>;
+  projectOptions: SelectableOptions<ProjectDto>;
   storyOptions?: SelectableOptions<StorySummary>;
   primaryAction?: SubmitAction;
   secondaryAction?: SubmitAction;
 }
 
 export const SessionStartForm: React.FC<SessionStartFormProps> = ({
-  connectionOptions,
   projectOptions,
   storyOptions,
   primaryAction,
@@ -70,87 +67,6 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
 
   return (
     <Box>
-      {connectionOptions && (
-        <Autocomplete
-          title={
-            connectionOptions.selectedOption
-              ? connectionOptions.selectedOption.url ||
-                connectionOptions.selectedOption.name ||
-                ""
-              : ""
-          }
-          fullWidth
-          options={connectionOptions.options}
-          value={
-            connectionOptions.options.find(
-              (conn) => conn.id === connectionOptions.selectedOption?.id,
-            ) || null
-          }
-          onChange={(_, newValue) => {
-            if (newValue) {
-              connectionOptions.onChange &&
-                connectionOptions.onChange(newValue);
-            }
-          }}
-          getOptionLabel={(option) => option.name || option.id}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
-          disabled={connectionOptions.loading}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label={connectionOptions.label || t("selectConnection")}
-              required
-              margin="normal"
-              InputProps={{
-                ...params.InputProps,
-                startAdornment: connectionOptions.loading ? (
-                  <CircularProgress
-                    size={20}
-                    sx={{
-                      mx: 1,
-                    }}
-                  />
-                ) : connectionOptions.selectedOption ? (
-                  <Box
-                    component="img"
-                    src={connectionOptions.selectedOption.avatar_url}
-                    alt="icon"
-                    sx={{ width: 20, height: 20, mx: 1 }}
-                  />
-                ) : null,
-              }}
-            />
-          )}
-          renderOption={(props, option) => (
-            <li {...props} key={option.id}>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <Box
-                  src={option.avatar_url}
-                  component="img"
-                  alt="icon"
-                  sx={{ width: 20, height: 20, mx: 1 }}
-                />
-                {option.name}{" "}
-                {option.num_projects &&
-                  `(${option.num_projects} ${t("projects")})`}
-              </Box>
-            </li>
-          )}
-          filterOptions={(options, { inputValue }) => {
-            if (!inputValue) return options;
-            const searchValue = inputValue.toLowerCase();
-            return options.filter((option) => {
-              const label = (option.name || option.id).toLowerCase();
-              return label.startsWith(searchValue);
-            });
-          }}
-          slots={{
-            paper: ({ children }) => (
-              <Paper sx={{ ...scrollBarSx, borderRadius: 1 }}>{children}</Paper>
-            ),
-          }}
-        />
-      )}
       {projectOptions && (
         <Autocomplete
           title={
@@ -290,7 +206,6 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
             fullWidth
             disabled={
               primaryAction.disabled ||
-              connectionOptions?.loading ||
               projectOptions?.loading ||
               storyOptions?.loading
             }
@@ -306,7 +221,6 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
             fullWidth
             disabled={
               secondaryAction.disabled ||
-              connectionOptions?.loading ||
               projectOptions?.loading ||
               storyOptions?.loading
             }

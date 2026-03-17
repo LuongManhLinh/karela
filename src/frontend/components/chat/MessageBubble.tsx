@@ -1,13 +1,12 @@
 "use client";
 
 import React from "react";
-import { Box, Paper, Typography, Avatar, useTheme } from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
 import type { ChatMessageDto } from "@/types/chat";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
-import type { Components } from "react-markdown";
 
 interface MessageBubbleProps {
   message: ChatMessageDto;

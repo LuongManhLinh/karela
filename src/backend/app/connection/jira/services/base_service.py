@@ -72,13 +72,21 @@ class JiraBaseService:
         response = self._exec_refreshing_access_token(
             connection,
             JiraClient.search_issues,
-            cloud_id=connection.id_,
+            cloud_id=connection.id,
             jql=jql,
             fields=fields,
             max_results=max_results,
             expand_rendered_fields=expand_rendered_fields,
         )
         return response.issues
+
+    def validate_connection(self, connection_id: str) -> bool:
+        connection_count = (
+            self.db.query(Connection).filter(Connection.id == connection_id).count()
+        )
+        if connection_count == 0:
+            return False
+        return True
 
     def fetch_issues(
         self,

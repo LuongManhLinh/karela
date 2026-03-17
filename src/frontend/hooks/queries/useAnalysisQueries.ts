@@ -4,123 +4,64 @@ import type { RunAnalysisRequest } from "@/types/analysis";
 
 export const ANALYSIS_KEYS = {
   all: ["analysis"] as const,
-  summariesByConnection: (connectionName: string) =>
-    [...ANALYSIS_KEYS.all, "summaries", connectionName] as const,
-  summariesByProject: (connectionName: string, projectKey: string) =>
-    [...ANALYSIS_KEYS.all, "summaries", connectionName, projectKey] as const,
-  summariesByStory: (
-    connectionName: string,
-    projectKey: string,
-    storyKey: string,
-  ) =>
-    [
-      ...ANALYSIS_KEYS.all,
-      "summaries",
-      connectionName,
-      projectKey,
-      storyKey,
-    ] as const,
-  details: (connectionName: string, analysisIdOrKey: string) =>
-    [...ANALYSIS_KEYS.all, "details", connectionName, analysisIdOrKey] as const,
+  summariesByConnection: () => [...ANALYSIS_KEYS.all, "summaries"] as const,
+  summariesByProject: (projectKey: string) =>
+    [...ANALYSIS_KEYS.all, "summaries", projectKey] as const,
+  summariesByStory: (projectKey: string, storyKey: string) =>
+    [...ANALYSIS_KEYS.all, "summaries", projectKey, storyKey] as const,
+  details: (analysisIdOrKey: string) =>
+    [...ANALYSIS_KEYS.all, "details", analysisIdOrKey] as const,
   statuses: (ids: string[]) =>
     [...ANALYSIS_KEYS.all, "statuses", ...ids.sort()] as const,
-  defectsByStory: (
-    connectionName: string,
-    projectKey: string,
-    storyKey: string,
-  ) =>
-    [
-      ...ANALYSIS_KEYS.all,
-      "defects",
-      connectionName,
-      projectKey,
-      storyKey,
-    ] as const,
+  defectsByStory: (projectKey: string, storyKey: string) =>
+    [...ANALYSIS_KEYS.all, "defects", projectKey, storyKey] as const,
 };
 
-export const useAnalysisSummariesByConnectionQuery = (
-  connectionName: string | undefined,
-) => {
+export const useAnalysisSummariesByConnectionQuery = () => {
   return useQuery({
-    queryKey: ANALYSIS_KEYS.summariesByConnection(connectionName || ""),
-    queryFn: () =>
-      analysisService.getAnalysisSummariesByConnection(connectionName!),
-    enabled: !!connectionName,
+    queryKey: ANALYSIS_KEYS.summariesByConnection(),
+    queryFn: () => analysisService.getAnalysisSummariesByConnection(),
   });
 };
 
 export const useAnalysisSummariesByProjectQuery = (
-  connectionName: string | undefined,
   projectKey: string | undefined,
 ) => {
   return useQuery({
-    queryKey: ANALYSIS_KEYS.summariesByProject(
-      connectionName || "",
-      projectKey || "",
-    ),
-    queryFn: () =>
-      analysisService.getAnalysisSummariesByProject(
-        connectionName!,
-        projectKey!,
-      ),
-    enabled: !!connectionName && !!projectKey,
+    queryKey: ANALYSIS_KEYS.summariesByProject(projectKey || ""),
+    queryFn: () => analysisService.getAnalysisSummariesByProject(projectKey!),
+    enabled: !!projectKey,
   });
 };
 
 export const useAnalysisSummariesByStoryQuery = (
-  connectionName: string | undefined,
   projectKey: string | undefined,
   storyKey: string | undefined,
 ) => {
   return useQuery({
-    queryKey: ANALYSIS_KEYS.summariesByStory(
-      connectionName || "",
-      projectKey || "",
-      storyKey || "",
-    ),
+    queryKey: ANALYSIS_KEYS.summariesByStory(projectKey || "", storyKey || ""),
     queryFn: () =>
-      analysisService.getAnalysisSummariesByStory(
-        connectionName!,
-        projectKey!,
-        storyKey!,
-      ),
-    enabled: !!connectionName && !!projectKey && !!storyKey,
+      analysisService.getAnalysisSummariesByStory(projectKey!, storyKey!),
+    enabled: !!projectKey && !!storyKey,
   });
 };
 
 export const useDefectsByStoryQuery = (
-  connectionName: string | undefined,
   projectKey: string | undefined,
   storyKey: string | undefined,
 ) => {
   return useQuery({
-    queryKey: ANALYSIS_KEYS.defectsByStory(
-      connectionName || "",
-      projectKey || "",
-      storyKey || "",
-    ),
-    queryFn: () =>
-      analysisService.listDefectsByStory(
-        connectionName!,
-        projectKey!,
-        storyKey!,
-      ),
-    enabled: !!connectionName && !!projectKey && !!storyKey,
+    queryKey: ANALYSIS_KEYS.defectsByStory(projectKey || "", storyKey || ""),
+    queryFn: () => analysisService.listDefectsByStory(projectKey!, storyKey!),
+    enabled: !!projectKey && !!storyKey,
   });
 };
 
-export const useAnalysisDetailsQuery = (
-  connectionName: string | undefined,
-  analysisIdOrKey: string | null,
-) => {
+export const useAnalysisDetailsQuery = (analysisIdOrKey: string | null) => {
   return useQuery({
-    queryKey: ANALYSIS_KEYS.details(
-      connectionName || "",
-      analysisIdOrKey || "",
-    ),
-    queryFn: () =>
-      analysisService.getAnalysisDetails(connectionName!, analysisIdOrKey!),
-    enabled: !!connectionName && !!analysisIdOrKey,
+    queryKey: ANALYSIS_KEYS.details(analysisIdOrKey || ""),
+    queryFn: () => analysisService.getAnalysisDetails(analysisIdOrKey!),
+    enabled: !!analysisIdOrKey,
   });
 };
 
@@ -141,20 +82,15 @@ export const useRunAnalysisMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
-      connectionId,
       projectKey,
       data,
     }: {
-      connectionId: string;
       projectKey: string;
       data: RunAnalysisRequest;
-    }) => analysisService.runAnalysis(connectionId, projectKey, data),
+    }) => analysisService.runAnalysis(projectKey, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ANALYSIS_KEYS.summariesByProject(
-          variables.connectionId,
-          variables.projectKey,
-        ),
+        queryKey: ANALYSIS_KEYS.summariesByProject(variables.projectKey),
       });
     },
   });

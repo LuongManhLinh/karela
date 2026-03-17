@@ -1,38 +1,46 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { useUserConnectionsQuery } from "@/hooks/queries/useConnectionQueries";
+import React, { useEffect, useState } from "react";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
-import { useParams, useRouter } from "next/navigation";
-import { getToken } from "@/utils/jwtUtils";
-import AppLoading from "./loading";
+import { ConnectionNotFound } from "@/components/errors/ConnectionNotFound";
+import { Typography } from "@mui/material";
+import AppLoading from "@/components/AppLoading";
+import { connectionService } from "@/services/connectionService";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const { setConnections } = useWorkspaceStore();
+export default function ConnectionLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { setConnection, setProjects } = useWorkspaceStore();
+  const [isValidConnection, setIsValidConnection] = useState<boolean | null>(
+    null,
+  );
 
-  const { data: connectionsData, isLoading: isConnectionsLoading } =
-    useUserConnectionsQuery();
-
-  const router = useRouter();
+  const initialize = async () => {
+    const connection = await connectionService.getConnectionDto();
+    if (connection.data) {
+      setConnection(connection.data);
+      const projects = await connectionService.getProjects();
+      if (projects.data) {
+        setProjects(projects.data);
+      }
+      setIsValidConnection(true);
+    } else {
+      setIsValidConnection(false);
+    }
+  };
 
   useEffect(() => {
-    const token = getToken();
-    if (!token) {
-      router.push("/login");
-    }
-  }, [router]);
+    initialize();
+  }, []);
 
-  useEffect(() => {
-    const connections = connectionsData?.data || [];
-    if (connections.length > 0) {
-      setConnections(connections);
-    } else if (!isConnectionsLoading) {
-      router.push("/profile");
-    }
-  }, [connectionsData, setConnections, isConnectionsLoading]);
-
-  if (isConnectionsLoading) {
+  if (isValidConnection === null) {
     return <AppLoading />;
+  }
+
+  if (!isValidConnection) {
+    return <ConnectionNotFound />;
   }
 
   return <>{children}</>;

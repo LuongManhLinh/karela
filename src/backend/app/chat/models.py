@@ -45,7 +45,6 @@ class ChatSession(Base):
 
     created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
 
-    # user = relationship("User", back_populates="sessions")
     messages = relationship(
         "Message",
         back_populates="session",

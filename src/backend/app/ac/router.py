@@ -26,39 +26,35 @@ async def suggest_ac(request: AIRequest, service: ACService = Depends(get_ac_ser
     # return get_example_ai_response()
 
 
-@router.get("/connections/{connection_name}")
+@router.get("/")
 async def list_acs_by_connection(
-    connection_name: str,
     service: ACService = Depends(get_ac_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         acs = service.list_acs_by_connection(
-            user_id=user_id,
-            connection_name=connection_name,
+            connection_id=conn_id,
         )
         return BasicResponse(data=acs)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/connections/{connection_name}/projects/{project_key}")
+@router.get("/projects/{project_key}")
 async def list_acs_by_project(
-    connection_name: str,
     project_key: str,
     service: ACService = Depends(get_ac_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         acs = service.list_acs_by_project(
-            user_id=user_id,
-            connection_name=connection_name,
+            connection_id=conn_id,
             project_key=project_key,
         )
         return BasicResponse(data=acs)
@@ -66,21 +62,19 @@ async def list_acs_by_project(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/connections/{connection_name}/projects/{project_key}/stories/{story_key}")
+@router.get("/projects/{project_key}/stories/{story_key}")
 async def list_acs_by_story(
-    connection_name: str,
     project_key: str,
     story_key: str,
     service: ACService = Depends(get_ac_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         acs = service.list_acs_by_story(
-            user_id=user_id,
-            connection_name=connection_name,
+            connection_id=conn_id,
             project_key=project_key,
             story_key=story_key,
         )
@@ -90,21 +84,20 @@ async def list_acs_by_story(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.post("/connections/{connection_id}/projects/{project_key}/stories/{story_key}")
+@router.post("/projects/{project_key}/stories/{story_key}")
 async def create_ac(
-    connection_id: str,
     project_key: str,
     story_key: str,
     ac_data: ACCreateRequest,
     service: ACService = Depends(get_ac_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         ac_id = service.create_ac(
-            connection_id=connection_id,
+            connection_id=conn_id,
             project_key=project_key,
             story_key=story_key,
             gen_with_ai=ac_data.gen_with_ai,
@@ -117,20 +110,18 @@ async def create_ac(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/connections/{connection_name}/items/{ac_id_or_key}")
+@router.get("/items/{ac_id_or_key}")
 async def get_ac(
-    connection_name: str,
     ac_id_or_key: str,
     service: ACService = Depends(get_ac_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         ac = service.get_ac(
-            user_id=user_id,
-            connection_name=connection_name,
+            connection_id=conn_id,
             ac_id_or_key=ac_id_or_key,
         )
         return BasicResponse(data=ac)
@@ -145,8 +136,8 @@ async def regenerate_ac(
     service: ACService = Depends(get_ac_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         service.regenerate_ac(
@@ -166,8 +157,8 @@ async def update_ac(
     service: ACService = Depends(get_ac_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         ac = service.update_ac(
@@ -185,8 +176,8 @@ async def delete_ac(
     service: ACService = Depends(get_ac_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         service.delete_ac(
@@ -203,8 +194,8 @@ async def get_story_by_ac(
     service: ACService = Depends(get_ac_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         story_dto = service.get_story_by_ac(

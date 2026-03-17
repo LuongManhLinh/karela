@@ -2,7 +2,6 @@ from contextlib import asynccontextmanager
 from .chat.router import router as chat_router
 from .analysis.router import router as analysis_router
 from .proposal.router import router as proposal_router
-from .user.router import router as user_router
 from .settings.router import router as settings_router
 from .connection.jira.router import router as jira_router
 from .connection.router import router as connection_router
@@ -49,7 +48,6 @@ app.include_router(ac_router, prefix="/acs")
 app.include_router(chat_router, prefix="/chat")
 app.include_router(proposal_router, prefix="/proposals")
 app.include_router(websocket_router, prefix="/ws")
-app.include_router(user_router, prefix="/users")
 app.include_router(settings_router, prefix="/settings")
 
 

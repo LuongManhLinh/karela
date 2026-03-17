@@ -109,14 +109,14 @@ class JiraSyncService(JiraBaseService):
             projects_data = self._exec_refreshing_access_token(
                 connection,
                 JiraClient.fetch_projects,
-                cloud_id=connection.id_,
+                cloud_id=connection.id,
                 project_keys=project_keys,
             )
 
             # Get access token once for all concurrent operations
             # This also ensures token is refreshed if needed before concurrent work
             access_token = self._get_valid_access_token(connection)
-            cloud_id = connection.id_
+            cloud_id = connection.id
 
             def process_project(project_data):
                 """Process a single project: fetch issues and return data for DB"""
@@ -250,9 +250,7 @@ class JiraSyncService(JiraBaseService):
         access_token = decrypt_token(connection.token, connection.token_iv)
         # Test the token with a simple API call
         try:
-            JiraClient.fetch_projects(
-                access_token=access_token, cloud_id=connection.id_
-            )
+            JiraClient.fetch_projects(access_token=access_token, cloud_id=connection.id)
             return access_token
         except Exception as e:
             if "401" in str(e) or "400" in str(e):
@@ -268,7 +266,7 @@ class JiraSyncService(JiraBaseService):
             self._exec_refreshing_access_token(
                 connection=connection,
                 func=JiraClient.add_issue_type_to_activated_schemes,
-                cloud_id=connection.id_,
+                cloud_id=connection.id,
                 issue_type_id=issue_type_id,
             )
         except Exception as e:
@@ -287,7 +285,7 @@ class JiraSyncService(JiraBaseService):
             self._exec_refreshing_access_token(
                 connection=connection,
                 func=JiraClient.register_webhook,
-                cloud_id=connection.id_,
+                cloud_id=connection.id,
                 url=f"{JiraConfig.WEBHOOK_URL}/{connection.id}",
                 events=JiraConfig.WEBHOOK_EVENTS,
             )
@@ -307,7 +305,7 @@ class JiraSyncService(JiraBaseService):
             issue_type_id = self._exec_refreshing_access_token(
                 connection=connection,
                 func=JiraClient.create_issue_type,
-                cloud_id=connection.id_,
+                cloud_id=connection.id,
                 name=AC_ISSUE_TYPE_NAME,
                 description=AC_ISSUE_TYPE_DESCRIPTION,
                 level=AC_ISSUE_TYPE_LEVEL,
@@ -318,7 +316,7 @@ class JiraSyncService(JiraBaseService):
                 issue_type_id = self._exec_refreshing_access_token(
                     connection=connection,
                     func=JiraClient.get_issue_type_by_name,
-                    cloud_id=connection.id_,
+                    cloud_id=connection.id,
                     name=AC_ISSUE_TYPE_NAME,
                 )
                 if issue_type_id is None:

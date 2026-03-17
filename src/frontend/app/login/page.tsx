@@ -1,60 +1,33 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
 import {
   Container,
   Paper,
-  TextField,
   Button,
   Typography,
   Box,
-  Link as MuiLink,
-  Alert,
   useTheme,
 } from "@mui/material";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useLoginMutation } from "@/hooks/queries/useUserQueries";
 import { useNotificationContext } from "@/providers/NotificationProvider";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { getToken, saveToken } from "@/utils/jwtUtils";
 import { useTranslations } from "next-intl";
+import { jiraService } from "@/services/jiraService";
 
 export default function LoginPage() {
-  const router = useRouter();
   const t = useTranslations("auth.login");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const { mutateAsync: login, isPending: isLoginPending } = useLoginMutation();
   const { notify } = useNotificationContext();
 
-  const theme = useTheme();
+  // useEffect(() => {
+  //   // Check if already logged in
+  //   const token = getToken();
+  //   if (token) {
+  //     router.push("/app/connections");
+  //   }
+  // }, [router]);
 
-  useEffect(() => {
-    // Check if already logged in
-    const token = getToken();
-    if (token) {
-      router.push("/app/connections");
-    }
-  }, [router]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    try {
-      const response = await login({
-        username_or_email: username,
-        password,
-      });
-
-      if (response.data) {
-        saveToken(response.data);
-        router.push("/app");
-      }
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.detail || t("failed");
-      notify(errorMessage, { severity: "error" });
-    }
+  const handleLogin = () => {
+    notify(t("redirectingToJira"), { severity: "info" });
+    jiraService.startOAuth();
   };
 
   return (
@@ -98,7 +71,6 @@ export default function LoginPage() {
             p: 4,
             width: "100%",
             borderRadius: 2,
-            boxShadow: "0 20px 60px rgba(0, 0, 0, 0.15)",
           }}
         >
           <Typography
@@ -110,50 +82,25 @@ export default function LoginPage() {
           >
             {t("signIn")}
           </Typography>
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="username"
-              label={t("usernameOrEmail")}
-              name="username"
-              autoComplete="username"
-              autoFocus
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              disabled={isLoginPending}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label={t("password")}
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={isLoginPending}
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={isLoginPending}
-            >
-              {isLoginPending ? <LoadingSpinner size={24} /> : t("signIn")}
-            </Button>
-            <Box textAlign="center">
-              <Link href="/register" passHref>
-                <MuiLink component="span" variant="body2">
-                  {t("noAccount")}
-                </MuiLink>
-              </Link>
-            </Box>
-          </Box>
+          <Button
+            fullWidth
+            variant="outlined"
+            size="large"
+            startIcon={
+              <img
+                src="/jira.svg"
+                alt="jira"
+                style={{ height: 24, marginRight: 10 }}
+              />
+            }
+            onClick={handleLogin}
+            color="primary"
+            sx={{
+              bgcolor: "primaryContainer",
+            }}
+          >
+            {t("signInWithJira")}
+          </Button>
         </Paper>
       </Container>
     </Box>

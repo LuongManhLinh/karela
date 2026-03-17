@@ -65,13 +65,12 @@ class ChatDataService:
         self.db.refresh(message)
         return message.id, message.created_at.isoformat()
 
-    def list_chat_sessions_by_connection(self, user_id: str, connection_name: str):
+    def list_chat_sessions_by_connection(self, connection_id: str):
         sessions = (
             self.db.query(ChatSession)
             .join(Connection, ChatSession.connection_id == Connection.id)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
             )
             .order_by(ChatSession.created_at.desc())
             .all()
@@ -88,15 +87,12 @@ class ChatDataService:
             for session in sessions
         ]
 
-    def list_chat_sessions_by_project(
-        self, user_id: str, connection_name: str, project_key: str
-    ):
+    def list_chat_sessions_by_project(self, connection_id: str, project_key: str):
         sessions = (
             self.db.query(ChatSession)
             .join(Connection, ChatSession.connection_id == Connection.id)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
                 ChatSession.project_key == project_key,
             )
             .order_by(ChatSession.created_at.desc())
@@ -108,32 +104,6 @@ class ChatDataService:
                 id=session.id,
                 key=session.key,
                 project_key=session.project_key,
-                created_at=session.created_at.isoformat(),
-            )
-            for session in sessions
-        ]
-
-    def list_chat_sessions_by_story(
-        self, user_id: str, connection_name: str, project_key: str, story_key: str
-    ):
-        sessions = (
-            self.db.query(ChatSession)
-            .join(Connection, ChatSession.connection_id == Connection.id)
-            .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
-                ChatSession.project_key == project_key,
-            )
-            .order_by(ChatSession.created_at.desc())
-            .all()
-        )
-
-        return [
-            ChatSessionSummary(
-                id=session.id,
-                key=session.key,
-                project_key=session.project_key,
-                story_key=session.story_key,
                 created_at=session.created_at.isoformat(),
             )
             for session in sessions
@@ -141,16 +111,14 @@ class ChatDataService:
 
     def get_chat_session(
         self,
-        user_id: str,
-        connection_name: str,
+        connection_id: str,
         session_id_or_key: str,
     ) -> ChatSessionDto:
         session = (
             self.db.query(ChatSession)
             .join(Connection, ChatSession.connection_id == Connection.id)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
                 or_(
                     ChatSession.id == session_id_or_key,
                     ChatSession.key == session_id_or_key,

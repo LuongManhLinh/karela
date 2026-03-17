@@ -19,7 +19,6 @@ import { scrollBarSx } from "@/constants/scrollBarSx";
 import { useSessionProposalsQuery } from "@/hooks/queries/useProposalQueries";
 
 export interface ProposalItemPageProps {
-  connectionName: string;
   projectFilterKey?: string;
   storyFilterKey?: string;
   sessionIdOrKey: string;
@@ -28,7 +27,6 @@ export interface ProposalItemPageProps {
 }
 
 const ProposalSessionItemPage: React.FC<ProposalItemPageProps> = ({
-  connectionName,
   projectFilterKey,
   storyFilterKey,
   sessionIdOrKey,
@@ -41,14 +39,12 @@ const ProposalSessionItemPage: React.FC<ProposalItemPageProps> = ({
       ? useSessionProposalsQuery(
           sessionIdOrKey,
           sessionSource,
-          connectionName,
           projectFilterKey,
           storyFilterKey,
         )
       : useSessionProposalsQuery(
           sessionIdOrKey,
           sessionSource,
-          connectionName,
           projectFilterKey,
           storyFilterKey,
         );

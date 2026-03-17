@@ -385,8 +385,7 @@ class ProposalService:
 
     def get_proposals_by_session(
         self,
-        user_id: str,
-        connection_name: str,
+        connection_id: str,
         session_id: str,
         source: Literal["CHAT", "ANALYSIS"],
         project_filter_key: str | None = None,
@@ -402,8 +401,7 @@ class ProposalService:
             self.db.query(Proposal)
             .join(Connection)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
                 Proposal.source == source_enum,
             )
         )
@@ -422,7 +420,7 @@ class ProposalService:
         proposals = query.all()
         return [self._get_proposal_dto(proposal) for proposal in proposals]
 
-    def list_sessions_proposals_by_connection(self, user_id: str, connection_name: str):
+    def list_sessions_proposals_by_connection(self, connection_id: str):
         """Retrieves all proposals for a given connection ID.
         Args:
             connection_id (str): The connection ID.
@@ -432,8 +430,7 @@ class ProposalService:
             .join(Proposal, Proposal.analysis_session_id == Analysis.id)
             .join(Connection, Connection.id == Proposal.connection_id)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
                 Proposal.source == ProposalSource.ANALYSIS,
             )
             .distinct()
@@ -447,8 +444,7 @@ class ProposalService:
             .join(Proposal, Proposal.chat_session_id == ChatSession.id)
             .join(Connection, Connection.id == Proposal.connection_id)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
                 Proposal.source == ProposalSource.CHAT,
             )
             .distinct()
@@ -479,7 +475,7 @@ class ProposalService:
         )
 
     def list_sessions_proposals_by_project(
-        self, user_id: str, connection_name: str, project_key: str
+        self, connection_id: str, project_key: str
     ) -> SessionsWithProposals:
         """Retrieves all proposals for a given connection ID.
         Args:
@@ -491,8 +487,7 @@ class ProposalService:
             .join(Proposal, Proposal.analysis_session_id == Analysis.id)
             .join(Connection, Connection.id == Proposal.connection_id)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
                 Proposal.project_key == project_key,
                 Proposal.source == ProposalSource.ANALYSIS,
             )
@@ -507,8 +502,7 @@ class ProposalService:
             .join(Proposal, Proposal.chat_session_id == ChatSession.id)
             .join(Connection, Connection.id == Proposal.connection_id)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
                 Proposal.project_key == project_key,
                 Proposal.source == ProposalSource.CHAT,
             )
@@ -540,7 +534,7 @@ class ProposalService:
         )
 
     def list_sessions_proposals_by_story(
-        self, user_id: str, connection_name: str, project_key: str, story_key: str
+        self, connection_id: str, project_key: str, story_key: str
     ) -> SessionsWithProposals:
         """Retrieves all proposals for a given story.
         Args:
@@ -554,8 +548,7 @@ class ProposalService:
             .join(ProposalContent)
             .join(Connection, Connection.id == Proposal.connection_id)
             .filter(
-                Connection.user_id == user_id,
-                Connection.name == connection_name,
+                Connection.id == connection_id,
                 Proposal.project_key == project_key,
                 ProposalContent.story_key == story_key,
             )

@@ -256,7 +256,7 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
       expanded={expanded}
       onChange={() => setExpanded((prev) => !prev)}
       sx={(theme) => ({
-        borderRadius: 1,
+        borderRadius: 3,
         border: highlight
           ? `2px solid ${theme.palette.primary.main}`
           : undefined,
@@ -283,7 +283,14 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
 
         "&.Mui-expanded": {
           margin: "0",
-
+          borderRadius: 2,
+          // 2. IMPORTANT: Re-apply the Stack's margin (space={1} = 8px by default)
+          marginTop: theme.spacing(1),
+          marginBottom: theme.spacing(1),
+        },
+        "&:not(.Mui-expanded)": {
+          margin: "0",
+          borderRadius: 2,
           // 2. IMPORTANT: Re-apply the Stack's margin (space={1} = 8px by default)
           marginTop: theme.spacing(1),
           marginBottom: theme.spacing(1),
@@ -360,7 +367,7 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
           >
             {t("targetDefects")}:&nbsp;
             {proposal.target_defect_keys?.map((defKey) => (
-              <DefectChip key={defKey} defectKey={defKey} />
+              <DefectChip key={defKey} defectKey={defKey} showKeyText={false} />
             ))}
           </Box>
           <Typography
@@ -378,17 +385,17 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
               key={content.id || `${proposal.id}-${index}`}
               variant="outlined"
               elevation={0}
-              sx={{
-                cursor: "pointer",
-                transition: "all 0.2s ease-in-out",
-                "&:hover": {
-                  boxShadow: 2,
-                  borderColor: "primary.main",
-                },
-              }}
-              onClick={() =>
-                onProposalContentClick && onProposalContentClick(content)
-              }
+              // sx={{
+              //   cursor: "pointer",
+              //   transition: "all 0.2s ease-in-out",
+              //   "&:hover": {
+              //     boxShadow: 2,
+              //     borderColor: "primary.main",
+              //   },
+              // }}
+              // onClick={() =>
+              //   onProposalContentClick && onProposalContentClick(content)
+              // }
             >
               <CardContent>
                 <Stack
@@ -551,14 +558,17 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
                     )
                   )}
                 </Stack>
-                <Box
-                  sx={{ mt: 2, display: "flex", alignItems: "center", gap: 1 }}
+
+                <Button
+                  startIcon={<CompareArrows />}
+                  size="small"
+                  onClick={() =>
+                    onProposalContentClick && onProposalContentClick(content)
+                  }
+                  color="info"
                 >
-                  <CompareArrows fontSize="small" color="action" />
-                  <Typography variant="caption" color="text.secondary">
-                    {t("viewChanges")}
-                  </Typography>
-                </Box>
+                  {t("viewChanges")}
+                </Button>
               </CardContent>
             </Card>
           ))}

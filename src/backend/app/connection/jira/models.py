@@ -44,18 +44,10 @@ class Connection(Base):
     refresh_token = Column(LONGBLOB, nullable=False)
     refresh_token_iv = Column(BINARY(12), nullable=False)
 
-    id_ = Column(String(64), index=True, nullable=False)
     name = Column(String(128), nullable=True, index=True)
     url = Column(String(256), nullable=True)
     scopes = Column(Text, nullable=True)
     avatar_url = Column(String(256), nullable=True)
-
-    user_id = Column(
-        String(64),
-        ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
 
     created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
     updated_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
@@ -72,7 +64,6 @@ class Connection(Base):
         nullable=True,
     )
 
-    user = relationship("User", back_populates="connections")
     projects = relationship(
         "Project", back_populates="connection", cascade="all, delete-orphan"
     )

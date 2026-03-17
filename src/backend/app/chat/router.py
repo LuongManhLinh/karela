@@ -43,8 +43,8 @@ async def websocket_chat(
             await websocket.close(code=4401, reason=str(e))
             return
 
-        user_id: str = payload.get("sub")
-        if not user_id:
+        conn_id: str = payload.get("sub")
+        if not conn_id:
             await websocket.close(code=4401, reason="Malformed token")
             return
 
@@ -80,60 +80,58 @@ async def websocket_chat(
 async def create_chat_session(
     request_body: ChatSessionCreateRequest,
     service: ChatDataService = Depends(get_chat_data_service),
+    jwt_payload=Depends(get_jwt_payload),
 ):
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     session_id = service.create_chat_session(
-        connection_id=request_body.connection_id, project_key=request_body.project_key
+        connection_id=conn_id, project_key=request_body.project_key
     )
     return BasicResponse(data=session_id)
 
 
-@router.get("/connections/{connection_name}")
+@router.get("/")
 async def list_chat_sessions_by_connection(
-    connection_name: str,
     jwt_payload=Depends(get_jwt_payload),
     service: ChatDataService = Depends(get_chat_data_service),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     sessions: List[ChatSessionSummary] = service.list_chat_sessions_by_connection(
-        user_id=user_id,
-        connection_name=connection_name,
+        connection_id=conn_id,
     )
     return BasicResponse(data=sessions)
 
 
-@router.get("/connections/{connection_name}/projects/{project_key}")
+@router.get("/projects/{project_key}")
 async def list_chat_sessions_by_project(
-    connection_name: str,
     project_key: str,
     jwt_payload=Depends(get_jwt_payload),
     service: ChatDataService = Depends(get_chat_data_service),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     sessions: List[ChatSessionSummary] = service.list_chat_sessions_by_project(
-        user_id=user_id,
-        connection_name=connection_name,
+        connection_id=conn_id,
         project_key=project_key,
     )
     return BasicResponse(data=sessions)
 
 
-@router.get("/connections/{connection_name}/items/{session_id_or_key}")
+@router.get("/session_id_or_key}")
 async def get_session_detail(
-    connection_name: str,
     session_id_or_key: str,
     jwt_payload=Depends(get_jwt_payload),
     service: ChatDataService = Depends(get_chat_data_service),
 ):
-    user_id = jwt_payload.get("sub")
-    if user_id is None:
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     dto = service.get_chat_session(
-        user_id=user_id,
-        connection_name=connection_name,
+        connection_id=conn_id,
         session_id_or_key=session_id_or_key,
     )
 

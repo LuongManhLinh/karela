@@ -17,8 +17,6 @@ class SettingsDto(BaseModel):
 
 
 class CreateSettingsRequest(BaseModel):
-    connection_id: str
-    project_key: str
     product_vision: Optional[str] = None
     product_scope: Optional[str] = None
     current_sprint_goals: Optional[str] = None

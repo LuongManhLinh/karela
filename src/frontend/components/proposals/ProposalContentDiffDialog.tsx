@@ -384,17 +384,16 @@ interface ProposalContentDiffDialogProps {
   open: boolean;
   onClose: () => void;
   content: ProposalContentDto | null;
-  connectionName: string;
 }
 
 export const ProposalContentDiffDialog: React.FC<
   ProposalContentDiffDialogProps
-> = ({ open, onClose, content, connectionName }) => {
+> = ({ open, onClose, content }) => {
   const t = useTranslations("proposals.ProposalContentDiffDialog");
   const [currentStory, setCurrentStory] = useState<StoryDto | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>("diff");
+  const [viewMode, setViewMode] = useState<ViewMode>("compare");
   const [showLineNumbers, setShowLineNumbers] = useState(false);
   const [renderMarkdown, setRenderMarkdown] = useState(false);
 
@@ -415,10 +414,7 @@ export const ProposalContentDiffDialog: React.FC<
         setLoading(true);
         setError(null);
         try {
-          const response = await connectionService.getStory(
-            connectionName,
-            content.story_key!,
-          );
+          const response = await connectionService.getStory(content.story_key!);
           if (response.data) {
             setCurrentStory(response.data);
           } else {
@@ -433,7 +429,7 @@ export const ProposalContentDiffDialog: React.FC<
 
       fetchStory();
     }
-  }, [open, content, connectionName]);
+  }, [open, content]);
 
   const handleClose = () => {
     setCurrentStory(null);
@@ -578,13 +574,13 @@ export const ProposalContentDiffDialog: React.FC<
                 onChange={(_, value) => value && setViewMode(value)}
                 size="small"
               >
-                <ToggleButton value="diff">
-                  <DifferenceIcon sx={{ mr: 1 }} fontSize="small" />
-                  {t("diffView")}
-                </ToggleButton>
                 <ToggleButton value="compare">
                   <CompareArrowsIcon sx={{ mr: 1 }} fontSize="small" />
                   {t("compareView")}
+                </ToggleButton>
+                <ToggleButton value="diff">
+                  <DifferenceIcon sx={{ mr: 1 }} fontSize="small" />
+                  {t("diffView")}
                 </ToggleButton>
               </ToggleButtonGroup>
               {viewMode === "diff" ? (

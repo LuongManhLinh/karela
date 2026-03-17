@@ -42,6 +42,8 @@ class JiraClient:
             "https://auth.atlassian.com/oauth/token", json=payload, headers=headers
         )
         resp.raise_for_status()
+        with open("exchange.json", "w") as f:
+            json.dump(resp.json(), f, indent=4)
         return ExchangeAutorizationCodeResponse(**resp.json())
 
     @staticmethod
@@ -52,8 +54,9 @@ class JiraClient:
         headers = _get_auth_header(access_token)
         resp = requests.get(url, headers=headers)
         resp.raise_for_status()
-        json = resp.json()
-        return [JiraCloudInfoResponse(**item) for item in json]
+        with open("cloud_info.json", "w") as f:
+            json.dump(resp.json(), f, indent=4)
+        return [JiraCloudInfoResponse(**item) for item in resp.json()]
 
     @staticmethod
     def refresh_access_token(

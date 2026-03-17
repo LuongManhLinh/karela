@@ -58,24 +58,26 @@ class SettingsService:
             for s in settings_list
         ]
 
-    def create_settings(self, request: CreateSettingsRequest) -> SettingsDto:
+    def create_settings(
+        self, connection_id: str, project_key: str, request: CreateSettingsRequest
+    ) -> SettingsDto:
         # Check if settings already exist
         existing = (
             self.db.query(Settings)
             .filter(
-                Settings.connection_id == request.connection_id,
-                Settings.project_key == request.project_key,
+                Settings.connection_id == connection_id,
+                Settings.project_key == project_key,
             )
             .first()
         )
         if existing:
             raise ValueError(
-                f"Settings already exist for connection {request.connection_id} and project {request.project_key}"
+                f"Settings already exist for connection {connection_id} and project {project_key}"
             )
 
         settings = Settings(
-            connection_id=request.connection_id,
-            project_key=request.project_key,
+            connection_id=connection_id,
+            project_key=project_key,
             product_vision=request.product_vision,
             product_scope=request.product_scope,
             current_sprint_goals=request.current_sprint_goals,

@@ -14,8 +14,6 @@ export interface SettingsDto {
 }
 
 export interface CreateSettingsRequest {
-  connection_id: string;
-  project_key: string;
   product_vision?: string;
   product_scope?: string;
   current_sprint_goals?: string;

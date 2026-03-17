@@ -13,7 +13,6 @@ import { alpha } from "@mui/material/styles";
 import { useTranslations } from "next-intl";
 import {
   MoreVert,
-  Error as ErrorIcon,
   CheckCircle as CheckCircleIcon,
   Info as InfoIcon,
   PermDataSetting,
@@ -25,21 +24,14 @@ import { useWebSocketContext } from "@/providers/WebSocketProvider";
 
 interface ConnectionItemProps {
   connection: ConnectionDto;
-  onMenuOpen: (
-    event: React.MouseEvent<HTMLElement>,
-    connection: ConnectionDto,
-  ) => void;
 }
 
 export const ConnectionItem: React.FC<ConnectionItemProps> = ({
   connection,
-  onMenuOpen,
 }) => {
   const t = useTranslations("profile.JiraConnectionItem");
   const theme = useTheme();
-  const { data: statusData, isLoading } = useConnectionSyncStatusQuery(
-    connection.id,
-  );
+  const { data: statusData, isLoading } = useConnectionSyncStatusQuery();
 
   const [localStatus, setLocalStatus] = useState<SyncStatus | undefined>(
     undefined,
@@ -192,20 +184,13 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
 
   return (
     <Paper
-      elevation={1}
+      elevation={0}
       sx={{
         display: "flex",
         alignItems: "center",
         gap: 2,
-        p: 2,
         borderRadius: 1,
-        bgcolor: syncError
-          ? theme.vars
-            ? "error.soft"
-            : alpha(theme.palette.error.main, 0.05)
-          : "tertiaryContainer",
-        overflow: "hidden", // Extra safety
-        color: syncError ? theme.palette.error.main : "onTertiaryContainer",
+        bgcolor: "inherit",
       }}
     >
       {connection.avatar_url && (
@@ -239,13 +224,6 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
         )}
       </Box>
       <Box sx={{ mt: 0.5 }}>{getStatusContent()}</Box>
-
-      <IconButton
-        onClick={(e) => onMenuOpen(e, connection)}
-        sx={{ flexShrink: 0 }}
-      >
-        <MoreVert />
-      </IconButton>
     </Paper>
   );
 };
