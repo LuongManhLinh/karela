@@ -47,7 +47,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
     const wsUrl =
-      process.env.NEXT_PUBLIC_WEBSOCKET_URL || "ws://localhost:8000/api/v1/ws";
+      process.env.NEXT_PUBLIC_WEBSOCKET_URL || "ws://localhost:8000/api/v1/ws/";
 
     const ws = new WebSocket(wsUrl);
 
@@ -76,13 +76,13 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
         console.log("WebSocket message received:", message);
         if (message.type === "pong") return;
 
-        const { topic, data } = message;
+        const { topic, data } = message as { topic: string; data: any };
 
-        if (topic instanceof String && topic.includes("notification")) {
+        if (topic.includes("notification")) {
           notify(data.message, {
             severity: data.severity || "info",
           });
-        } else if (topic && subscribersRef.current.has(topic)) {
+        } else if (subscribersRef.current.has(topic)) {
           subscribersRef.current
             .get(topic)
             ?.forEach((callback) => callback(data));

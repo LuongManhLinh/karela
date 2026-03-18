@@ -20,6 +20,7 @@ export interface AnalysisSummary extends SessionSummary {
   status: AnalysisStatus;
   type: AnalysisType;
   ended_at?: string;
+  generating_proposals?: boolean;
 }
 
 export interface DefectDto {

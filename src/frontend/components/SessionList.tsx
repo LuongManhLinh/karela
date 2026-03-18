@@ -1,4 +1,3 @@
-import { SessionSummary } from "@/types";
 import React from "react";
 import { LoadingSpinner } from "./LoadingSpinner";
 import {
@@ -56,8 +55,10 @@ const SessionList: React.FC<SessionListProps> = ({
   return (
     <List
       sx={{
+        flex: 1,
         minHeight: 0,
         overflowY: "auto",
+        pb: 1,
         ...scrollBarSx,
       }}
     >

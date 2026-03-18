@@ -210,6 +210,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
             sx={{
               px: 2,
               height: "100%",
+              minHeight: 0,
               flexDirection: "column",
               display: "flex",
               gap: 2,

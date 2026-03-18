@@ -63,6 +63,12 @@ class AnalysisDataService:
             return status[0].value
         return None
 
+    def set_generating_proposals(self, analysis_id: str, is_generating: bool):
+        analysis = self.db.query(Analysis).filter(Analysis.id == analysis_id).first()
+        if analysis:
+            analysis.generating_proposals = is_generating
+            self.db.commit()
+
     def get_analysis_summaries_by_connection(
         self, connection_id: str
     ) -> List[AnalysisSummary]:
@@ -185,6 +191,7 @@ class AnalysisDataService:
             type=analysis.type.value,
             created_at=analysis.created_at.isoformat(),
             ended_at=(analysis.ended_at.isoformat() if analysis.ended_at else None),
+            generating_proposals=analysis.generating_proposals,
             defects=[
                 DefectDto(
                     id=defect.id,

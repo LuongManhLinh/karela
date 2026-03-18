@@ -45,8 +45,9 @@ class ProposalRunService:
                 )
             )
             defect_key_id_map[d.key] = d.id
+
         if not defects:
-            return []
+            return None
 
         context_input = self._get_default_context_input(
             connection_id=connection_id,
@@ -80,16 +81,16 @@ class ProposalRunService:
         clarifications: str = None,
         max_rewrite_attempts: int = 3,
     ) -> list:
-        user_stories, defects, context_input, defect_key_id_map = (
-            self._get_proposal_generation_inputs(
-                connection_id=connection_id,
-                project_key=project_key,
-                input_defects=input_defects,
-            )
+        inputs = self._get_proposal_generation_inputs(
+            connection_id=connection_id,
+            project_key=project_key,
+            input_defects=input_defects,
         )
 
-        if not user_stories or not defects:
+        if not inputs:
             return []
+
+        user_stories, defects, context_input, defect_key_id_map = inputs
 
         if context_input:
             context_input.clarifications = clarifications

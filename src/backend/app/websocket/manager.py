@@ -68,11 +68,8 @@ class WebSocketManager:
         to_remove = []
 
         try:
-            # message should be a JSON string from the publisher
-            # We wrap it in a structure for the client
             payload = json.dumps({"topic": topic, "data": json.loads(message)})
         except json.JSONDecodeError:
-            # Fallback if message isn't JSON
             payload = json.dumps({"topic": topic, "data": message})
 
         for connection, topics in self.active_connections.items():

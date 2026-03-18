@@ -1,5 +1,7 @@
 from app.analysis.agents.schemas import DefectByLlm, WorkItemMinimal, DefectInput
+from app.analysis.services.data_service import AnalysisDataService
 from app.proposal.services.run_service import ProposalRunService
+
 from app.settings.services import SettingsService
 from app.analysis.agents.all import (
     run_analysis as run_user_stories_analysis_all,
@@ -25,7 +27,7 @@ from sqlalchemy import func, select
 import time
 import traceback
 from datetime import datetime
-from typing import List
+from typing import List, Literal
 
 from common.agents.input_schemas import ContextInput
 
@@ -41,14 +43,41 @@ class AnalysisRunService:
         self.redis_client = redis_client
         self.jira_service = JiraService(db=db)
 
-    def _publish_update(self, analysis_id: str, status: str):
+    def _publish_update(
+        self,
+        analysis_id: str,
+        status: str,
+        proposal_ids: list[str] = None,
+        **kwargs,
+    ):
         try:
             self.redis_client.publish(
                 f"analysis:{analysis_id}",
-                json.dumps({"id": analysis_id, "status": status}),
+                json.dumps(
+                    {
+                        "id": analysis_id,
+                        "status": status,
+                        "proposal_ids": proposal_ids,
+                        **kwargs,
+                    }
+                ),
             )
         except Exception as e:
             print(f"Failed to publish update: {e}")
+
+    def _publish_notification(
+        self,
+        connection_id: str,
+        message: str,
+        severity: Literal["info", "warning", "error"] = "info",
+    ):
+        try:
+            self.redis_client.publish(
+                f"notification:{connection_id}",
+                json.dumps({"message": message, "severity": severity}),
+            )
+        except Exception as e:
+            print(f"Failed to publish notification: {e}")
 
     def _get_analysis_or_raise(self, analysis_id: str) -> Analysis:
         analysis = self.db.query(Analysis).filter(Analysis.id == analysis_id).first()
@@ -62,6 +91,11 @@ class AnalysisRunService:
         self.db.commit()
         self._publish_update(
             analysis.id, status.value if hasattr(status, "value") else status
+        )
+        self._publish_notification(
+            analysis.connection_id,
+            f"Analysis {analysis.key} has started!",
+            severity="info",
         )
 
     def _get_default_context_input(
@@ -81,6 +115,15 @@ class AnalysisRunService:
         self.db.commit()
         self._publish_update(
             analysis.id, status.value if hasattr(status, "value") else status
+        )
+        if status == AnalysisStatus.DONE:
+            severity = "success"
+        else:
+            severity = "error"
+        self._publish_notification(
+            analysis.connection_id,
+            f"Analysis {analysis.key} has finished!",
+            severity=severity,
         )
 
     def _fetch_stories(self, analysis: Analysis):
@@ -239,7 +282,7 @@ class AnalysisRunService:
                     explanation=d.explanation,
                     confidence=d.confidence,
                     suggested_fix=d.suggested_fix,
-                    story_keys=[w.key for w in d.story_keys],
+                    story_keys=[w.story_key for w in d.story_keys],
                 )
                 for d in self.db.query(Defect)
                 .join(DefectStoryKey)
@@ -288,12 +331,24 @@ class AnalysisRunService:
 
         proposal_service = ProposalRunService(db=self.db)
 
-        proposal_ids = proposal_service.generate_proposals(
-            session_id=analysis_id,
-            source="ANALYSIS",
-            connection_id=analysis.connection_id,
-            project_key=analysis.project_key,
-            input_defects=analysis.defects,
-        )
+        try:
+            proposal_ids = proposal_service.generate_proposals(
+                session_id=analysis_id,
+                source="ANALYSIS",
+                connection_id=analysis.connection_id,
+                project_key=analysis.project_key,
+                input_defects=analysis.defects,
+            )
 
-        return proposal_ids
+            self._publish_update(
+                analysis_id,
+                "PROPOSAL_DONE",
+                proposal_ids=proposal_ids,
+            )
+            self._publish_notification(
+                analysis.connection_id,
+                f"Proposals for analysis {analysis.key} have been generated!",
+            )
+        finally:
+            data_service = AnalysisDataService(db=self.db)
+            data_service.set_generating_proposals(analysis_id, False)

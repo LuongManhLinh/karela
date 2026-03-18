@@ -94,6 +94,7 @@ class Analysis(Base):
     ended_at = Column(DateTime(timezone=True), nullable=True)
 
     error_message = Column(Text, nullable=True)
+    generating_proposals = Column(Boolean, default=False, nullable=False)
 
     defects = relationship(
         "Defect", back_populates="analysis", cascade="all, delete-orphan"

@@ -8,6 +8,7 @@ class AnalysisSummary(SessionSummary):
     status: Optional[str] = None
     type: Optional[str] = None
     ended_at: Optional[str] = None
+    generating_proposals: Optional[bool] = False
 
     model_config = ConfigDict(
         extra="ignore",

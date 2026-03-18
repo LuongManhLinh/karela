@@ -68,11 +68,14 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
   const { mutateAsync: rerunAnalysis, isPending: isRerunning } =
     useRerunAnalysisMutation();
   const { mutateAsync: markSolved } = useMarkDefectSolvedMutation();
-  const { mutateAsync: generateProposals, isPending: isGenerating } =
+  const { mutateAsync: generateProposals, isPending: isGeneratingMutation } =
     useGenerateProposalsMutation();
   const { mutateAsync: actOnProposal } = useActOnProposalMutation();
   const { mutateAsync: actOnProposalContent } =
     useActOnProposalContentMutation();
+
+  const isGenerating =
+    isGeneratingMutation || selectedAnalysisDetail?.generating_proposals;
 
   const { notify } = useNotificationContext();
 
@@ -107,6 +110,13 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
         });
         // Also invalidate summaries to keep sidebar in sync
         queryClient.invalidateQueries({ queryKey: ["analysis", "summaries"] });
+
+        if (data.proposal_ids) {
+          // If proposal IDs are included, invalidate proposals query as well
+          queryClient.invalidateQueries({
+            queryKey: ["proposals", "session", analysisId],
+          });
+        }
       }
     };
 

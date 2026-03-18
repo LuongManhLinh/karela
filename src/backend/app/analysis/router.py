@@ -17,7 +17,11 @@ from .schemas import (
     AnalysisStatusesRequest,
 )
 from common.schemas import BasicResponse
-from .tasks import analyze_all_user_stories, analyze_target_user_story
+from .tasks import (
+    analyze_all_user_stories,
+    analyze_target_user_story,
+    generate_proposals,
+)
 
 router = APIRouter()
 
@@ -98,13 +102,13 @@ async def get_defects_for_analysis(
 
 @router.post("/{analysis_id}/generate-proposals")
 async def generate_proposals_for_analysis(
-    analysis_id: str, service: AnalysisRunService = Depends(get_analysis_run_service)
+    analysis_id: str,
+    service: AnalysisDataService = Depends(get_analysis_data_service)
 ):
     try:
-        proposal_ids = service.generate_proposals(analysis_id)
-        return BasicResponse(
-            data=proposal_ids
-        )
+        service.set_generating_proposals(analysis_id, True)
+        generate_proposals(analysis_id)
+        return BasicResponse()
     except ValueError as e:
         traceback.print_exc()
         raise HTTPException(status_code=404, detail=str(e))

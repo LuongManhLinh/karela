@@ -103,6 +103,8 @@ export const DoubleLayout: React.FC<DoubleLayoutProps> = ({
               ? `${collapsedWidth}px`
               : "auto",
           height: "100vh",
+          display: "flex",
+          flexDirection: "column",
           borderRadius: 0,
           flexShrink: 0,
           bgcolor: "background.paper",
@@ -125,7 +127,11 @@ export const DoubleLayout: React.FC<DoubleLayoutProps> = ({
             <Filter />
           </IconButton>
         </Box>
-        {menuOpen && leftChildren}
+        {menuOpen && (
+          <Box sx={{ flexGrow: 1, minHeight: 0, overflow: "hidden" }}>
+            {leftChildren}
+          </Box>
+        )}
       </Paper>
       <Box
         sx={{

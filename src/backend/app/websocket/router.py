@@ -34,8 +34,7 @@ async def websocket_endpoint(websocket: WebSocket):
         return
 
     # Always subscribe notifications for this connection
-    await manager.subscribe(websocket, f"notifications:{conn_id}")
-
+    await manager.subscribe(websocket, f"notification:{conn_id}")
     try:
         while True:
             data = await websocket.receive_text()
