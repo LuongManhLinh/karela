@@ -76,7 +76,9 @@
     "stories": "Câu chuyện"
   },
   "SessionList": {
-    "noSessions": "Không có phiên nào"
+    "noSessions": "Không có phiên nào",
+    "project": "Dự án",
+    "story": "Câu chuyện"
   },
   "NoConnection": {
     "noConnections": "Không có kết nối nào",
@@ -100,6 +102,9 @@
       "noProposalsGenerated": "Chưa có đề xuất nào được tạo.",
       "showProposals": "Hiện đề xuất",
       "hideProposals": "Ẩn đề xuất",
+      "proposalDialogTitle": "Các đề xuất liên quan đến lỗi {defectKey}",
+      "defectDialogTitle": "Các lỗi liên quan đến đề xuất {proposalKey}",
+      "close": "Đóng",
       "errorOccurred": "Rất tiếc! Đã xảy ra lỗi. Vui lòng tải lại trang.",
       "errors": {
         "failedToUpdateDefect": "Cập nhật trạng thái lỗi thất bại",
@@ -115,7 +120,13 @@
       "analyses": "Phân tích",
       "runAnalysis": "Chạy phân tích",
       "run": "Chạy",
-      "headerText": "Phân tích"
+      "headerText": "Phân tích",
+      "defects": "Lỗi",
+      "proposals": "Đề xuất",
+      "type": "Loại",
+      "status": "Trạng thái",
+      "TARGETED": "Một câu chuyện",
+      "ALL": "Tất cả"
     },
     "AnalysisPage": {
       "selectAnalysis": "Chọn một phân tích để xem chi tiết."
@@ -139,6 +150,7 @@
       "IRRELEVANCE": "Không liên quan",
       "AMBIGUITY": "Mơ hồ",
       "type": "Loại",
+      "proposalLinkHint": "Nhấn: xem trong hộp thoại. Ctrl+Nhấn: chuyển tab và cuộn tới đề xuất.",
       "markSolvedTooltip": "Đánh dấu lỗi này là đã giải quyết. Lỗi đã giải quyết sẽ không xuất hiện trong các phân tích trong tương lai và sẽ không được sử dụng để tạo đề xuất."
     },
     "DefectChip": {
@@ -162,7 +174,8 @@
       "sessionsLabel": "Phiên trò chuyện",
       "newChat": "Trò chuyện mới",
       "createChatLabel": "Tạo phiên trò chuyện",
-      "headerText": "Trò chuyện"
+      "headerText": "Trò chuyện",
+      "create": "Tạo"
     },
     "ChatPage": {
       "gettingStarted": "Chọn hoặc tạo mới một phiên trò chuyện để bắt đầu."
@@ -345,6 +358,7 @@
       "project": "Dự án",
       "changeCount": "{count} thay đổi",
       "targetDefects": "Lỗi mục tiêu",
+      "targetDefectHint": "Nhấn: xem lỗi trong hộp thoại. Ctrl+Nhấn: chuyển tab và cuộn tới lỗi.",
       "created": "Đã tạo",
       "explanation": "Giải thích",
       "summary": "Tóm tắt",
@@ -378,7 +392,10 @@
       "analysisProposals": "Đề xuất phân tích",
       "noChatSessions": "Không có phiên trò chuyện nào có đề xuất",
       "chatProposals": "Đề xuất trò chuyện",
-      "headerText": "Đề xuất"
+      "headerText": "Đề xuất",
+      "analysis": "Phân tích",
+      "chat": "Trò chuyện",
+      "proposals": "Đề xuất"
     },
     "ProposalPage": {
       "selectProposal": "Chọn một đề xuất để xem chi tiết."
@@ -397,7 +414,8 @@
     "description": "Mô tả",
     "noDescription": "Không có mô tả",
     "noStoriesFound": "Không tìm thấy câu chuyện nào",
-    "failedToLoadStoryDetails": "Tải chi tiết câu chuyện thất bại"
+    "failedToLoadStoryDetails": "Tải chi tiết câu chuyện thất bại",
+    "close": "Đóng"
   },
   "workspace": {
     "WorkspaceLayout": {

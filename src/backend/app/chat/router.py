@@ -121,7 +121,7 @@ async def list_chat_sessions_by_project(
     return BasicResponse(data=sessions)
 
 
-@router.get("/session_id_or_key}")
+@router.get("/{session_id_or_key}")
 async def get_session_detail(
     session_id_or_key: str,
     jwt_payload=Depends(get_jwt_payload),

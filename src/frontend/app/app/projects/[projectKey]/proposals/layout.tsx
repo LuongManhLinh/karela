@@ -4,7 +4,9 @@ import ProposalLayout from "@/components/proposals/ProposalLayout";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
 
-const PLProposalLayout = () => {
+const PLProposalLayout: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => {
   const params = useParams();
   const { projectKey, idOrKey } = useMemo(
     () => ({
@@ -14,7 +16,12 @@ const PLProposalLayout = () => {
     [params],
   );
   return (
-    <ProposalLayout level="project" projectKey={projectKey} idOrKey={idOrKey} />
+    <ProposalLayout
+      children={children}
+      level="project"
+      projectKey={projectKey}
+      idOrKey={idOrKey}
+    />
   );
 };
 

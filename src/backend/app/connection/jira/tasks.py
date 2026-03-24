@@ -1,4 +1,4 @@
-from common.redis_app import task_queue
+from common.redis_app import get_queue
 from common.database import SessionLocal
 from .services.sync_service import JiraSyncService
 
@@ -23,7 +23,7 @@ def _sync_projects(
 def sync_projects(
     connection_id: str, project_keys: list[str], run_analysis_after_sync: bool
 ) -> str:
-    job = task_queue.enqueue(
+    job = get_queue("sync").enqueue(
         f=_sync_projects,
         connection_id=connection_id,
         project_keys=project_keys,
@@ -42,7 +42,7 @@ def _setup_connection(connection_id: str):
 
 
 def setup_connection(connection_id: str) -> str:
-    job = task_queue.enqueue(
+    job = get_queue("sync").enqueue(
         f=_setup_connection,
         connection_id=connection_id,
     )

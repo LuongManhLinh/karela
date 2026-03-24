@@ -20,16 +20,19 @@ export const Layout: React.FC<LayoutProps> = ({
   basePath,
 }) => {
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+      }}
+    >
       <MyAppBar
         leftContent={appBarLeftContent}
         transparent={appBarTransparent}
         basePath={basePath}
       />
-      <Box
-        component="main"
-        sx={{ flexGrow: 1, bgcolor: "background.default", overflow: "auto" }}
-      >
+      <Box component="main" sx={{ flexGrow: 1, overflow: "auto" }}>
         {children}
       </Box>
     </Box>

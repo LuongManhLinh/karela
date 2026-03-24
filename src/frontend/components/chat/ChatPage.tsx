@@ -54,13 +54,8 @@ const ChatPage: React.FC = () => {
         sx={{
           width: "60%",
           mt: 2,
-
           display: "flex",
           flexDirection: "column",
-          // height: "100%",
-          // // position: "relative",
-          // backgroundColor: "transparent",
-
           alignItems: "center",
           justifyContent: "center",
         }}

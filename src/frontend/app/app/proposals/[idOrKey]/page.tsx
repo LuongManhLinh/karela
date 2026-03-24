@@ -2,6 +2,7 @@
 
 import { NotFound } from "@/components/NotFound";
 import ProposalSessionItemPage from "@/components/proposals/PropsalItemPage";
+import { ProposalSource } from "@/types/proposal";
 import { useParams, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 
@@ -12,18 +13,15 @@ const CLProposalSessionItemPage = () => {
   const idOrKey = useMemo(() => {
     return params.idOrKey as string;
   }, [params]);
-  const sessionSource = searchParams.get("sessionSource") as string;
+  const sessionSource = searchParams.get("source") as ProposalSource;
 
-  if (sessionSource === "ANALYSIS" || sessionSource === "CHAT") {
-    return (
-      <ProposalSessionItemPage
-        sessionIdOrKey={idOrKey}
-        sessionSource={sessionSource}
-        level="project"
-      />
-    );
-  }
-  return <NotFound />;
+  return (
+    <ProposalSessionItemPage
+      sessionKey={idOrKey}
+      sessionSource={sessionSource}
+    />
+  );
+
 };
 
 export default CLProposalSessionItemPage;

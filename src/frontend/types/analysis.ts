@@ -21,6 +21,8 @@ export interface AnalysisSummary extends SessionSummary {
   type: AnalysisType;
   ended_at?: string;
   generating_proposals?: boolean;
+  num_defects?: number;
+  num_proposals?: number;
 }
 
 export interface DefectDto {

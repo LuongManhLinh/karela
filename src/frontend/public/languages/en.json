@@ -76,7 +76,9 @@
     "stories": "Stories"
   },
   "SessionList": {
-    "noSessions": "No sessions available"
+    "noSessions": "No sessions available",
+    "project": "Project",
+    "story": "Story"
   },
   "NoConnection": {
     "noConnections": "No Connections Available",
@@ -100,6 +102,9 @@
       "noProposalsGenerated": "No proposals generated yet.",
       "showProposals": "Show Proposals",
       "hideProposals": "Hide Proposals",
+      "proposalDialogTitle": "Proposals related to defect {defectKey}",
+      "defectDialogTitle": "Defects related to proposal {proposalKey}",
+      "close": "Close",
       "errorOccurred": "Oops! Some error occurred. Please reload the page.",
       "errors": {
         "failedToUpdateDefect": "Failed to update defect status",
@@ -115,7 +120,13 @@
       "analyses": "Analyses",
       "runAnalysis": "Run Analysis",
       "run": "Run",
-      "headerText": "Analysis"
+      "headerText": "Analysis",
+      "defects": "Defects",
+      "proposals": "Proposals",
+      "type": "Type",
+      "status": "Status",
+      "TARGETED": "Targeted",
+      "ALL": "All"
     },
     "AnalysisPage": {
       "selectAnalysis": "Select an analysis to view details."
@@ -139,6 +150,7 @@
       "AMBIGUITY": "Ambiguity",
       "IRRELEVANCE": "Irrelevance",
       "type": "Type",
+      "proposalLinkHint": "Click: show in dialog. Ctrl+Click: switch tab and scroll to proposal.",
       "markSolvedTooltip": "Mark this defect as solved. Solved defects will be ignored in future analyses and proposal generations."
     },
     "DefectChip": {
@@ -162,7 +174,8 @@
       "sessionsLabel": "Chat Sessions",
       "newChat": "New Chat",
       "createChatLabel": "Create Chat Session",
-      "headerText": "Chat"
+      "headerText": "Chat",
+      "create": "Create"
     },
     "ChatPage": {
       "gettingStarted": "Select or create a chat session to get started."
@@ -345,6 +358,7 @@
       "project": "Project",
       "changeCount": "{count} {count, plural, one {change} other {changes}}",
       "targetDefects": "Target Defects",
+      "targetDefectHint": "Click: show defect in dialog. Ctrl+Click: switch tab and scroll to defect.",
       "created": "Created",
       "explanation": "Explanation",
       "summary": "Summary",
@@ -378,7 +392,10 @@
       "analysisProposals": "Analysis Proposals",
       "noChatSessions": "No chat sessions having proposals",
       "chatProposals": "Chat Proposals",
-      "headerText": "Proposals"
+      "headerText": "Proposals",
+      "analysis": "Analysis",
+      "chat": "Chat",
+      "proposals": "Proposals"
     },
     "ProposalPage": {
       "selectProposal": "Select a proposal to view details."
@@ -397,7 +414,8 @@
     "description": "Description",
     "noDescription": "No description",
     "noStoriesFound": "No stories found",
-    "failedToLoadStoryDetails": "Failed to load story details"
+    "failedToLoadStoryDetails": "Failed to load story details",
+    "close": "Close"
   },
   "workspace": {
     "WorkspaceLayout": {

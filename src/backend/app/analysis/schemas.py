@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field, ConfigDict
-from typing import Optional, Any, List, Dict, Literal
+from pydantic import BaseModel, ConfigDict
+from typing import Optional, List, Literal
 
 from common.schemas import SessionSummary
 
@@ -9,6 +9,8 @@ class AnalysisSummary(SessionSummary):
     type: Optional[str] = None
     ended_at: Optional[str] = None
     generating_proposals: Optional[bool] = False
+    num_defects: Optional[int] = None
+    num_proposals: Optional[int] = None
 
     model_config = ConfigDict(
         extra="ignore",

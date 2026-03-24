@@ -1,7 +1,7 @@
 "use client";
 
-import { NotFound } from "@/components/NotFound";
 import ProposalSessionItemPage from "@/components/proposals/PropsalItemPage";
+import { ProposalSource } from "@/types/proposal";
 import { useParams, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 
@@ -15,19 +15,15 @@ const PLProposalSessionItemPage = () => {
       idOrKey: params.idOrKey as string,
     };
   }, [params]);
-  const sessionSource = searchParams.get("sessionSource") as string;
+  const sessionSource = searchParams.get("source") as ProposalSource;
 
-  if (sessionSource === "ANALYSIS" || sessionSource === "CHAT") {
-    return (
-      <ProposalSessionItemPage
-        projectFilterKey={projectKey}
-        sessionIdOrKey={idOrKey}
-        sessionSource={sessionSource}
-        level="project"
-      />
-    );
-  }
-  return <NotFound />;
+  return (
+    <ProposalSessionItemPage
+      projectFilterKey={projectKey}
+      sessionKey={idOrKey}
+      sessionSource={sessionSource}
+    />
+  );
 };
 
 export default PLProposalSessionItemPage;

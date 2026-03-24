@@ -69,9 +69,8 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
   const lastChunkTimeRef = useRef<number>(Date.now());
   const isCommittingRef = useRef<boolean>(false);
 
-  const { data: sessionData, isLoading: loadingSession } = useChatSessionQuery(
-    idOrKey,
-  );
+  const { data: sessionData, isLoading: loadingSession } =
+    useChatSessionQuery(idOrKey);
 
   const {
     data: sessionProposalsData,
@@ -401,6 +400,9 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
     [fetchSessionProposals, t, notify],
   );
 
+  const isEmptyState =
+    messages.length === 0 && !streamingId && !waitingForResponse;
+
   const chatContent = (
     <Box
       ref={scrollContainerRef}
@@ -410,9 +412,9 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
         flexDirection: "column",
         alignContent: "center",
         alignItems: "center",
-        justifyContent: "flex-start",
+        justifyContent: isEmptyState ? "center" : "flex-start",
         width: "100%",
-        flexGrow: 1,
+        flexGrow: isEmptyState ? 0 : 1,
         minHeight: 0,
         ...scrollBarSx,
       }}
@@ -424,6 +426,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
+              mb: 2,
             }}
           >
             <Typography color="text.secondary" variant="h4">
@@ -468,7 +471,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
       sx={{
         display: "flex",
         flexDirection: "column",
-        justifyContent: messages.length === 0 ? "center" : "flex-start",
+        justifyContent: isEmptyState ? "center" : "flex-start",
         alignItems: "center",
         width: "100%",
         height: "100%",
@@ -478,11 +481,12 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
     >
       {loadingSession ? <CircularProgress /> : chatContent}
 
+      {/* Section for chat input */}
       <Box
         sx={{
           width: "60%",
           mb: 4,
-          ...(messages.length > 0
+          ...(!isEmptyState
             ? {
                 zIndex: 10,
                 position: "absolute",
@@ -491,9 +495,6 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
             : {
                 display: "flex",
                 flexDirection: "column",
-                // height: "100%",
-                // // position: "relative",
-                // backgroundColor: "transparent",
               }),
           alignItems: "center",
           justifyContent: "center",

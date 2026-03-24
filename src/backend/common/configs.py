@@ -62,3 +62,11 @@ class VectorStoreConfig:
     COLLECTION_NAME = os.getenv("VECTORSTORE_COLLECTION_NAME", "karela_collection")
     HOST = os.getenv("VECTORSTORE_HOST", "localhost")
     PORT = int(os.getenv("VECTORSTORE_PORT", "8888"))
+
+
+class MinioConfig:
+    ENDPOINT = os.getenv("MINIO_ENDPOINT", "localhost:9000")
+    ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
+    SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minioadmin")
+    BUCKET_NAME = os.getenv("MINIO_BUCKET_NAME", "karela-files")
+    SECURE = os.getenv("MINIO_SECURE", "false").lower() == "true"

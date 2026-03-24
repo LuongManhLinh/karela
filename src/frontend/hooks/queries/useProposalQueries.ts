@@ -26,25 +26,25 @@ export const PROPOSAL_KEYS = {
 };
 
 export const useSessionProposalsQuery = (
-  sessionIdOrKey: string | undefined,
+  sessionKey: string | undefined,
   source: "CHAT" | "ANALYSIS" = "CHAT",
   projectFilterKey: string | undefined,
   storyFilterKey: string | undefined,
 ) => {
   return useQuery({
     queryKey: PROPOSAL_KEYS.bySession(
-      sessionIdOrKey || "",
+      sessionKey || "",
       projectFilterKey || "",
       storyFilterKey || "",
     ),
     queryFn: () =>
       proposalService.getProposalsBySession(
-        sessionIdOrKey!,
+        sessionKey!,
         source,
         projectFilterKey,
         storyFilterKey,
       ),
-    enabled: !!sessionIdOrKey,
+    enabled: !!sessionKey,
   });
 };
 

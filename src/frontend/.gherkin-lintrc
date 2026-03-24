@@ -8,29 +8,8 @@
   ],
   "no-dupe-feature-names": "on",
   "no-partially-commented-tag-lines": "on",
-  "no-trailing-spaces": "on",
-  "new-line-at-eof": [
-    "on",
-    "yes"
-  ],
-  "no-multiple-empty-lines": "on",
   "no-empty-file": "on",
   "no-scenario-outlines-without-examples": "on",
-  "name-length": [
-    "off",
-    {
-      "Feature": 50
-    }
-  ],
-  "no-restricted-tags": [
-    "on",
-    {
-      "tags": [
-        "@watch",
-        "@wip"
-      ]
-    }
-  ],
   "use-and": "on",
   "keywords-in-logical-order": "on",
   "no-duplicate-tags": "on",
@@ -40,15 +19,6 @@
   "no-unused-variables": "on",
   "no-background-only-scenario": "on",
   "no-empty-background": "on",
-  "scenario-size": [
-    "off",
-    {
-      "steps-length": {
-        "Background": 15,
-        "Scenario": 15
-      }
-    }
-  ],
   "indentation": [
     "off",
     {

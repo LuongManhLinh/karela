@@ -65,12 +65,8 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
     setSelectedSessionKey(sessionKey);
   };
 
-  const handleNewChat = async (
-    project: ProjectDto,
-  ) => {
-    const newIdData = await chatService.createChatSession(
-      project.key,
-    );
+  const handleNewChat = async (project: ProjectDto) => {
+    const newIdData = await chatService.createChatSession(project.key);
     const newId = newIdData.data;
     if (newId) {
       setSelectedSessionKey(newId);
@@ -86,6 +82,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
         id: session.key,
         title: session.key,
         subtitle: new Date(session.created_at).toLocaleString(),
+        projectKey: session.project_key,
       });
     });
     return items;
@@ -115,6 +112,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
         label: t("sessionsLabel"),
       }}
       onNewLabel={t("newChat")}
+      primaryActionLabel={t("create")}
       dialogLabel={t("createChatLabel")}
       primaryAction={handleNewChat}
       requireStory={false}

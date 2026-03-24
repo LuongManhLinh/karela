@@ -73,7 +73,7 @@ class ACService:
 
     def list_acs_by_connection(self, connection_id: str):
         acs = (
-            self.db.query(GherkinAC, Story.key)
+            self.db.query(GherkinAC, Story.key, Project.key)
             .join(Story, GherkinAC.story_id == Story.id)
             .join(Project, Story.project_id == Project.id)
             .join(Connection, Project.connection_id == Connection.id)
@@ -87,17 +87,18 @@ class ACService:
             ACSummary(
                 id=ac.id,
                 key=ac.key,
+                project_key=project_key,
                 story_key=story_key,
                 summary=ac.summary,
                 created_at=ac.created_at,
                 updated_at=ac.updated_at,
             )
-            for ac, story_key in acs
+            for ac, story_key, project_key in acs
         ]
 
     def list_acs_by_project(self, connection_id: str, project_key: str):
         acs = (
-            self.db.query(GherkinAC, Story.key)
+            self.db.query(GherkinAC, Story.key, Project.key)
             .join(Story, GherkinAC.story_id == Story.id)
             .join(Project, Story.project_id == Project.id)
             .join(Connection, Project.connection_id == Connection.id)
@@ -112,17 +113,18 @@ class ACService:
             ACSummary(
                 id=ac.id,
                 key=ac.key,
+                project_key=project_key,
                 story_key=story_key,
                 summary=ac.summary,
                 created_at=ac.created_at,
                 updated_at=ac.updated_at,
             )
-            for ac, story_key in acs
+            for ac, story_key, project_key in acs
         ]
 
     def list_acs_by_story(self, connection_id: str, project_key: str, story_key: str):
         acs = (
-            self.db.query(GherkinAC, Story.key)
+            self.db.query(GherkinAC, Story.key, Project.key)
             .join(Story, GherkinAC.story_id == Story.id)
             .join(Project, Story.project_id == Project.id)
             .join(Connection, Project.connection_id == Connection.id)
@@ -138,12 +140,13 @@ class ACService:
             ACSummary(
                 id=ac.id,
                 key=ac.key,
+                project_key=project_key,
                 story_key=story_key,
                 summary=ac.summary,
                 created_at=ac.created_at,
                 updated_at=ac.updated_at,
             )
-            for ac, story_key in acs
+            for ac, story_key, project_key in acs
         ]
 
     def get_ac(
@@ -152,7 +155,7 @@ class ACService:
         ac_id_or_key: str,
     ):
         ac = (
-            self.db.query(GherkinAC, Story.key)
+            self.db.query(GherkinAC, Project.key, Story.key)
             .join(Story, GherkinAC.story_id == Story.id)
             .join(Project, Story.project_id == Project.id)
             .join(Connection, Project.connection_id == Connection.id)
@@ -164,11 +167,12 @@ class ACService:
         )
         if not ac:
             raise ValueError("AC not found")
-        ac, story_key = ac
+        ac, project_key, story_key = ac
         return ACDto(
             id=ac.id,
             key=ac.key,
             story_key=story_key,
+            project_key=project_key,
             summary=ac.summary,
             description=ac.description,
             created_at=ac.created_at,

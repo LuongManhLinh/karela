@@ -1,6 +1,6 @@
 from common.database import SessionLocal
 from .services import AnalysisRunService
-from common.redis_app import task_queue
+from common.redis_app import get_queue
 
 
 def _analyze_all_user_stories(analysis_id: str):
@@ -32,15 +32,15 @@ def _generate_proposals(analysis_id: str):
 
 
 def analyze_all_user_stories(analysis_id: str):
-    job = task_queue.enqueue(_analyze_all_user_stories, analysis_id)
+    job = get_queue("analysis").enqueue(_analyze_all_user_stories, analysis_id)
     return job.id
 
 
 def analyze_target_user_story(analysis_id: str):
-    job = task_queue.enqueue(_analyze_target_user_story, analysis_id)
+    job = get_queue("analysis").enqueue(_analyze_target_user_story, analysis_id)
     return job.id
 
 
 def generate_proposals(analysis_id: str):
-    job = task_queue.enqueue(_generate_proposals, analysis_id)
+    job = get_queue("proposal").enqueue(_generate_proposals, analysis_id)
     return job.id

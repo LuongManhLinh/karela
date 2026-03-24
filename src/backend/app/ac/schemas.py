@@ -18,6 +18,7 @@ class ACRegenerateRequest(ACUpdateRequest):
 class ACSummary(BaseModel):
     id: str
     key: Optional[str] = None
+    project_key: str
     story_key: str
     summary: str
     created_at: datetime

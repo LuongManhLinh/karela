@@ -1,6 +1,7 @@
 export interface ACSummary {
   id: string;
   key?: string;
+  project_key: string;
   story_key: string;
   summary: string;
   created_at: string;

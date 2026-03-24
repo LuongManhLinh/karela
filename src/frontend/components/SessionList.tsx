@@ -18,6 +18,8 @@ export interface SessionItem {
   id: string;
   title: string;
   subtitle?: string;
+  projectKey?: string;
+  storyKey?: string;
   chips?: Array<{ label: string; color?: ChipProps["color"] }>;
   running?: boolean;
 }
@@ -97,6 +99,18 @@ const SessionList: React.FC<SessionListProps> = ({
                         gap: 0.5,
                       }}
                     >
+                      {session.projectKey && (
+                        <Chip
+                          label={`${t("project")}: ${session.projectKey}`}
+                          size="small"
+                        />
+                      )}
+                      {session.storyKey && (
+                        <Chip
+                          label={`${t("story")}: ${session.storyKey}`}
+                          size="small"
+                        />
+                      )}
                       {session.chips?.map((chip, index) => (
                         <Chip
                           key={`${session.id}-chip-${index}`}

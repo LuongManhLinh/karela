@@ -100,7 +100,7 @@ const ConnectionDashboard: React.FC = () => {
           <LoadingSpinner />
         </Box>
       ) : dashboard ? (
-        <>
+        <Box sx={{ mb: 3 }}>
           {/* Statistics Grid */}
           <Paper
             elevation={2}
@@ -165,7 +165,7 @@ const ConnectionDashboard: React.FC = () => {
               </Grid>
             </Grid>
           </Paper>
-        </>
+        </Box>
       ) : connection ? (
         <Paper
           elevation={2}

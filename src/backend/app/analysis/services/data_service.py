@@ -4,8 +4,8 @@ from app.analysis.models import (
     AnalysisType,
     Defect,
 )
+from app.proposal.models import Proposal
 from app.analysis.schemas import (
-    AnalysisDto,
     AnalysisDto,
     AnalysisSummary,
     DefectDto,
@@ -22,6 +22,58 @@ from typing import List, Optional, Literal
 class AnalysisDataService:
     def __init__(self, db: Session):
         self.db = db
+
+    def _get_analysis_summaries(self, *filters) -> List[AnalysisSummary]:
+        defect_counts = (
+            self.db.query(
+                Defect.analysis_id.label("analysis_id"),
+                func.count(Defect.id).label("num_defects"),
+            )
+            .group_by(Defect.analysis_id)
+            .subquery()
+        )
+
+        proposal_counts = (
+            self.db.query(
+                Proposal.analysis_session_id.label("analysis_id"),
+                func.count(Proposal.id).label("num_proposals"),
+            )
+            .filter(Proposal.analysis_session_id.isnot(None))
+            .group_by(Proposal.analysis_session_id)
+            .subquery()
+        )
+
+        analyses = (
+            self.db.query(
+                Analysis,
+                func.coalesce(defect_counts.c.num_defects, 0).label("num_defects"),
+                func.coalesce(proposal_counts.c.num_proposals, 0).label(
+                    "num_proposals"
+                ),
+            )
+            .outerjoin(defect_counts, defect_counts.c.analysis_id == Analysis.id)
+            .outerjoin(proposal_counts, proposal_counts.c.analysis_id == Analysis.id)
+            .filter(*filters)
+            .order_by(Analysis.created_at.desc())
+            .all()
+        )
+
+        return [
+            AnalysisSummary(
+                id=analysis.id,
+                key=analysis.key,
+                project_key=analysis.project_key,
+                story_key=analysis.story_key,
+                status=analysis.status.value,
+                type=analysis.type.value,
+                created_at=analysis.created_at.isoformat(),
+                ended_at=(analysis.ended_at.isoformat() if analysis.ended_at else None),
+                generating_proposals=analysis.generating_proposals,
+                num_defects=num_defects,
+                num_proposals=num_proposals,
+            )
+            for analysis, num_defects, num_proposals in analyses
+        ]
 
     def init_analysis(
         self,
@@ -72,86 +124,24 @@ class AnalysisDataService:
     def get_analysis_summaries_by_connection(
         self, connection_id: str
     ) -> List[AnalysisSummary]:
-        analyses = (
-            self.db.query(Analysis)
-            .join(Connection, Connection.id == Analysis.connection_id)
-            .filter(
-                Connection.id == connection_id,
-            )
-            .order_by(Analysis.created_at.desc())
-            .all()
-        )
-
-        return [
-            AnalysisSummary(
-                id=analysis.id,
-                key=analysis.key,
-                project_key=analysis.project_key,
-                story_key=analysis.story_key,
-                status=analysis.status.value,
-                type=analysis.type.value,
-                created_at=analysis.created_at.isoformat(),
-                ended_at=(analysis.ended_at.isoformat() if analysis.ended_at else None),
-            )
-            for analysis in analyses
-        ]
+        return self._get_analysis_summaries(Analysis.connection_id == connection_id)
 
     def get_analysis_summaries_by_project(
         self, connection_id: str, project_key: str
     ) -> List[AnalysisSummary]:
-        analyses = (
-            self.db.query(Analysis)
-            .join(Connection, Connection.id == Analysis.connection_id)
-            .filter(
-                Connection.id == connection_id,
-                Analysis.project_key == project_key,
-            )
-            .order_by(Analysis.created_at.desc())
-            .all()
+        return self._get_analysis_summaries(
+            Analysis.connection_id == connection_id,
+            Analysis.project_key == project_key,
         )
-
-        return [
-            AnalysisSummary(
-                id=analysis.id,
-                key=analysis.key,
-                project_key=analysis.project_key,
-                story_key=analysis.story_key,
-                status=analysis.status.value,
-                type=analysis.type.value,
-                created_at=analysis.created_at.isoformat(),
-                ended_at=(analysis.ended_at.isoformat() if analysis.ended_at else None),
-            )
-            for analysis in analyses
-        ]
 
     def get_analysis_summaries_by_story(
         self, connection_id: str, project_key: str, story_key: str
     ) -> List[AnalysisSummary]:
-        analyses = (
-            self.db.query(Analysis)
-            .join(Connection, Connection.id == Analysis.connection_id)
-            .filter(
-                Connection.id == connection_id,
-                Analysis.project_key == project_key,
-                Analysis.story_key == story_key,
-            )
-            .order_by(Analysis.created_at.desc())
-            .all()
+        return self._get_analysis_summaries(
+            Analysis.connection_id == connection_id,
+            Analysis.project_key == project_key,
+            Analysis.story_key == story_key,
         )
-
-        return [
-            AnalysisSummary(
-                id=analysis.id,
-                key=analysis.key,
-                project_key=analysis.project_key,
-                story_key=analysis.story_key,
-                status=analysis.status.value,
-                type=analysis.type.value,
-                created_at=analysis.created_at.isoformat(),
-                ended_at=(analysis.ended_at.isoformat() if analysis.ended_at else None),
-            )
-            for analysis in analyses
-        ]
 
     def get_analysis_details(
         self,

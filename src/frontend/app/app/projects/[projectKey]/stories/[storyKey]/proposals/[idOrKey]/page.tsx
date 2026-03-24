@@ -2,6 +2,7 @@
 
 import { NotFound } from "@/components/NotFound";
 import ProposalSessionItemPage from "@/components/proposals/PropsalItemPage";
+import { ProposalSource } from "@/types/proposal";
 import { useParams, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 
@@ -16,20 +17,16 @@ const SLProposalSessionItemPage = () => {
       idOrKey: params.idOrKey as string,
     };
   }, [params]);
-  const sessionSource = searchParams.get("sessionSource") as string;
+  const sessionSource = searchParams.get("source") as ProposalSource;
 
-  if (sessionSource === "ANALYSIS" || sessionSource === "CHAT") {
-    return (
-      <ProposalSessionItemPage
-        projectFilterKey={projectKey}
-        storyFilterKey={storyKey}
-        sessionIdOrKey={idOrKey}
-        sessionSource={sessionSource}
-        level="story"
-      />
-    );
-  }
-  return <NotFound />;
+  return (
+    <ProposalSessionItemPage
+      projectFilterKey={projectKey}
+      storyFilterKey={storyKey}
+      sessionKey={idOrKey}
+      sessionSource={sessionSource}
+    />
+  );
 };
 
 export default SLProposalSessionItemPage;

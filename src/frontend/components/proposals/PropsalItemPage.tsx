@@ -21,33 +21,24 @@ import { useSessionProposalsQuery } from "@/hooks/queries/useProposalQueries";
 export interface ProposalItemPageProps {
   projectFilterKey?: string;
   storyFilterKey?: string;
-  sessionIdOrKey: string;
+  sessionKey: string;
   sessionSource: ProposalSource;
-  level: "project" | "story";
 }
 
 const ProposalSessionItemPage: React.FC<ProposalItemPageProps> = ({
   projectFilterKey,
   storyFilterKey,
-  sessionIdOrKey,
+  sessionKey,
   sessionSource,
-  level,
 }) => {
   const t = useTranslations("proposals.PropsalItemPage");
   const { data: proposalsData, isLoading: loadingProposals } =
-    level === "project"
-      ? useSessionProposalsQuery(
-          sessionIdOrKey,
-          sessionSource,
-          projectFilterKey,
-          storyFilterKey,
-        )
-      : useSessionProposalsQuery(
-          sessionIdOrKey,
-          sessionSource,
-          projectFilterKey,
-          storyFilterKey,
-        );
+    useSessionProposalsQuery(
+      sessionKey,
+      sessionSource,
+      projectFilterKey,
+      storyFilterKey,
+    );
 
   const proposals = useMemo(() => proposalsData?.data || [], [proposalsData]);
 
@@ -81,7 +72,7 @@ const ProposalSessionItemPage: React.FC<ProposalItemPageProps> = ({
   };
 
   const handleExportProposals = () => {
-    const filename = `proposals_${sessionSource?.toLowerCase()}_${sessionIdOrKey}_${
+    const filename = `proposals_${sessionSource?.toLowerCase()}_${sessionKey}_${
       new Date().toISOString().split("T")[0]
     }`;
     downloadAsJson(proposals, filename);

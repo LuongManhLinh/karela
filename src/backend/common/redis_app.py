@@ -1,3 +1,5 @@
+from typing import Literal
+
 from rq import Queue
 from redis import Redis
 from common.configs import RedisConfig
@@ -9,4 +11,8 @@ redis_client = Redis(
     decode_responses=True,
 )
 
-task_queue = Queue("karela", connection=redis_client)
+
+def get_queue(
+    name: Literal["analysis", "sync", "proposal", "default"] = "default",
+) -> Queue:
+    return Queue(f"karela_{name}", connection=redis_client)

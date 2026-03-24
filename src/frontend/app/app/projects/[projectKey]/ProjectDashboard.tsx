@@ -26,6 +26,7 @@ import { useProjectDashboardQuery } from "@/hooks/queries/useDashboardQueries";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { useTranslations } from "next-intl";
 import type { StorySummary } from "@/types/connection";
+import { scrollBarSx } from "@/constants/scrollBarSx";
 
 const getReadinessColor = (score: number) => {
   if (score >= 75) return "success";
@@ -128,7 +129,14 @@ const ProjectDashboard: React.FC = () => {
           <LoadingSpinner />
         </Box>
       ) : dashboard ? (
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 3,
+            mb: 3,
+          }}
+        >
           {/* Statistics Grid */}
           <Paper
             elevation={2}

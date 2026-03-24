@@ -21,7 +21,11 @@ interface DefectCardProps {
   defect: DefectDto;
   onMarkSolved: (defectId: string, flag: boolean) => void;
   onStoriesClick?: (storyKeys: string[]) => void;
-  onProposalLinkClick?: (defectKey: string) => void;
+  onProposalLinkClick?: (
+    defectKey: string,
+    useSwitchAndScroll: boolean,
+  ) => void;
+  highlight?: boolean;
 }
 
 const getSeverityColor = (severity?: DefectSeverity) => {
@@ -42,18 +46,24 @@ const DefectCard: React.FC<DefectCardProps> = ({
   onMarkSolved,
   onStoriesClick,
   onProposalLinkClick,
+  highlight = false,
 }) => {
   const t = useTranslations("analysis.DefectCard");
   return (
     <Card
       key={defect.id}
       elevation={2}
-      sx={{
+      sx={(theme) => ({
         borderRadius: 3,
         flexShrink: 0,
         bgcolor: "background.paper",
         color: "onBackground",
-      }}
+        border: highlight
+          ? `2px solid ${theme.palette.primary.main}`
+          : undefined,
+        boxShadow: highlight ? theme.shadows[4] : undefined,
+        transition: "border-color 200ms ease, box-shadow 200ms ease",
+      })}
     >
       <CardContent sx={{ p: 3 }}>
         <Box
@@ -174,15 +184,22 @@ const DefectCard: React.FC<DefectCardProps> = ({
           )}
           {onProposalLinkClick && (
             <Box sx={{ mt: 1 }}>
-              <Link
-                component="button"
-                variant="body1"
-                onClick={() => onProposalLinkClick(defect.key)}
-                sx={{ cursor: "pointer" }}
-                color="textPrimary"
-              >
-                {t("proposalLink")}
-              </Link>
+              <Tooltip title={t("proposalLinkHint")}>
+                <Link
+                  component="button"
+                  variant="body1"
+                  onClick={(event) =>
+                    onProposalLinkClick(
+                      defect.key,
+                      event.ctrlKey || event.metaKey,
+                    )
+                  }
+                  sx={{ cursor: "pointer" }}
+                  color="textPrimary"
+                >
+                  {t("proposalLink")}
+                </Link>
+              </Tooltip>
             </Box>
           )}
         </Stack>

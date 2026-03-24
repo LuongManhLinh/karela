@@ -126,6 +126,7 @@ async def get_ac(
         )
         return BasicResponse(data=ac)
     except ValueError as e:
+        traceback.print_exc()
         raise HTTPException(status_code=404, detail=str(e))
 
 

@@ -29,9 +29,13 @@ export interface ProposalDto extends ProposalSummary {
   contents: ProposalContentDto[];
 }
 
+export interface ProposalSessionSummary extends SessionSummary {
+  num_proposals: number;
+}
+
 export interface SessionsWithProposals {
-  analysis_sessions: SessionSummary[];
-  chat_sessions: SessionSummary[];
+  analysis_sessions: ProposalSessionSummary[];
+  chat_sessions: ProposalSessionSummary[];
 }
 
 export interface ProposalContentEditRequest {

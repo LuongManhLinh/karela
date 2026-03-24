@@ -129,7 +129,7 @@ const StoryDashboard: React.FC = () => {
           <LoadingSpinner />
         </Box>
       ) : dashboard ? (
-        <>
+        <Box sx={{ mb: 3 }}>
           {/* Statistics Grid */}
           <Paper
             elevation={2}
@@ -202,7 +202,7 @@ const StoryDashboard: React.FC = () => {
               </Box>
             </Box>
           </Paper>
-        </>
+        </Box>
       ) : (
         <Paper
           elevation={2}

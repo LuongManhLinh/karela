@@ -13,7 +13,7 @@ import { useTranslations } from "next-intl";
 import { PageLevel } from "@/types";
 
 export interface ProposalLayoutProps {
-  children?: React.ReactNode;
+  children: React.ReactNode;
   level: PageLevel;
   projectKey?: string;
   storyKey?: string;
@@ -59,23 +59,30 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({
 
   const router = useRouter();
 
-  const handleSelectAnalysisSession = async (sessionId: string) => {
-    setSelectedSessionId(sessionId);
-    router.push(`${basePath}/proposals/${sessionId}?source=ANALYSIS`);
+  const handleSelectAnalysisSession = async (sessionKey: string) => {
+    setSelectedSessionId(sessionKey);
+    router.push(`${basePath}/proposals/${sessionKey}?source=ANALYSIS`);
   };
 
-  const handleSelectChatSession = async (sessionId: string) => {
-    setSelectedSessionId(sessionId);
-    router.push(`${basePath}/proposals/${sessionId}?source=CHAT`);
+  const handleSelectChatSession = async (sessionKey: string) => {
+    setSelectedSessionId(sessionKey);
+    router.push(`${basePath}/proposals/${sessionKey}?source=CHAT`);
   };
 
   const analysisSessions = useMemo<SessionItem[]>(() => {
     if (!sessionsData?.data) return [];
 
     return sessionsData.data.analysis_sessions.map((session) => ({
-      id: session.id,
-      title: session.key,
+      id: session.key,
+      title: `${t("analysis")} - ${session.key}`,
       subtitle: new Date(session.created_at).toLocaleString(),
+      projectKey: session.project_key,
+      chips: [
+        {
+          label: `${session.num_proposals} ${t("proposals")}`,
+          color: "warning",
+        },
+      ],
     }));
   }, [sessionsData]);
 
@@ -83,9 +90,16 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({
     if (!sessionsData?.data) return [];
 
     return sessionsData.data.chat_sessions.map((session) => ({
-      id: session.id,
-      title: session.key,
+      id: session.key,
+      title: `${t("chat")} - ${session.key}`,
       subtitle: new Date(session.created_at).toLocaleString(),
+      projectKey: session.project_key,
+      chips: [
+        {
+          label: `${session.num_proposals} ${t("proposals")}`,
+          color: "warning",
+        },
+      ],
     }));
   }, [sessionsData]);
 

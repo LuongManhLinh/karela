@@ -129,7 +129,14 @@ export default function ProfilePage() {
       appBarTransparent={true}
       basePath={basePath}
     >
-      <Container maxWidth="md" sx={{ mt: 4, mb: 4, overflowY: "auto" }}>
+      <Container
+        maxWidth="md"
+        sx={{
+          p: 4,
+          overflowY: "auto",
+          flexGrow: 1,
+        }}
+      >
         <Paper
           elevation={4}
           sx={{
@@ -214,6 +221,31 @@ export default function ProfilePage() {
               );
             })}
           </Stack>
+        </Paper>
+
+        <Paper
+          elevation={4}
+          sx={{
+            p: 3,
+            borderRadius: 2,
+            bgcolor: "background.paper",
+            mb: 3,
+          }}
+        >
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+            Preferences
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Configure project-level preferences for analysis, proposals, and
+            chat.
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => router.push("/preferences")}
+            fullWidth
+          >
+            Go to Preferences
+          </Button>
         </Paper>
 
         <Paper

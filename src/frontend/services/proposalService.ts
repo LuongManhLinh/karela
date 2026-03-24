@@ -46,13 +46,13 @@ export const proposalService = {
   },
 
   getProposalsBySession: async (
-    sessionId: string,
+    sessionKey: string,
     source: ProposalSource,
     projectFilterKey?: string,
     storyFilterKey?: string,
   ): Promise<BasicResponse<ProposalDto[]>> => {
     const response = await apiClient.get<BasicResponse<ProposalDto[]>>(
-      `/proposals/sessions/${sessionId}`,
+      `/proposals/sessions/${sessionKey}`,
       {
         params: {
           source,

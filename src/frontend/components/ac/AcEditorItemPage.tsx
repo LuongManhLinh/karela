@@ -33,10 +33,7 @@ const AcEditorItemPage: React.FC<AcEditorItemPageProps> = ({ idOrKey }) => {
   const initialGherkin = useMemo(() => {
     const gherkin = currentAC?.description || "";
     // Remove ````gherkin` and ``` markers if present and trim whitespace
-    return gherkin
-      .replace(/^```gherkin\s*/, "")
-      .replace(/```$/, "")
-      .trim();
+    return gherkin.replace(/^```gherkin\s*/, "").replace(/```$/, "");
   }, [currentAC]);
 
   const [editorReadOnly, setEditorReadOnly] = useState(false);
@@ -45,7 +42,7 @@ const AcEditorItemPage: React.FC<AcEditorItemPageProps> = ({ idOrKey }) => {
   const handleSave = async (val: string) => {
     if (currentAC) {
       // Add ```gherkin markers around the content
-      const gherkinContent = "```gherkin\n" + val + "\n```";
+      const gherkinContent = "```gherkin" + val + "```";
       await acService.updateAC(currentAC.id, gherkinContent);
       await refetch();
     }

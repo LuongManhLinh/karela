@@ -13,6 +13,7 @@ import {
   Stack,
   TextField,
   Typography,
+  Tooltip,
 } from "@mui/material";
 import { useTranslations } from "next-intl";
 import {
@@ -48,6 +49,10 @@ interface ProposalCardProps {
   ) => Promise<void> | void;
   defaultExpanded?: boolean;
   onProposalContentClick?: (content: ProposalContentDto) => void;
+  onTargetDefectClick?: (
+    defectKey: string,
+    useSwitchAndScroll: boolean,
+  ) => void;
   showProjectChip?: boolean;
   showSourceChip?: boolean;
   highlight?: boolean;
@@ -82,6 +87,7 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
   onProposalContentAction,
   defaultExpanded = true,
   onProposalContentClick,
+  onTargetDefectClick,
   showProjectChip = true,
   showSourceChip = true,
   highlight = false,
@@ -367,7 +373,23 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
           >
             {t("targetDefects")}:&nbsp;
             {proposal.target_defect_keys?.map((defKey) => (
-              <DefectChip key={defKey} defectKey={defKey} showKeyText={false} />
+              <Tooltip key={defKey} title={t("targetDefectHint")}>
+                <span>
+                  <DefectChip
+                    defectKey={defKey}
+                    showKeyText={false}
+                    onClick={
+                      onTargetDefectClick
+                        ? (event) =>
+                            onTargetDefectClick(
+                              defKey,
+                              event.ctrlKey || event.metaKey,
+                            )
+                        : undefined
+                    }
+                  />
+                </span>
+              </Tooltip>
             ))}
           </Box>
           <Typography

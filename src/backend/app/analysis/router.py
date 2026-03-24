@@ -1,14 +1,13 @@
-from fastapi import APIRouter, HTTPException, Depends, WebSocket
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 import traceback
 
 from app.auth_factory import get_jwt_payload
 from app.service_factory import (
     get_analysis_data_service,
-    get_analysis_run_service,
     get_defect_service,
 )
-from .services import AnalysisDataService, AnalysisRunService, DefectService
+from .services import AnalysisDataService, DefectService
 from .schemas import (
     RunAnalysisRequest,
     RunAnalysisResponse,
@@ -102,8 +101,7 @@ async def get_defects_for_analysis(
 
 @router.post("/{analysis_id}/generate-proposals")
 async def generate_proposals_for_analysis(
-    analysis_id: str,
-    service: AnalysisDataService = Depends(get_analysis_data_service)
+    analysis_id: str, service: AnalysisDataService = Depends(get_analysis_data_service)
 ):
     try:
         service.set_generating_proposals(analysis_id, True)

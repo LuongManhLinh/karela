@@ -1,11 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import type {
-  ConnectionDto,
-  ProjectDto,
-  StorySummary,
-} from "@/types/connection";
+import type { ProjectDto, StorySummary } from "@/types/connection";
 import { SessionItem } from "@/components/SessionList";
 import {
   useACsByConnectionQuery,
@@ -89,6 +85,8 @@ const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
     return acs.map((ac) => ({
       id: ac.key || ac.id,
       title: ac.summary,
+      projectKey: ac.project_key,
+      storyKey: ac.story_key,
       subtitle: new Date(ac.updated_at || Date.now()).toLocaleString(),
     }));
   }, [acs]);

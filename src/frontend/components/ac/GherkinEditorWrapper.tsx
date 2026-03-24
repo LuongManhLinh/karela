@@ -1,5 +1,11 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import dynamic from "next/dynamic";
 import {
   Box,
@@ -226,13 +232,7 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
     isInternalChangeRef.current = false;
   };
 
-  const changed = useRef(false);
-  useEffect(() => {
-    const isChanged = async () => initialValue !== value;
-    isChanged().then((res) => {
-      changed.current = res;
-    });
-  }, [value, initialValue]);
+  const changed = useMemo(() => value !== initialValue, [value, initialValue]);
 
   // Locate suggestion and create markers
   useEffect(() => {
@@ -491,7 +491,8 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
           onClick={handleSave}
           startIcon={saving ? <CircularProgress size={14} /> : null}
         >
-          {t("save")}{changed.current ? "*" : ""}
+          {t("save")}
+          {changed ? "*" : ""}
         </Button>
         <Box display="flex" alignItems="center" gap={1}>
           <Typography variant="body2" sx={{ fontWeight: "bold" }}>
@@ -511,7 +512,9 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
             <option value="github">{t("themes.github")}</option>
             <option value="monokai">{t("themes.monokai")}</option>
             <option value="twilight">{t("themes.twilight")}</option>
-            <option value="solarized_light">{t("themes.solarized_light")}</option>
+            <option value="solarized_light">
+              {t("themes.solarized_light")}
+            </option>
             <option value="solarized_dark">{t("themes.solarized_dark")}</option>
           </select>
         </Box>
@@ -654,18 +657,18 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
                 {suggestion.newContent}
               </Typography>
             )}
-              {suggestion.explanation && (
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontFamily: "monospace",
-                    whiteSpace: "pre-wrap",
-                    color: "#000",
-                  }}
-                >
-                  {t("reason")}: {suggestion.explanation}
-                </Typography>
-              )}
+            {suggestion.explanation && (
+              <Typography
+                variant="body2"
+                sx={{
+                  fontFamily: "monospace",
+                  whiteSpace: "pre-wrap",
+                  color: "#000",
+                }}
+              >
+                {t("reason")}: {suggestion.explanation}
+              </Typography>
+            )}
             <Typography
               variant="caption"
               display="block"

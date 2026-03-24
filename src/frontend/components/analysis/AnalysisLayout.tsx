@@ -64,10 +64,7 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
       case "project":
         return useAnalysisSummariesByProjectQuery(projectKey!);
       case "story":
-        return useAnalysisSummariesByStoryQuery(
-          projectKey!,
-          storyKey!,
-        );
+        return useAnalysisSummariesByStoryQuery(projectKey!, storyKey!);
     }
   };
 
@@ -149,10 +146,26 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
       subtitle: summary.created_at
         ? new Date(summary.created_at).toLocaleString()
         : undefined,
+      projectKey: summary.project_key,
+      storyKey: summary.story_key || undefined,
       chips: [
-        summary.type ? { label: summary.type, color: "default" } : undefined,
+        summary.type
+          ? { label: `${t("type")}: ${t(summary.type)}`, color: "info" }
+          : undefined,
         summary.status
-          ? { label: summary.status, color: getStatusColor(summary.status) }
+          ? {
+              label: `${t("status")}: ${summary.status}`,
+              color: getStatusColor(summary.status),
+            }
+          : undefined,
+        summary.num_defects
+          ? { label: `${summary.num_defects} ${t("defects")}`, color: "error" }
+          : undefined,
+        summary.num_proposals
+          ? {
+              label: `${summary.num_proposals} ${t("proposals")}`,
+              color: "warning",
+            }
           : undefined,
       ].filter(Boolean) as Array<{ label: string; color?: any }>,
       running: summary.status === "IN_PROGRESS" || summary.status === "PENDING",
