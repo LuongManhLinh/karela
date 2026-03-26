@@ -56,7 +56,9 @@
     "chat": "Chat",
     "proposals": "Proposals",
     "ac": "AC",
-    "documentation": "Documentation"
+    "documentation": "Documentation",
+    "preferences": "Preferences",
+    "close": "Close"
   },
   "Common": {
     "workspace": "Workspace",
@@ -79,6 +81,57 @@
     "noSessions": "No sessions available",
     "project": "Project",
     "story": "Story"
+  },
+  "DocumentationPage": {
+    "title": "Documentation",
+    "connectionAndProjects": "Connection & Projects",
+    "projectDocumentation": "Project Documentation",
+    "lastUpdated": "Last updated: {date}",
+    "productVision": "Product Vision",
+    "productVisionPlaceholder": "Describe the overall vision and goals for this product...",
+    "productScope": "Product Scope",
+    "productScopePlaceholder": "Define what is included and excluded from this product...",
+    "currentSprintGoals": "Current Sprint Goals",
+    "currentSprintGoalsPlaceholder": "Describe the goals for the current sprint...",
+    "glossary": "Glossary",
+    "glossaryPlaceholder": "Define key terms and concepts used in this project...",
+    "additionalDocs": "Additional Documents",
+    "additionalDocsDescription": "Add supporting notes and references that can be used later as project context.",
+    "addAdditionalDoc": "Add Document",
+    "additionalDocTitle": "Title",
+    "additionalDocContent": "Content",
+    "additionalDocDescription": "Description (optional)",
+    "removeAdditionalDoc": "Remove Document",
+    "noAdditionalDocs": "No additional documents added yet.",
+    "saving": "Saving...",
+    "updateDocumentation": "Update Documentation",
+    "createDocumentation": "Create Documentation",
+    "selectProjectWarning": "Please select a project",
+    "documentationUpdatedSuccess": "Documentation updated successfully",
+    "documentationCreatedSuccess": "Documentation created successfully",
+    "saveDocumentationFailed": "Failed to save documentation",
+    "additionalFiles": "Additional Files",
+    "additionalFilesDescription": "Text and image files. Later can be used as context for analysis and chat sessions.",
+    "uploading": "Uploading...",
+    "uploadFile": "Upload File",
+    "uploadFileDescriptionLabel": "Description for new upload (optional)",
+    "uploadFileDescriptionPlaceholder": "Example: Architecture diagram for payment flow",
+    "uploadFileSuccess": "File uploaded successfully",
+    "uploadFileFailed": "Failed to upload file",
+    "fileDescriptionsHint": "You can edit file descriptions below and save them separately.",
+    "fileDescriptionLabel": "Description",
+    "saveFileDescriptions": "Save",
+    "fileDescriptionsUpdatedSuccess": "File descriptions updated successfully",
+    "saveFileDescriptionsFailed": "Failed to update file descriptions",
+    "fileTypeImage": "Image",
+    "fileTypeText": "Text",
+    "fileTypeFile": "File",
+    "downloadFileFailed": "Failed to download file",
+    "deleteFileSuccess": "File deleted successfully",
+    "deleteFileFailed": "Failed to delete file",
+    "noFilesUploaded": "No files uploaded yet.",
+    "downloadAriaLabel": "download",
+    "deleteAriaLabel": "delete"
   },
   "NoConnection": {
     "noConnections": "No Connections Available",
@@ -321,7 +374,9 @@
       "logout": "Logout",
       "confirmLogout": "Confirm Logout",
       "areYouSureYouWantToLogout": "Are you sure you want to logout?",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "documentation": "Documentation",
+      "preferences": "Preferences"
     },
     "SyncProjectsDialog": {
       "title": "Sync Projects",
@@ -415,7 +470,7 @@
     "noDescription": "No description",
     "noStoriesFound": "No stories found",
     "failedToLoadStoryDetails": "Failed to load story details",
-    "close": "Close"
+    "close": "CloseMyAppBar"
   },
   "workspace": {
     "WorkspaceLayout": {

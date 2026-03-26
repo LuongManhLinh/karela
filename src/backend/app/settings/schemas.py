@@ -1,11 +1,18 @@
 from pydantic import BaseModel, ConfigDict
-from typing import Optional, Dict, Any, List
+from typing import Optional, List
 from datetime import datetime
+
+
+class AdditionalDocDto(BaseModel):
+    title: str
+    content: str
+    description: Optional[str] = None
 
 
 class AdditionalFileDto(BaseModel):
     filename: str
     url: str
+    description: Optional[str] = None
 
 
 class SettingsDto(BaseModel):
@@ -16,7 +23,7 @@ class SettingsDto(BaseModel):
     product_scope: Optional[str] = None
     current_sprint_goals: Optional[str] = None
     glossary: Optional[str] = None
-    additional_docs: Optional[Dict[str, Any]] = None
+    additional_docs: Optional[List[AdditionalDocDto]] = None
     additional_files: Optional[List[AdditionalFileDto]] = None
     updated_at: datetime
 
@@ -26,7 +33,8 @@ class CreateSettingsRequest(BaseModel):
     product_scope: Optional[str] = None
     current_sprint_goals: Optional[str] = None
     glossary: Optional[str] = None
-    additional_docs: Optional[Dict[str, Any]] = None
+    additional_docs: Optional[List[AdditionalDocDto]] = None
+    additional_files: Optional[List[AdditionalFileDto]] = None
 
     model_config = ConfigDict(extra="forbid")
 
@@ -36,7 +44,8 @@ class UpdateSettingsRequest(BaseModel):
     product_scope: Optional[str] = None
     current_sprint_goals: Optional[str] = None
     glossary: Optional[str] = None
-    additional_docs: Optional[Dict[str, Any]] = None
+    additional_docs: Optional[List[AdditionalDocDto]] = None
+    additional_files: Optional[List[AdditionalFileDto]] = None
 
     model_config = ConfigDict(extra="forbid")
 

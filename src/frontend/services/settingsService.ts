@@ -13,48 +13,45 @@ export const settingsService = {
   // ── Documentation CRUD ──────────────────────────────────────
 
   getSettings: async (
-    projectKey: string
+    projectKey: string,
   ): Promise<BasicResponse<SettingsDto>> => {
     const response = await apiClient.get<BasicResponse<SettingsDto>>(
-      `/settings/projects/${projectKey}`
+      `/settings/projects/${projectKey}`,
     );
     return response.data;
   },
 
   listSettings: async (): Promise<BasicResponse<SettingsDto[]>> => {
-    const response = await apiClient.get<BasicResponse<SettingsDto[]>>(
-      `/settings/`
-    );
+    const response =
+      await apiClient.get<BasicResponse<SettingsDto[]>>(`/settings/`);
     return response.data;
   },
 
   createSettings: async (
     projectKey: string,
-    data: CreateSettingsRequest
+    data: CreateSettingsRequest,
   ): Promise<BasicResponse<SettingsDto>> => {
     const response = await apiClient.post<BasicResponse<SettingsDto>>(
       `/settings/projects/${projectKey}`,
-      data
+      data,
     );
     return response.data;
   },
 
   updateSettings: async (
     projectKey: string,
-    data: UpdateSettingsRequest
+    data: UpdateSettingsRequest,
   ): Promise<BasicResponse<SettingsDto>> => {
     const response = await apiClient.put<BasicResponse<SettingsDto>>(
       `/settings/projects/${projectKey}`,
-      data
+      data,
     );
     return response.data;
   },
 
-  deleteSettings: async (
-    projectKey: string
-  ): Promise<BasicResponse> => {
+  deleteSettings: async (projectKey: string): Promise<BasicResponse> => {
     const response = await apiClient.delete<BasicResponse>(
-      `/settings/projects/${projectKey}`
+      `/settings/projects/${projectKey}`,
     );
     return response.data;
   },
@@ -63,35 +60,36 @@ export const settingsService = {
 
   uploadFile: async (
     projectKey: string,
-    file: File
+    file: File,
+    description?: string,
   ): Promise<BasicResponse<SettingsDto>> => {
     const formData = new FormData();
     formData.append("file", file);
+    if (description && description.trim()) {
+      formData.append("description", description.trim());
+    }
     const response = await apiClient.post<BasicResponse<SettingsDto>>(
       `/settings/projects/${projectKey}/files`,
       formData,
-      { headers: { "Content-Type": "multipart/form-data" } }
+      { headers: { "Content-Type": "multipart/form-data" } },
     );
     return response.data;
   },
 
-  downloadFile: async (
-    projectKey: string,
-    filename: string
-  ): Promise<Blob> => {
+  downloadFile: async (projectKey: string, filename: string): Promise<Blob> => {
     const response = await apiClient.get(
       `/settings/projects/${projectKey}/files/${encodeURIComponent(filename)}`,
-      { responseType: "blob" }
+      { responseType: "blob" },
     );
     return response.data;
   },
 
   deleteFile: async (
     projectKey: string,
-    filename: string
+    filename: string,
   ): Promise<BasicResponse<SettingsDto>> => {
     const response = await apiClient.delete<BasicResponse<SettingsDto>>(
-      `/settings/projects/${projectKey}/files/${encodeURIComponent(filename)}`
+      `/settings/projects/${projectKey}/files/${encodeURIComponent(filename)}`,
     );
     return response.data;
   },
@@ -99,32 +97,32 @@ export const settingsService = {
   // ── Preference CRUD ─────────────────────────────────────────
 
   getPreference: async (
-    projectKey: string
+    projectKey: string,
   ): Promise<BasicResponse<PreferenceDto>> => {
     const response = await apiClient.get<BasicResponse<PreferenceDto>>(
-      `/settings/preferences/projects/${projectKey}`
+      `/settings/preferences/projects/${projectKey}`,
     );
     return response.data;
   },
 
   createPreference: async (
     projectKey: string,
-    data: CreatePreferenceRequest
+    data: CreatePreferenceRequest,
   ): Promise<BasicResponse<PreferenceDto>> => {
     const response = await apiClient.post<BasicResponse<PreferenceDto>>(
       `/settings/preferences/projects/${projectKey}`,
-      data
+      data,
     );
     return response.data;
   },
 
   updatePreference: async (
     projectKey: string,
-    data: UpdatePreferenceRequest
+    data: UpdatePreferenceRequest,
   ): Promise<BasicResponse<PreferenceDto>> => {
     const response = await apiClient.put<BasicResponse<PreferenceDto>>(
       `/settings/preferences/projects/${projectKey}`,
-      data
+      data,
     );
     return response.data;
   },

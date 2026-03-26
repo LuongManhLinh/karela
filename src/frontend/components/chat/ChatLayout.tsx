@@ -2,11 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import type { ChatSessionSummary } from "@/types/chat";
-import type {
-  ConnectionDto,
-  ProjectDto,
-  StorySummary,
-} from "@/types/connection";
+import type { ProjectDto } from "@/types/connection";
 import { SessionItem } from "@/components/SessionList";
 import {
   useChatSessionsByConnectionQuery,
@@ -17,7 +13,6 @@ import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { chatService } from "@/services/chatService";
 import PageLayout from "../PageLayout";
 import { useTranslations } from "next-intl";
-import { PageLevel } from "@/types";
 
 interface ChatLayoutProps {
   children?: React.ReactNode;

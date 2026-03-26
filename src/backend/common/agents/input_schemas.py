@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 
 
 from pydantic import BaseModel, ConfigDict
@@ -19,7 +19,7 @@ class Documentation(BaseModel):
     sprint_goals: Optional[str] = None
     glossary: Optional[str] = None
     constraints: Optional[str] = None
-    additional_docs: Optional[Dict[str, str]] = None
+    additional_docs: Optional[List[Dict[str, Any]]] = None
 
     model_config = ConfigDict(
         extra="ignore",

@@ -478,6 +478,7 @@ class JiraService(JiraBaseService):
                 .filter(Project.connection_id == connection.id)
                 .outerjoin(Story, Story.project_id == Project.id)
                 .group_by(Project.id)
+                .order_by(Project.key)
                 .all()
             )
             return [

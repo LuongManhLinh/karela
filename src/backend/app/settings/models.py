@@ -31,10 +31,10 @@ class Documentation(Base):
     glossary = Column(Text, nullable=True)
     additional_docs = Column(
         JSON, nullable=True
-    )  # A list of {title: str, content: str} for any additional documentation
+    )  # A list of {title: str, content: str, description: str | null} for any additional documentation
     additional_files = Column(
         JSON, nullable=True
-    )  # A list of {filename: str, url: str} for any additional files
+    )  # A list of {filename: str, url: str, description: str | null} for any additional files
 
     created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
     updated_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)

@@ -1,8 +1,15 @@
 // Settings types
 
+export interface AdditionalDocDto {
+  title: string;
+  content: string;
+  description?: string;
+}
+
 export interface AdditionalFileDto {
   filename: string;
   url: string;
+  description?: string;
 }
 
 export interface SettingsDto {
@@ -13,7 +20,7 @@ export interface SettingsDto {
   product_scope?: string;
   current_sprint_goals?: string;
   glossary?: string;
-  additional_docs?: Record<string, any>;
+  additional_docs?: AdditionalDocDto[];
   additional_files?: AdditionalFileDto[];
   updated_at: string;
 }
@@ -23,7 +30,8 @@ export interface CreateSettingsRequest {
   product_scope?: string;
   current_sprint_goals?: string;
   glossary?: string;
-  additional_docs?: Record<string, any>;
+  additional_docs?: AdditionalDocDto[];
+  additional_files?: AdditionalFileDto[];
 }
 
 export interface UpdateSettingsRequest {
@@ -31,7 +39,8 @@ export interface UpdateSettingsRequest {
   product_scope?: string;
   current_sprint_goals?: string;
   glossary?: string;
-  additional_docs?: Record<string, any>;
+  additional_docs?: AdditionalDocDto[];
+  additional_files?: AdditionalFileDto[];
 }
 
 // Preference types

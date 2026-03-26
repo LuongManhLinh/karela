@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
 
 from common.schemas import BasicResponse
@@ -113,6 +113,7 @@ def delete_settings(
 def upload_file(
     project_key: str,
     file: UploadFile = File(...),
+    description: str | None = Form(None),
     service: SettingsService = Depends(get_settings_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
@@ -120,7 +121,7 @@ def upload_file(
     if connection_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
-        settings = service.upload_file(connection_id, project_key, file)
+        settings = service.upload_file(connection_id, project_key, file, description)
         return BasicResponse(detail="File uploaded successfully", data=settings)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

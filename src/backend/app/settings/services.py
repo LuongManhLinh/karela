@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from typing import Optional, List
+from typing import Optional, List, Any
 
 from fastapi import UploadFile
 
@@ -12,6 +12,7 @@ from .schemas import (
     SettingsDto,
     CreateSettingsRequest,
     UpdateSettingsRequest,
+    AdditionalDocDto,
     AdditionalFileDto,
     PreferenceDto,
     CreatePreferenceRequest,
@@ -19,12 +20,81 @@ from .schemas import (
 )
 
 
+def _normalize_additional_docs(raw_docs: Any) -> Optional[List[dict]]:
+    if not raw_docs:
+        return None
+
+    if isinstance(raw_docs, list):
+        normalized_docs = []
+        for doc in raw_docs:
+            if not isinstance(doc, dict):
+                continue
+            normalized_docs.append(
+                {
+                    "title": doc.get("title") or "",
+                    "content": doc.get("content") or "",
+                    "description": doc.get("description"),
+                }
+            )
+        return normalized_docs or None
+
+    if isinstance(raw_docs, dict):
+        # Backward compatibility with the old dict shape.
+        if "title" in raw_docs or "content" in raw_docs:
+            return [
+                {
+                    "title": raw_docs.get("title") or "",
+                    "content": raw_docs.get("content") or "",
+                    "description": raw_docs.get("description"),
+                }
+            ]
+        return [
+            {
+                "title": str(title),
+                "content": str(content) if content is not None else "",
+                "description": None,
+            }
+            for title, content in raw_docs.items()
+        ]
+
+    return None
+
+
+def _normalize_additional_files(raw_files: Any) -> Optional[List[dict]]:
+    if not raw_files or not isinstance(raw_files, list):
+        return None
+
+    normalized_files = []
+    for file in raw_files:
+        if not isinstance(file, dict):
+            continue
+        filename = file.get("filename")
+        url = file.get("url")
+        if not filename or not url:
+            continue
+        normalized_files.append(
+            {
+                "filename": filename,
+                "url": url,
+                "description": file.get("description"),
+            }
+        )
+
+    return normalized_files or None
+
+
 def _documentation_to_dto(settings: Documentation) -> SettingsDto:
+    additional_docs = _normalize_additional_docs(settings.additional_docs)
+    additional_files_raw = _normalize_additional_files(settings.additional_files)
     additional_files = None
-    if settings.additional_files:
+    if additional_files_raw:
         additional_files = [
-            AdditionalFileDto(filename=f["filename"], url=f["url"])
-            for f in settings.additional_files
+            AdditionalFileDto(
+                filename=file["filename"],
+                url=file["url"],
+                description=file.get("description"),
+            )
+            for file in additional_files_raw
         ]
     return SettingsDto(
         id=settings.id,
@@ -34,7 +104,11 @@ def _documentation_to_dto(settings: Documentation) -> SettingsDto:
         product_scope=settings.product_scope,
         current_sprint_goals=settings.current_sprint_goals,
         glossary=settings.glossary,
-        additional_docs=settings.additional_docs,
+        additional_docs=(
+            [AdditionalDocDto(**doc) for doc in additional_docs]
+            if additional_docs
+            else None
+        ),
         additional_files=additional_files,
         updated_at=settings.updated_at,
     )
@@ -48,7 +122,9 @@ def _preference_to_dto(pref: Preference) -> PreferenceDto:
         run_analysis_guidelines=pref.run_analysis_guidelines,
         gen_proposal_guidelines=pref.gen_proposal_guidelines,
         gen_proposal_after_analysis=pref.gen_proposal_after_analysis or False,
-        gen_proposal_mode=pref.gen_proposal_mode.value if pref.gen_proposal_mode else None,
+        gen_proposal_mode=(
+            pref.gen_proposal_mode.value if pref.gen_proposal_mode else None
+        ),
         gen_language=pref.gen_language.value if pref.gen_language else None,
         chat_guidelines=pref.chat_guidelines,
         updated_at=pref.updated_at,
@@ -105,7 +181,16 @@ class SettingsService:
             product_scope=request.product_scope,
             current_sprint_goals=request.current_sprint_goals,
             glossary=request.glossary,
-            additional_docs=request.additional_docs,
+            additional_docs=(
+                [doc.model_dump() for doc in request.additional_docs]
+                if request.additional_docs is not None
+                else None
+            ),
+            additional_files=(
+                [file.model_dump() for file in request.additional_files]
+                if request.additional_files is not None
+                else None
+            ),
         )
         self.db.add(settings)
         self.db.commit()
@@ -140,7 +225,13 @@ class SettingsService:
         if request.glossary is not None:
             settings.glossary = request.glossary
         if request.additional_docs is not None:
-            settings.additional_docs = request.additional_docs
+            settings.additional_docs = [
+                doc.model_dump() for doc in request.additional_docs
+            ]
+        if request.additional_files is not None:
+            settings.additional_files = [
+                file.model_dump() for file in request.additional_files
+            ]
 
         self.db.add(settings)
         self.db.commit()
@@ -166,7 +257,11 @@ class SettingsService:
     # --- File upload/download ---
 
     def upload_file(
-        self, connection_id: str, project_key: str, file: UploadFile
+        self,
+        connection_id: str,
+        project_key: str,
+        file: UploadFile,
+        description: Optional[str] = None,
     ) -> SettingsDto:
         settings = (
             self.db.query(Documentation)
@@ -183,10 +278,23 @@ class SettingsService:
 
         prefix = f"documentation/{connection_id}/{project_key}"
         file_info = upload_file(file, prefix)
+        normalized_description = description.strip() if description else None
 
         current_files = settings.additional_files or []
+        existing_entry = next(
+            (f for f in current_files if f.get("filename") == file_info["filename"]),
+            None,
+        )
+        file_info["description"] = (
+            normalized_description
+            if normalized_description is not None
+            else existing_entry.get("description") if existing_entry else None
+        )
+
         # Replace if same filename exists
-        current_files = [f for f in current_files if f["filename"] != file_info["filename"]]
+        current_files = [
+            f for f in current_files if f["filename"] != file_info["filename"]
+        ]
         current_files.append(file_info)
         settings.additional_files = current_files
 
@@ -294,7 +402,7 @@ class SettingsService:
                 product_scope=settings.product_scope,
                 sprint_goals=settings.current_sprint_goals,
                 glossary=settings.glossary,
-                additional_docs=settings.additional_docs,
+                additional_docs=_normalize_additional_docs(settings.additional_docs),
             ),
             llm_context=llm_context,
         )
@@ -319,9 +427,7 @@ class PreferenceService:
             return None
         return _preference_to_dto(pref)
 
-    def list_preferences_by_connection(
-        self, connection_id: str
-    ) -> List[PreferenceDto]:
+    def list_preferences_by_connection(self, connection_id: str) -> List[PreferenceDto]:
         prefs = (
             self.db.query(Preference)
             .filter(Preference.connection_id == connection_id)
@@ -351,12 +457,16 @@ class PreferenceService:
             run_analysis_guidelines=request.run_analysis_guidelines,
             gen_proposal_guidelines=request.gen_proposal_guidelines,
             gen_proposal_after_analysis=request.gen_proposal_after_analysis,
-            gen_proposal_mode=GenProposalMode(request.gen_proposal_mode)
-            if request.gen_proposal_mode
-            else GenProposalMode.SIMPLE,
-            gen_language=GenLanguage(request.gen_language)
-            if request.gen_language
-            else GenLanguage.STORY_BASED,
+            gen_proposal_mode=(
+                GenProposalMode(request.gen_proposal_mode)
+                if request.gen_proposal_mode
+                else GenProposalMode.SIMPLE
+            ),
+            gen_language=(
+                GenLanguage(request.gen_language)
+                if request.gen_language
+                else GenLanguage.STORY_BASED
+            ),
             chat_guidelines=request.chat_guidelines,
         )
         self.db.add(pref)

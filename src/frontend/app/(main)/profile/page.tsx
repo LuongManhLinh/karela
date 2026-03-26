@@ -14,6 +14,11 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
+import {
+  Logout,
+  Article,
+  Settings,
+} from "@mui/icons-material";
 import { useTranslations } from "next-intl";
 import { Layout } from "@/components/Layout";
 import {
@@ -226,41 +231,32 @@ export default function ProfilePage() {
         <Paper
           elevation={4}
           sx={{
-            p: 3,
-            borderRadius: 2,
-            bgcolor: "background.paper",
-            mb: 3,
-          }}
-        >
-          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-            Preferences
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Configure project-level preferences for analysis, proposals, and
-            chat.
-          </Typography>
-          <Button
-            variant="contained"
-            onClick={() => router.push("/preferences")}
-            fullWidth
-          >
-            Go to Preferences
-          </Button>
-        </Paper>
-
-        <Paper
-          elevation={4}
-          sx={{
-            p: 3,
             borderRadius: 2,
             bgcolor: "background.paper",
           }}
         >
-          <Box sx={{ width: "100%" }}>
+          <Box sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2 }}>
+            <Button
+              variant="contained"
+              onClick={() => router.push("/documentation")}
+              fullWidth
+              startIcon={<Article />}
+            >
+              {t("documentation")}
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => router.push("/preferences")}
+              fullWidth
+              startIcon={<Settings />}
+            >
+              {t("preferences")}
+            </Button>
             <Button
               variant="contained"
               onClick={() => setLogoutDialogOpen(true)}
               fullWidth
+              startIcon={<Logout />}
             >
               {t("logout")}
             </Button>

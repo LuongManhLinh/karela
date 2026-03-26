@@ -14,7 +14,6 @@ import {
 import {
   Brightness4,
   Brightness7,
-  Logout,
   Assistant,
   Analytics,
   EmojiObjects,
@@ -24,11 +23,12 @@ import {
   Segment,
   Language,
   Workspaces,
+  Settings,
+  Close,
 } from "@mui/icons-material";
 import { useThemeMode } from "../providers/ThemeProvider";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { removeToken } from "@/utils/jwtUtils";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { useTranslations } from "next-intl";
 
@@ -67,11 +67,6 @@ export const MyAppBar: React.FC<AppBarProps> = ({
           icon: <EmojiObjects />,
         },
         { name: t("ac"), href: `/acs`, icon: <Code /> },
-        {
-          name: t("documentation"),
-          href: `/documentation`,
-          icon: <Article />,
-        },
         {
           name: "Workspace",
           href: `/workspace`,
@@ -231,6 +226,18 @@ export const MyAppBar: React.FC<AppBarProps> = ({
               </ListItemIcon>
               <ListItemText>{t("profile")}</ListItemText>
             </MenuItem>
+            <MenuItem href="/documentation" component={Link}>
+              <ListItemIcon>
+                <Article />
+              </ListItemIcon>
+              <ListItemText>{t("documentation")}</ListItemText>
+            </MenuItem>
+            <MenuItem href="/preferences" component={Link}>
+              <ListItemIcon>
+                <Settings />
+              </ListItemIcon>
+              <ListItemText>{t("preferences")}</ListItemText>
+            </MenuItem>
             <MenuItem onClick={toggleColorMode}>
               <ListItemIcon>
                 {mode === "dark" ? <Brightness7 /> : <Brightness4 />}
@@ -242,6 +249,13 @@ export const MyAppBar: React.FC<AppBarProps> = ({
                 <Language />
               </ListItemIcon>
               <ListItemText>{t("language")}</ListItemText>
+            </MenuItem>
+            {/* Button to close */}
+            <MenuItem onClick={handleMenuClose}>
+              <ListItemIcon>
+                <Close />
+              </ListItemIcon>
+              <ListItemText>{t("close")}</ListItemText>
             </MenuItem>
           </Menu>
           <Menu

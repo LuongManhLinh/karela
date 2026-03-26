@@ -15,7 +15,7 @@ export const SETTINGS_KEYS = {
     [...SETTINGS_KEYS.all, projectKey] as const,
 };
 
-export const useSettingsQuery = (projectKey: string | undefined) => {
+export const useDocumentationQuery = (projectKey: string | undefined) => {
   return useQuery({
     queryKey: SETTINGS_KEYS.byProject(projectKey || ""),
     queryFn: () => settingsService.getSettings(projectKey!),
@@ -24,7 +24,7 @@ export const useSettingsQuery = (projectKey: string | undefined) => {
   });
 };
 
-export const useCreateSettingsMutation = () => {
+export const useCreateDocumentationMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
@@ -42,7 +42,7 @@ export const useCreateSettingsMutation = () => {
   });
 };
 
-export const useUpdateSettingsMutation = () => {
+export const useUpdateDocumentationMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
@@ -68,10 +68,12 @@ export const useUploadFileMutation = () => {
     mutationFn: ({
       projectKey,
       file,
+      description,
     }: {
       projectKey: string;
       file: File;
-    }) => settingsService.uploadFile(projectKey, file),
+      description?: string;
+    }) => settingsService.uploadFile(projectKey, file, description),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: SETTINGS_KEYS.byProject(variables.projectKey),

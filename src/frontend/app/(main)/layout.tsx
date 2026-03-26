@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { ConnectionNotFound } from "@/components/errors/ConnectionNotFound";
-import { Typography } from "@mui/material";
 import AppLoading from "@/components/AppLoading";
 import { connectionService } from "@/services/connectionService";
 

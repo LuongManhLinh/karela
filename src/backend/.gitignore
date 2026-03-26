@@ -70,7 +70,6 @@ staticfiles/
 *.sublime-workspace
 
 # Data, models, checkpoints, outputs (ML artifacts)
-data/
 datasets/
 raw_data/
 processed_data/
