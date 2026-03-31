@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Container,
   Paper,
@@ -15,6 +15,13 @@ import {
   Chip,
   IconButton,
   Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -23,33 +30,34 @@ import AddIcon from "@mui/icons-material/Add";
 import ImageIcon from "@mui/icons-material/Image";
 import DescriptionIcon from "@mui/icons-material/Description";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import EditIcon from "@mui/icons-material/Edit";
+import CancelIcon from "@mui/icons-material/Cancel";
+import SaveIcon from "@mui/icons-material/Save";
 import { Layout } from "@/components/Layout";
 
 import {
-  useDocumentationQuery,
-  useCreateDocumentationMutation,
-  useUpdateDocumentationMutation,
-  useUploadFileMutation,
-  useDeleteFileMutation,
-} from "@/hooks/queries/useSettingsQueries";
-import { settingsService } from "@/services/settingsService";
+  useTextDocsQuery,
+  useCreateTextDocMutation,
+  useUpdateTextDocMutation,
+  useDeleteTextDocMutation,
+  useFileDocsQuery,
+  useUploadFileDocMutation,
+  useUpdateFileDocMutation,
+  useDeleteFileDocMutation,
+} from "@/hooks/queries/useDocumentationQueries";
+import { documentationService } from "@/services/documentationService";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import type {
-  CreateSettingsRequest as CreateDocumentationRequest,
-  UpdateSettingsRequest as UpdateDocumentationRequest,
-  AdditionalDocDto,
-} from "@/types/settings";
 import type { ProjectDto } from "@/types/connection";
 import { scrollBarSx } from "@/constants/scrollBarSx";
 import { SessionStartForm } from "@/components/SessionStartForm";
 import { useNotificationContext } from "@/providers/NotificationProvider";
 import { useTranslations } from "next-intl";
 
-const MIN_TEXTFIELD_ROWS = 3;
-const MAX_TEXTFIELD_ROWS = 20;
-
-type AdditionalFileKind = "image" | "text" | "other";
+const ALLOWED_UPLOAD_EXTENSIONS = ["txt", "md", "docx", "pdf", "doc"];
+const ACCEPTED_UPLOAD_FILE_TYPES = ALLOWED_UPLOAD_EXTENSIONS.map(
+  (extension) => `.${extension}`,
+).join(",");
 
 const IMAGE_EXTENSIONS = [
   "png",
@@ -62,207 +70,177 @@ const IMAGE_EXTENSIONS = [
   "tiff",
   "ico",
 ];
-
-const TEXT_EXTENSIONS = [
-  "txt",
-  "md",
-  "json",
-  "yaml",
-  "yml",
-  "xml",
-  "csv",
-  "log",
-  "pdf",
-  "doc",
-  "docx",
-  "rtf",
-];
+const TEXT_EXTENSIONS = ["txt", "md", "docx", "pdf"];
 
 export default function DocumentationPage() {
   const { projects } = useWorkspaceStore();
-
   const [selectedProject, setSelectedProject] = useState<ProjectDto | null>(
     projects.length > 0 ? projects[0] : null,
   );
 
-  const { data: docData, isLoading: isDocLoading } = useDocumentationQuery(
-    selectedProject?.key,
+  const projectKey = selectedProject?.key || "";
+  const t = useTranslations("DocumentationPage");
+  const { notify } = useNotificationContext();
+
+  const [tabIndex, setTabIndex] = useState(0);
+
+  // Queries
+  const { data: textDocsData, isLoading: isLoadingTextDocs } = useTextDocsQuery(
+    projectKey || undefined,
+  );
+  const { data: fileDocsData, isLoading: isLoadingFileDocs } = useFileDocsQuery(
+    projectKey || undefined,
   );
 
-  const t = useTranslations("DocumentationPage");
+  // Mutations
+  const { mutateAsync: createTextDoc, isPending: isCreatingText } =
+    useCreateTextDocMutation();
+  const { mutateAsync: updateTextDoc, isPending: isUpdatingText } =
+    useUpdateTextDocMutation(projectKey);
+  const { mutateAsync: deleteTextDoc, isPending: isDeletingText } =
+    useDeleteTextDocMutation(projectKey);
 
-  const { mutateAsync: createDocs, isPending: isCreating } =
-    useCreateDocumentationMutation();
-  const { mutateAsync: updateDocs, isPending: isUpdating } =
-    useUpdateDocumentationMutation();
-  const { mutateAsync: uploadFile, isPending: isUploading } =
-    useUploadFileMutation();
-  const { mutateAsync: deleteFile, isPending: isDeleting } =
-    useDeleteFileMutation();
+  const { mutateAsync: uploadFileDoc, isPending: isUploadingFile } =
+    useUploadFileDocMutation();
+  const { mutateAsync: updateFileDoc, isPending: isUpdatingFile } =
+    useUpdateFileDocMutation(projectKey);
+  const { mutateAsync: deleteFileDoc, isPending: isDeletingFile } =
+    useDeleteFileDocMutation(projectKey);
 
-  const doc = docData?.data;
-  const { notify } = useNotificationContext();
+  const textDocs = textDocsData?.data || [];
+  const fileDocs = fileDocsData?.data || [];
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Form fields
-  const [productVision, setProductVision] = useState("");
-  const [productScope, setProductScope] = useState("");
-  const [currentSprintGoals, setCurrentSprintGoals] = useState("");
-  const [glossary, setGlossary] = useState("");
-  const [additionalDocs, setAdditionalDocs] = useState<AdditionalDocDto[]>([]);
-  const [fileDescription, setFileDescription] = useState("");
-  const [fileDescriptions, setFileDescriptions] = useState<
-    Record<string, string>
-  >({});
+  // --- UI States for Text Documentation ---
+  const [isAddingText, setIsAddingText] = useState(false);
+  const [newTextName, setNewTextName] = useState("");
+  const [newTextContent, setNewTextContent] = useState("");
+  const [newTextDesc, setNewTextDesc] = useState("");
 
-  // Effect to populate form when settings change
+  const [editingTextId, setEditingTextId] = useState<string | null>(null);
+  const [editTextContent, setEditTextContent] = useState("");
+  const [editTextDesc, setEditTextDesc] = useState("");
+
+  // --- UI States for File Documentation ---
+  const [uploadDesc, setUploadDesc] = useState("");
+
+  const [editingFileId, setEditingFileId] = useState<string | null>(null);
+  const [editFileDesc, setEditFileDesc] = useState("");
+
+  // --- Deletion Confirmations ---
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<{
+    id: string;
+    type: "text" | "file";
+    name: string;
+  } | null>(null);
+
+  // Reset forms on project change
   useEffect(() => {
-    if (doc) {
-      setProductVision(doc.product_vision || "");
-      setProductScope(doc.product_scope || "");
-      setCurrentSprintGoals(doc.current_sprint_goals || "");
-      setGlossary(doc.glossary || "");
-      setAdditionalDocs(doc.additional_docs || []);
-      setFileDescriptions(
-        (doc.additional_files || []).reduce<Record<string, string>>(
-          (acc, file) => {
-            acc[file.filename] = file.description || "";
-            return acc;
-          },
-          {},
-        ),
-      );
-      setFileDescription("");
-    } else {
-      resetForm();
+    setIsAddingText(false);
+    setEditingTextId(null);
+    setEditingFileId(null);
+  }, [projectKey]);
+
+  const handleProjectKeyChange = (project: ProjectDto | null) => {
+    setSelectedProject(project);
+  };
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabIndex(newValue);
+  };
+
+  // --- Text Actions ---
+  const handleCreateTextDoc = async () => {
+    if (!newTextName.trim() || !newTextContent.trim()) {
+      notify(t("nameAndContentRequired"), { severity: "warning" });
+      return;
     }
-  }, [doc, notify]);
-
-  const resetForm = () => {
-    setProductVision("");
-    setProductScope("");
-    setCurrentSprintGoals("");
-    setGlossary("");
-    setAdditionalDocs([]);
-    setFileDescriptions({});
-    setFileDescription("");
-  };
-
-  const normalizeAdditionalDocs = () => {
-    return additionalDocs
-      .map((item) => ({
-        title: item.title.trim(),
-        content: item.content.trim(),
-        description: item.description?.trim() || undefined,
-      }))
-      .filter(
-        (item) =>
-          item.title.length > 0 ||
-          item.content.length > 0 ||
-          (item.description?.length || 0) > 0,
-      );
-  };
-
-  const buildAdditionalFilesPayload = () => {
-    if (!doc?.additional_files) {
-      return [];
+    try {
+      await createTextDoc({
+        projectKey: projectKey,
+        data: {
+          name: newTextName,
+          content: newTextContent,
+          description: newTextDesc || undefined,
+        },
+      });
+      notify(t("textDocCreated"), {
+        severity: "success",
+      });
+      setIsAddingText(false);
+      setNewTextName("");
+      setNewTextContent("");
+      setNewTextDesc("");
+    } catch (e: any) {
+      notify(e.response?.data?.detail || t("textDocCreateFailed"), {
+        severity: "error",
+      });
     }
-
-    return doc.additional_files.map((file) => ({
-      filename: file.filename,
-      url: file.url,
-      description: fileDescriptions[file.filename]?.trim() || undefined,
-    }));
   };
 
-  const handleAddAdditionalDoc = () => {
-    setAdditionalDocs((prev) => [
-      ...prev,
-      { title: "", content: "", description: "" },
-    ]);
+  const startEditTextDoc = (doc: any) => {
+    setEditingTextId(doc.id);
+    setEditTextContent(doc.content || "");
+    setEditTextDesc(doc.description || "");
   };
 
-  const handleRemoveAdditionalDoc = (index: number) => {
-    setAdditionalDocs((prev) => prev.filter((_, i) => i !== index));
+  const cancelEditTextDoc = () => {
+    setEditingTextId(null);
   };
 
-  const handleAdditionalDocChange = (
-    index: number,
-    field: keyof AdditionalDocDto,
-    value: string,
-  ) => {
-    setAdditionalDocs((prev) =>
-      prev.map((docItem, i) =>
-        i === index ? { ...docItem, [field]: value } : docItem,
-      ),
-    );
+  const saveEditTextDoc = async (id: string) => {
+    try {
+      await updateTextDoc({
+        docId: id,
+        data: {
+          content: editTextContent,
+          description: editTextDesc || undefined,
+        },
+      });
+      notify(t("textDocUpdated"), {
+        severity: "success",
+      });
+      setEditingTextId(null);
+    } catch (e: any) {
+      notify(e.response?.data?.detail || t("textDocUpdateFailed"), {
+        severity: "error",
+      });
+    }
   };
 
-  const handleFileDescriptionChange = (filename: string, value: string) => {
-    setFileDescriptions((prev) => ({ ...prev, [filename]: value }));
-  };
+  // --- File Actions ---
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !projectKey) return;
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedProject) {
-      notify(t("selectProjectWarning"), { severity: "warning" });
+    const extension = file.name.split(".").pop()?.toLowerCase() || "";
+    if (!ALLOWED_UPLOAD_EXTENSIONS.includes(extension)) {
+      notify(t("invalidFileExtension"), { severity: "warning" });
+      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
-    const isSaving = isCreating || isUpdating;
-    if (isSaving) return;
-
     try {
-      const data: CreateDocumentationRequest | UpdateDocumentationRequest = {
-        product_vision: productVision || undefined,
-        product_scope: productScope || undefined,
-        current_sprint_goals: currentSprintGoals || undefined,
-        glossary: glossary || undefined,
-        additional_docs: normalizeAdditionalDocs(),
-        additional_files: buildAdditionalFilesPayload(),
-      };
-
-      if (doc) {
-        await updateDocs({ projectKey: selectedProject.key, data });
-        notify(t("documentationUpdatedSuccess"), { severity: "success" });
-      } else {
-        await createDocs({ projectKey: selectedProject.key, data });
-        notify(t("documentationCreatedSuccess"), { severity: "success" });
-      }
-    } catch (err: any) {
-      const errorMessage =
-        err.response?.data?.detail || t("saveDocumentationFailed");
-      notify(errorMessage, { severity: "error" });
-    }
-  };
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !selectedProject) return;
-
-    try {
-      await uploadFile({
-        projectKey: selectedProject.key,
+      await uploadFileDoc({
+        projectKey,
         file,
-        description: fileDescription,
+        description: uploadDesc,
       });
       notify(t("uploadFileSuccess"), { severity: "success" });
-      setFileDescription("");
+      setUploadDesc("");
     } catch (err: any) {
-      const errorMessage = err.response?.data?.detail || t("uploadFileFailed");
-      notify(errorMessage, { severity: "error" });
+      notify(err.response?.data?.detail || t("uploadFileFailed"), {
+        severity: "error",
+      });
     }
-    // Reset file input
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleFileDownload = async (filename: string) => {
-    if (!selectedProject) return;
+  const handleFileDownload = async (docId: string, filename: string) => {
     try {
-      const blob = await settingsService.downloadFile(
-        selectedProject.key,
-        filename,
-      );
+      const blob = await documentationService.downloadFileDoc(docId);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -276,109 +254,100 @@ export default function DocumentationPage() {
     }
   };
 
-  const handleFileDelete = async (filename: string) => {
-    if (!selectedProject) return;
-    try {
-      await deleteFile({ projectKey: selectedProject.key, filename });
-      notify(t("deleteFileSuccess"), { severity: "success" });
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.detail || t("deleteFileFailed");
-      notify(errorMessage, { severity: "error" });
-    }
+  const startEditFileDoc = (doc: any) => {
+    setEditingFileId(doc.id);
+    setEditFileDesc(doc.description || "");
   };
 
-  const handleProjectKeyChange = (project: ProjectDto | null) => {
-    setSelectedProject(project);
-    resetForm();
+  const cancelEditFileDoc = () => {
+    setEditingFileId(null);
   };
 
-  const handleSaveFileDescriptions = async () => {
-    if (!selectedProject || !doc) {
-      return;
-    }
-
+  const saveEditFileDoc = async (id: string) => {
     try {
-      await updateDocs({
-        projectKey: selectedProject.key,
-        data: {
-          additional_files: buildAdditionalFilesPayload(),
-        },
+      await updateFileDoc({
+        docId: id,
+        data: { description: editFileDesc || undefined },
       });
-      notify(t("fileDescriptionsUpdatedSuccess"), { severity: "success" });
-    } catch (err: any) {
-      const errorMessage =
-        err.response?.data?.detail || t("saveFileDescriptionsFailed");
-      notify(errorMessage, { severity: "error" });
+      notify(t("fileDescriptionUpdatedSuccess"), { severity: "success" });
+      setEditingFileId(null);
+    } catch (e: any) {
+      notify(e.response?.data?.detail || t("fileDescriptionUpdateFailed"), {
+        severity: "error",
+      });
     }
   };
 
-  const getFileKind = (filename: string): AdditionalFileKind => {
-    const extension = filename.split(".").pop()?.toLowerCase() || "";
+  // --- Delete confirmation ---
+  const requestDelete = (id: string, type: "text" | "file", name: string) => {
+    setItemToDelete({ id, type, name });
+    setDeleteConfirmOpen(true);
+  };
 
-    if (IMAGE_EXTENSIONS.includes(extension)) {
-      return "image";
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+    try {
+      if (itemToDelete.type === "text") {
+        await deleteTextDoc({ docId: itemToDelete.id });
+      } else {
+        await deleteFileDoc({ docId: itemToDelete.id });
+      }
+      notify(t("deleteItemSuccess"), { severity: "success" });
+    } catch (e: any) {
+      notify(e.response?.data?.detail || t("deleteItemFailed"), {
+        severity: "error",
+      });
+    } finally {
+      setDeleteConfirmOpen(false);
+      setItemToDelete(null);
     }
+  };
 
-    if (TEXT_EXTENSIONS.includes(extension)) {
-      return "text";
-    }
-
-    return "other";
+  const closeDeleteConfirm = () => {
+    setDeleteConfirmOpen(false);
+    setItemToDelete(null);
   };
 
   const getFileKindUI = (filename: string) => {
-    const kind = getFileKind(filename);
-
-    if (kind === "image") {
+    const extension = filename.split(".").pop()?.toLowerCase() || "";
+    if (IMAGE_EXTENSIONS.includes(extension)) {
       return {
         icon: <ImageIcon fontSize="small" />,
         chipLabel: t("fileTypeImage"),
-        iconColor: "success.main",
-        chipColor: "success" as const,
+        color: "success" as const,
       };
     }
-
-    if (kind === "text") {
+    if (TEXT_EXTENSIONS.includes(extension)) {
       return {
         icon: <DescriptionIcon fontSize="small" />,
         chipLabel: t("fileTypeText"),
-        iconColor: "info.main",
-        chipColor: "info" as const,
+        color: "info" as const,
       };
     }
-
     return {
       icon: <InsertDriveFileIcon fontSize="small" />,
       chipLabel: t("fileTypeFile"),
-      iconColor: "text.secondary",
-      chipColor: "default" as const,
+      color: "default" as const,
     };
   };
-
-  const additionalFiles = doc?.additional_files || [];
 
   return (
     <Layout
       appBarLeftContent={
-        <Stack direction={"row"} alignItems="center" spacing={2} py={2}>
-          <Typography variant="h5">{t("title")}</Typography>
-        </Stack>
+        <Typography variant="h5" py={2}>
+          {t("title")}
+        </Typography>
       }
       appBarTransparent
-      basePath={`/app/projects/${selectedProject?.key}`}
+      basePath={`/app/projects/${projectKey}`}
     >
       <Container maxWidth="md" sx={{ mt: 4, mb: 4, overflowY: "auto" }}>
         <Paper
           elevation={2}
-          sx={{
-            p: 3,
-            mb: 3,
-            borderRadius: 1,
-            bgcolor: "background.paper",
-          }}
+          sx={{ p: 3, mb: 3, borderRadius: 1, bgcolor: "background.paper" }}
         >
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
-            {t("connectionAndProjects")}
+            {t("projects")}
           </Typography>
           <SessionStartForm
             projectOptions={{
@@ -390,410 +359,470 @@ export default function DocumentationPage() {
         </Paper>
 
         {selectedProject && (
-          <>
-            <Paper
-              elevation={2}
-              sx={{
-                p: 3,
-                mb: 3,
-                borderRadius: 1,
-                bgcolor: "background.paper",
-              }}
-            >
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
-                {t("projectDocumentation")}
-              </Typography>
-              {doc && (
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ mb: 2, display: "block" }}
+          <Paper
+            elevation={2}
+            sx={{
+              p: 3,
+              borderRadius: 1,
+              bgcolor: "background.paper",
+              minHeight: 600,
+            }}
+          >
+            <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+              <Tabs
+                value={tabIndex}
+                onChange={handleTabChange}
+                aria-label={t("documentationTabsAriaLabel")}
+              >
+                <Tab label={t("textDocumentationTab")} />
+                <Tab label={t("fileDocumentationTab")} />
+              </Tabs>
+            </Box>
+
+            {tabIndex === 0 && (
+              <Box>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  mb={2}
                 >
-                  {t("lastUpdated", {
-                    date: new Date(doc.updated_at).toLocaleString(),
-                  })}
-                </Typography>
-              )}
-              {isDocLoading ? (
-                <LoadingSpinner />
-              ) : (
-                <Box component="form" onSubmit={handleSave}>
-                  <Stack spacing={2}>
-                    <TextField
-                      fullWidth
-                      multiline
-                      label={t("productVision")}
-                      value={productVision}
-                      onChange={(e) => setProductVision(e.target.value)}
-                      disabled={isCreating || isUpdating}
-                      placeholder={t("productVisionPlaceholder")}
-                      minRows={MIN_TEXTFIELD_ROWS}
-                      maxRows={MAX_TEXTFIELD_ROWS}
-                      sx={{ ...scrollBarSx }}
-                    />
-                    <TextField
-                      fullWidth
-                      multiline
-                      label={t("productScope")}
-                      value={productScope}
-                      onChange={(e) => setProductScope(e.target.value)}
-                      disabled={isCreating || isUpdating}
-                      placeholder={t("productScopePlaceholder")}
-                      minRows={MIN_TEXTFIELD_ROWS}
-                      maxRows={MAX_TEXTFIELD_ROWS}
-                      sx={{ ...scrollBarSx }}
-                    />
-                    <TextField
-                      fullWidth
-                      multiline
-                      label={t("currentSprintGoals")}
-                      value={currentSprintGoals}
-                      onChange={(e) => setCurrentSprintGoals(e.target.value)}
-                      disabled={isCreating || isUpdating}
-                      placeholder={t("currentSprintGoalsPlaceholder")}
-                      minRows={MIN_TEXTFIELD_ROWS}
-                      maxRows={MAX_TEXTFIELD_ROWS}
-                      sx={{ ...scrollBarSx }}
-                    />
-                    <TextField
-                      fullWidth
-                      multiline
-                      label={t("glossary")}
-                      value={glossary}
-                      onChange={(e) => setGlossary(e.target.value)}
-                      disabled={isCreating || isUpdating}
-                      placeholder={t("glossaryPlaceholder")}
-                      minRows={MIN_TEXTFIELD_ROWS}
-                      maxRows={MAX_TEXTFIELD_ROWS}
-                      sx={{ ...scrollBarSx }}
-                    />
+                  <Typography variant="h6">{t("textEntries")}</Typography>
+                  {!isAddingText && (
+                    <Button
+                      variant="contained"
+                      startIcon={<AddIcon />}
+                      onClick={() => setIsAddingText(true)}
+                    >
+                      {t("addEntry")}
+                    </Button>
+                  )}
+                </Stack>
 
-                    <Divider sx={{ pt: 1 }} />
-
-                    <Stack spacing={3}>
+                {isAddingText && (
+                  <Paper
+                    variant="outlined"
+                    sx={{ p: 2, mb: 3, bgcolor: "background.default" }}
+                  >
+                    <Stack spacing={2}>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        {t("newEntry")}
+                      </Typography>
+                      <TextField
+                        fullWidth
+                        label={t("nameRequiredLabel")}
+                        value={newTextName}
+                        onChange={(e) => setNewTextName(e.target.value)}
+                        disabled={isCreatingText}
+                      />
+                      <TextField
+                        fullWidth
+                        label={t("descriptionOptionalLabel")}
+                        value={newTextDesc}
+                        onChange={(e) => setNewTextDesc(e.target.value)}
+                        disabled={isCreatingText}
+                      />
+                      <TextField
+                        fullWidth
+                        multiline
+                        minRows={5}
+                        maxRows={15}
+                        label={t("contentRequiredLabel")}
+                        value={newTextContent}
+                        onChange={(e) => setNewTextContent(e.target.value)}
+                        disabled={isCreatingText}
+                        sx={{ ...scrollBarSx }}
+                      />
                       <Stack
                         direction="row"
-                        alignItems="center"
-                        justifyContent="space-between"
+                        spacing={1}
+                        justifyContent="flex-end"
                       >
-                        <Typography variant="h6">
-                          {t("additionalDocs")}
-                        </Typography>
                         <Button
                           variant="outlined"
-                          size="small"
-                          startIcon={<AddIcon />}
-                          onClick={handleAddAdditionalDoc}
-                          disabled={isCreating || isUpdating}
+                          color="inherit"
+                          onClick={() => setIsAddingText(false)}
+                          disabled={isCreatingText}
                         >
-                          {t("addAdditionalDoc")}
+                          {t("cancel")}
+                        </Button>
+                        <Button
+                          variant="contained"
+                          onClick={handleCreateTextDoc}
+                          disabled={isCreatingText}
+                        >
+                          {isCreatingText ? (
+                            <CircularProgress size={20} />
+                          ) : (
+                            t("save")
+                          )}
                         </Button>
                       </Stack>
-                      <Typography variant="body2" color="text.secondary">
-                        {t("additionalDocsDescription")}
-                      </Typography>
-
-                      {additionalDocs.length > 0 ? (
-                        <Stack spacing={2}>
-                          {additionalDocs.map((item, index) => (
-                            <Box key={`additional-doc-${index}`}>
-                              <Stack spacing={1.5}>
-                                <TextField
-                                  fullWidth
-                                  label={t("additionalDocTitle")}
-                                  value={item.title}
-                                  onChange={(e) =>
-                                    handleAdditionalDocChange(
-                                      index,
-                                      "title",
-                                      e.target.value,
-                                    )
-                                  }
-                                  disabled={isCreating || isUpdating}
-                                />
-                                <TextField
-                                  fullWidth
-                                  multiline
-                                  minRows={MIN_TEXTFIELD_ROWS}
-                                  maxRows={MAX_TEXTFIELD_ROWS}
-                                  label={t("additionalDocContent")}
-                                  value={item.content}
-                                  onChange={(e) =>
-                                    handleAdditionalDocChange(
-                                      index,
-                                      "content",
-                                      e.target.value,
-                                    )
-                                  }
-                                  disabled={isCreating || isUpdating}
-                                  sx={{ ...scrollBarSx }}
-                                />
-                                <TextField
-                                  fullWidth
-                                  label={t("additionalDocDescription")}
-                                  value={item.description || ""}
-                                  onChange={(e) =>
-                                    handleAdditionalDocChange(
-                                      index,
-                                      "description",
-                                      e.target.value,
-                                    )
-                                  }
-                                  disabled={isCreating || isUpdating}
-                                />
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    justifyContent: "flex-end",
-                                  }}
-                                >
-                                  <Button
-                                    color="error"
-                                    onClick={() =>
-                                      handleRemoveAdditionalDoc(index)
-                                    }
-                                    disabled={isCreating || isUpdating}
-                                  >
-                                    {t("removeAdditionalDoc")}
-                                  </Button>
-                                </Box>
-                              </Stack>
-                            </Box>
-                          ))}
-                        </Stack>
-                      ) : (
-                        <Typography variant="body2" color="text.secondary">
-                          {t("noAdditionalDocs")}
-                        </Typography>
-                      )}
                     </Stack>
+                  </Paper>
+                )}
 
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      disabled={isCreating || isUpdating}
-                      fullWidth
-                    >
-                      {isCreating || isUpdating ? (
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          <CircularProgress size={20} />
-                          <span>{t("saving")}</span>
-                        </Box>
-                      ) : doc ? (
-                        t("updateDocumentation")
-                      ) : (
-                        t("createDocumentation")
-                      )}
-                    </Button>
-                  </Stack>
-                </Box>
-              )}
-            </Paper>
-
-            {/* Additional Files Section */}
-            {doc && (
-              <Paper
-                elevation={2}
-                sx={{
-                  p: 3,
-                  mb: 3,
-                  borderRadius: 1,
-                  bgcolor: "background.paper",
-                }}
-              >
-                <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
-                  {t("additionalFiles")}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mb: 2 }}
-                >
-                  {t("additionalFilesDescription")}
-                </Typography>
-
-                {/* Upload button */}
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileUpload}
-                  style={{ display: "none" }}
-                />
-                <Button
-                  variant="outlined"
-                  startIcon={<UploadFileIcon />}
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
-                  sx={{ mb: 2, alignSelf: "flex-start" }}
-                >
-                  {isUploading ? (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <CircularProgress size={16} />
-                      <span>{t("uploading")}</span>
-                    </Box>
-                  ) : (
-                    t("uploadFile")
-                  )}
-                </Button>
-
-                <TextField
-                  fullWidth
-                  label={t("uploadFileDescriptionLabel")}
-                  value={fileDescription}
-                  onChange={(e) => setFileDescription(e.target.value)}
-                  placeholder={t("uploadFileDescriptionPlaceholder")}
-                  disabled={isUploading}
-                  sx={{ mb: 2 }}
-                />
-
-                {/* File list */}
-                {additionalFiles.length > 0 ? (
-                  <>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ mb: 1 }}
-                    >
-                      {t("fileDescriptionsHint")}
-                    </Typography>
-                    <List dense sx={{ p: 0 }}>
-                      {additionalFiles.map((file) => {
-                        const fileKindUI = getFileKindUI(file.filename);
-
-                        return (
-                          <ListItem
-                            key={file.filename}
-                            disableGutters
-                            sx={{ mb: 1 }}
-                          >
-                            <Paper
-                              variant="outlined"
+                {isLoadingTextDocs ? (
+                  <LoadingSpinner />
+                ) : textDocs.length === 0 && !isAddingText ? (
+                  <Typography color="text.secondary">
+                    {t("noTextDocumentation")}
+                  </Typography>
+                ) : (
+                  <Stack spacing={2}>
+                    {textDocs.map((doc) => (
+                      <Paper
+                        key={doc.id}
+                        variant="outlined"
+                        sx={{ p: 2, borderColor: "divider" }}
+                      >
+                        {editingTextId === doc.id ? (
+                          <Stack spacing={2}>
+                            <Typography variant="subtitle1" fontWeight="bold">
+                              {doc.name}
+                            </Typography>
+                            <TextField
+                              fullWidth
+                              label={t("descriptionLabel")}
+                              value={editTextDesc}
+                              onChange={(e) => setEditTextDesc(e.target.value)}
+                              disabled={isUpdatingText}
+                            />
+                            <TextField
+                              fullWidth
+                              multiline
+                              minRows={5}
+                              maxRows={15}
+                              label={t("contentLabel")}
+                              value={editTextContent}
+                              onChange={(e) =>
+                                setEditTextContent(e.target.value)
+                              }
+                              disabled={isUpdatingText}
+                              sx={{ ...scrollBarSx }}
+                            />
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              justifyContent="flex-end"
+                            >
+                              <IconButton
+                                color="default"
+                                onClick={cancelEditTextDoc}
+                                disabled={isUpdatingText}
+                              >
+                                <CancelIcon />
+                              </IconButton>
+                              <IconButton
+                                color="primary"
+                                onClick={() => saveEditTextDoc(doc.id)}
+                                disabled={isUpdatingText}
+                              >
+                                <SaveIcon />
+                              </IconButton>
+                            </Stack>
+                          </Stack>
+                        ) : (
+                          <Stack spacing={1}>
+                            <Stack
+                              direction="row"
+                              justifyContent="space-between"
+                              alignItems="flex-start"
+                            >
+                              <Box>
+                                <Typography
+                                  variant="subtitle1"
+                                  fontWeight="bold"
+                                >
+                                  {doc.name}
+                                </Typography>
+                                {doc.description && (
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                  >
+                                    {doc.description}
+                                  </Typography>
+                                )}
+                              </Box>
+                              <Stack direction="row" spacing={0}>
+                                <IconButton
+                                  size="small"
+                                  color="primary"
+                                  onClick={() => startEditTextDoc(doc)}
+                                >
+                                  <EditIcon fontSize="small" />
+                                </IconButton>
+                                <IconButton
+                                  size="small"
+                                  color="error"
+                                  onClick={() =>
+                                    requestDelete(doc.id, "text", doc.name)
+                                  }
+                                >
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </Stack>
+                            </Stack>
+                            <Box
                               sx={{
                                 p: 1.5,
-                                width: "100%",
-                                borderColor: "divider",
                                 bgcolor: "background.default",
+                                borderRadius: 1,
+                                maxHeight: 200,
+                                overflowY: "auto",
+                                ...scrollBarSx,
                               }}
                             >
-                              <Stack spacing={1.5}>
-                                <Stack
-                                  direction="row"
-                                  spacing={1}
-                                  alignItems="center"
-                                  justifyContent="space-between"
-                                  flexWrap="wrap"
-                                  useFlexGap
+                              <Typography
+                                variant="body2"
+                                sx={{ whiteSpace: "pre-wrap" }}
+                              >
+                                {doc.content}
+                              </Typography>
+                            </Box>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              {t("lastUpdated", {
+                                date: new Date(doc.updated_at).toLocaleString(),
+                              })}
+                            </Typography>
+                          </Stack>
+                        )}
+                      </Paper>
+                    ))}
+                  </Stack>
+                )}
+              </Box>
+            )}
+
+            {tabIndex === 1 && (
+              <Box>
+                <Typography variant="h6" mb={2}>
+                  {t("filesSectionTitle")}
+                </Typography>
+
+                <Typography variant="body2" color="text.secondary" mb={2}>
+                  {t("allowedFileExtensions")}
+                </Typography>
+                <Paper
+                  variant="outlined"
+                  sx={{ p: 2, mb: 3, bgcolor: "background.default" }}
+                >
+                  <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={2}
+                    alignItems="center"
+                  >
+                    <TextField
+                      size="small"
+                      fullWidth
+                      label={t("uploadDescriptionOptional")}
+                      value={uploadDesc}
+                      onChange={(e) => setUploadDesc(e.target.value)}
+                      disabled={isUploadingFile}
+                    />
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      accept={ACCEPTED_UPLOAD_FILE_TYPES}
+                      onChange={handleFileUpload}
+                      style={{ display: "none" }}
+                    />
+                    <Button
+                      variant="contained"
+                      startIcon={<UploadFileIcon />}
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploadingFile}
+                      sx={{ whiteSpace: "nowrap" }}
+                    >
+                      {isUploadingFile ? t("uploading") : t("uploadFile")}
+                    </Button>
+                  </Stack>
+                </Paper>
+
+                {isLoadingFileDocs ? (
+                  <LoadingSpinner />
+                ) : fileDocs.length === 0 ? (
+                  <Typography color="text.secondary">
+                    {t("noFileDocumentation")}
+                  </Typography>
+                ) : (
+                  <List sx={{ p: 0 }}>
+                    {fileDocs.map((doc) => {
+                      const ui = getFileKindUI(doc.name);
+                      return (
+                        <ListItem key={doc.id} disableGutters sx={{ mb: 1 }}>
+                          <Paper
+                            variant="outlined"
+                            sx={{
+                              p: 1.5,
+                              width: "100%",
+                              borderColor: "divider",
+                            }}
+                          >
+                            {editingFileId === doc.id ? (
+                              <Stack spacing={2}>
+                                <Typography
+                                  variant="subtitle2"
+                                  fontWeight="bold"
                                 >
-                                  <Stack
-                                    direction="row"
-                                    spacing={1}
-                                    alignItems="center"
-                                    sx={{ minWidth: 0 }}
-                                  >
-                                    <Box
-                                      sx={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        width: 30,
-                                        height: 30,
-                                        borderRadius: 1,
-                                        bgcolor: "action.hover",
-                                        color: fileKindUI.iconColor,
-                                        flexShrink: 0,
-                                      }}
-                                    >
-                                      {fileKindUI.icon}
-                                    </Box>
-                                    <Typography
-                                      variant="body2"
-                                      sx={{
-                                        fontWeight: 600,
-                                        wordBreak: "break-all",
-                                        minWidth: 0,
-                                      }}
-                                    >
-                                      {file.filename}
-                                    </Typography>
-                                    <Chip
-                                      label={fileKindUI.chipLabel}
-                                      size="small"
-                                      color={fileKindUI.chipColor}
-                                      variant="outlined"
-                                    />
-                                  </Stack>
-
-                                  <Stack direction="row" spacing={0.5}>
-                                    <IconButton
-                                      aria-label={t("downloadAriaLabel")}
-                                      onClick={() =>
-                                        handleFileDownload(file.filename)
-                                      }
-                                      color="primary"
-                                    >
-                                      <DownloadIcon />
-                                    </IconButton>
-                                    <IconButton
-                                      aria-label={t("deleteAriaLabel")}
-                                      onClick={() =>
-                                        handleFileDelete(file.filename)
-                                      }
-                                      disabled={isDeleting || isUpdating}
-                                      color="error"
-                                    >
-                                      <DeleteIcon />
-                                    </IconButton>
-                                  </Stack>
-                                </Stack>
-
+                                  {doc.name}
+                                </Typography>
                                 <TextField
                                   fullWidth
                                   size="small"
-                                  label={t("fileDescriptionLabel")}
-                                  value={fileDescriptions[file.filename] || ""}
+                                  label={t("descriptionLabel")}
+                                  value={editFileDesc}
                                   onChange={(e) =>
-                                    handleFileDescriptionChange(
-                                      file.filename,
-                                      e.target.value,
-                                    )
+                                    setEditFileDesc(e.target.value)
                                   }
-                                  disabled={isUpdating || isDeleting}
+                                  disabled={isUpdatingFile}
                                 />
+                                <Stack
+                                  direction="row"
+                                  spacing={1}
+                                  justifyContent="flex-end"
+                                >
+                                  <IconButton
+                                    size="small"
+                                    onClick={cancelEditFileDoc}
+                                    disabled={isUpdatingFile}
+                                  >
+                                    <CancelIcon />
+                                  </IconButton>
+                                  <IconButton
+                                    size="small"
+                                    color="primary"
+                                    onClick={() => saveEditFileDoc(doc.id)}
+                                    disabled={isUpdatingFile}
+                                  >
+                                    <SaveIcon />
+                                  </IconButton>
+                                </Stack>
                               </Stack>
-                            </Paper>
-                          </ListItem>
-                        );
-                      })}
-                    </List>
-
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        mt: 1,
-                      }}
-                    >
-                      <Button
-                        variant="contained"
-                        onClick={handleSaveFileDescriptions}
-                        disabled={isUpdating || isDeleting}
-                      >
-                        {t("saveFileDescriptions")}
-                      </Button>
-                    </Box>
-                  </>
-                ) : (
-                  <Typography variant="body2" color="text.secondary">
-                    {t("noFilesUploaded")}
-                  </Typography>
+                            ) : (
+                              <Stack
+                                direction="row"
+                                justifyContent="space-between"
+                                alignItems="center"
+                              >
+                                <Stack
+                                  direction="row"
+                                  spacing={1.5}
+                                  alignItems="center"
+                                >
+                                  {ui.icon}
+                                  <Box>
+                                    <Stack
+                                      direction="row"
+                                      spacing={1}
+                                      alignItems="center"
+                                    >
+                                      <Typography
+                                        variant="body2"
+                                        fontWeight="bold"
+                                      >
+                                        {doc.name}
+                                      </Typography>
+                                      <Chip
+                                        size="small"
+                                        label={ui.chipLabel}
+                                        color={ui.color}
+                                        variant="outlined"
+                                      />
+                                    </Stack>
+                                    {doc.description && (
+                                      <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                      >
+                                        {doc.description}
+                                      </Typography>
+                                    )}
+                                    <Typography
+                                      variant="caption"
+                                      color="text.disabled"
+                                      display="block"
+                                    >
+                                      {t("updatedAt", {
+                                        date: new Date(
+                                          doc.updated_at,
+                                        ).toLocaleString(),
+                                      })}
+                                    </Typography>
+                                  </Box>
+                                </Stack>
+                                <Stack direction="row" spacing={0.5}>
+                                  <IconButton
+                                    color="default"
+                                    size="small"
+                                    onClick={() => startEditFileDoc(doc)}
+                                  >
+                                    <EditIcon fontSize="small" />
+                                  </IconButton>
+                                  <IconButton
+                                    color="primary"
+                                    size="small"
+                                    onClick={() =>
+                                      handleFileDownload(doc.id, doc.name)
+                                    }
+                                  >
+                                    <DownloadIcon fontSize="small" />
+                                  </IconButton>
+                                  <IconButton
+                                    color="error"
+                                    size="small"
+                                    onClick={() =>
+                                      requestDelete(doc.id, "file", doc.name)
+                                    }
+                                  >
+                                    <DeleteIcon fontSize="small" />
+                                  </IconButton>
+                                </Stack>
+                              </Stack>
+                            )}
+                          </Paper>
+                        </ListItem>
+                      );
+                    })}
+                  </List>
                 )}
-              </Paper>
+              </Box>
             )}
-          </>
+          </Paper>
         )}
       </Container>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={deleteConfirmOpen} onClose={closeDeleteConfirm}>
+        <DialogTitle>{t("confirmDeletionTitle")}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {t("confirmDeletionMessagePrefix")} <b>{itemToDelete?.name}</b>?{" "}
+            {t("confirmDeletionMessageSuffix")}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDeleteConfirm} color="inherit">
+            {t("cancel")}
+          </Button>
+          <Button
+            onClick={confirmDelete}
+            color="error"
+            variant="contained"
+            disabled={isDeletingText || isDeletingFile}
+          >
+            {isDeletingText || isDeletingFile ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              t("delete")
+            )}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Layout>
   );
 }

@@ -1,7 +1,7 @@
 from typing import List, Literal, Optional
 from pydantic import BaseModel, Field
 
-from app.analysis.agents.schemas import WorkItemMinimal, DefectInput
+from app.analysis.agents.schemas import UserStoryMinimal, DefectInput
 from common.agents.input_schemas import ContextInput
 
 
@@ -46,7 +46,7 @@ class ProposalContextInput(ContextInput):
 class ProposalInput(BaseModel):
     """Schema for the input to the proposal generator."""
 
-    user_stories: List[WorkItemMinimal] = Field(
+    user_stories: List[UserStoryMinimal] = Field(
         description="List of User Stories relevant to the given defects",
     )
     defects: List[DefectInput] = Field(
@@ -88,7 +88,7 @@ class ProposalReview(BaseModel):
 class ImpactAnalyzerInput(BaseModel):
     """Schema for the input to the impact analyzer."""
 
-    user_stories: List[WorkItemMinimal] = Field(
+    user_stories: List[UserStoryMinimal] = Field(
         description="List of original User Stories.",
     )
     defects: List[DefectInput] = Field(
@@ -114,7 +114,7 @@ class ImpactAnalyzerOutput(BaseModel):
 class RewriterInput(BaseModel):
     """Schema for the input to the proposal rewriter."""
 
-    user_stories: List[WorkItemMinimal] = Field(
+    user_stories: List[UserStoryMinimal] = Field(
         description="List of original User Stories.",
     )
     defects: List[DefectInput] = Field(
@@ -154,7 +154,7 @@ class ProposalReview(BaseModel):
 class ImpactAnalyzerInput(BaseModel):
     """Schema for the input to the impact analyzer."""
 
-    user_stories: List[WorkItemMinimal] = Field(
+    user_stories: List[UserStoryMinimal] = Field(
         description="List of original User Stories.",
     )
     defects: List[DefectInput] = Field(
@@ -180,7 +180,7 @@ class ImpactAnalyzerOutput(BaseModel):
 class RewriterInput(BaseModel):
     """Schema for the input to the proposal rewriter."""
 
-    user_stories: List[WorkItemMinimal] = Field(
+    user_stories: List[UserStoryMinimal] = Field(
         description="List of original User Stories.",
     )
     defects: List[DefectInput] = Field(

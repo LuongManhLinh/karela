@@ -5,10 +5,10 @@ from pydantic import BaseModel, Field, ConfigDict
 from common.agents.input_schemas import ContextInput
 
 from .schemas import (
-    WorkItemMinimal,
+    UserStoryMinimal,
     UserStoryDto,
-    WorkItem,
-    WorkItemWithRef,
+    UserStory,
+    UserStoryWithRef,
     DefectByLlm,
 )
 
@@ -16,7 +16,7 @@ from .schemas import (
 class DetectDefectSingleTypeInput(BaseModel):
     context: Optional[ContextInput] = None
     type: Optional[str] = None
-    work_items: List[WorkItemMinimal] = Field(default_factory=list)
+    work_items: List[UserStoryMinimal] = Field(default_factory=list)
 
     model_config = ConfigDict(
         extra="ignore",
@@ -25,7 +25,7 @@ class DetectDefectSingleTypeInput(BaseModel):
 
 class DetectDefectSingleItemInput(BaseModel):
     context: Optional[ContextInput] = None
-    work_items: List[WorkItem] = Field(default_factory=list)
+    work_items: List[UserStory] = Field(default_factory=list)
 
     model_config = ConfigDict(
         extra="ignore",
@@ -34,7 +34,7 @@ class DetectDefectSingleItemInput(BaseModel):
 
 class DetectDefectCrossTypesInput(BaseModel):
     context: Optional[ContextInput] = None
-    work_items: List[WorkItemWithRef] = Field(default_factory=list)
+    work_items: List[UserStoryWithRef] = Field(default_factory=list)
 
     model_config = ConfigDict(
         extra="ignore",
@@ -74,7 +74,7 @@ class NotifyDefectInput(BaseModel):
 
 class ReportDefectInput(BaseModel):
     defects: List[DefectByLlm] = Field(default_factory=list)
-    analyzed_work_items: List[WorkItem] = Field(default_factory=list)
+    analyzed_work_items: List[UserStory] = Field(default_factory=list)
 
     model_config = ConfigDict(
         extra="ignore",

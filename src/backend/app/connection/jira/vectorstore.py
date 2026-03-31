@@ -18,7 +18,6 @@ class JiraVectorStore:
         filter: dict = None,
         where_document=None,
     ) -> list[StoryDto]:
-        print("Retrieving similar stories from vector store...")
         and_op = [
             {"connection_id": connection_id},
             {"project_key": project_key},
@@ -37,16 +36,9 @@ class JiraVectorStore:
             where_document=where_document,
         )
 
-        print(
-            f"Found {len(results)} similar stories in vector store with query: {query}"
-        )
-
         stories = []
         for doc, sim in results:
             if sim < min_similarity:
-                print(
-                    "Skipping story due to low similarity:", doc.metadata.get("key", "")
-                )
                 continue
             story = StoryDto(
                 id=doc.id,
@@ -56,7 +48,6 @@ class JiraVectorStore:
                     "Description: ", ""
                 ),
             )
-            print(f"Accepted story {story.key} with similarity {sim}")
             stories.append(story)
         return stories
 

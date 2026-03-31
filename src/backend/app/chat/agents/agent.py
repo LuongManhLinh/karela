@@ -41,7 +41,6 @@ def user_context_prompt(request: ModelRequest) -> str:
 
 
 agent = GenimiDynamicAgent(
-    system_prompt=SYSTEM_PROMPT,
     model_name=GeminiConfig.GEMINI_API_CHAT_MODEL,
     temperature=GeminiConfig.GEMINI_API_CHAT_TEMPERATURE,
     tools=tools,

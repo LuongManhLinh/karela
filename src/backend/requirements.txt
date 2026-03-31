@@ -8,7 +8,6 @@ uvicorn
 langchain
 langgraph
 langchain-google-genai
-# langchain-openai
 langchain-chroma
 pydantic
 pymysql
@@ -20,7 +19,13 @@ cryptography
 jira2markdown
 python-dotenv
 minio
-
+unstructured
+unstructured[md]
+unstructred[docx]
+unstructured[txt]
+langchain_text_splitters
+markitdown[docx]
+# pypandoc_binary
 # nltk
 # sentence-transformers
 # torch

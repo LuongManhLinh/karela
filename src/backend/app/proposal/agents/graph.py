@@ -1,8 +1,9 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Literal, Optional
 from langchain_core.messages import HumanMessage, AIMessage, BaseMessage
 from langgraph.graph import StateGraph, START, END
 from langgraph.runtime import Runtime
+from langchain.agents.middleware import dynamic_prompt, ModelRequest
 
 
 from llm.dynamic_agent import GenimiDynamicAgent
@@ -10,6 +11,7 @@ from .prompts import (
     DRAFTER_SYSTEM_PROMPT,
     IMPACT_ANALYZER_SYSTEM_PROMPT,
     REWRITER_SYSTEM_PROMPT,
+    SIMPLE_SYSTEM_PROMPT,
 )
 from .schemas import (
     ProposalContextInput,
@@ -21,7 +23,7 @@ from .schemas import (
     ProposalReview,
     RewriterInput,
 )
-from app.analysis.agents.schemas import WorkItemMinimal, DefectInput
+from app.analysis.agents.schemas import UserStoryMinimal, DefectInput
 from common.agents.input_schemas import ContextInput
 from common.configs import GeminiConfig
 from .fake_history import (
@@ -31,35 +33,63 @@ from .fake_history import (
 )
 
 
+def get_dynamic_prompt_middleware_for_node(node_name: str) -> str:
+    @dynamic_prompt
+    def user_context_prompt(request: ModelRequest) -> str:
+        extra_prompt = request.runtime.context.extra_prompt or ""
+        if node_name == "proposal_drafter":
+            return DRAFTER_SYSTEM_PROMPT.format(extra_prompt=extra_prompt)
+        elif node_name == "impact_analyzer":
+            return IMPACT_ANALYZER_SYSTEM_PROMPT.format(extra_prompt=extra_prompt)
+        elif node_name == "proposal_rewriter":
+            return REWRITER_SYSTEM_PROMPT.format(extra_prompt=extra_prompt)
+        elif node_name == "simple_agent":
+            return SIMPLE_SYSTEM_PROMPT.format(extra_prompt=extra_prompt)
+        else:
+            return ""
+
+    return user_context_prompt
+
+
 # Create agents for each node
 drafter_agent = GenimiDynamicAgent(
-    system_prompt=DRAFTER_SYSTEM_PROMPT,
     model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
     temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,
     response_mime_type="application/json",
     response_schema=ProposalOutput,
     api_keys=GeminiConfig.GEMINI_API_KEYS,
     max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    middleware=[get_dynamic_prompt_middleware_for_node("proposal_drafter")],
 )
 
 impact_analyzer_agent = GenimiDynamicAgent(
-    system_prompt=IMPACT_ANALYZER_SYSTEM_PROMPT,
     model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
     temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,
     response_mime_type="application/json",
     response_schema=ImpactAnalyzerOutput,
     api_keys=GeminiConfig.GEMINI_API_KEYS,
     max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    middleware=[get_dynamic_prompt_middleware_for_node("impact_analyzer")],
 )
 
 rewriter_agent = GenimiDynamicAgent(
-    system_prompt=REWRITER_SYSTEM_PROMPT,
     model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
     temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,
     response_mime_type="application/json",
     response_schema=ProposalOutput,
     api_keys=GeminiConfig.GEMINI_API_KEYS,
     max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    middleware=[get_dynamic_prompt_middleware_for_node("proposal_rewriter")],
+)
+
+simple_agent = GenimiDynamicAgent(
+    model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
+    temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    response_mime_type="application/json",
+    response_schema=ProposalOutput,
+    api_keys=GeminiConfig.GEMINI_API_KEYS,
+    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    middleware=[get_dynamic_prompt_middleware_for_node("simple_agent")],
 )
 
 
@@ -74,13 +104,14 @@ class State:
     is_complete: bool = False
     # Store messages of the rewrite loop (Human request + AI response)
     loop_history: List[BaseMessage] = field(default_factory=list)
+    extra_prompt: Optional[str] = None
 
 
 @dataclass
 class Context:
     """Context shared across all nodes."""
 
-    user_stories: List[WorkItemMinimal]
+    user_stories: List[UserStoryMinimal]
     defects: List[DefectInput]
     context_input: Optional[ContextInput] = None
 
@@ -243,10 +274,12 @@ _graph = build_graph()
 
 
 def generate_proposals(
-    user_stories: List[WorkItemMinimal],
+    mode: Literal["SIMPLE", "COMPLEX"],
+    user_stories: List[UserStoryMinimal],
     defects: List[DefectInput],
     context_input: ContextInput | ProposalContextInput = None,
     max_rewrite_attempts: int = 3,
+    extra_prompt: Optional[str] = None,
 ) -> List[Proposal]:
     """
     Generate Jira proposal improvements from existing defects.
@@ -261,18 +294,38 @@ def generate_proposals(
         List of approved proposals
     """
 
-    initial_state = State(max_rewrite_attempts=max_rewrite_attempts)
-    context = Context(
-        user_stories=user_stories,
-        defects=defects,
-        context_input=context_input,
-    )
+    if mode == "COMPLEX":
+        initial_state = State(max_rewrite_attempts=max_rewrite_attempts)
+        context = Context(
+            user_stories=user_stories,
+            defects=defects,
+            context_input=context_input,
+            extra_prompt=extra_prompt,
+        )
 
-    final_state = _graph.invoke(initial_state, context=context)
+        final_state = _graph.invoke(initial_state, context=context)
 
-    if isinstance(final_state, dict):
-        return final_state.get("proposals", [])
-    elif hasattr(final_state, "proposals"):
-        return final_state.proposals
+        if isinstance(final_state, dict):
+            return final_state.get("proposals", [])
+        elif hasattr(final_state, "proposals"):
+            return final_state.proposals
+        else:
+            return []
     else:
-        return []
+        # Simple mode: one-shot generation without analysis/rewriting loop
+        simple_input = ProposalInput(
+            user_stories=user_stories,
+            defects=defects,
+            context_input=context_input,
+        )
+
+        messages = DRAFTER_FAKE_HISTORY + [
+            HumanMessage(
+                content=f"Here is the input data for generating proposals:\n{simple_input.model_dump_json(indent=2)}"
+            )
+        ]
+
+        response = simple_agent.invoke(messages=messages)
+        proposals = response["structured_response"].proposals
+
+        return proposals

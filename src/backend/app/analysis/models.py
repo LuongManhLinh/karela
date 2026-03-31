@@ -19,11 +19,6 @@ from common.database import Base, uuid_generator, utcnow
 class AnalysisType(Enum):
     ALL = "ALL"
     TARGETED = "TARGETED"
-    ON_ADDING = "ON_ADDING"
-    ON_MODIFYING = "ON_MODIFYING"
-    ON_DELETING = "ON_DELETING"
-
-    UNKNOWN = "UNKNOWN"
 
     @classmethod
     def _missing_(cls, value):

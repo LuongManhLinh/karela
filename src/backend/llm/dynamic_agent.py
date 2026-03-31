@@ -34,10 +34,10 @@ class GenimiDynamicAgent:
 
     def __init__(
         self,
-        system_prompt: str | Callable,
         model_name: str,
-        temperature: float,
         api_keys: List[str],
+        system_prompt: str | Callable = None,
+        temperature: float = 0.7,
         response_mime_type: Literal[
             "application/json", "text/plain", "text/x.enum"
         ] = "text/plain",

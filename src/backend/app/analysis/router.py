@@ -16,11 +16,7 @@ from .schemas import (
     AnalysisStatusesRequest,
 )
 from common.schemas import BasicResponse
-from .tasks import (
-    analyze_all_user_stories,
-    analyze_target_user_story,
-    generate_proposals,
-)
+from .tasks import run_analysis as run_analysis_task, generate_proposals
 
 router = APIRouter()
 
@@ -101,11 +97,16 @@ async def get_defects_for_analysis(
 
 @router.post("/{analysis_id}/generate-proposals")
 async def generate_proposals_for_analysis(
-    analysis_id: str, service: AnalysisDataService = Depends(get_analysis_data_service)
+    analysis_id: str,
+    service: AnalysisDataService = Depends(get_analysis_data_service),
+    jwt_payload=Depends(get_jwt_payload),
 ):
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         service.set_generating_proposals(analysis_id, True)
-        generate_proposals(analysis_id)
+        generate_proposals(connection_id=conn_id, analysis_id=analysis_id)
         return BasicResponse()
     except ValueError as e:
         traceback.print_exc()
@@ -135,12 +136,10 @@ async def run_analysis(
             story_key=run_req.target_story_key,
         )
 
-        if run_req.analysis_type == "ALL":
-            analyze_all_user_stories(analysis_id)
-        elif run_req.analysis_type == "TARGETED":
-            analyze_target_user_story(analysis_id)
-        else:
+        if run_req.analysis_type not in ["ALL", "TARGETED"]:
             raise HTTPException(status_code=400, detail="Unsupported analysis type")
+
+        run_analysis_task(connection_id=conn_id, analysis_id=analysis_id)
 
         return BasicResponse(
             detail="Analysis started successfully",
@@ -154,19 +153,17 @@ async def run_analysis(
 async def rerun_analysis(
     analysis_id: str,
     service: AnalysisDataService = Depends(get_analysis_data_service),
+    jwt_payload=Depends(get_jwt_payload),
 ):
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+
     analysis = service.get_raw_analysis_by_id(analysis_id)
     if not analysis:
         raise HTTPException(status_code=404, detail="Analysis not found")
     try:
-        if analysis.type.value == "ALL":
-            analyze_all_user_stories(analysis_id)
-        elif analysis.type.value == "TARGETED":
-            analyze_target_user_story(analysis_id)
-        else:
-            raise HTTPException(
-                status_code=400, detail=f"Unsupported analysis type {analysis.type}"
-            )
+        run_analysis_task(connection_id=conn_id, analysis_id=analysis_id)
 
         return BasicResponse(detail="Analysis started successfully")
     except ValueError as e:

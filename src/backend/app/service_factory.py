@@ -6,7 +6,8 @@ from .connection.jira.services import JiraService
 from .ac.services import ACService
 from .connection.services import DashboardService
 from .proposal.services import ProposalService
-from .settings.services import SettingsService, PreferenceService
+from .documentation.services import DocumentationService
+from .preference.services import PreferenceService
 from common.database import get_db
 
 
@@ -35,7 +36,7 @@ def get_jira_service(db=Depends(get_db)):
 
 
 def get_settings_service(db=Depends(get_db)):
-    return SettingsService(db)
+    return DocumentationService(db)
 
 
 def get_preference_service(db=Depends(get_db)):

@@ -81,7 +81,7 @@ class AnalysisDataService:
         project_key: str,
         analysis_type: Literal["TARGETED", "ALL"],
         story_key: Optional[str] = None,
-    ) -> str:
+    ):
         stmt = select(func.count(Analysis.id)).filter(
             Analysis.connection_id == connection_id,
             Analysis.project_key == project_key,

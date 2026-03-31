@@ -56,7 +56,7 @@ class UserStoryDto(BaseModel):
     )
 
 
-class WorkItemMinimal(BaseModel):
+class UserStoryMinimal(BaseModel):
     key: Optional[str] = None
     summary: Optional[str] = None
     description: Optional[str] = None
@@ -66,7 +66,7 @@ class WorkItemMinimal(BaseModel):
     )
 
 
-class WorkItem(WorkItemMinimal):
+class UserStory(UserStoryMinimal):
     type: Optional[str] = None
 
     model_config = ConfigDict(
@@ -74,7 +74,7 @@ class WorkItem(WorkItemMinimal):
     )
 
 
-class WorkItemWithRef(WorkItem):
+class UserStoryWithRef(UserStory):
     related_story_keys: List[str] = Field(default_factory=list)
 
     model_config = ConfigDict(

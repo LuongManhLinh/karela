@@ -5,6 +5,12 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path=".env")
 
 
+class ServerConfig:
+    HOST = os.getenv("SERVER_HOST", "localhost")
+    PORT = os.getenv("SERVER_PORT", "8000")
+    WORKER_PER_QUEUE = int(os.getenv("WORKER_PER_QUEUE", "1"))
+
+
 class DatabaseConfig:
     HOST = os.getenv("DB_HOST", "localhost")
     PORT = os.getenv("DB_PORT", "3306")
@@ -70,3 +76,7 @@ class MinioConfig:
     SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minioadmin")
     BUCKET_NAME = os.getenv("MINIO_BUCKET_NAME", "karela-files")
     SECURE = os.getenv("MINIO_SECURE", "false").lower() == "true"
+
+
+class UnstructuredConfig:
+    API_KEY = os.getenv("UNSTRUCTURED_API_KEY", "")

@@ -2,18 +2,18 @@ from contextlib import asynccontextmanager
 from .chat.router import router as chat_router
 from .analysis.router import router as analysis_router
 from .proposal.router import router as proposal_router
-from .settings.router import router as settings_router
+from .documentation.router import router as documentation_router
 from .connection.jira.router import router as jira_router
 from .connection.router import router as connection_router
 from .ac.router import router as ac_router
 from .websocket.router import router as websocket_router
 from .websocket.manager import manager as websocket_manager
+from .preference.router import router as preference_router
 
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from common.database import Base, engine
-import asyncio
 
 
 @asynccontextmanager
@@ -48,7 +48,8 @@ app.include_router(ac_router, prefix="/acs")
 app.include_router(chat_router, prefix="/chat")
 app.include_router(proposal_router, prefix="/proposals")
 app.include_router(websocket_router, prefix="/ws")
-app.include_router(settings_router, prefix="/settings")
+app.include_router(documentation_router, prefix="/documentation")
+app.include_router(preference_router, prefix="/preferences")
 
 
 @app.get("/health")

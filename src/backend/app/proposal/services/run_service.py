@@ -1,11 +1,12 @@
 from sqlalchemy.orm import Session
 from typing import Literal
 
-from app.analysis.agents.schemas import DefectInput, WorkItemMinimal
+from app.analysis.agents.schemas import DefectInput, UserStoryMinimal
 from app.analysis.models import Defect
 from app.connection.jira.services import JiraService
 from app.proposal.schemas import CreateProposalRequest, ProposeStoryRequest
-from app.settings.services import SettingsService
+from app.documentation.services import DocumentationService
+from app.preference.services import PreferenceService
 
 from ..agents.graph import generate_proposals
 from .data_service import ProposalService
@@ -14,11 +15,13 @@ from .data_service import ProposalService
 class ProposalRunService:
     def __init__(self, db: Session):
         self.db = db
-        self.settings_service = SettingsService(db=db)
+        self.doc_service = DocumentationService(db=db)
+        self.pref_service = PreferenceService(db=db)
+
         self.jira_service = JiraService(db=db)
 
     def _get_default_context_input(self, connection_id: str, project_key: str):
-        return self.settings_service.get_agent_context_input(
+        return self.doc_service.get_agent_context_input(
             connection_id=connection_id, project_key=project_key
         )
 
@@ -54,6 +57,10 @@ class ProposalRunService:
             project_key=project_key,
         )
 
+        preference = self.pref_service.get_proposal_preference(
+            connection_id=connection_id, project_key=project_key
+        )
+
         stories = self.jira_service.fetch_stories(
             connection_id=connection_id,
             project_key=project_key,
@@ -61,7 +68,7 @@ class ProposalRunService:
         )
 
         stories = [
-            WorkItemMinimal(
+            UserStoryMinimal(
                 key=story.key,
                 summary=story.summary,
                 description=story.description,
@@ -69,7 +76,7 @@ class ProposalRunService:
             for story in stories
         ]
 
-        return stories, defects, context_input, defect_key_id_map
+        return stories, defects, context_input, preference, defect_key_id_map
 
     def generate_proposals(
         self,
@@ -90,16 +97,18 @@ class ProposalRunService:
         if not inputs:
             return []
 
-        user_stories, defects, context_input, defect_key_id_map = inputs
+        user_stories, defects, context_input, preference, defect_key_id_map = inputs
 
         if context_input:
             context_input.clarifications = clarifications
 
         proposals = generate_proposals(
+            mode=preference.gen_proposal_mode if preference else "SIMPLE",
             defects=defects,
             user_stories=user_stories,
             context_input=context_input,
             max_rewrite_attempts=max_rewrite_attempts,
+            extra_prompt=preference.gen_proposal_guidelines if preference else None,
         )
 
         proposal_service = ProposalService(db=self.db)

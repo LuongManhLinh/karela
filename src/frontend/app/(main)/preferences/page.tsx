@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Paper,
@@ -23,30 +23,31 @@ import {
   usePreferenceQuery,
   useCreatePreferenceMutation,
   useUpdatePreferenceMutation,
-} from "@/hooks/queries/useSettingsQueries";
+} from "@/hooks/queries/usePreferenceQueries";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import type {
   CreatePreferenceRequest,
   UpdatePreferenceRequest,
-} from "@/types/settings";
+} from "@/types/preference";
 import type { ProjectDto } from "@/types/connection";
 import { scrollBarSx } from "@/constants/scrollBarSx";
 import { SessionStartForm } from "@/components/SessionStartForm";
 import { useNotificationContext } from "@/providers/NotificationProvider";
+import { useTranslations } from "next-intl";
 
 const MIN_TEXTFIELD_ROWS = 3;
 const MAX_TEXTFIELD_ROWS = 20;
 
 const PROPOSAL_MODES = [
-  { value: "SIMPLE", label: "Simple" },
-  { value: "COMPLEX", label: "Complex" },
+  { value: "SIMPLE", labelKey: "proposalModes.simple" },
+  { value: "COMPLEX", labelKey: "proposalModes.complex" },
 ];
 
 const GEN_LANGUAGES = [
-  { value: "STORY_BASED", label: "Story Based" },
-  { value: "ENGLISH", label: "English" },
-  { value: "VIETNAMESE", label: "Vietnamese" },
+  { value: "STORY_BASED", labelKey: "generationLanguages.storyBased" },
+  { value: "ENGLISH", labelKey: "generationLanguages.english" },
+  { value: "VIETNAMESE", labelKey: "generationLanguages.vietnamese" },
 ];
 
 export default function PreferencesPage() {
@@ -54,6 +55,8 @@ export default function PreferencesPage() {
     useWorkspaceStore();
 
   const projectKey = selectedProject?.key;
+
+  const t = useTranslations("PreferencesPage");
 
   const { data: preferenceData, isLoading: isPreferenceLoading } =
     usePreferenceQuery(projectKey);
@@ -80,7 +83,7 @@ export default function PreferencesPage() {
       setRunAnalysisGuidelines(preference.run_analysis_guidelines || "");
       setGenProposalGuidelines(preference.gen_proposal_guidelines || "");
       setGenProposalAfterAnalysis(
-        preference.gen_proposal_after_analysis || false
+        preference.gen_proposal_after_analysis || false,
       );
       setGenProposalMode(preference.gen_proposal_mode || "SIMPLE");
       setGenLanguage(preference.gen_language || "STORY_BASED");
@@ -102,7 +105,7 @@ export default function PreferencesPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!connection || !projectKey) {
-      notify("Please select a connection and project", { severity: "warning" });
+      notify(t("selectConnectionAndProjectWarning"), { severity: "warning" });
       return;
     }
 
@@ -121,14 +124,14 @@ export default function PreferencesPage() {
 
       if (preference) {
         await updatePreference({ projectKey, data });
-        notify("Preferences updated successfully", { severity: "success" });
+        notify(t("preferencesUpdatedSuccess"), { severity: "success" });
       } else {
         await createPreference({ projectKey, data });
-        notify("Preferences created successfully", { severity: "success" });
+        notify(t("preferencesCreatedSuccess"), { severity: "success" });
       }
     } catch (err: any) {
       const errorMessage =
-        err.response?.data?.detail || "Failed to save preferences";
+        err.response?.data?.detail || t("savePreferencesFailed");
       notify(errorMessage, { severity: "error" });
     }
   };
@@ -142,7 +145,7 @@ export default function PreferencesPage() {
     <Layout
       appBarLeftContent={
         <Stack direction={"row"} alignItems="center" spacing={2} py={2}>
-          <Typography variant="h5">Preferences</Typography>
+          <Typography variant="h5">{t("title")}</Typography>
         </Stack>
       }
       appBarTransparent
@@ -159,7 +162,7 @@ export default function PreferencesPage() {
           }}
         >
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
-            Connection &amp; Projects
+            {t("connectionAndProjects")}
           </Typography>
           <SessionStartForm
             projectOptions={{
@@ -181,7 +184,7 @@ export default function PreferencesPage() {
             }}
           >
             <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
-              Project Preferences
+              {t("projectPreferences")}
             </Typography>
             {preference && (
               <Typography
@@ -189,8 +192,9 @@ export default function PreferencesPage() {
                 color="text.secondary"
                 sx={{ mb: 2, display: "block" }}
               >
-                Last updated:{" "}
-                {new Date(preference.updated_at).toLocaleString()}
+                {t("lastUpdated", {
+                  date: new Date(preference.updated_at).toLocaleString(),
+                })}
               </Typography>
             )}
             {isPreferenceLoading ? (
@@ -201,11 +205,11 @@ export default function PreferencesPage() {
                   <TextField
                     fullWidth
                     multiline
-                    label="Analysis Guidelines"
+                    label={t("analysisGuidelines")}
                     value={runAnalysisGuidelines}
                     onChange={(e) => setRunAnalysisGuidelines(e.target.value)}
                     disabled={isCreating || isUpdating}
-                    placeholder="Provide specific guidelines for how the LLM should analyze stories in this project..."
+                    placeholder={t("analysisGuidelinesPlaceholder")}
                     minRows={MIN_TEXTFIELD_ROWS}
                     maxRows={MAX_TEXTFIELD_ROWS}
                     sx={{ ...scrollBarSx }}
@@ -213,11 +217,11 @@ export default function PreferencesPage() {
                   <TextField
                     fullWidth
                     multiline
-                    label="Proposal Generation Guidelines"
+                    label={t("proposalGenerationGuidelines")}
                     value={genProposalGuidelines}
                     onChange={(e) => setGenProposalGuidelines(e.target.value)}
                     disabled={isCreating || isUpdating}
-                    placeholder="Provide specific guidelines for how the LLM should generate proposals..."
+                    placeholder={t("proposalGenerationGuidelinesPlaceholder")}
                     minRows={MIN_TEXTFIELD_ROWS}
                     maxRows={MAX_TEXTFIELD_ROWS}
                     sx={{ ...scrollBarSx }}
@@ -225,11 +229,11 @@ export default function PreferencesPage() {
                   <TextField
                     fullWidth
                     multiline
-                    label="Chat Guidelines"
+                    label={t("chatGuidelines")}
                     value={chatGuidelines}
                     onChange={(e) => setChatGuidelines(e.target.value)}
                     disabled={isCreating || isUpdating}
-                    placeholder="Provide specific guidelines for how the LLM should behave in chat..."
+                    placeholder={t("chatGuidelinesPlaceholder")}
                     minRows={MIN_TEXTFIELD_ROWS}
                     maxRows={MAX_TEXTFIELD_ROWS}
                     sx={{ ...scrollBarSx }}
@@ -245,36 +249,36 @@ export default function PreferencesPage() {
                         disabled={isCreating || isUpdating}
                       />
                     }
-                    label="Automatically generate proposals after analysis"
+                    label={t("autoGenerateProposalsAfterAnalysis")}
                   />
 
                   <FormControl fullWidth>
-                    <InputLabel>Proposal Generation Mode</InputLabel>
+                    <InputLabel>{t("proposalGenerationMode")}</InputLabel>
                     <Select
                       value={genProposalMode}
-                      label="Proposal Generation Mode"
+                      label={t("proposalGenerationMode")}
                       onChange={(e) => setGenProposalMode(e.target.value)}
                       disabled={isCreating || isUpdating}
                     >
                       {PROPOSAL_MODES.map((mode) => (
                         <MenuItem key={mode.value} value={mode.value}>
-                          {mode.label}
+                          {t(mode.labelKey)}
                         </MenuItem>
                       ))}
                     </Select>
                   </FormControl>
 
                   <FormControl fullWidth>
-                    <InputLabel>Generation Language</InputLabel>
+                    <InputLabel>{t("generationLanguage")}</InputLabel>
                     <Select
                       value={genLanguage}
-                      label="Generation Language"
+                      label={t("generationLanguage")}
                       onChange={(e) => setGenLanguage(e.target.value)}
                       disabled={isCreating || isUpdating}
                     >
                       {GEN_LANGUAGES.map((lang) => (
                         <MenuItem key={lang.value} value={lang.value}>
-                          {lang.label}
+                          {t(lang.labelKey)}
                         </MenuItem>
                       ))}
                     </Select>
@@ -291,12 +295,12 @@ export default function PreferencesPage() {
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
                         <CircularProgress size={20} />
-                        <span>Saving...</span>
+                        <span>{t("saving")}</span>
                       </Box>
                     ) : preference ? (
-                      "Update Preferences"
+                      t("updatePreferences")
                     ) : (
-                      "Create Preferences"
+                      t("createPreferences")
                     )}
                   </Button>
                 </Stack>

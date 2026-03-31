@@ -6,7 +6,7 @@ from langchain_core.messages import (
     AIMessageChunk,
 )
 
-from app.settings.services import SettingsService
+from app.documentation.services import DocumentationService
 
 from ..agents.agent import stream_with_agent
 
@@ -45,7 +45,7 @@ def _convert_langchain_message_to_orm(message, session_id) -> Message:
 class ChatService:
     def __init__(self, db: Session):
         self.db = db
-        self.settings_service = SettingsService(db=db)
+        self.settings_service = DocumentationService(db=db)
         from redis.asyncio import Redis
         from common.configs import RedisConfig
 

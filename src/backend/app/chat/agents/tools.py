@@ -7,7 +7,7 @@ from app.proposal.schemas import CreateProposalRequest, ProposeStoryRequest
 from app.analysis.services import AnalysisDataService, DefectService
 from app.connection.jira.services import JiraService
 from app.connection.jira.vectorstore import JiraVectorStore
-from app.analysis.tasks import analyze_target_user_story
+from app.analysis.tasks import run_analysis
 
 
 @tool
@@ -199,7 +199,7 @@ def run_defect_analysis(story_key: Optional[str], runtime: ToolRuntime) -> str:
         story_key=story_key,
     )
 
-    analyze_target_user_story(analysis_id)
+    run_analysis(connection_id=connection_id, analysis_id=analysis_id)
 
     return json.dumps({"analysis_id": analysis_id, "status": "PENDING"}, indent=2)
 
