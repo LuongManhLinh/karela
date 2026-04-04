@@ -1,12 +1,11 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional, Literal
 from ..schemas import UserStoryMinimal, DefectByLlm
-from common.agents.input_schemas import ContextInput
 
 
 class CrossCheckInput(BaseModel):
-    user_stories: List[UserStoryMinimal] = []
-    existing_defects: List[DefectByLlm] = []
+    user_stories: list[UserStoryMinimal] = []
+    existing_defects: list[DefectByLlm] = []
 
 
 class CrossCheckTargetedInput(CrossCheckInput):
@@ -14,8 +13,7 @@ class CrossCheckTargetedInput(CrossCheckInput):
 
 
 class SingleCheckInput(CrossCheckInput):
-    context_input: Optional[ContextInput] = None
-    existing_defects: List[DefectByLlm] = []
+    existing_defects: list[DefectByLlm] = []
 
 
 class SingleCheckTargetedInput(SingleCheckInput):
@@ -25,13 +23,10 @@ class SingleCheckTargetedInput(SingleCheckInput):
 class ValidateDefectsInput(BaseModel):
     """Input for defect validation node."""
 
-    user_stories: List[UserStoryMinimal] = Field(
+    user_stories: list[UserStoryMinimal] = Field(
         description="Original user stories being analyzed."
     )
-    defects: List[DefectByLlm] = Field(description="Detected defects to be validated.")
-    context_input: Optional[ContextInput] = Field(
-        None, description="Project context for validation."
-    )
+    defects: list[DefectByLlm] = Field(description="Detected defects to be validated.")
 
 
 class ValidateDefectsTargetedInput(ValidateDefectsInput):
@@ -59,7 +54,7 @@ class DefectValidation(BaseModel):
 class ValidateDefectsOutput(BaseModel):
     """Output from defect validation node."""
 
-    validations: List[DefectValidation] = Field(
+    validations: list[DefectValidation] = Field(
         description="Validation results for each defect."
     )
 
@@ -67,7 +62,7 @@ class ValidateDefectsOutput(BaseModel):
 class FilterDefectsInput(BaseModel):
     """Input for defect filtering node."""
 
-    defects: List[DefectByLlm] = Field(description="Validated defects to be filtered.")
+    defects: list[DefectByLlm] = Field(description="Validated defects to be filtered.")
 
 
 class DefectFilterDecision(BaseModel):
@@ -83,6 +78,6 @@ class DefectFilterDecision(BaseModel):
 class FilterDefectsOutput(BaseModel):
     """Output from defect filtering node."""
 
-    filter_decisions: List[DefectFilterDecision] = Field(
+    filter_decisions: list[DefectFilterDecision] = Field(
         description="Filter decisions for each defect."
     )

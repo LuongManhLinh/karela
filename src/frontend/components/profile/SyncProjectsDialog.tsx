@@ -50,6 +50,8 @@ const ProjectSyncItem: React.FC<ProjectSyncItemProps> = ({
 }) => {
   const isSynced = project.synced;
 
+  const t = useTranslations("profile.SyncProjectsDialog");
+
   return (
     <ListItem disablePadding>
       <ListItemButton
@@ -60,7 +62,7 @@ const ProjectSyncItem: React.FC<ProjectSyncItemProps> = ({
       >
         <ListItemIcon sx={{ minWidth: 40 }}>
           {isSynced ? (
-            <Tooltip title="Already synced">
+            <Tooltip title={t("alreadySynced")}>
               <CheckCircleIcon color="success" fontSize="small" />
             </Tooltip>
           ) : (
@@ -98,11 +100,11 @@ const ProjectSyncItem: React.FC<ProjectSyncItemProps> = ({
           secondary={
             isSynced ? (
               <Typography variant="caption" color="success.main">
-                Synced
+                {t("synced")}
               </Typography>
             ) : (
               <Typography variant="caption" color="text.secondary">
-                Not synced
+                {t("notSynced")}
               </Typography>
             )
           }
@@ -122,7 +124,7 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
 }) => {
   const t = useTranslations("profile.SyncProjectsDialog");
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
-  const [runAnalysisAfterSync, setRunAnalysisAfterSync] = useState(true);
+  const [runAnalysisAfterSync, setRunAnalysisAfterSync] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
   const unsyncedProjects = useMemo(
@@ -233,11 +235,6 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
                     pb: 0.5,
                   }}
                 >
-                  <Typography variant="subtitle2" color="text.secondary">
-                    {t("availableToSync", {
-                      count: totalProjectsCount - syncedProjectsCount,
-                    })}
-                  </Typography>
                   <Button size="small" onClick={handleSelectAll}>
                     {allSelected ? t("deselectAll") : t("selectAll")}
                   </Button>
@@ -289,7 +286,7 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
             />
           }
           label={
-            <Typography variant="body2">{t("runAnalysisAfterSync")}</Typography>
+            <Typography variant="body1">{t("runAnalysisAfterSync")}</Typography>
           }
         />
         <Box sx={{ display: "flex", gap: 1 }}>

@@ -8,10 +8,12 @@ from app.analysis.services import AnalysisDataService, DefectService
 from app.connection.jira.services import JiraService
 from app.connection.jira.vectorstore import JiraVectorStore
 from app.analysis.tasks import run_analysis
+from .context import Context
+from app.documentation.llm_tools import doc_tools
 
 
 @tool
-def search_stories_by_keywords(keywords: str, runtime: ToolRuntime) -> str:
+def search_stories_by_keywords(keywords: str, runtime: ToolRuntime[Context]) -> str:
     """Retrieve user stories based on keywords.
 
     Args:
@@ -28,25 +30,12 @@ def search_stories_by_keywords(keywords: str, runtime: ToolRuntime) -> str:
 {"-"*100}
 """
     )
-
-    db_session = runtime.context.db_session
-    connection_id = runtime.context.connection_id
-    project_key = runtime.context.project_key
-    for item, item_name in [
-        (db_session, "DB Session"),
-        (connection_id, "Connection ID"),
-        (project_key, "Project key"),
-    ]:
-        if not item:
-            return json.dumps(
-                {"error": f"{item_name} not found. Cannot retrieve stories."},
-                indent=2,
-            )
+    context = runtime.context
 
     vector_store = JiraVectorStore()
     stories = vector_store.retrieve_similar_stories(
-        connection_id=connection_id,
-        project_key=project_key,
+        connection_id=context.connection_id,
+        project_key=context.project_key,
         query=keywords,
         k=10,
         min_similarity=0.25,
@@ -56,7 +45,7 @@ def search_stories_by_keywords(keywords: str, runtime: ToolRuntime) -> str:
 
 
 @tool
-def get_story_details(story_key: str, runtime: ToolRuntime) -> str:
+def get_story_details(story_key: str, runtime: ToolRuntime[Context]) -> str:
     """Fetch details of a User Story by its key.
 
     Args:
@@ -73,24 +62,12 @@ def get_story_details(story_key: str, runtime: ToolRuntime) -> str:
 """
     )
 
-    db_session = runtime.context.db_session
-    connection_id = runtime.context.connection_id
-    project_key = runtime.context.project_key
-    for item, item_name in [
-        (db_session, "DB Session"),
-        (connection_id, "Connection ID"),
-        (project_key, "Project key"),
-    ]:
-        if not item:
-            return json.dumps(
-                {"error": f"{item_name} not found. Cannot retrieve stories."},
-                indent=2,
-            )
-    story_service = JiraService(db_session)
+    context = runtime.context
+    story_service = JiraService(db=context.db)
 
     fetched_stories = story_service.fetch_stories(
-        connection_id=connection_id,
-        project_key=project_key,
+        connection_id=context.connection_id,
+        project_key=context.project_key,
         story_keys=[story_key],
     )
 
@@ -106,7 +83,7 @@ def get_story_details(story_key: str, runtime: ToolRuntime) -> str:
 
 
 @tool
-def get_defects_for_story(story_key: str, runtime: ToolRuntime) -> str:
+def get_defects_for_story(story_key: str, runtime: ToolRuntime[Context]) -> str:
     """Fetch defects for a User Story by its key.
 
     Args:
@@ -129,23 +106,13 @@ def get_defects_for_story(story_key: str, runtime: ToolRuntime) -> str:
             {"error": "Story Key not provided. Cannot retrieve defects."},
             indent=2,
         )
-
-    connection_id = runtime.context.connection_id
-    project_key = runtime.context.project_key
-    db_session = runtime.context.db_session
-    for item, item_name in [
-        (story_key, "Story Key"),
-        (connection_id, "Connection ID"),
-        (project_key, "Project key"),
-        (db_session, "DB Session"),
-    ]:
-        if not item:
-            return json.dumps(
-                {"error": f"{item_name} not found. Cannot retrieve defects."},
-                indent=2,
-            )
-    service = DefectService(db_session)
-    defects = service.get_defects_by_story_key(connection_id, project_key, story_key)
+    context = runtime.context
+    service = DefectService(db=context.db)
+    defects = service.get_defects_by_story_key(
+        connection_id=context.connection_id,
+        project_key=context.project_key,
+        story_key=story_key,
+    )
 
     return json.dumps(
         {"defects": [defect.model_dump() for defect in defects]}, indent=2
@@ -153,7 +120,7 @@ def get_defects_for_story(story_key: str, runtime: ToolRuntime) -> str:
 
 
 @tool
-def run_defect_analysis(story_key: Optional[str], runtime: ToolRuntime) -> str:
+def run_defect_analysis(story_key: Optional[str], runtime: ToolRuntime[Context]) -> str:
     """Run a defect analysis for a User Story.
 
     Args:
@@ -175,38 +142,24 @@ def run_defect_analysis(story_key: Optional[str], runtime: ToolRuntime) -> str:
             {"error": "Story Key not provided. Cannot run defect analysis."},
             indent=2,
         )
-
-    connection_id = runtime.context.connection_id
-    project_key = runtime.context.project_key
-    db_session = runtime.context.db_session
-    for item, item_name in [
-        (story_key, "Story Key"),
-        (connection_id, "Connection ID"),
-        (project_key, "Project key"),
-        (db_session, "DB Session"),
-    ]:
-        if not item:
-            return json.dumps(
-                {"error": f"{item_name} not found. Cannot run defect analysis."},
-                indent=2,
-            )
-    analysis_data_service = AnalysisDataService(db_session)
+    context = runtime.context
+    analysis_data_service = AnalysisDataService(db=context.db)
 
     analysis_id, _ = analysis_data_service.init_analysis(
-        connection_id=connection_id,
-        project_key=project_key,
+        connection_id=context.connection_id,
+        project_key=context.project_key,
         analysis_type="TARGETED",
         story_key=story_key,
     )
 
-    run_analysis(connection_id=connection_id, analysis_id=analysis_id)
+    run_analysis(connection_id=context.connection_id, analysis_id=analysis_id)
 
     return json.dumps({"analysis_id": analysis_id, "status": "PENDING"}, indent=2)
 
 
 @tool
 def run_proposal_generation(
-    defect_keys: list[str], clarifying_info: str, runtime: ToolRuntime
+    defect_keys: list[str], clarifying_info: str, runtime: ToolRuntime[Context]
 ) -> str:
     """Run proposal generation based on detected defects.
 
@@ -227,32 +180,23 @@ def run_proposal_generation(
 """
     )
 
-    db_session = runtime.context.db_session
-    connection_id = runtime.context.connection_id
-    session_id = runtime.context.session_id
-    project_key = runtime.context.project_key
+    if not defect_keys:
+        return json.dumps(
+            {"error": "Defect keys not provided. Cannot run proposal generation."},
+            indent=2,
+        )
 
-    for item, item_name in [
-        (db_session, "DB Session"),
-        (connection_id, "Connection ID"),
-        (session_id, "Session ID"),
-        (project_key, "Project key"),
-    ]:
-        if not item:
-            return json.dumps(
-                {"error": f"{item_name} not found. Cannot run proposal generation."},
-                indent=2,
-            )
+    context = runtime.context
 
-    defect_service = DefectService(db_session)
-    proposal_run_service = ProposalRunService(db_session)
+    defect_service = DefectService(db=context.db)
+    proposal_run_service = ProposalRunService(db=context.db)
 
     defects = defect_service.get_defects_by_keys(defect_keys)
     proposal_keys = proposal_run_service.generate_proposals(
-        session_id=session_id,
+        session_id=context.session_id,
         source="CHAT",
-        connection_id=connection_id,
-        project_key=project_key,
+        connection_id=context.connection_id,
+        project_key=context.project_key,
         input_defects=defects,
         clarifications=clarifying_info,
     )
@@ -263,7 +207,7 @@ def run_proposal_generation(
 
 
 @tool
-def update_stories(modifications: list[dict], runtime: ToolRuntime) -> str:
+def update_stories(modifications: list[dict], runtime: ToolRuntime[Context]) -> str:
     """Modify one or many user stories.
     Story key is required for each modification.
     This will either be accepted or rejected by the user later.
@@ -301,29 +245,20 @@ def update_stories(modifications: list[dict], runtime: ToolRuntime) -> str:
 """
     )
 
-    connection_id = runtime.context.connection_id
-    project_key = runtime.context.project_key
-    session_id = runtime.context.session_id
-    db_session = runtime.context.db_session
-    for item, item_name in [
-        (db_session, "DB Session"),
-        (connection_id, "Connection ID"),
-        (session_id, "Session ID"),
-        (project_key, "Project key"),
-    ]:
-        if not item:
-            return json.dumps(
-                {"error": f"{item_name} not found. Cannot update stories."},
-                indent=2,
-            )
-    proposal_service = ProposalService(db_session)
+    if not modifications:
+        return json.dumps(
+            {"error": "No modifications provided. Cannot update stories."},
+            indent=2,
+        )
+    context = runtime.context
+    proposal_service = ProposalService(db=context.db)
 
     proposal_key = proposal_service.create_proposal(
         proposal_request=CreateProposalRequest(
             source="CHAT",
-            connection_id=connection_id,
-            session_id=session_id,
-            project_key=project_key,
+            connection_id=context.connection_id,
+            session_id=context.session_id,
+            project_key=context.project_key,
             stories=[
                 ProposeStoryRequest(
                     type="UPDATE",
@@ -348,7 +283,7 @@ def update_stories(modifications: list[dict], runtime: ToolRuntime) -> str:
 @tool
 def create_stories(
     stories: list[dict],
-    runtime: ToolRuntime,
+    runtime: ToolRuntime[Context],
 ) -> str:
     """Create one or many user stories.
     Story key is NOT required for each creation since it will be automatically generated latter.
@@ -383,29 +318,20 @@ def create_stories(
 {"-"*100}
 """
     )
-    connection_id = runtime.context.connection_id
-    project_key = runtime.context.project_key
-    session_id = runtime.context.session_id
-    db_session = runtime.context.db_session
-    for item, item_name in [
-        (db_session, "DB Session"),
-        (connection_id, "Connection ID"),
-        (session_id, "Session ID"),
-        (project_key, "Project key"),
-    ]:
-        if not item:
-            return json.dumps(
-                {"error": f"{item_name} not found. Cannot create stories."},
-                indent=2,
-            )
-    proposal_service = ProposalService(db_session)
+    if not stories:
+        return json.dumps(
+            {"error": "No story data provided. Cannot create stories."},
+            indent=2,
+        )
+    context = runtime.context
+    proposal_service = ProposalService(db=context.db)
 
     proposal_key = proposal_service.create_proposal(
         proposal_request=CreateProposalRequest(
             source="CHAT",
-            connection_id=connection_id,
-            session_id=session_id,
-            project_key=project_key,
+            connection_id=context.connection_id,
+            session_id=context.session_id,
+            project_key=context.project_key,
             stories=[
                 ProposeStoryRequest(
                     type="CREATE",
@@ -435,3 +361,5 @@ tools = [
     update_stories,
     create_stories,
 ]
+
+tools.extend(doc_tools)

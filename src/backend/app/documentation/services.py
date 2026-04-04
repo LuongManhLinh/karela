@@ -1,15 +1,15 @@
 from typing import Optional, List
+from pydantic import json
 from sqlalchemy.orm import Session
 from fastapi import UploadFile
+from langchain.messages import AIMessage, ToolMessage
 
-from common.agents.input_schemas import ContextInput
-from common.agents.input_schemas import Documentation as DocumentationInput
-from common.agents.input_schemas import LlmContext
 from utils.file_storage import upload_file, download_file, delete_file
 from common.database import uuid_generator
 
 from .models import TextDocumentation, FileDocumentation
 from .schemas import (
+    DocumentationSummary,
     TextDocumentationDto,
     CreateTextDocumentationRequest,
     UpdateTextDocumentationRequest,
@@ -18,7 +18,6 @@ from .schemas import (
 )
 from .vectorstore import DocumentationVectorStore
 from .tasks import process_document_task
-from app.preference.models import Preference
 
 
 def _text_doc_to_dto(doc: TextDocumentation) -> TextDocumentationDto:
@@ -58,7 +57,7 @@ class DocumentationService:
 
     def list_text_docs(
         self, connection_id: str, project_key: str
-    ) -> List[TextDocumentationDto]:
+    ) -> list[TextDocumentationDto]:
         docs = (
             self.db.query(TextDocumentation)
             .filter(
@@ -85,8 +84,18 @@ class DocumentationService:
         project_key: str,
         request: CreateTextDocumentationRequest,
     ) -> TextDocumentationDto:
+        text_doc_count = (
+            self.db.query(TextDocumentation)
+            .filter(
+                TextDocumentation.connection_id == connection_id,
+                TextDocumentation.project_key == project_key,
+            )
+            .count()
+        )
+
         doc = TextDocumentation(
             id=uuid_generator(),
+            key=f"DOC-T-{text_doc_count + 1}",
             connection_id=connection_id,
             project_key=project_key,
             name=request.name.strip(),
@@ -150,7 +159,7 @@ class DocumentationService:
 
     def list_file_docs(
         self, connection_id: str, project_key: str
-    ) -> List[FileDocumentationDto]:
+    ) -> list[FileDocumentationDto]:
         docs = (
             self.db.query(FileDocumentation)
             .filter(
@@ -183,8 +192,17 @@ class DocumentationService:
         # Upload to MinIO
         file_info = upload_file(file, prefix)
 
+        file_doc_count = (
+            self.db.query(FileDocumentation)
+            .filter(
+                FileDocumentation.connection_id == connection_id,
+                FileDocumentation.project_key == project_key,
+            )
+            .count()
+        )
         doc = FileDocumentation(
             id=uuid_generator(),
+            key=f"DOC-F-{file_doc_count + 1}",
             connection_id=connection_id,
             project_key=project_key,
             name=file_info["filename"],
@@ -195,7 +213,7 @@ class DocumentationService:
         self.db.commit()
         self.db.refresh(doc)
 
-        process_document_task(connection_id=connection_id, doc_id=doc.id, type="file")
+        process_document_task(doc_id=doc.id, type="file")
 
         return _file_doc_to_dto(doc)
 
@@ -251,49 +269,116 @@ class DocumentationService:
         return download_file(doc.url)
 
     # ── Agent Context ───────────────────────────────────────────────
-
-    def get_agent_context_input(
+    def list_all_docs_for_project(
         self, connection_id: str, project_key: str
-    ) -> ContextInput:
-        """Constructs ContextInput dynamically from all project documentation and preferences."""
-
-        text_docs = self.list_text_docs(connection_id, project_key)
-
-        # We aggregate all text docs as additional_docs
-        additional_docs = []
-        for d in text_docs:
-            if d.content:
-                additional_docs.append(
-                    {
-                        "title": d.name,
-                        "content": d.content,
-                        "description": d.description,
-                    }
-                )
-
-        # We no longer have product_vision, etc built-in. ContextInput supports additional_docs.
-        doc_input = DocumentationInput(
-            product_vision=None,
-            product_scope=None,
-            sprint_goals=None,
-            glossary=None,
-            additional_docs=additional_docs if additional_docs else None,
+    ) -> list[dict]:
+        text_docs = (
+            self.db.query(TextDocumentation)
+            .filter(
+                TextDocumentation.connection_id == connection_id,
+                TextDocumentation.project_key == project_key,
+            )
+            .all()
         )
 
-        pref = (
-            self.db.query(Preference)
+        file_docs = (
+            self.db.query(FileDocumentation)
             .filter(
-                Preference.connection_id == connection_id,
-                Preference.project_key == project_key,
+                FileDocumentation.connection_id == connection_id,
+                FileDocumentation.project_key == project_key,
+            )
+            .all()
+        )
+
+        docs = []
+        for doc in text_docs:
+            docs.append(
+                {
+                    "key": doc.key,
+                    "name": doc.name,
+                    "description": doc.description,
+                    "headers": doc.headers,
+                }
+            )
+
+        for doc in file_docs:
+            docs.append(
+                {
+                    "key": doc.key,
+                    "name": doc.name,
+                    "description": doc.description,
+                    "headers": doc.headers,
+                }
+            )
+        return docs
+
+    def get_doc_id(self, connection_id: str, project_key: str, doc_key: str):
+        text_doc = (
+            self.db.query(TextDocumentation)
+            .filter(
+                TextDocumentation.connection_id == connection_id,
+                TextDocumentation.project_key == project_key,
+                TextDocumentation.key == doc_key,
             )
             .first()
         )
 
-        llm_context = None
-        if pref and pref.run_analysis_guidelines:
-            llm_context = LlmContext(guidelines=pref.run_analysis_guidelines)
-
-        return ContextInput(
-            documentation=doc_input,
-            llm_context=llm_context,
+        file_doc = (
+            self.db.query(FileDocumentation)
+            .filter(
+                FileDocumentation.connection_id == connection_id,
+                FileDocumentation.project_key == project_key,
+                FileDocumentation.key == doc_key,
+            )
+            .first()
         )
+
+        doc = text_doc or file_doc
+        if not doc:
+            return None
+
+        return doc.id
+
+    def simulate_list_docs_messages(
+        self, connection_id: str, project_key: str
+    ) -> ToolMessage:
+        ai_message = AIMessage(
+            content=f"Listing all documentation for project {project_key}...",
+            additional_kwargs={
+                "function_call": {"name": "list_available_docs", "arguments": {}}
+            },
+        )
+        docs = self.list_all_docs_for_project(connection_id, project_key)
+        content = json.dumps({"docs": docs}, indent=2)
+        tool_msg = ToolMessage(
+            content=content,
+        )
+
+        return [ai_message, tool_msg]
+
+    def delete_all_docs(self, connection_id: str):
+        text_docs = (
+            self.db.query(TextDocumentation)
+            .filter(TextDocumentation.connection_id == connection_id)
+            .all()
+        )
+
+        file_docs = (
+            self.db.query(FileDocumentation)
+            .filter(FileDocumentation.connection_id == connection_id)
+            .all()
+        )
+
+        for doc in text_docs:
+            self.vectorstore.remove_chunks(documentation_id=doc.id)
+            self.db.delete(doc)
+
+        for doc in file_docs:
+            try:
+                delete_file(doc.url)
+            except FileNotFoundError:
+                pass  # Already gone
+            self.vectorstore.remove_chunks(documentation_id=doc.id)
+            self.db.delete(doc)
+
+        self.db.commit()

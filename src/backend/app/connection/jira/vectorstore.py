@@ -1,6 +1,6 @@
 from langchain_core.documents import Document
 
-from vectorstore import DEFAULT_VECTOR_STORE
+from common.vectorstore import DEFAULT_VECTOR_STORE
 from .schemas import StoryDto
 
 

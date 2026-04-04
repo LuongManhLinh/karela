@@ -203,6 +203,7 @@ class JiraSyncService(JiraBaseService):
 
                 self._publish_status(
                     connection,
+                    status=SyncStatus.IN_PROGRESS,
                     message=f"Syncing projects {batch_start + 1}-{batch_end} of {total_projects}: {', '.join(p.key for p in batch)}",
                 )
 
@@ -281,6 +282,7 @@ class JiraSyncService(JiraBaseService):
     def _register_webhooks(self, connection: Connection):
         """Register webhooks for the Jira connection"""
         self._publish_status(connection, message="Registering webhooks...")
+        print("Registering webhooks for connection:", connection.id)
         try:
             self._exec_refreshing_access_token(
                 connection=connection,

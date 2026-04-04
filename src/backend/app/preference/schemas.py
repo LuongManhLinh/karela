@@ -13,6 +13,7 @@ class PreferenceDto(BaseModel):
     gen_proposal_mode: Optional[str] = None
     gen_language: Optional[str] = None
     chat_guidelines: Optional[str] = None
+    gen_ac_guidelines: Optional[str] = None
     updated_at: datetime
 
 
@@ -23,6 +24,7 @@ class CreatePreferenceRequest(BaseModel):
     gen_proposal_mode: Optional[str] = None
     gen_language: Optional[str] = None
     chat_guidelines: Optional[str] = None
+    gen_ac_guidelines: Optional[str] = None
 
     model_config = ConfigDict(extra="forbid")
 
@@ -34,6 +36,7 @@ class UpdatePreferenceRequest(BaseModel):
     gen_proposal_mode: Optional[str] = None
     gen_language: Optional[str] = None
     chat_guidelines: Optional[str] = None
+    gen_ac_guidelines: Optional[str] = None
 
     model_config = ConfigDict(extra="forbid")
 
@@ -52,3 +55,7 @@ class AnalysisPreferenceDto(BaseModel):
 
 class ChatPreferenceDto(BaseModel):
     chat_guidelines: Optional[str] = None
+
+
+class ACPreferenceDto(BaseModel):
+    gen_ac_guidelines: Optional[str] = None

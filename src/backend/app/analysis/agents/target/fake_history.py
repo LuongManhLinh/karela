@@ -47,7 +47,6 @@ CROSS_CHECK_FAKE_HISTORY = [
   ]
 }"""
     ),
-
     # Example 2: Complex Negative (Similar words, different scope - NO DEFECT)
     HumanMessage(
         content="""Here is the input data:
@@ -108,10 +107,6 @@ SINGLE_CHECK_FAKE_HISTORY = [
     "title": "Integrate Blockchain Payments",
     "description": "Allows users to pay via Ethereum.\\n\\n**Acceptance Criteria:**\\n- Connect Metamask.\\n- Calculate Gas."
   },
-  "context_input": {
-    "project_scope": "Traditional e-commerce platform using Stripe and PayPal only. No crypto support planned for this year.",
-    "documentation": "Roadmap 2024"
-  },
   "existing_defects": []
 }"""
     ),
@@ -129,7 +124,6 @@ SINGLE_CHECK_FAKE_HISTORY = [
   ]
 }"""
     ),
-
     # Example 2: Complex Negative (Seemingly Out of Scope but valid extension)
     HumanMessage(
         content="""Here is the input data:
@@ -138,10 +132,6 @@ SINGLE_CHECK_FAKE_HISTORY = [
     "key": "US-MOBILE-WEB",
     "title": "Responsive Layout",
     "description": "Ensure the site works on mobile browsers."
-  },
-  "context_input": {
-    "project_scope": "Web Application only. Native Mobile Apps are out of scope.",
-    "documentation": "Scope Doc"
   },
   "existing_defects": []
 }"""
@@ -160,10 +150,6 @@ SINGLE_CHECK_FAKE_HISTORY = [
     "title": "Add to Cart",
     "description": "As a user, I want to add items to my cart.\\n\\n**Acceptance Criteria:**\\n- Update cart count badge."
   },
-  "context_input": {
-    "project_scope": "Traditional E-commerce MVP.",
-    "documentation": "Scope Doc"
-  },
   "existing_defects": []
 }"""
     ),
@@ -180,10 +166,6 @@ SINGLE_CHECK_FAKE_HISTORY = [
     "key": "US-TARGET-3",
     "title": "Implement Search Functionality",
     "description": "As a user, I want to search products quickly.\\n\\n**Acceptance Criteria:**\\n- Search by name."
-  },
-  "context_input": {
-    "project_scope": "E-commerce platform.",
-    "documentation": "Spec Doc"
   },
   "existing_defects": []"""
     ),

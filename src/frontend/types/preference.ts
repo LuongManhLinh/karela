@@ -8,6 +8,7 @@ export interface PreferenceDto {
   gen_proposal_mode?: string;
   gen_language?: string;
   chat_guidelines?: string;
+  gen_ac_guidelines?: string;
   updated_at: string;
 }
 
@@ -18,6 +19,7 @@ export interface CreatePreferenceRequest {
   gen_proposal_mode?: string;
   gen_language?: string;
   chat_guidelines?: string;
+  gen_ac_guidelines?: string;
 }
 
 export interface UpdatePreferenceRequest {
@@ -27,4 +29,5 @@ export interface UpdatePreferenceRequest {
   gen_proposal_mode?: string;
   gen_language?: string;
   chat_guidelines?: string;
+  gen_ac_guidelines?: string;
 }

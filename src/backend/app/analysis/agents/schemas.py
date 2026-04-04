@@ -8,7 +8,7 @@ class DefectByLlm(BaseModel):
     type: str = Field(
         description="Type of the defect, one of the types mentioned in the instruction",
     )
-    story_keys: List[str] = Field(
+    story_keys: list[str] = Field(
         description="Keys of the stories involved in the defect"
     )
     severity: str = Field(description="'LOW' | 'MEDIUM' | 'HIGH'")
@@ -75,7 +75,7 @@ class UserStory(UserStoryMinimal):
 
 
 class UserStoryWithRef(UserStory):
-    related_story_keys: List[str] = Field(default_factory=list)
+    related_story_keys: list[str] = Field(default_factory=list)
 
     model_config = ConfigDict(
         extra="ignore",

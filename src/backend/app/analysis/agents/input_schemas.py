@@ -2,8 +2,6 @@ from typing import List, Optional, Any, Set
 
 from pydantic import BaseModel, Field, ConfigDict
 
-from common.agents.input_schemas import ContextInput
-
 from .schemas import (
     UserStoryMinimal,
     UserStoryDto,
@@ -14,9 +12,8 @@ from .schemas import (
 
 
 class DetectDefectSingleTypeInput(BaseModel):
-    context: Optional[ContextInput] = None
     type: Optional[str] = None
-    work_items: List[UserStoryMinimal] = Field(default_factory=list)
+    work_items: list[UserStoryMinimal] = Field(default_factory=list)
 
     model_config = ConfigDict(
         extra="ignore",
@@ -24,8 +21,7 @@ class DetectDefectSingleTypeInput(BaseModel):
 
 
 class DetectDefectSingleItemInput(BaseModel):
-    context: Optional[ContextInput] = None
-    work_items: List[UserStory] = Field(default_factory=list)
+    work_items: list[UserStory] = Field(default_factory=list)
 
     model_config = ConfigDict(
         extra="ignore",
@@ -33,8 +29,7 @@ class DetectDefectSingleItemInput(BaseModel):
 
 
 class DetectDefectCrossTypesInput(BaseModel):
-    context: Optional[ContextInput] = None
-    work_items: List[UserStoryWithRef] = Field(default_factory=list)
+    work_items: list[UserStoryWithRef] = Field(default_factory=list)
 
     model_config = ConfigDict(
         extra="ignore",
@@ -42,7 +37,6 @@ class DetectDefectCrossTypesInput(BaseModel):
 
 
 class GenerateGherkinInput(BaseModel):
-    context: Optional[ContextInput] = None
     user_story: Optional[UserStoryDto] = None
     gherkin: Optional[Any] = None
 
@@ -52,7 +46,6 @@ class GenerateGherkinInput(BaseModel):
 
 
 class GenerateUserStoryInput(BaseModel):
-    context: Optional[ContextInput] = None
     user_story: Optional[UserStoryDto] = None
 
     BEING_WRITTEN_TOKEN: str = "<...>"
@@ -73,8 +66,8 @@ class NotifyDefectInput(BaseModel):
 
 
 class ReportDefectInput(BaseModel):
-    defects: List[DefectByLlm] = Field(default_factory=list)
-    analyzed_work_items: List[UserStory] = Field(default_factory=list)
+    defects: list[DefectByLlm] = Field(default_factory=list)
+    analyzed_work_items: list[UserStory] = Field(default_factory=list)
 
     model_config = ConfigDict(
         extra="ignore",

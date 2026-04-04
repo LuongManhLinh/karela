@@ -1,13 +1,12 @@
-from langchain_core.runnables import RunnableConfig
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, BaseMessage
 from typing_extensions import TypedDict
-from typing import Optional, List, Callable, Annotated
+from typing import Optional, Callable, Annotated
 import operator
 from langgraph.graph import StateGraph
 from langgraph.runtime import Runtime
 from langchain.agents.middleware import dynamic_prompt, ModelRequest
 
-from ..schemas import UserStoryMinimal, DefectByLlm, DefectInput
+from ..schemas import UserStoryMinimal, DefectByLlm
 from llm.dynamic_agent import GenimiDynamicAgent
 from .schemas import (
     CrossCheckInput,
@@ -21,8 +20,9 @@ from .schemas import (
     FilterDefectsOutput,
 )
 from ..output_schemas import DetectDefectOutput
-from common.agents.input_schemas import ContextInput
+from common.agents.schemas import LlmContext
 from common.configs import GeminiConfig
+from app.documentation.llm_tools import doc_tools
 
 
 class State(TypedDict):
@@ -33,18 +33,18 @@ class State(TypedDict):
     done_filtering: bool
     done_signing: bool
     # Use reducer for parallel accumulation
-    raw_defects: Annotated[List[DefectByLlm], operator.add]
+    raw_defects: Annotated[list[DefectByLlm], operator.add]
     # Final processed defects (overwritten in sequential steps)
-    defects: List[DefectByLlm]
+    defects: list[DefectByLlm]
 
 
-class Context(TypedDict):
+class Context(LlmContext):
     target_story: UserStoryMinimal | None = None
-    user_stories: List[UserStoryMinimal]
+    user_stories: list[UserStoryMinimal]
     on_done: Callable
-    context_input: ContextInput
-    existing_defects: List[DefectByLlm] = []
+    existing_defects: list[DefectByLlm] = []
     extra_prompt: Optional[str] = None
+    initial_messages: Optional[list[BaseMessage]] = None
 
 
 potential_cross_defects = ["CONFLICT", "DUPLICATION"]
@@ -88,6 +88,7 @@ def build_graph(
         api_keys=GeminiConfig.GEMINI_API_KEYS,
         max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
         middleware=[get_dynamic_prompt_middleware_for_node("cross_check")],
+        tools=doc_tools,
     )
 
     # Agent for single-story defect checking
@@ -99,6 +100,7 @@ def build_graph(
         api_keys=GeminiConfig.GEMINI_API_KEYS,
         max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
         middleware=[get_dynamic_prompt_middleware_for_node("single_check")],
+        tools=doc_tools,
     )
 
     # Agent for validating detected defects
@@ -110,6 +112,7 @@ def build_graph(
         api_keys=GeminiConfig.GEMINI_API_KEYS,
         max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
         middleware=[get_dynamic_prompt_middleware_for_node("defect_validator")],
+        tools=doc_tools,
     )
 
     # Agent for filtering defects
@@ -121,22 +124,22 @@ def build_graph(
         api_keys=GeminiConfig.GEMINI_API_KEYS,
         max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
         middleware=[get_dynamic_prompt_middleware_for_node("defect_filter")],
+        tools=doc_tools,
     )
 
     def defect_adapter_node(state: State, runtime: Runtime[Context]) -> dict:
-        work_items = runtime.context.get("user_stories", [])
-        print("Defect adapter received work items:", work_items)
+        user_stories = runtime.context.user_stories
+        print("Defect adapter received work items:", user_stories)
 
         return {"done_adapter": True}
 
     def single_check_node(state: State, runtime: Runtime[Context]) -> dict:
-        target_story = runtime.context.get("target_story", None)
-        work_items = runtime.context.get("user_stories", [])
-        context_input = runtime.context.get("context_input", None)
+        target_story = runtime.context.target_story
+        user_stories = runtime.context.user_stories
 
         detected = []
-        if work_items and (targeted and target_story or not targeted):
-            existing_defects = runtime.context.get("existing_defects", [])
+        if user_stories and (targeted and target_story or not targeted):
+            existing_defects = runtime.context.existing_defects
 
             # Filter existing defects for single check, keeping only those have type
             filtered_existing_defects = [
@@ -149,14 +152,12 @@ def build_graph(
             input_data = (
                 SingleCheckTargetedInput(
                     target_story=target_story,
-                    user_stories=work_items,
-                    context_input=context_input,
+                    user_stories=user_stories,
                     existing_defects=filtered_existing_defects,
                 )
                 if targeted
                 else SingleCheckInput(
-                    user_stories=work_items,
-                    context_input=context_input,
+                    user_stories=user_stories,
                     existing_defects=filtered_existing_defects,
                 )
             )
@@ -169,6 +170,10 @@ def build_graph(
                 )
             ]
 
+            init_messages = runtime.context.initial_messages
+            if init_messages:
+                messages = init_messages + messages
+
             output: DetectDefectOutput = single_check_agent.invoke(messages)[
                 "structured_response"
             ]
@@ -179,19 +184,19 @@ def build_graph(
         return {"done_single_check": True, "raw_defects": detected}
 
     def cross_check_node(state: State, runtime: Runtime[Context]) -> dict:
-        work_items = runtime.context.get("user_stories", [])
+        user_stories = runtime.context.user_stories
         print(
             f"""
     {"-"*100}
     | Cross Check Node
-    | Number of work items to check: {len(work_items)}
+    | Number of work items to check: {len(user_stories)}
     {"-"*100}
     """
         )
 
         detected = []
-        if work_items:
-            existing_defects = runtime.context.get("existing_defects", [])
+        if user_stories:
+            existing_defects = runtime.context.existing_defects
             filtered_existing_defects = [
                 defect
                 for defect in existing_defects
@@ -202,13 +207,13 @@ def build_graph(
             )
             input_data = (
                 CrossCheckTargetedInput(
-                    target_user_story=runtime.context.get("target_story"),
-                    user_stories=work_items,
+                    target_user_story=runtime.context.target_story,
+                    user_stories=user_stories,
                     existing_defects=filtered_existing_defects,
                 )
                 if targeted
                 else CrossCheckInput(
-                    user_stories=work_items,
+                    user_stories=user_stories,
                     existing_defects=filtered_existing_defects,
                 )
             )
@@ -220,6 +225,10 @@ def build_graph(
                     + input_data.model_dump_json(indent=2)
                 )
             ]
+
+            init_messages = runtime.context.initial_messages
+            if init_messages:
+                messages = init_messages + messages
 
             output: DetectDefectOutput = cross_check_agent.invoke(messages)[
                 "structured_response"
@@ -235,8 +244,7 @@ def build_graph(
 
     def defect_validator_node(state: State, runtime: Runtime[Context]) -> dict:
         """Validate detected defects for correctness and quality."""
-        work_items = runtime.context.get("user_stories", [])
-        context_input = runtime.context.get("context_input", None)
+        user_stories = runtime.context.user_stories
         # Read from gathered raw_defects
         defects = state.get("raw_defects", [])
         # Sort defects to ensure deterministic order for the validator
@@ -257,16 +265,14 @@ def build_graph(
 
         validator_input = (
             ValidateDefectsTargetedInput(
-                target_user_story=runtime.context.get("target_story"),
-                user_stories=work_items,
+                target_user_story=runtime.context.target_story,
+                user_stories=user_stories,
                 defects=defects,
-                context_input=context_input,
             )
             if targeted
             else ValidateDefectsInput(
-                user_stories=work_items,
+                user_stories=user_stories,
                 defects=defects,
-                context_input=context_input,
             )
         )
 
@@ -277,6 +283,10 @@ def build_graph(
                 + validator_input.model_dump_json(indent=2)
             )
         ]
+
+        init_messages = runtime.context.initial_messages
+        if init_messages:
+            messages = init_messages + messages
 
         output: ValidateDefectsOutput = validator_agent.invoke(messages)[
             "structured_response"
@@ -357,7 +367,7 @@ def build_graph(
     def defect_signer_node(state: State, runtime: Runtime[Context]) -> dict:
         """Final node that delivers the processed defects."""
         defects = state.get("defects", [])
-        on_done = runtime.context.get("on_done")
+        on_done = runtime.context.on_done
 
         print(
             f"""

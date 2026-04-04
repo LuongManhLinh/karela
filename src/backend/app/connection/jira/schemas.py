@@ -241,6 +241,7 @@ class WebhookCallbackPayload(BaseModel):
     webhookEvent: str
     issue: Issue
     changelog: Optional[dict[str, Any]] = None
+
     model_config = ConfigDict(
         extra="ignore",
     )

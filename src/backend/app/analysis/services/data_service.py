@@ -23,7 +23,7 @@ class AnalysisDataService:
     def __init__(self, db: Session):
         self.db = db
 
-    def _get_analysis_summaries(self, *filters) -> List[AnalysisSummary]:
+    def _get_analysis_summaries(self, *filters) -> list[AnalysisSummary]:
         defect_counts = (
             self.db.query(
                 Defect.analysis_id.label("analysis_id"),
@@ -123,12 +123,12 @@ class AnalysisDataService:
 
     def get_analysis_summaries_by_connection(
         self, connection_id: str
-    ) -> List[AnalysisSummary]:
+    ) -> list[AnalysisSummary]:
         return self._get_analysis_summaries(Analysis.connection_id == connection_id)
 
     def get_analysis_summaries_by_project(
         self, connection_id: str, project_key: str
-    ) -> List[AnalysisSummary]:
+    ) -> list[AnalysisSummary]:
         return self._get_analysis_summaries(
             Analysis.connection_id == connection_id,
             Analysis.project_key == project_key,
@@ -136,7 +136,7 @@ class AnalysisDataService:
 
     def get_analysis_summaries_by_story(
         self, connection_id: str, project_key: str, story_key: str
-    ) -> List[AnalysisSummary]:
+    ) -> list[AnalysisSummary]:
         return self._get_analysis_summaries(
             Analysis.connection_id == connection_id,
             Analysis.project_key == project_key,
@@ -237,7 +237,7 @@ class AnalysisDataService:
             ],
         )
 
-    def get_analyses_statuses(self, analysis_ids: List[str]) -> List[dict]:
+    def get_analyses_statuses(self, analysis_ids: list[str]) -> list[dict]:
         analyses = (
             self.db.query(Analysis.id, Analysis.status)
             .filter(Analysis.id.in_(analysis_ids))

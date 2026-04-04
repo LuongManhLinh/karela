@@ -30,7 +30,7 @@ async def list_all_analyses(
     conn_id = jwt_payload.get("sub")
     if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
-    summaries: List[AnalysisSummary] = service.get_analysis_summaries_by_connection(
+    summaries: list[AnalysisSummary] = service.get_analysis_summaries_by_connection(
         connection_id=conn_id,
     )
     return BasicResponse(data=summaries)
@@ -45,7 +45,7 @@ async def get_analysis_summaries_by_project(
     conn_id = jwt_payload.get("sub")
     if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
-    summaries: List[AnalysisSummary] = service.get_analysis_summaries_by_project(
+    summaries: list[AnalysisSummary] = service.get_analysis_summaries_by_project(
         connection_id=conn_id, project_key=project_key
     )
     return BasicResponse(data=summaries)
@@ -61,7 +61,7 @@ async def get_analysis_summaries_by_story(
     conn_id = jwt_payload.get("sub")
     if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
-    summaries: List[AnalysisSummary] = service.get_analysis_summaries_by_story(
+    summaries: list[AnalysisSummary] = service.get_analysis_summaries_by_story(
         connection_id=conn_id,
         project_key=project_key,
         story_key=story_key,

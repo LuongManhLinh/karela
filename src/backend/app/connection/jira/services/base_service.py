@@ -101,12 +101,12 @@ class JiraBaseService:
         Args:
             connection_id (str): Jira connection ID
             jql (str): JQL query string
-            fields (List[str]): List of fields to fetch
+            fields (list[str]): List of fields to fetch
             max_results (int): Maximum number of results to fetch
             expand_rendered_fields (bool): Whether to expand rendered fields
             local (bool): Fetch from local cache (True) or from Jira (False). Defaults to True.
         Returns:
-            List[Issue]: List of fetched issues
+            list[Issue]: List of fetched issues
         """
         connection = (
             self.db.query(Connection).filter(Connection.id == connection_id).first()

@@ -16,7 +16,7 @@ class CamelModel(BaseModel):
 class BasicResponse(BaseModel):
     detail: Optional[str] = None
     data: Optional[Any] = None
-    errors: Optional[List[Any]] = None
+    errors: Optional[list[Any]] = None
 
 
 class Platform(str, Enum):

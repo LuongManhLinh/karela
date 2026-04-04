@@ -118,12 +118,12 @@ class AmbiguityFlag(str, Enum):
 # ---------- Atomic types ----------
 
 JsonScalar = Union[str, int, float, bool]
-JsonArray = List[JsonScalar]
+JsonArray = list[JsonScalar]
 
 
 class Actor(BaseModel):
     role: str
-    qualifiers: List[str] = Field(default_factory=list)
+    qualifiers: list[str] = Field(default_factory=list)
 
 
 class Action(BaseModel):
@@ -135,7 +135,7 @@ class Action(BaseModel):
 
 class ObjectRef(BaseModel):
     entity: str
-    attributes: List[str] = Field(default_factory=list)
+    attributes: list[str] = Field(default_factory=list)
 
 
 class Cond(BaseModel):
@@ -148,7 +148,7 @@ class Cond(BaseModel):
 
 class Event(BaseModel):
     name: str
-    params: List[str] = Field(default_factory=list)
+    params: list[str] = Field(default_factory=list)
 
 
 class Effect(BaseModel):
@@ -177,16 +177,16 @@ class Temporal(BaseModel):
 class ScopeLink(BaseModel):
     epic: Optional[str] = None
     feature: Optional[str] = None
-    tags: List[str] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
 
 
 class Uncertainty(BaseModel):
-    flags: List[AmbiguityFlag] = Field(default_factory=list)
+    flags: list[AmbiguityFlag] = Field(default_factory=list)
     notes: Optional[str] = None
 
 
 class Coverage(BaseModel):
-    ac_ids: List[str] = Field(default_factory=list)
+    ac_ids: list[str] = Field(default_factory=list)
 
 
 # ---------- Root aggregate ----------
@@ -202,14 +202,14 @@ class Story(BaseModel):
     action: Action
     object: ObjectRef
 
-    conditions: List[Cond] = Field(default_factory=list)
-    triggers: List[Event] = Field(default_factory=list)
-    results: List[Effect] = Field(default_factory=list)
+    conditions: list[Cond] = Field(default_factory=list)
+    triggers: list[Event] = Field(default_factory=list)
+    results: list[Effect] = Field(default_factory=list)
 
-    nfrs: List[NFR] = Field(default_factory=list)
+    nfrs: list[NFR] = Field(default_factory=list)
     temporal: Optional[Temporal] = None
     scope_link: Optional[ScopeLink] = None
-    exceptions: List[Cond] = Field(default_factory=list)
+    exceptions: list[Cond] = Field(default_factory=list)
 
     rationale: Optional[str] = None
     modality: Modality = Modality.should

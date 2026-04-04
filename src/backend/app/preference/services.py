@@ -3,6 +3,7 @@ from typing import Optional, List
 
 from .models import Preference, GenProposalMode, GenLanguage
 from .schemas import (
+    ACPreferenceDto,
     PreferenceDto,
     CreatePreferenceRequest,
     UpdatePreferenceRequest,
@@ -25,6 +26,7 @@ def _preference_to_dto(pref: Preference) -> PreferenceDto:
         ),
         gen_language=pref.gen_language.value if pref.gen_language else None,
         chat_guidelines=pref.chat_guidelines,
+        gen_ac_guidelines=pref.gen_ac_guidelines,
         updated_at=pref.updated_at,
     )
 
@@ -48,7 +50,7 @@ class PreferenceService:
             return None
         return _preference_to_dto(pref)
 
-    def list_preferences_by_connection(self, connection_id: str) -> List[PreferenceDto]:
+    def list_preferences_by_connection(self, connection_id: str) -> list[PreferenceDto]:
         prefs = (
             self.db.query(Preference)
             .filter(Preference.connection_id == connection_id)
@@ -89,6 +91,7 @@ class PreferenceService:
                 else GenLanguage.STORY_BASED
             ),
             chat_guidelines=request.chat_guidelines,
+            gen_ac_guidelines=request.gen_ac_guidelines,
         )
         self.db.add(pref)
         self.db.commit()
@@ -126,7 +129,8 @@ class PreferenceService:
             pref.gen_language = GenLanguage(request.gen_language)
         if request.chat_guidelines is not None:
             pref.chat_guidelines = request.chat_guidelines
-
+        if request.gen_ac_guidelines is not None:
+            pref.gen_ac_guidelines = request.gen_ac_guidelines
         self.db.add(pref)
         self.db.commit()
         self.db.refresh(pref)
@@ -202,3 +206,18 @@ class PreferenceService:
         if not pref:
             return None
         return ChatPreferenceDto(chat_guidelines=pref.chat_guidelines)
+
+    def get_ac_preference(
+        self, connection_id: str, project_key: str
+    ) -> Optional[ACPreferenceDto]:
+        pref = (
+            self.db.query(Preference)
+            .filter(
+                Preference.connection_id == connection_id,
+                Preference.project_key == project_key,
+            )
+            .first()
+        )
+        if not pref:
+            return None
+        return ACPreferenceDto(gen_ac_guidelines=pref.gen_ac_guidelines)

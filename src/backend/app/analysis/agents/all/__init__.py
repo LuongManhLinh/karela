@@ -1,8 +1,10 @@
+from sqlalchemy.orm import Session
+
 from ..schemas import UserStoryMinimal, DefectInput
-from ..input_schemas import ContextInput
 from ..output_schemas import DefectByLlm
 
 from langchain_core.runnables import RunnableConfig
+from langchain_core.messages import BaseMessage
 
 from .prompts import (
     CROSS_CHECK_SYSTEM_PROMPT,
@@ -34,9 +36,12 @@ graph = build_graph(
 
 def run_analysis(
     user_stories: list[UserStoryMinimal],
-    context_input: ContextInput = None,
+    db: Session,
+    connection_id: str,
+    project_key: str,
     existing_defects: list[DefectInput] = [],
     extra_prompt: str = None,
+    initial_messages: list[BaseMessage] = None,
 ) -> list[DefectByLlm]:
     res = None
 
@@ -56,11 +61,14 @@ def run_analysis(
             defects=[],
         ),
         context=Context(
+            connection_id=connection_id,
+            project_key=project_key,
+            db=db,
             user_stories=user_stories,
             on_done=on_done,
-            context_input=context_input,
             existing_defects=existing_defects or [],
             extra_prompt=extra_prompt,
+            initial_messages=initial_messages,
         ),
         config=RunnableConfig(max_concurrency=3),
     )

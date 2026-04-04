@@ -20,6 +20,8 @@ from utils.markdown_adf_bridge import md_to_adf
 
 from llm.dynamic_agent import GenimiDynamicAgent
 from langchain_core.messages import SystemMessage, HumanMessage
+from app.documentation.services import DocumentationService
+from app.preference.services import PreferenceService
 
 system_prompt = """You are an expert Gherkin developer. Your goal is to provide suggestions to complete or improve the Gherkin feature file for a User Story.
 
@@ -55,6 +57,8 @@ class ACService:
     def __init__(self, db: Session):
         self.db = db
         self.jira_service = JiraService(db)
+        self.documentation_service = DocumentationService(db)
+        self.preference_service = PreferenceService(db)
 
     def _get_ac(self, connection_id: str, project_key: str, story_key: str, ac_id: str):
         return (
@@ -200,11 +204,20 @@ class ACService:
 
         if not story:
             raise ValueError("Story not found")
-
+        prefrence = self.preference_service.get_ac_preference(
+            connection_id, project_key
+        )
         if gen_with_ai:
             content = generate_ac_from_story(
                 summary=story.summary,
                 description=story.description or "",
+                db=self.db,
+                connection_id=connection_id,
+                project_key=project_key,
+                extra_prompt=prefrence.gen_ac_guidelines if prefrence else None,
+                initial_messages=self.documentation_service.simulate_list_docs_messages(
+                    connection_id=connection_id, project_key=project_key
+                ),
             )
         else:
             content = (
@@ -293,12 +306,21 @@ class ACService:
     ):
 
         ac, story, project_key, connection_id = self._get_ac_and_related(ac_id)
-
+        prefrence = self.preference_service.get_ac_preference(
+            connection_id, project_key
+        )
         new_content = generate_ac_from_story(
             summary=story.summary,
             description=story.description or "",
             existing_ac=content,
             feedback=feedback,
+            db=self.db,
+            connection_id=connection_id,
+            project_key=project_key,
+            extra_prompt=prefrence.gen_ac_guidelines if prefrence else None,
+            initial_messages=self.documentation_service.simulate_list_docs_messages(
+                connection_id=connection_id, project_key=project_key
+            ),
         )
         ac.content = new_content
         self.db.commit()

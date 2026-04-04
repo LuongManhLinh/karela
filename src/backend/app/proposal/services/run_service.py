@@ -20,11 +20,6 @@ class ProposalRunService:
 
         self.jira_service = JiraService(db=db)
 
-    def _get_default_context_input(self, connection_id: str, project_key: str):
-        return self.doc_service.get_agent_context_input(
-            connection_id=connection_id, project_key=project_key
-        )
-
     def _get_proposal_generation_inputs(
         self, connection_id, project_key, input_defects
     ):
@@ -52,11 +47,6 @@ class ProposalRunService:
         if not defects:
             return None
 
-        context_input = self._get_default_context_input(
-            connection_id=connection_id,
-            project_key=project_key,
-        )
-
         preference = self.pref_service.get_proposal_preference(
             connection_id=connection_id, project_key=project_key
         )
@@ -76,7 +66,7 @@ class ProposalRunService:
             for story in stories
         ]
 
-        return stories, defects, context_input, preference, defect_key_id_map
+        return stories, defects, preference, defect_key_id_map
 
     def generate_proposals(
         self,
@@ -97,18 +87,15 @@ class ProposalRunService:
         if not inputs:
             return []
 
-        user_stories, defects, context_input, preference, defect_key_id_map = inputs
-
-        if context_input:
-            context_input.clarifications = clarifications
+        user_stories, defects, preference, defect_key_id_map = inputs
 
         proposals = generate_proposals(
             mode=preference.gen_proposal_mode if preference else "SIMPLE",
             defects=defects,
             user_stories=user_stories,
-            context_input=context_input,
             max_rewrite_attempts=max_rewrite_attempts,
             extra_prompt=preference.gen_proposal_guidelines if preference else None,
+            clarifications=clarifications,
         )
 
         proposal_service = ProposalService(db=self.db)

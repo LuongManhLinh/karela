@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, or_, select
 
 
-from typing import List, Optional
+from typing import Optional
 
 
 class ChatDataService:
@@ -151,7 +151,7 @@ class ChatDataService:
 
     def get_latest_messages_after(
         self, session_id: str, message_id: int
-    ) -> List[ChatMessageDto]:
+    ) -> list[ChatMessageDto]:
         """Fetch chat messages in a session after a specific message ID. Support polling."""
         messages = (
             self.db.query(Message)

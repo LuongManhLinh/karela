@@ -21,7 +21,6 @@ from app.analysis.models import (
 )
 from app.connection.jira.services import JiraService
 
-
 from sqlalchemy.orm import Session
 from sqlalchemy import func, select
 
@@ -29,10 +28,7 @@ from sqlalchemy import func, select
 import time
 import traceback
 from datetime import datetime
-from typing import List, Literal
-
-from common.agents.input_schemas import ContextInput
-
+from typing import Literal
 
 from common.redis_app import redis_client
 import json
@@ -101,13 +97,6 @@ class AnalysisRunService:
             severity="info",
         )
 
-    def _get_default_context_input(
-        self, connection_id: str, project_key: str
-    ) -> ContextInput:
-        return self.doc_service.get_agent_context_input(
-            connection_id=connection_id, project_key=project_key
-        )
-
     def _finish_analysis(
         self, analysis: Analysis, status: AnalysisStatus, error_msg: str = None
     ):
@@ -150,10 +139,10 @@ class AnalysisRunService:
     def _convert_llm_defects(
         self,
         analysis_id,
-        defects: List[DefectByLlm],
+        defects: list[DefectByLlm],
         connection_id: str,
         project_key: str,
-    ) -> List[Defect]:
+    ) -> list[Defect]:
         count = self._count_defects(connection_id, project_key)
 
         for idx, defect in enumerate(defects):
@@ -214,13 +203,13 @@ class AnalysisRunService:
                     for i in stories
                 ]
 
-            context_input = self._get_default_context_input(
-                connection_id=analysis.connection_id,
-                project_key=analysis.project_key,
-            )
-
             preference = self.pref_service.get_analysis_preference(
                 connection_id=analysis.connection_id, project_key=analysis.project_key
+            )
+
+            initial_messages = self.doc_service.simulate_list_docs_messages(
+                connection_id=analysis.connection_id,
+                project_key=analysis.project_key,
             )
 
             query = (
@@ -256,19 +245,25 @@ class AnalysisRunService:
             start = time.perf_counter()
             if targeted:
                 defects = run_user_stories_analysis_target(
+                    connection_id=analysis.connection_id,
+                    project_key=analysis.project_key,
+                    db=self.db,
                     target_user_story=target,
                     user_stories=normalized_stories,
-                    context_input=context_input,
                     existing_defects=existing_defects,
                     extra_prompt=preference.extra_prompt if preference else None,
+                    initial_messages=initial_messages,
                 )
                 log_message = "Target story analysis completed in:"
             else:
                 defects = run_user_stories_analysis_all(
+                    connection_id=analysis.connection_id,
+                    project_key=analysis.project_key,
+                    db=self.db,
                     user_stories=normalized_stories,
-                    context_input=context_input,
                     existing_defects=existing_defects,
                     extra_prompt=preference.extra_prompt if preference else None,
+                    initial_messages=initial_messages,
                 )
                 log_message = "User stories analysis completed in:"
 
@@ -301,7 +296,7 @@ class AnalysisRunService:
         Args:
             analysis_id (str): The ID of the analysis to generate proposals for.
         Returns:
-            List[str]: List of created proposal IDs.
+            list[str]: List of created proposal IDs.
         """
         analysis = self._get_analysis_or_raise(analysis_id)
 

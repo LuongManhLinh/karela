@@ -5,6 +5,7 @@ import React, { createContext, useCallback, useContext, useState } from "react";
 
 interface NotificationOptions {
   severity?: "error" | "warning" | "info" | "success";
+  duration?: number;
 }
 
 interface NotificationContextType {
@@ -31,15 +32,14 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   const [severity, setSeverity] = useState<
     "error" | "warning" | "info" | "success"
   >("info");
+  const [duration, setDuration] = useState(3000);
 
-  const notify = useCallback(
-    (msg: string, options?: NotificationOptions) => {
-      setMessage(msg);
-      setSeverity(options?.severity ?? "info");
-      setOpen(true);
-    },
-    [],
-  );
+  const notify = useCallback((msg: string, options?: NotificationOptions) => {
+    setMessage(msg);
+    setSeverity(options?.severity ?? "info");
+    setDuration(options?.duration ?? 3000);
+    setOpen(true);
+  }, []);
 
   const handleClose = useCallback(() => {
     setOpen(false);
@@ -53,6 +53,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
         message={message}
         severity={severity}
         onClose={handleClose}
+        duration={duration}
       />
     </NotificationContext.Provider>
   );

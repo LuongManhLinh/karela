@@ -14,7 +14,7 @@ import type {
   ProposalContentDto,
   ProposalSource,
 } from "@/types/proposal";
-import { downloadAsJson } from "@/utils/export_utils";
+import { downloadAsJson } from "@/utils/exportUtils";
 import { scrollBarSx } from "@/constants/scrollBarSx";
 import { useSessionProposalsQuery } from "@/hooks/queries/useProposalQueries";
 

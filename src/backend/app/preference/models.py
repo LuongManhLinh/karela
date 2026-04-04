@@ -42,6 +42,7 @@ class Preference(Base):
     gen_proposal_mode = Column(SqlEnum(GenProposalMode), default=GenProposalMode.SIMPLE)
     gen_language = Column(SqlEnum(GenLanguage), default=GenLanguage.STORY_BASED)
     chat_guidelines = Column(Text, nullable=True)
+    gen_ac_guidelines = Column(Text, nullable=True)
 
     created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
     updated_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)

@@ -7,6 +7,7 @@ from langchain_core.messages import (
 )
 
 from app.documentation.services import DocumentationService
+from app.preference.services import PreferenceService
 
 from ..agents.agent import stream_with_agent
 
@@ -17,8 +18,7 @@ from ..models import (
 )
 from ..schemas import MessageChunk
 from common.database import uuid_generator
-
-
+from common.redis_app import redis_client
 from sqlalchemy.orm import Session
 
 
@@ -45,16 +45,9 @@ def _convert_langchain_message_to_orm(message, session_id) -> Message:
 class ChatService:
     def __init__(self, db: Session):
         self.db = db
-        self.settings_service = DocumentationService(db=db)
-        from redis.asyncio import Redis
-        from common.configs import RedisConfig
-
-        self.redis_client = Redis(
-            host=RedisConfig.REDIS_HOST,
-            port=RedisConfig.REDIS_PORT,
-            db=RedisConfig.REDIS_DB,
-            decode_responses=True,
-        )
+        self.doc_service = DocumentationService(db=db)
+        self.preference_service = PreferenceService(db=db)
+        self.redis_client = redis_client
 
     async def publish_stream(self, session_id_or_key: str, user_message: str):
         """Streams chat response chunks to Redis Pub/Sub."""
@@ -107,16 +100,17 @@ class ChatService:
                     )
             history_messages.append(HumanMessage(content=user_message))
             project_key = session.project_key
+            connection_id = session.connection_id
+            preference = self.preference_service.get_chat_preference(
+                connection_id=connection_id, project_key=project_key
+            )
             for chunk, _ in stream_with_agent(
                 messages=history_messages,
                 session_id=session.id,
-                connection_id=session.connection_id,
+                connection_id=connection_id,
                 db_session=self.db,
                 project_key=project_key,
-                context_input=self.settings_service.get_agent_context_input(
-                    connection_id=session.connection_id,
-                    project_key=project_key,
-                ),
+                extra_prompt=preference.chat_guidelines if preference else None,
             ):
                 msg_chunk = MessageChunk(
                     id=chunk.id,

@@ -40,7 +40,7 @@ class ChatSessionSummary(SessionSummary):
 
 
 class ChatSessionDto(ChatSessionSummary):
-    messages: List[ChatMessageDto] = []
+    messages: list[ChatMessageDto] = []
 
 
 class MessageChunk(BaseModel):

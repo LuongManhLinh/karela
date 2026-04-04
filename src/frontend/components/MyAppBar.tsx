@@ -31,6 +31,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { useTranslations } from "next-intl";
+import { setLanguage } from "@/utils/languageUtils";
 
 export interface Route {
   name: string;
@@ -78,7 +79,7 @@ export const MyAppBar: React.FC<AppBarProps> = ({
 
   const handleLanguageChange = (locale: string) => {
     setLanguageMenuOpen(false);
-    document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=31536000; SameSite=Lax`;
+    setLanguage(locale);
     router.refresh();
   };
 

@@ -6,11 +6,6 @@ from unstructured_client.models import shared, operations
 from unstructured_client.models.errors import SDKError
 import os
 from typing import Literal
-from langchain_text_splitters import (
-    MarkdownHeaderTextSplitter,
-    RecursiveCharacterTextSplitter,
-)
-from markitdown import MarkItDown
 from pydantic import BaseModel
 import base64
 import zlib
@@ -144,134 +139,131 @@ def _process_unstructured(
     return _build_chunks_obj_with_header_metadata(chunks)
 
 
-def _process_langchain(
-    file_path,
-    max_characters=2000,
-    chunk_overlap=50,
-):
-    extension = "md"
-
-    if extension == ".docx":
-        markdown_text = MarkItDown().convert(file_path).markdown
-    else:
-        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
-            markdown_text = f.read()
-
-    headers_to_split_on = [
-        ("#", "#"),
-        ("##", "##"),
-        ("###", "###"),
-        ("####", "####"),
-    ]
-
-    header_splitter = MarkdownHeaderTextSplitter(
-        headers_to_split_on=headers_to_split_on,
-        strip_headers=False,
-    )
-    header_splits = header_splitter.split_text(markdown_text)
-
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=max_characters, chunk_overlap=chunk_overlap
-    )
-
-    final_chunks = text_splitter.split_documents(header_splits)
-    return [
-        {"metadata": chunk.metadata, "content": chunk.page_content}
-        for chunk in final_chunks
-    ]
-
-
 class PseudoElement(BaseModel):
     id: str
     text: str
 
 
 def _build_chunks_obj_with_header_metadata(chunks: list[Element]):
-    header_hierarchy = {}
-    header_marker = {}
+    id_to_parent = {}
+    header_level = {}
     id_to_elem = {}
 
     results = []
     header_1_ids = []
+
     for chunk in chunks:
-        metadata = {}
+        chunk_headers = []
+
         highest_header = 10
         highest_header_id = None
+        local_header_ids = []
+
         for e in chunk.metadata.orig_elements:
             e_id = e.id
+            id_to_elem[e_id] = e
+
             if e.category == "Title":
                 parent_id = e.metadata.parent_id
-                id_to_elem[e_id] = e
+                local_header_ids.append(e_id)
                 if parent_id:
-                    header_hierarchy[e_id] = parent_id
-                    header = header_marker[parent_id] + 1
-                    header_marker[e_id] = header
+                    id_to_parent[e_id] = parent_id
+                    header = header_level[parent_id] + 1
+                    header_level[e_id] = header
                     if header < highest_header:
                         highest_header = header
                         highest_header_id = e_id
                 else:
                     header = 1
-                    header_marker[e_id] = 1
+                    header_level[e_id] = 1
                     highest_header = 1
                     header_1_ids.append(e_id)
-                metadata[header * "#"] = e.text
+                chunk_headers.append({header * "#": e.text})
+
+        # If no headers are found, take the first 20 words as a pseudo-header
+        if not chunk_headers:
+            title_elem = None
+            for orig_elem in chunk.metadata.orig_elements:
+                parent_id = orig_elem.metadata.parent_id
+                found = False
+
+                while parent_id:
+                    elem = id_to_elem.get(parent_id)
+                    if elem and elem.category == "Title":
+                        title_elem = elem
+                        found = True
+                        break
+                    parent_id = elem.metadata.parent_id
+                if found:
+                    break
+
+            if title_elem:
+                highest_header_id = title_elem.id
+                highest_header = header_level[highest_header_id]
+                chunk_headers.append(
+                    {highest_header * "#": id_to_elem[highest_header_id].text}
+                )
+
+            else:
+                pseudo_header = " ".join(chunk.text.split()[:20])
+                chunk_headers.append({"#": pseudo_header})
+                id_to_elem[chunk.id] = PseudoElement(id=chunk.id, text=pseudo_header)
+                header_1_ids.append(chunk.id)
 
         if highest_header_id:
             while highest_header > 1:
-                highest_header_id = header_hierarchy[highest_header_id]
-                highest_header = header_marker[highest_header_id]
-                metadata[header * "#"] = id_to_elem[highest_header_id].text
+                highest_header_id = id_to_parent[highest_header_id]
+                highest_header = header_level[highest_header_id]
+                chunk_headers.append(
+                    {highest_header * "#": id_to_elem[highest_header_id].text}
+                )
+        # Sort headers by their level (e.g., # before ##)
+        chunk_headers.sort(key=lambda x: len(list(x.keys())[0]))
 
-        # If no headers are found, take the first 20 words as a pseudo-header
-        if not metadata:
-            pseudo_header = " ".join(chunk.text.split()[:20])
-            metadata["#"] = pseudo_header
-            id_to_elem[chunk.id] = PseudoElement(id=chunk.id, text=pseudo_header)
-            header_1_ids.append(chunk.id)
-
-        results.append({"metadata": metadata, "content": chunk.text})
+        results.append({"headers": chunk_headers, "content": chunk.text})
 
     # Build a table of headers
     id_to_children = {}
-    for child_id, parent_id in header_hierarchy.items():
+    for child_id, parent_id in id_to_parent.items():
         if parent_id not in id_to_children:
             id_to_children[parent_id] = []
         id_to_children[parent_id].append(child_id)
 
     headers = []
 
-    # Append all top-level headers (Header 1)
-    # For example:
-    # Header 1: Introduction
-    # Header 2: Background (child of Introduction)
-    # Header 3: Details (child of Background)
-    # Header 4: More Details (child of Details)
-    # Header 2: Methodology (child of Introduction)
-    # Header 3: Data Collection (child of Methodology)
-    def add_headers(header_id, level):
-        headers.append({f"{level * '#'}": id_to_elem[header_id].text})
+    def create_headers(header_id, level):
+        header = {
+            "level": "#" * level,
+            "text": id_to_elem[header_id].text,
+        }
+        children_headers = []
+
         for child_id in id_to_children.get(header_id, []):
-            add_headers(child_id, level + 1)
+            children_headers.append(create_headers(child_id, level + 1))
+        if children_headers:
+            header["children"] = children_headers
+        return header
 
     for header_1_id in header_1_ids:
-        add_headers(header_1_id, 1)
+        headers.append(create_headers(header_1_id, 1))
 
     return results, headers
 
 
 def _build_chunks_dict_with_header_metadata(chunks: list[dict]):
-    print("Processing num chunks returned by Unstructured API:", len(chunks))
-    header_hierarchy = {}
-    header_marker = {}
+    id_to_parent = {}
+    header_level = {}
     id_to_elem = {}
 
     results = []
     header_1_ids = []
 
     for chunk in chunks:
-        metadata = {}
+        chunk_headers = []
+
         highest_header = 10
         highest_header_id = None
+
         orig_elements_base64 = chunk["metadata"].get("orig_elements")
         decoded = base64.b64decode(orig_elements_base64)
         decompressed = zlib.decompress(decoded)
@@ -283,47 +275,95 @@ def _build_chunks_dict_with_header_metadata(chunks: list[dict]):
                 parent_id = e["metadata"].get("parent_id")
                 id_to_elem[e_id] = e
                 if parent_id:
-                    header_hierarchy[e_id] = parent_id
-                    header = header_marker[parent_id] + 1
-                    header_marker[e_id] = header
+                    id_to_parent[e_id] = parent_id
+                    header = header_level[parent_id] + 1
+                    header_level[e_id] = header
                     if header < highest_header:
                         highest_header = header
                         highest_header_id = e_id
                 else:
                     header = 1
-                    header_marker[e_id] = 1
+                    header_level[e_id] = 1
                     highest_header = 1
                     header_1_ids.append(e_id)
-                metadata[header * "#"] = e["text"]
+                chunk_headers.append({header * "#": e["text"]})
 
         if highest_header_id:
             while highest_header > 1:
-                highest_header_id = header_hierarchy[highest_header_id]
-                highest_header = header_marker[highest_header_id]
-                metadata[header * "#"] = id_to_elem[highest_header_id]["text"]
-        # If no headers are found, take the first 20 words as a pseudo-header
-        if not metadata:
-            pseudo_header = " ".join(chunk["text"].split()[:20])
-            metadata["#"] = pseudo_header
-            e_id = chunk["element_id"]
-            id_to_elem[e_id] = {"id": e_id, "text": pseudo_header}
-            header_1_ids.append(e_id)
-        results.append({"metadata": metadata, "content": chunk["text"]})
+                highest_header_id = id_to_parent[highest_header_id]
+                highest_header = header_level[highest_header_id]
+                chunk_headers.append(
+                    {highest_header * "#": id_to_elem[highest_header_id]["text"]}
+                )
 
-    headers = []
+        # If no headers are found, take the first 20 words as a pseudo-header
+        if not chunk_headers:
+            title_elem = None
+            for orig_elem in orig_elements:
+                parent_id = orig_elem.get("metadata", {}).get("parent_id")
+                found = False
+
+                while parent_id:
+                    elem = id_to_elem.get(parent_id)
+                    if elem and elem.get("type") == "Title":
+                        title_elem = elem
+                        found = True
+                        break
+                    if not elem:
+                        break
+                    parent_id = elem.get("metadata", {}).get("parent_id")
+                if found:
+                    break
+
+            if title_elem:
+                highest_header_id = title_elem["element_id"]
+                highest_header = header_level[highest_header_id]
+                chunk_headers.append(
+                    {highest_header * "#": id_to_elem[highest_header_id]["text"]}
+                )
+            else:
+                pseudo_header = " ".join(chunk["text"].split()[:20])
+                chunk_headers.append({"#": pseudo_header})
+                e_id = chunk["element_id"]
+                id_to_elem[e_id] = {"element_id": e_id, "text": pseudo_header}
+                header_1_ids.append(e_id)
+
+        if highest_header_id:
+            while highest_header > 1:
+                highest_header_id = id_to_parent[highest_header_id]
+                highest_header = header_level[highest_header_id]
+                chunk_headers.append(
+                    {highest_header * "#": id_to_elem[highest_header_id]["text"]}
+                )
+
+        # Sort headers by their level (e.g., # before ##)
+        chunk_headers.sort(key=lambda x: len(list(x.keys())[0]))
+
+        results.append({"headers": chunk_headers, "content": chunk["text"]})
+
     # Build a table of headers
     id_to_children = {}
-    for child_id, parent_id in header_hierarchy.items():
+    for child_id, parent_id in id_to_parent.items():
         if parent_id not in id_to_children:
             id_to_children[parent_id] = []
         id_to_children[parent_id].append(child_id)
 
-    def add_headers(header_id, level):
-        headers.append({f"{level * '#'}": id_to_elem[header_id]["text"]})
+    headers = []
+
+    def create_headers(header_id, level):
+        header = {
+            "level": "#" * level,
+            "text": id_to_elem[header_id]["text"],
+        }
+        children_headers = []
+
         for child_id in id_to_children.get(header_id, []):
-            add_headers(child_id, level + 1)
+            children_headers.append(create_headers(child_id, level + 1))
+        if children_headers:
+            header["children"] = children_headers
+        return header
 
     for header_1_id in header_1_ids:
-        add_headers(header_1_id, 1)
-    print("Extracted headers from document:", headers)
+        headers.append(create_headers(header_1_id, 1))
+
     return results, headers

@@ -106,7 +106,7 @@ async def get_proposals_by_session(
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
 
     try:
-        proposals: List[ProposalDto] = service.get_proposals_by_session(
+        proposals: list[ProposalDto] = service.get_proposals_by_session(
             connection_id=conn_id,
             project_filter_key=project_filter_key,
             story_filter_key=story_filter_key,

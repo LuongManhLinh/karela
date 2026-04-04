@@ -85,14 +85,14 @@ class ProposalService:
         return key
 
     def create_proposals(
-        self, proposal_requests: List[CreateProposalRequest]
-    ) -> List[str]:
+        self, proposal_requests: list[CreateProposalRequest]
+    ) -> list[str]:
         """Creates multiple proposals with their contents.
 
         Args:
-            proposal_requests (List[CreateProposalRequest]): The list of proposal creation requests.
+            proposal_requests (list[CreateProposalRequest]): The list of proposal creation requests.
         Returns:
-            List[str]: The list of keys of the created proposals.
+            list[str]: The list of keys of the created proposals.
         """
         created_keys = []
         for proposal_request in proposal_requests:
@@ -104,7 +104,7 @@ class ProposalService:
         self,
         connection_id,
         project_key: str,
-        contents: List[ProposalContent],
+        contents: list[ProposalContent],
     ):
         num_created = 0
         num_updated = 0
@@ -251,7 +251,7 @@ class ProposalService:
         Args:
             proposal_id (str): The ID of the proposal to accept.
         Returns:
-            Tuple[List[str], List[str]]: A tuple containing two lists:
+            Tuple[list[str], list[str]]: A tuple containing two lists:
                 - The list of created issue keys.
                 - The list of updated issue keys.
         """
@@ -390,7 +390,7 @@ class ProposalService:
         source: Literal["CHAT", "ANALYSIS"],
         project_filter_key: str | None = None,
         story_filter_key: str | None = None,
-    ) -> List[ProposalDto]:
+    ) -> list[ProposalDto]:
         """Retrieves all proposals for a given session ID and source.
         Args:
             session_id (str): The session ID.
@@ -611,7 +611,7 @@ class ProposalService:
         self,
         connection_id,
         project_key: str,
-        contents: List[ProposalContent],
+        contents: list[ProposalContent],
     ):
         try:
             for content in contents:

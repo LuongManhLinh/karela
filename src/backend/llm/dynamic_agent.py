@@ -13,7 +13,7 @@ from utils.json_processor import schema_without_titles
 class APIKeyRotationMiddleware:
     """Middleware to rotate API keys on retries."""
 
-    def __init__(self, api_keys: List[str], model: ChatGoogleGenerativeAI):
+    def __init__(self, api_keys: list[str], model: ChatGoogleGenerativeAI):
         self.api_keys = api_keys
         self.model = model
         self._current_index = random.randint(0, len(api_keys) - 1)
@@ -35,7 +35,7 @@ class GenimiDynamicAgent:
     def __init__(
         self,
         model_name: str,
-        api_keys: List[str],
+        api_keys: list[str],
         system_prompt: str | Callable = None,
         temperature: float = 0.7,
         response_mime_type: Literal[
@@ -118,7 +118,7 @@ class GenimiDynamicAgent:
 
         self.response_schema = response_schema
 
-    def invoke(self, messages: List[BaseMessage] | List[Dict], *args, **kwargs):
+    def invoke(self, messages: list[BaseMessage] | list[Dict], *args, **kwargs):
         """
         Invoke the agent with automatic retry and API key rotation.
 
@@ -131,7 +131,7 @@ class GenimiDynamicAgent:
         return self.agent.invoke({"messages": messages}, *args, **kwargs)
 
     def stream(
-        self, messages: List[BaseMessage] | List[Dict], *args, **kwargs
+        self, messages: list[BaseMessage] | list[Dict], *args, **kwargs
     ) -> Iterator:
         """
         Stream agent responses with automatic retry.

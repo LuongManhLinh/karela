@@ -99,7 +99,7 @@ async def list_chat_sessions_by_connection(
     conn_id = jwt_payload.get("sub")
     if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
-    sessions: List[ChatSessionSummary] = service.list_chat_sessions_by_connection(
+    sessions: list[ChatSessionSummary] = service.list_chat_sessions_by_connection(
         connection_id=conn_id,
     )
     return BasicResponse(data=sessions)
@@ -114,7 +114,7 @@ async def list_chat_sessions_by_project(
     conn_id = jwt_payload.get("sub")
     if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
-    sessions: List[ChatSessionSummary] = service.list_chat_sessions_by_project(
+    sessions: list[ChatSessionSummary] = service.list_chat_sessions_by_project(
         connection_id=conn_id,
         project_key=project_key,
     )

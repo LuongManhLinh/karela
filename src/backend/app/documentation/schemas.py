@@ -1,9 +1,6 @@
 from pydantic import BaseModel, ConfigDict
-from typing import Optional, List
+from typing import Optional
 from datetime import datetime
-
-
-# ── Text Documentation ──────────────────────────────────────────────
 
 
 class TextDocumentationDto(BaseModel):
@@ -13,7 +10,7 @@ class TextDocumentationDto(BaseModel):
     name: str
     description: Optional[str] = None
     content: Optional[str] = None
-    headers: Optional[List[dict]] = None
+    headers: Optional[list[dict]] = None
     created_at: datetime
     updated_at: datetime
 
@@ -33,9 +30,6 @@ class UpdateTextDocumentationRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
-# ── File Documentation ──────────────────────────────────────────────
-
-
 class FileDocumentationDto(BaseModel):
     id: str
     connection_id: str
@@ -43,7 +37,7 @@ class FileDocumentationDto(BaseModel):
     name: str
     url: str
     description: Optional[str] = None
-    headers: Optional[List[dict]] = None
+    headers: Optional[list[dict]] = None
     created_at: datetime
     updated_at: datetime
 
@@ -52,3 +46,10 @@ class UpdateFileDocumentationRequest(BaseModel):
     description: Optional[str] = None
 
     model_config = ConfigDict(extra="forbid")
+
+
+class DocumentationSummary(BaseModel):
+    key: str
+    name: str
+    description: Optional[str] = None
+    headers: Optional[list[dict]] = None

@@ -3,16 +3,20 @@ from typing import List, Optional
 from langchain_core.messages import HumanMessage, AIMessage, BaseMessage
 from langgraph.graph import StateGraph, START, END
 from langgraph.runtime import Runtime
+from sqlalchemy.orm import Session
 
 from llm.dynamic_agent import GenimiDynamicAgent
-from common.agents.input_schemas import ContextInput
 from common.configs import GeminiConfig
+from common.agents.schemas import LlmContext
+from app.documentation.llm_tools import doc_tools as doc_tools
+from langchain.agents.middleware import dynamic_prompt, ModelRequest
 
 from .prompts import (
     AC_GENERATOR_SYSTEM_PROMPT,
     AC_REVIEWER_SYSTEM_PROMPT,
     AC_REWRITER_SYSTEM_PROMPT,
 )
+
 from .schemas import (
     ACGeneratorInput,
     ACGeneratorOutput,
@@ -21,6 +25,7 @@ from .schemas import (
     ACRewriterInput,
     ACReview,
 )
+
 from .fake_history import (
     AC_GENERATOR_FAKE_HISTORY,
     AC_REVIEWER_FAKE_HISTORY,
@@ -28,32 +33,51 @@ from .fake_history import (
 )
 
 
+def get_dynamic_prompt_middleware_for_node(node_name: str) -> str:
+    @dynamic_prompt
+    def user_context_prompt(request: ModelRequest) -> str:
+        extra_prompt = request.runtime.context.extra_prompt or ""
+        if node_name == "ac_generator":
+            return AC_GENERATOR_SYSTEM_PROMPT.format(extra_prompt=extra_prompt)
+        elif node_name == "ac_reviewer":
+            return AC_REVIEWER_SYSTEM_PROMPT.format(extra_prompt=extra_prompt)
+        elif node_name == "ac_rewriter":
+            return AC_REWRITER_SYSTEM_PROMPT.format(extra_prompt=extra_prompt)
+        else:
+            return ""
+
+    return user_context_prompt
+
+
 # Create agents for each node
 ac_generator_agent = GenimiDynamicAgent(
-    system_prompt=AC_GENERATOR_SYSTEM_PROMPT,
     model_name=GeminiConfig.GEMINI_API_CHAT_MODEL,
     temperature=GeminiConfig.GEMINI_API_CHAT_TEMPERATURE,
     response_mime_type="application/json",
     response_schema=ACGeneratorOutput,
     api_keys=GeminiConfig.GEMINI_API_KEYS,
+    tools=doc_tools,
+    middleware=[get_dynamic_prompt_middleware_for_node("ac_generator")],
 )
 
 ac_reviewer_agent = GenimiDynamicAgent(
-    system_prompt=AC_REVIEWER_SYSTEM_PROMPT,
     model_name=GeminiConfig.GEMINI_API_CHAT_MODEL,
     temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,  # Use lower temp for critique
     response_mime_type="application/json",
     response_schema=ACReviewerOutput,
     api_keys=GeminiConfig.GEMINI_API_KEYS,
+    tools=doc_tools,
+    middleware=[get_dynamic_prompt_middleware_for_node("ac_reviewer")],
 )
 
 ac_rewriter_agent = GenimiDynamicAgent(
-    system_prompt=AC_REWRITER_SYSTEM_PROMPT,
     model_name=GeminiConfig.GEMINI_API_CHAT_MODEL,
     temperature=GeminiConfig.GEMINI_API_CHAT_TEMPERATURE,
     response_mime_type="application/json",
     response_schema=ACGeneratorOutput,  # Re-use generator output schema
     api_keys=GeminiConfig.GEMINI_API_KEYS,
+    tools=doc_tools,
+    middleware=[get_dynamic_prompt_middleware_for_node("ac_rewriter")],
 )
 
 
@@ -68,18 +92,18 @@ class State:
     max_rewrite_attempts: int = 3
     is_complete: bool = False
     # Store messages of the rewrite loop
-    loop_history: List[BaseMessage] = field(default_factory=list)
+    loop_history: list[BaseMessage] = field(default_factory=list)
 
 
-@dataclass
-class Context:
+class Context(LlmContext):
     """Context shared across all nodes."""
 
     summary: str
     description: str
     existing_ac: Optional[str] = None
     user_feedback: Optional[str] = None
-    context_input: Optional[ContextInput] = None
+    initial_messages: Optional[list[BaseMessage]] = None
+    extra_prompt: Optional[str] = None
 
 
 def ac_generator(state: State, runtime: Runtime[Context]) -> State:
@@ -91,7 +115,6 @@ def ac_generator(state: State, runtime: Runtime[Context]) -> State:
         description=runtime.context.description,
         existing_ac=runtime.context.existing_ac,
         user_feedback=runtime.context.user_feedback,
-        context_input=runtime.context.context_input,
     )
 
     messages = AC_GENERATOR_FAKE_HISTORY + [
@@ -99,6 +122,10 @@ def ac_generator(state: State, runtime: Runtime[Context]) -> State:
             content=f"Here is the input for generating AC:\n{input_data.model_dump_json(indent=2)}"
         )
     ]
+
+    init_messages = runtime.context.initial_messages
+    if init_messages:
+        messages = init_messages + messages
 
     response = ac_generator_agent.invoke(messages=messages)
     structured_response = response["structured_response"]
@@ -117,7 +144,6 @@ def ac_reviewer(state: State, runtime: Runtime[Context]) -> State:
         user_story_title=runtime.context.summary,
         user_story_description=runtime.context.description,
         generated_ac=state.generated_ac,
-        context_input=runtime.context.context_input,
     )
 
     messages = AC_REVIEWER_FAKE_HISTORY + [
@@ -125,6 +151,10 @@ def ac_reviewer(state: State, runtime: Runtime[Context]) -> State:
             content=f"Please review this AC:\n{input_data.model_dump_json(indent=2)}"
         )
     ]
+
+    init_messages = runtime.context.initial_messages
+    if init_messages:
+        messages = init_messages + messages
 
     response = ac_reviewer_agent.invoke(messages=messages)
     structured_response = response["structured_response"]
@@ -154,7 +184,6 @@ def ac_rewriter(state: State, runtime: Runtime[Context]) -> State:
         description=runtime.context.description,
         existing_ac=runtime.context.existing_ac,
         user_feedback=runtime.context.user_feedback,
-        context_input=runtime.context.context_input,
         current_ac=state.generated_ac,
         reviewer_feedback=state.review.feedback or "Please improve the AC.",
     )
@@ -164,6 +193,9 @@ def ac_rewriter(state: State, runtime: Runtime[Context]) -> State:
     )
 
     messages = AC_REWRITER_FAKE_HISTORY + state.loop_history + [current_message]
+    init_messages = runtime.context.initial_messages
+    if init_messages:
+        messages = init_messages + messages
 
     response = ac_rewriter_agent.invoke(messages=messages)
     structured_response = response["structured_response"]
@@ -219,10 +251,14 @@ _graph = build_graph()
 def generate_ac_from_story(
     summary: str,
     description: str,
+    db: Session,
+    connection_id: str,
+    project_key: str,
     existing_ac: Optional[str] = None,
     feedback: Optional[str] = None,
-    context: Optional[ContextInput] = None,
     max_rewrite_attempts: int = 3,
+    extra_prompt: Optional[str] = None,
+    initial_messages: Optional[list[BaseMessage]] = None,
 ) -> str:
     """
     Generates Gherkin Acceptance Criteria from a User Story title and description.
@@ -234,7 +270,11 @@ def generate_ac_from_story(
         description=description,
         existing_ac=existing_ac,
         user_feedback=feedback,
-        context_input=context,
+        connection_id=connection_id,
+        project_key=project_key,
+        db=db,
+        initial_messages=initial_messages,
+        extra_prompt=extra_prompt,
     )
 
     final_state = _graph.invoke(initial_state, context=context_data)

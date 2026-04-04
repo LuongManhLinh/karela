@@ -5,7 +5,7 @@ from .schemas import UserStoryDto, Lint, DefectByLlm
 
 
 class DetectDefectOutput(BaseModel):
-    defects: List[DefectByLlm] = Field()
+    defects: list[DefectByLlm] = Field()
 
 
 class ReportDefectOutput(BaseModel):
@@ -34,7 +34,7 @@ class GenerateGherkinOutput(BaseModel):
 
 class GenerateUserStoryOutput(BaseModel):
     userStory: Optional[UserStoryDto] = None
-    lints: List[Lint] = Field(default_factory=list)
+    lints: list[Lint] = Field(default_factory=list)
     confidence: Optional[float] = None
     explanation: Optional[str] = None
 
@@ -47,7 +47,7 @@ class GenerateUserStoryOutput(BaseModel):
 
 
 class ImproveItemOutput(BaseModel):
-    lints: List[Lint] = Field(default_factory=list)
+    lints: list[Lint] = Field(default_factory=list)
     confidence: Optional[float] = None
     explanation: Optional[str] = None
 

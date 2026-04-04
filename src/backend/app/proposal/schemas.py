@@ -32,8 +32,8 @@ class ProposalSummary(BaseModel):
 
 class ProposalDto(ProposalSummary):
     source: Literal["CHAT", "ANALYSIS"]
-    target_defect_keys: Optional[List[str]] = None
-    contents: List[ProposalContentDto]
+    target_defect_keys: Optional[list[str]] = None
+    contents: list[ProposalContentDto]
 
     model_config = ConfigDict(
         extra="ignore",
@@ -55,8 +55,8 @@ class CreateProposalRequest(BaseModel):
     source: Literal["CHAT", "ANALYSIS"]
     session_id: str
     project_key: str
-    stories: List[ProposeStoryRequest]
-    target_defect_ids: Optional[List[str]] = None
+    stories: list[ProposeStoryRequest]
+    target_defect_ids: Optional[list[str]] = None
 
 
 class ProposalSessionSummary(SessionSummary):
@@ -64,8 +64,8 @@ class ProposalSessionSummary(SessionSummary):
 
 
 class SessionsWithProposals(BaseModel):
-    analysis_sessions: List[ProposalSessionSummary]
-    chat_sessions: List[ProposalSessionSummary]
+    analysis_sessions: list[ProposalSessionSummary]
+    chat_sessions: list[ProposalSessionSummary]
 
 
 class ProposalContentEditRequest(BaseModel):

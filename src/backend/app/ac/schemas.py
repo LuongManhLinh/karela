@@ -48,4 +48,4 @@ class AISuggestion(BaseModel):
 
 
 class AIResponse(BaseModel):
-    suggestions: List[AISuggestion]
+    suggestions: list[AISuggestion]

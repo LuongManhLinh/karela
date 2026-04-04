@@ -77,6 +77,7 @@ export default function PreferencesPage() {
   const [genProposalMode, setGenProposalMode] = useState("SIMPLE");
   const [genLanguage, setGenLanguage] = useState("STORY_BASED");
   const [chatGuidelines, setChatGuidelines] = useState("");
+  const [genAcGuidelines, setGenAcGuidelines] = useState("");
 
   useEffect(() => {
     if (preference) {
@@ -234,6 +235,19 @@ export default function PreferencesPage() {
                     onChange={(e) => setChatGuidelines(e.target.value)}
                     disabled={isCreating || isUpdating}
                     placeholder={t("chatGuidelinesPlaceholder")}
+                    minRows={MIN_TEXTFIELD_ROWS}
+                    maxRows={MAX_TEXTFIELD_ROWS}
+                    sx={{ ...scrollBarSx }}
+                  />
+
+                  <TextField
+                    fullWidth
+                    multiline
+                    label={t("genAcGuidelines")}
+                    value={genAcGuidelines}
+                    onChange={(e) => setGenAcGuidelines(e.target.value)}
+                    disabled={isCreating || isUpdating}
+                    placeholder={t("genAcGuidelinesPlaceholder")}
                     minRows={MIN_TEXTFIELD_ROWS}
                     maxRows={MAX_TEXTFIELD_ROWS}
                     sx={{ ...scrollBarSx }}

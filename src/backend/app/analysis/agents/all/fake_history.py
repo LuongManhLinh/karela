@@ -47,7 +47,6 @@ CROSS_CHECK_FAKE_HISTORY = [
   ]
 }"""
     ),
-
     # Example 2: Complex Negative (Similar words, different scope - NO DEFECT)
     HumanMessage(
         content="""Here is the input data:
@@ -115,10 +114,6 @@ SINGLE_CHECK_FAKE_HISTORY = [
       "description": "As a user, I want to search products quickly.\\n\\n**Acceptance Criteria:**\\n- Search by name."
     }
   ],
-  "context_input": {
-    "project_scope": "E-commerce platform.",
-    "documentation": "Spec Doc"
-  },
   "existing_defects": []
 }"""
     ),
@@ -144,7 +139,6 @@ SINGLE_CHECK_FAKE_HISTORY = [
   ]
 }"""
     ),
-
     # Example 2: Complex Negative (Seemingly Out of Scope but valid extension)
     HumanMessage(
         content="""Here is the input data:
@@ -156,10 +150,6 @@ SINGLE_CHECK_FAKE_HISTORY = [
       "description": "Ensure the site works on mobile browsers."
     }
   ],
-  "context_input": {
-    "project_scope": "Web Application only. Native Mobile Apps are out of scope.",
-    "documentation": "Scope Doc"
-  },
   "existing_defects": []
 }"""
     ),
@@ -179,10 +169,6 @@ SINGLE_CHECK_FAKE_HISTORY = [
       "description": "As an accountant, I want to export the general ledger to CSV for auditing.\\n\\n**Acceptance Criteria:**\\n- Format must correspond to SAP import spec.\\n- Include all transactions for selected fiscal year."
     }
   ],
-  "context_input": {
-    "project_scope": "Internal financial dashboard (MVP). Focus on data accuracy.",
-    "documentation": "Scope Doc v1"
-  },
   "existing_defects": []
 }"""
     ),

@@ -21,7 +21,7 @@ class TextDocumentation(Base):
         index=True,
     )
     project_key = Column(String(32), index=True, nullable=False)
-
+    key = Column(String(64), index=True, nullable=False)
     name = Column(String(256), nullable=False)
     description = Column(Text, nullable=True)
     content = Column(Text, nullable=True)
@@ -46,7 +46,7 @@ class FileDocumentation(Base):
         index=True,
     )
     project_key = Column(String(32), index=True, nullable=False)
-
+    key = Column(String(64), index=True, nullable=False)
     name = Column(String(256), nullable=False)
     url = Column(String(512), nullable=False)
     description = Column(Text, nullable=True)

@@ -1,6 +1,6 @@
 from langchain_core.documents import Document
 
-from vectorstore import DEFAULT_VECTOR_STORE
+from common.vectorstore import DEFAULT_VECTOR_STORE
 
 
 class DocumentationVectorStore:
@@ -11,16 +11,12 @@ class DocumentationVectorStore:
         self,
         documentation_id: str,
         connection_id: str,
-        project_key: str,
-        doc_type: str,
         chunks: list[dict],
     ):
         """Store document chunks in the vector store.
 
         Args:
             documentation_id: ID of the TextDocumentation or FileDocumentation record.
-            connection_id: Connection ID for filtering.
-            project_key: Project key for filtering.
             doc_type: Either "text" or "file".
             chunks: List of dicts with 'metadata' and 'content' keys
                     (output of process_document).
@@ -31,13 +27,10 @@ class DocumentationVectorStore:
             metadata = {
                 "documentation_id": documentation_id,
                 "connection_id": connection_id,
-                "project_key": project_key,
-                "doc_type": doc_type,
             }
-            # Merge header metadata from the chunk
-            if chunk.get("metadata"):
-                for key, value in chunk["metadata"].items():
-                    metadata[f"header_{key}"] = value
+            # Headers are a list of dicts like [{"#": "Header 1"}, {"##": "Subheader"}]
+            for header in chunk["headers"]:
+                metadata.update(header)
 
             documents.append(
                 Document(
@@ -58,37 +51,48 @@ class DocumentationVectorStore:
 
     def retrieve_similar(
         self,
-        connection_id: str,
-        project_key: str,
         query: str,
+        documentation_id: str | None = None,
+        where_headers: dict[str, str] | None = None,
         k: int = 5,
-        min_similarity: float = 0.0,
+        min_similarity: float | None = None,
     ) -> list[dict]:
         """Retrieve similar document chunks for a query.
 
-        Returns list of dicts with 'content', 'metadata', and 'similarity' keys.
+        Args:
+            query: The query string to search for.
+            documentation_id: Optional documentation ID to filter by.
+            where_headers: Optional dict of header key-value pairs to filter by (e.g., {"#": "Introduction", "##": "Subheader"}).
+            k: Number of top similar chunks to return.
+            min_similarity: Minimum similarity score to include in results.
+
+        Returns:
+            list of dicts with 'content', 'metadata', and 'similarity' keys.
         """
-        where = {
-            "$and": [
-                {"connection_id": connection_id},
-                {"project_key": project_key},
-            ]
-        }
+        and_conditions = []
+
+        if documentation_id:
+            and_conditions.append({"documentation_id": {"$eq": documentation_id}})
+
+        if where_headers:
+            for key, value in where_headers.items():
+                and_conditions.append({key: {"$eq": value}})
+
+        where_filter = {"$and": and_conditions}
 
         results = self.vector_store._similarity_search_with_relevance_scores(
             query=query,
             k=k,
-            filter=where,
+            filter=where_filter,
         )
 
         similar_chunks = []
         for doc, sim in results:
-            if sim < min_similarity:
+            if min_similarity is not None and sim < min_similarity:
                 continue
             similar_chunks.append(
                 {
                     "content": doc.page_content,
-                    "metadata": doc.metadata,
                     "similarity": sim,
                 }
             )

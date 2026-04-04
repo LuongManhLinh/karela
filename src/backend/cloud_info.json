@@ -1,0 +1,17 @@
+[
+    {
+        "id": "87dd560a-2d5f-427b-8fc3-fbd346ab0c51",
+        "url": "https://luongmanhlinh2004cb.atlassian.net",
+        "name": "luongmanhlinh2004cb",
+        "scopes": [
+            "delete:issue:jira",
+            "manage:jira-configuration",
+            "manage:jira-project",
+            "manage:jira-webhook",
+            "read:jira-user",
+            "read:jira-work",
+            "write:jira-work"
+        ],
+        "avatarUrl": "https://site-admin-avatar-cdn.prod.public.atl-paas.net/avatars/240/lightbulb.png"
+    }
+]

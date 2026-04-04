@@ -1,6 +1,10 @@
 _BASE_SYSTEM_PROMPT = """You are an expert QA Engineer and Product Owner specializing in Behavior Driven Development (BDD).
 Your goal is to ensure User Stories have high-quality, executable Acceptance Criteria in Gherkin syntax."""
 
+_EXTRA_PROMPTING = """## **EXTRA PROMPTING**
+{extra_prompt}
+"""
+
 AC_GENERATOR_SYSTEM_PROMPT = f"""{_BASE_SYSTEM_PROMPT}
 
 ## **YOUR MISSION**
@@ -25,6 +29,8 @@ Generate comprehensive **Gherkin Acceptance Criteria** for the provided User Sto
 ## **OUTPUT RULES**
 *   Return the Gherkin content in the `gherkin_ac` field.
 *   Provide a brief `reasoning` for your approach or changes.
+
+{_EXTRA_PROMPTING}
 """
 
 AC_REVIEWER_SYSTEM_PROMPT = f"""{_BASE_SYSTEM_PROMPT}
@@ -44,6 +50,8 @@ Audit the generated Gherkin Acceptance Criteria for **Syntax**, **Completeness**
 
 ## **OUTPUT RULES**
 *   If **REWRITE**, provide specific, actionable `feedback` on what looks wrong and how to fix it.
+
+{_EXTRA_PROMPTING}
 """
 
 AC_REWRITER_SYSTEM_PROMPT = f"""{_BASE_SYSTEM_PROMPT}
@@ -59,4 +67,6 @@ Refine the Acceptance Criteria based **STRICTLY** on the Reviewer's feedback.
 ## **OUTPUT RULES**
 *   Return the corrected Gherkin content in the `gherkin_ac` field.
 *   Provide `reasoning` for the fixes.
+
+{_EXTRA_PROMPTING}
 """

@@ -177,6 +177,8 @@
     "proposalGenerationGuidelinesPlaceholder": "Provide specific guidelines for how the LLM should generate proposals...",
     "chatGuidelines": "Chat Guidelines",
     "chatGuidelinesPlaceholder": "Provide specific guidelines for how the LLM should behave in chat...",
+    "genAcGuidelines": "AC Generation Guidelines",
+    "genAcGuidelinesPlaceholder": "Provide specific guidelines for how the LLM should generate acceptance criteria...",
     "autoGenerateProposalsAfterAnalysis": "Automatically generate proposals after analysis",
     "proposalGenerationMode": "Proposal Generation Mode",
     "generationLanguage": "Generation Language",
@@ -453,7 +455,9 @@
       "runAnalysisAfterSync": "Run analysis after sync",
       "cancel": "Cancel",
       "syncing": "Syncing...",
-      "sync": "Sync{count, plural, =0 {} other { ({count})}}"
+      "sync": "Sync{count, plural, =0 {} other { ({count})}}",
+      "synced": "Synced",
+      "notSynced": "Not synced"
     }
   },
   "proposals": {

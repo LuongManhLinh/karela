@@ -10,7 +10,6 @@ from utils.file_storage import download_file
 
 def _process_doc(doc_id: str, type: str):
     db = SessionLocal()
-    print("Starting document processing task for doc_id:", doc_id, "type:", type)
     vectorsore = DocumentationVectorStore()
     if type == "text":
         doc = db.query(TextDocumentation).filter(TextDocumentation.id == doc_id).first()
@@ -20,8 +19,6 @@ def _process_doc(doc_id: str, type: str):
         _process_and_save_text_doc(
             db=db,
             doc=doc,
-            connection_id=doc.connection_id,
-            project_key=doc.project_key,
             vectorstore=vectorsore,
         )
     elif type == "file":
@@ -31,8 +28,6 @@ def _process_doc(doc_id: str, type: str):
         _process_and_save_file_doc(
             db=db,
             doc=doc,
-            connection_id=doc.connection_id,
-            project_key=doc.project_key,
             vectorstore=vectorsore,
         )
     else:
@@ -43,8 +38,6 @@ def _process_and_save_text_doc(
     db: Session,
     vectorstore: DocumentationVectorStore,
     doc: TextDocumentation,
-    connection_id: str,
-    project_key: str,
 ):
     """Helper to process text content, save headers to DB, and chunks to vectorstore."""
 
@@ -59,9 +52,7 @@ def _process_and_save_text_doc(
     if chunks:
         vectorstore.add_chunks(
             documentation_id=doc.id,
-            connection_id=connection_id,
-            project_key=project_key,
-            doc_type="text",
+            connection_id=doc.connection_id,
             chunks=chunks,
         )
 
@@ -70,8 +61,6 @@ def _process_and_save_file_doc(
     db: Session,
     vectorstore: DocumentationVectorStore,
     doc: FileDocumentation,
-    connection_id: str,
-    project_key: str,
 ):
     """Helper to process file content, save headers to DB, and chunks to vectorstore."""
     try:
@@ -87,18 +76,14 @@ def _process_and_save_file_doc(
         if chunks:
             vectorstore.add_chunks(
                 documentation_id=doc.id,
-                connection_id=connection_id,
-                project_key=project_key,
-                doc_type="file",
+                connection_id=doc.connection_id,
                 chunks=chunks,
             )
     except Exception as e:
         print(f"Failed to process uploaded file {doc.name}: {e}")
 
 
-def process_document_task(
-    connection_id: str, doc_id: str, type: Literal["text", "file"]
-):
+def process_document_task(doc_id: str, type: Literal["text", "file"]):
     enqueue_task(
         f=_process_doc,
         queue_type="doc",

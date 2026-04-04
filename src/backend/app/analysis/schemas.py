@@ -26,7 +26,7 @@ class DefectDto(BaseModel):
     confidence: Optional[float] = None
     suggested_fix: Optional[str] = None
     solved: Optional[bool] = None
-    story_keys: Optional[List[str]] = None
+    story_keys: Optional[list[str]] = None
 
     model_config = ConfigDict(
         extra="ignore",
@@ -34,7 +34,7 @@ class DefectDto(BaseModel):
 
 
 class AnalysisDto(AnalysisSummary):
-    defects: List[DefectDto]
+    defects: list[DefectDto]
 
     model_config = ConfigDict(
         extra="ignore",
@@ -69,7 +69,7 @@ class AnalysisStatusDto(BaseModel):
 
 
 class AnalysisStatusesRequest(BaseModel):
-    analysis_ids: List[str]
+    analysis_ids: list[str]
 
     model_config = ConfigDict(
         extra="ignore",

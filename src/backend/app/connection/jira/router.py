@@ -27,7 +27,6 @@ async def oauth_start():
     for k, v in params.items():
         url = url.copy_add_param(k, v)
     return BasicResponse(
-        detail="Redirecting to Jira OAuth",
         data=str(url),
     )
 
@@ -69,25 +68,15 @@ async def jira_webhook(
     payload: WebhookCallbackPayload,
     service: JiraService = Depends(get_jira_service),
 ):
-    """Handle incoming Jira webhooks.
-
-    This endpoint is called by Jira when certain events occur, such as issue creation or updates.
-
-    Args:
-        connection_id (str): The ID of the Jira connection.
-        project_id (str): The ID of the Jira project.
-        issue_id (str): The ID of the Jira issue.
-        request (Request): The incoming HTTP request containing the webhook payload.
-        service (JiraService): The Jira service instance.
-    Returns:
-        BasicResponse: A response indicating success or failure of webhook processing.
-    """
-    # import json
-
-    # print("Received payload:", json.dumps(payload, indent=2))
-    # return
+    print("Webhook received for connection:", connection_id)
 
     service.handle_webhook(
         connection_id=connection_id,
         payload=payload,
     )
+
+
+@router.get("/webhook/health")
+async def webhook_health():
+    """Health check endpoint for Jira webhooks."""
+    return BasicResponse(data="Webhook endpoint is healthy")

@@ -1,18 +1,13 @@
-import json
-from common.agents.input_schemas import ContextInput
 from llm.dynamic_agent import GenimiDynamicAgent
-from langchain.agents.middleware import LLMToolSelectorMiddleware
 from langchain.agents.middleware import dynamic_prompt, ModelRequest
+from langchain_core.messages import BaseMessage
 
 from sqlalchemy.orm import Session
-from dataclasses import dataclass
 
 from common.configs import GeminiConfig
-from app.chat.services import ChatDataService
-from app.proposal.services import ProposalService
-from app.analysis.services import AnalysisDataService, DefectService
 from .prompts import SYSTEM_PROMPT
 from .tools import tools
+from .context import Context
 
 
 # tool_selector_middleware = LLMToolSelectorMiddleware(
@@ -30,13 +25,9 @@ from .tools import tools
 @dynamic_prompt
 def user_context_prompt(request: ModelRequest) -> str:
     """Generate system prompt based on user role."""
-    project_key = request.runtime.context.project_key
-    documentation = request.runtime.context.context_input
-    documentation_text = (
-        f"Documentation: {json.dumps(documentation, indent=2)}" if documentation else ""
-    )
+    extra_prompt = request.runtime.context.extra_prompt or ""
     return SYSTEM_PROMPT.format(
-        context=f"Project Key: {project_key}\n{documentation_text}"
+        extra_prompt=extra_prompt,
     )
 
 
@@ -50,23 +41,13 @@ agent = GenimiDynamicAgent(
 )
 
 
-@dataclass
-class Context:
-    session_id: str
-    connection_id: str
-    project_key: str
-    db_session: Session = None
-    context_input: ContextInput = None
-
-
 def chat_with_agent(
-    messages: list,
+    messages: list[BaseMessage],
     connection_id: str,
     session_id: str,
-    db_session: Session,
+    db: Session,
     project_key: str,
-    story_key: str = None,
-    context_input: ContextInput = None,
+    extra_prompt: str = None,
 ) -> dict:
     """Chat with the resolver agent.
 
@@ -86,9 +67,8 @@ def chat_with_agent(
             session_id=session_id,
             connection_id=connection_id,
             project_key=project_key,
-            story_key=story_key,
-            db_session=db_session,
-            context_input=context_input,
+            db=db,
+            extra_prompt=extra_prompt,
         ),
     )
 
@@ -96,12 +76,12 @@ def chat_with_agent(
 
 
 def stream_with_agent(
-    messages: list,
-    session_id: str,
+    messages: list[BaseMessage],
     connection_id: str,
-    db_session: Session,
+    session_id: str,
+    db: Session,
     project_key: str,
-    context_input: ContextInput = None,
+    extra_prompt: str = None,
 ):
     """Chat with the resolver agent with streaming response.
 
@@ -121,8 +101,8 @@ def stream_with_agent(
             session_id=session_id,
             connection_id=connection_id,
             project_key=project_key,
-            db_session=db_session,
-            context_input=context_input,
+            db=db,
+            extra_prompt=extra_prompt,
         ),
         stream_mode="messages",
     ):

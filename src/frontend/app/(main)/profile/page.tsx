@@ -14,11 +14,7 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import {
-  Logout,
-  Article,
-  Settings,
-} from "@mui/icons-material";
+import { Logout, Article, Settings } from "@mui/icons-material";
 import { useTranslations } from "next-intl";
 import { Layout } from "@/components/Layout";
 import {
@@ -75,7 +71,10 @@ export default function ProfilePage() {
   // Show snackbar to alert to connect Jira if no connections exist
   useEffect(() => {
     if (!isConnectionsLoading && !connection) {
-      notify(t("messages.connectJiraPrompt"), { severity: "info" });
+      notify(t("messages.connectJiraPrompt"), {
+        severity: "info",
+        duration: 10000,
+      });
     }
   }, [isConnectionsLoading, connection, notify]);
 
@@ -94,7 +93,10 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!isLoading && totalProjectsCount > 0 && syncedProjectsCount === 0) {
-      notify(t("messages.syncProjectsToStart"), { severity: "info" });
+      notify(t("messages.syncProjectsToStart"), {
+        severity: "info",
+        duration: 10000,
+      });
     }
   }, [isLoading, totalProjectsCount, syncedProjectsCount, notify, t]);
 
@@ -173,6 +175,7 @@ export default function ProfilePage() {
                 {t("connectJiraToStart")}
               </Typography>
             )}
+
             <Button
               type="submit"
               variant="contained"

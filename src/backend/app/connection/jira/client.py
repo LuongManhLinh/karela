@@ -42,20 +42,16 @@ class JiraClient:
             "https://auth.atlassian.com/oauth/token", json=payload, headers=headers
         )
         resp.raise_for_status()
-        with open("exchange.json", "w") as f:
-            json.dump(resp.json(), f, indent=4)
         return ExchangeAutorizationCodeResponse(**resp.json())
 
     @staticmethod
     def get_cloud_info(
         access_token: str,
-    ) -> List[JiraCloudInfoResponse]:
+    ) -> list[JiraCloudInfoResponse]:
         url = "https://api.atlassian.com/oauth/token/accessible-resources"
         headers = _get_auth_header(access_token)
         resp = requests.get(url, headers=headers)
         resp.raise_for_status()
-        with open("cloud_info.json", "w") as f:
-            json.dump(resp.json(), f, indent=4)
         return [JiraCloudInfoResponse(**item) for item in resp.json()]
 
     @staticmethod
@@ -77,21 +73,37 @@ class JiraClient:
         resp = requests.post(url, json=payload, headers=headers)
         resp.raise_for_status()
         data = resp.json()
-        # Dump data to a file for debugging
-        with open("jira_refresh_token_response.json", "w") as f:
-            json.dump(data, f, indent=4)
         return data["access_token"], data["refresh_token"]
 
     @staticmethod
-    def create_issues(cloud_id: str, access_token: str, payload: CreateIssuesRequest):
+    def _create_issues(cloud_id: str, access_token: str, payload: dict) -> list[str]:
         url = API_BASE.format(cloud_id=cloud_id) + "/issue/bulk"
         headers = _get_auth_header(access_token)
         headers["Content-Type"] = "application/json"
-        resp = requests.post(url, json=payload.model_dump(), headers=headers)
+        resp = requests.post(url, json=payload, headers=headers)
         resp.raise_for_status()
         resp_json = resp.json()
         created_issues = resp_json.get("issues", [])
         return [issue["key"] for issue in created_issues]
+
+    @staticmethod
+    def create_issues(cloud_id: str, access_token: str, payload: CreateIssuesRequest):
+        created_issue_keys: list[str] = []
+        issue_updates = payload.issueUpdates
+
+        for start in range(0, len(issue_updates), 20):
+            print(
+                f"Creating issues {start} to {min(start + 20, len(issue_updates))}..."
+            )
+            batch = issue_updates[start : start + 20]
+            batch_payload = CreateIssuesRequest(issueUpdates=batch)
+            created_issue_keys.extend(
+                JiraClient._create_issues(
+                    cloud_id, access_token, batch_payload.model_dump()
+                )
+            )
+
+        return created_issue_keys
 
     @staticmethod
     def create_issue(cloud_id: str, access_token: str, payload: IssueUpdate):
@@ -109,7 +121,7 @@ class JiraClient:
         cloud_id: str,
         access_token: str,
         jql: str,
-        fields: List[str],
+        fields: list[str],
         max_results: int | None = None,
         expand_rendered_fields: bool = False,
     ) -> SearchResponse:
@@ -189,7 +201,7 @@ class JiraClient:
         cloud_id: str,
         access_token: str,
         issue_key: str,
-        fields: List[str] = None,
+        fields: list[str] = None,
         expand_rendered_fields: bool = False,
     ) -> Issue:
         url = API_BASE.format(cloud_id=cloud_id) + f"/issue/{issue_key}"
@@ -260,7 +272,7 @@ class JiraClient:
         cloud_id: str,
         access_token: str,
         max_results: int = 1000,
-    ) -> List[str]:
+    ) -> list[str]:
         """Fetch all project keys from Jira
 
         Args:
@@ -268,7 +280,7 @@ class JiraClient:
             access_token (str): OAuth2 access token
 
         Returns:
-            List[str]: List of project keys
+            list[str]: List of project keys
         """
         url = API_BASE.format(cloud_id=cloud_id) + "/project/search"
         params = {
@@ -295,18 +307,18 @@ class JiraClient:
         cloud_id: str,
         access_token: str,
         max_results: int = 1000,
-        project_keys: Optional[List[str]] = None,
-    ) -> List[ProjectDto]:
+        project_keys: Optional[list[str]] = None,
+    ) -> list[ProjectDto]:
         """Fetch all project info from Jira
 
         Args:
             cloud_id (str): Jira cloud ID
             access_token (str): OAuth2 access token
             max_results (int): Maximum number of projects to fetch
-            project_keys (List[str], optional): List of specific project keys to fetch
+            project_keys (list[str], optional): List of specific project keys to fetch
 
         Returns:
-            List[dict]: List of project info dictionaries, including id, key and name
+            list[dict]: List of project info dictionaries, including id, key and name
         """
         url = API_BASE.format(cloud_id=cloud_id) + "/project/search"
         params = {
@@ -353,7 +365,7 @@ class JiraClient:
         cloud_id: str,
         access_token: str,
         project_key: str,
-    ) -> List[str]:
+    ) -> list[str]:
         """Fetch all story issue keys for a specific project
 
         Args:
@@ -362,7 +374,7 @@ class JiraClient:
             project_key (str): The project key to fetch stories from
 
         Returns:
-            List[str]: List of story issue keys
+            list[str]: List of story issue keys
         """
         url = API_BASE.format(cloud_id=cloud_id) + "/search/jql"
         jql = f'project = "{project_key}" AND issuetype = "Story" ORDER BY created ASC'
@@ -546,7 +558,7 @@ class JiraClient:
         cloud_id: str,
         access_token: str,
         url: str,
-        events: List[str],
+        events: list[str],
     ) -> str:
         """Register a webhook in Jira
 
@@ -555,7 +567,7 @@ class JiraClient:
             access_token (str): OAuth2 access token
             name (str): Name of the webhook
             url (str): URL to receive webhook events
-            events (List[str]): List of events to subscribe to
+            events (list[str]): List of events to subscribe to
             jql_filter (Optional[str], optional): JQL filter for the webhook. Defaults to None.
 
         Returns:
@@ -585,7 +597,7 @@ class JiraClient:
     def get_webhooks(
         cloud_id: str,
         access_token: str,
-    ) -> List[dict]:
+    ):
         """Get all webhooks in Jira
 
         Args:
@@ -593,26 +605,26 @@ class JiraClient:
             access_token (str): OAuth2 access token
 
         Returns:
-            List[dict]: List of webhooks
+            list[dict]: List of webhooks
         """
         api_url = API_BASE.format(cloud_id=cloud_id) + "/webhook"
         headers = _get_auth_header(access_token)
         resp = requests.get(api_url, headers=headers)
         resp.raise_for_status()
-        return resp.json()
+        return resp.json()["values"]
 
     @staticmethod
     def delete_webhooks(
         cloud_id: str,
         access_token: str,
-        webhook_ids: list[str],
+        webhook_ids: list,
     ):
         """Delete a webhook in Jira
 
         Args:
             cloud_id (str): Jira cloud ID
             access_token (str): OAuth2 access token
-            webhook_id (str): ID of the webhook to delete
+            webhook_ids (list): List of webhook IDs to delete
         """
         api_url = API_BASE.format(cloud_id=cloud_id) + f"/webhook"
         headers = _get_auth_header(access_token)
@@ -635,7 +647,7 @@ class JiraClient:
             access_token (str): OAuth2 access token
             webhook_id (str): ID of the webhook to refresh
             url (str): URL to receive webhook events
-            events (List[str]): List of events to subscribe to
+            events (list[str]): List of events to subscribe to
         """
         api_url = API_BASE.format(cloud_id=cloud_id) + f"/webhook/refresh"
         headers = _get_auth_header(access_token)

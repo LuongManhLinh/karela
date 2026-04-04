@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useNotificationContext } from "@/providers/NotificationProvider";
 import { useTranslations } from "next-intl";
 import { jiraService } from "@/services/jiraService";
+import { JiraIconColored as JiraIcon } from "@/components/icons/JiraIcon";
 
 export default function LoginPage() {
   const t = useTranslations("auth.login");
@@ -84,17 +85,9 @@ export default function LoginPage() {
           </Typography>
           <Button
             fullWidth
-            variant="outlined"
             size="large"
-            startIcon={
-              <img
-                src="/jira.svg"
-                alt="jira"
-                style={{ height: 24, marginRight: 10 }}
-              />
-            }
+            startIcon={<JiraIcon />}
             onClick={handleLogin}
-            color="primary"
             sx={{
               bgcolor: "primaryContainer",
             }}

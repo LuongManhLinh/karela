@@ -23,7 +23,7 @@ import type {
   ProposalDto,
 } from "@/types/proposal";
 import DefectCard from "@/components/analysis/DefectCard";
-import { downloadAsJson } from "@/utils/export_utils";
+import { downloadAsJson } from "@/utils/exportUtils";
 import {
   useAnalysisDetailsQuery,
   useRerunAnalysisMutation,
