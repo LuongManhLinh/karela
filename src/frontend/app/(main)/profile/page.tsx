@@ -30,6 +30,7 @@ import { SyncProjectsDialog } from "@/components/profile/SyncProjectsDialog";
 import { getThemeName, setThemeName } from "@/utils/themeStorageUtil";
 import { getThemesAction } from "@/app/actions";
 import { removeToken } from "@/utils/jwtUtils";
+import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 
 type ThemeOption = {
   name: string;
@@ -65,6 +66,8 @@ export default function ProfilePage() {
     () => syncStatuses.filter((project) => project.synced).length,
     [syncStatuses],
   );
+
+  const { resetAll } = useWorkspaceStore();
 
   const totalProjectsCount = syncStatuses.length;
 
@@ -115,6 +118,7 @@ export default function ProfilePage() {
 
   const handleLogout = () => {
     removeToken();
+    resetAll();
     router.push("/login");
   };
 

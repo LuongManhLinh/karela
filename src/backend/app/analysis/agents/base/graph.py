@@ -128,8 +128,6 @@ def build_graph(
     )
 
     def defect_adapter_node(state: State, runtime: Runtime[Context]) -> dict:
-        user_stories = runtime.context.user_stories
-        print("Defect adapter received work items:", user_stories)
 
         return {"done_adapter": True}
 
@@ -151,7 +149,7 @@ def build_graph(
 
             input_data = (
                 SingleCheckTargetedInput(
-                    target_story=target_story,
+                    target_user_story=target_story,
                     user_stories=user_stories,
                     existing_defects=filtered_existing_defects,
                 )
@@ -163,20 +161,31 @@ def build_graph(
             )
 
             # Inject History
-            messages = single_check_history + [
+            # messages = single_check_history + [
+            #     HumanMessage(
+            #         content="Here is the input data:\n"
+            #         + input_data.model_dump_json(indent=2)
+            #     )
+            # ]
+
+            # init_messages = runtime.context.initial_messages
+            # if init_messages:
+            #     messages = init_messages + messages
+
+            messages = [
                 HumanMessage(
                     content="Here is the input data:\n"
                     + input_data.model_dump_json(indent=2)
                 )
             ]
 
-            init_messages = runtime.context.initial_messages
-            if init_messages:
-                messages = init_messages + messages
+            resp = single_check_agent.invoke(messages)
+            # Dump it to debug
+            import pickle
 
-            output: DetectDefectOutput = single_check_agent.invoke(messages)[
-                "structured_response"
-            ]
+            with open("data/temp.pkl", "wb") as f:
+                pickle.dump(resp, f)
+            output: DetectDefectOutput = resp["structured_response"]
 
             if output.defects:
                 detected = output.defects
@@ -230,9 +239,9 @@ def build_graph(
             if init_messages:
                 messages = init_messages + messages
 
-            output: DetectDefectOutput = cross_check_agent.invoke(messages)[
-                "structured_response"
-            ]
+            resp = cross_check_agent.invoke(messages)
+            print(f"Cross check raw response: {resp}")
+            output: DetectDefectOutput = resp["structured_response"]
 
             if output.defects:
                 print(f"Cross check found defects: {output.defects}")
@@ -388,7 +397,7 @@ def build_graph(
     # Add all nodes
     graph.add_node("defect_adapter", defect_adapter_node)
     graph.add_node("single_check", single_check_node)
-    graph.add_node("cross_check", cross_check_node)
+    # graph.add_node("cross_check", cross_check_node)
     graph.add_node("defect_validator", defect_validator_node)
     graph.add_node("defect_filter", defect_filter_node)
     graph.add_node("defect_signer", defect_signer_node)
@@ -398,11 +407,11 @@ def build_graph(
 
     # Parallel detection phase
     graph.add_edge("defect_adapter", "single_check")
-    graph.add_edge("defect_adapter", "cross_check")
+    # graph.add_edge("defect_adapter", "cross_check")
 
     # Sequential validation and filtering phase
     graph.add_edge("single_check", "defect_validator")
-    graph.add_edge("cross_check", "defect_validator")
+    # graph.add_edge("cross_check", "defect_validator")
     graph.add_edge("defect_validator", "defect_filter")
     graph.add_edge("defect_filter", "defect_signer")
 

@@ -9,7 +9,7 @@ from langchain_core.messages import (
 from app.documentation.services import DocumentationService
 from app.preference.services import PreferenceService
 
-from ..agents.agent import stream_with_agent
+from ..agents.agent import stream_with_agent, generate_chat_title
 
 from ..models import (
     ChatSession,
@@ -23,23 +23,9 @@ from sqlalchemy.orm import Session
 
 
 from datetime import datetime
+import inspect
 import json
 import traceback
-
-
-_langchain_message_dict = {
-    HumanMessage: SenderRole.USER,
-    AIMessage: SenderRole.AGENT,
-    ToolMessage: SenderRole.TOOL,
-}
-
-
-def _convert_langchain_message_to_orm(message, session_id) -> Message:
-    return Message(
-        role=_langchain_message_dict.get(type(message), SenderRole.USER),
-        content=message.content,
-        session_id=session_id,
-    )
 
 
 class ChatService:
@@ -57,11 +43,9 @@ class ChatService:
         async for chunk_dict in self.stream(session_id_or_key, user_message):
             # chunk_dict is {"type": ..., "data": ...}
             payload = json.dumps(chunk_dict)
-            await self.redis_client.publish(topic, payload)
-            # print(f"Published chunk to {topic}: {payload[:50]}...") # Debug log
-
-        # Optionally publish a "done" message or let the client infer
-        # print(f"Finished publish stream to {topic}")
+            publish_result = self.redis_client.publish(topic, payload)
+            if inspect.isawaitable(publish_result):
+                await publish_result
 
     async def stream(self, session_id_or_key: str, user_message: str):
         session = (
@@ -74,6 +58,11 @@ class ChatService:
         )
         if not session:
             raise ValueError(f"Chat session with id '{session_id_or_key}' not found.")
+
+        title = generate_chat_title(user_message)
+        session.title = title
+
+        yield {"type": "title", "data": {"title": title}}
 
         new_message = Message(
             role=SenderRole.USER,
@@ -108,7 +97,7 @@ class ChatService:
                 messages=history_messages,
                 session_id=session.id,
                 connection_id=connection_id,
-                db_session=self.db,
+                db=self.db,
                 project_key=project_key,
                 extra_prompt=preference.chat_guidelines if preference else None,
             ):
@@ -141,7 +130,19 @@ class ChatService:
                         )
                     else:
                         msg_chunk.role = "agent"
-                        msg_chunk.content = chunk.content
+                        content = chunk.content
+                        if isinstance(content, str):
+                            msg_chunk.content = content
+                        elif isinstance(content, list):
+                            contents = []
+                            for c in content:
+                                if isinstance(c, str):
+                                    contents.append(c)
+                                elif isinstance(c, dict):
+                                    contents.append(c.get("text", str(c)))
+                                else:
+                                    contents.append(str(c))
+                            msg_chunk.content = "".join(contents)
                 else:
                     msg_chunk.role = "tool"
                     msg_chunk.content = chunk.content

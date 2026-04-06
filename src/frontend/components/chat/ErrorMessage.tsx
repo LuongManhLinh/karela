@@ -24,13 +24,9 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({ message }) => {
       sx={{
         p: 3,
         borderRadius: 1,
-        mb: 2,
         width: "100%",
-        background:
-          theme.palette.mode === "light"
-            ? "linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)"
-            : "linear-gradient(135deg, #742a2a 0%, #5a1f1f 100%)",
-        boxShadow: "0 4px 16px rgba(245, 101, 101, 0.2)",
+        background: "error.main",
+        color: "error.contrastText",
       }}
     >
       <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
@@ -43,7 +39,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({ message }) => {
         />
         <Box sx={{ flex: 1 }}>
           <Typography
-            variant="h6"
+            variant="body1"
             sx={{
               fontWeight: 600,
               color: theme.palette.error.main,

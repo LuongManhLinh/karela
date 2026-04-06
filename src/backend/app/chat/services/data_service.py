@@ -82,6 +82,7 @@ class ChatDataService:
                 key=session.key,
                 project_key=session.project_key,
                 created_at=session.created_at.isoformat(),
+                title=session.title,
             )
             for session in sessions
         ]
@@ -104,6 +105,7 @@ class ChatDataService:
                 key=session.key,
                 project_key=session.project_key,
                 created_at=session.created_at.isoformat(),
+                title=session.title,
             )
             for session in sessions
         ]
@@ -137,6 +139,7 @@ class ChatDataService:
             id=session.id,
             key=session.key,
             project_key=session.project_key,
+            title=session.title,
             created_at=session.created_at.isoformat(),
             messages=[
                 ChatMessageDto(

@@ -34,6 +34,7 @@ class ChatMessageDto(BaseModel):
 
 
 class ChatSessionSummary(SessionSummary):
+    title: Optional[str] = None
     model_config = ConfigDict(
         extra="ignore",
     )

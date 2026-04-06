@@ -9,6 +9,8 @@ import {
   AccordionDetails,
   Skeleton,
   CircularProgress,
+  Stack,
+  Paper,
 } from "@mui/material";
 import { ExpandLess } from "@mui/icons-material";
 import { MessageBubble } from "@/components/chat/MessageBubble";
@@ -46,6 +48,15 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
   idOrKey,
 }) => {
   const t = useTranslations("chat.ChatItemPage");
+  // Simulate all kind of messages for testing
+  //  return <MessageBubble key={message.id} message={message} />;
+  //   case "error":
+  //     return <ErrorMessage key={message.id} message={message} />;
+  //   case "agent_function_call":
+  //     return <FunctionCallMessage key={message.id} message={message} />;
+  //   case "tool":
+  //     return <ToolMessage key={message.id} message={message} />;
+  //   case "analysis_progress":
   const [messages, setMessages] = useState<ChatMessageDto[]>([]);
 
   // Separate streaming state - isolate active stream from history
@@ -416,6 +427,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
         width: "100%",
         flexGrow: isEmptyState ? 0 : 1,
         minHeight: 0,
+        pb: messages.length > 0 ? 20 : 0,
         ...scrollBarSx,
       }}
     >
@@ -434,7 +446,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
             </Typography>
           </Box>
         ) : (
-          <>
+          <Stack gap={3}>
             {messages.map((message) => renderMessage(message))}
             {streamingId && streamingRole ? (
               <MessageBubble
@@ -452,15 +464,15 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
                   variant="text"
                   animation="wave"
                   width="100%"
-                  height={40}
-                  sx={{ mb: 2, borderRadius: 1 }}
+                  height={60}
+                  sx={{ borderRadius: 2 }}
                 />
               )
             )}
 
             <div ref={messagesEndRef} />
             {/* <Box sx={{ height: 200 }} /> */}
-          </>
+          </Stack>
         )}
       </Box>
     </Box>
@@ -479,13 +491,15 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
         position: "relative",
       }}
     >
+    
       {loadingSession ? <CircularProgress /> : chatContent}
+  
 
       {/* Section for chat input */}
       <Box
         sx={{
           width: "60%",
-          mb: 4,
+          mb: 2,
           ...(!isEmptyState
             ? {
                 zIndex: 10,

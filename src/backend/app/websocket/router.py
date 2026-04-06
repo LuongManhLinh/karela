@@ -1,3 +1,5 @@
+import traceback
+
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 import asyncio
 
@@ -66,6 +68,7 @@ async def websocket_endpoint(websocket: WebSocket):
                                     session_id_or_key, user_msg
                                 )
                             except Exception as e:
+                                traceback.print_exc()
                                 print(f"Error processing chat: {e}")
                             finally:
                                 db.close()

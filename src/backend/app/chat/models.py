@@ -43,6 +43,8 @@ class ChatSession(Base):
 
     project_key = Column(String(32), nullable=False, index=True)
 
+    title = Column(String(512), nullable=True)
+
     created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
 
     messages = relationship(

@@ -32,6 +32,8 @@ export const ChatSection: React.FC<{
         borderRadius: 2.5,
         flexShrink: 0,
         width: "100%",
+        bgcolor: "surfaceDim",
+        color: "onSurface",
       }}
     >
       <Box
@@ -76,12 +78,10 @@ export const ChatSection: React.FC<{
         <Box>
           <IconButton
             onClick={() => {
-              console.log("User sending message:", userMessage);
               sendMessage(userMessage);
               setUserMessage("");
             }}
             disabled={disabled}
-            sx={{ backgroundColor: disabled ? undefined : "white" }}
           >
             <ArrowUpwardIcon color="info" />
           </IconButton>

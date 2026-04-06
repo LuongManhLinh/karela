@@ -92,7 +92,6 @@ export const AnalysisProgressMessage: React.FC<
         display: "flex",
         justifyContent: "center",
         width: "100%",
-        mb: 2,
       }}
     >
       <Paper

@@ -1,11 +1,11 @@
 from llm.dynamic_agent import GenimiDynamicAgent
 from langchain.agents.middleware import dynamic_prompt, ModelRequest
-from langchain_core.messages import BaseMessage
+from langchain_core.messages import BaseMessage, HumanMessage
 
 from sqlalchemy.orm import Session
 
 from common.configs import GeminiConfig
-from .prompts import SYSTEM_PROMPT
+from .prompts import SYSTEM_PROMPT, CHAT_TITLER_SYSTEM_PROMPT
 from .tools import tools
 from .context import Context
 
@@ -31,11 +31,19 @@ def user_context_prompt(request: ModelRequest) -> str:
     )
 
 
-agent = GenimiDynamicAgent(
+chat_agent = GenimiDynamicAgent(
     model_name=GeminiConfig.GEMINI_API_CHAT_MODEL,
     temperature=GeminiConfig.GEMINI_API_CHAT_TEMPERATURE,
     tools=tools,
     middleware=[user_context_prompt],
+    api_keys=GeminiConfig.GEMINI_API_KEYS,
+    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+)
+
+titler_agent = GenimiDynamicAgent(
+    model_name=GeminiConfig.GEMINI_API_CHAT_MODEL,
+    temperature=GeminiConfig.GEMINI_API_CHAT_TEMPERATURE,
+    system_prompt=CHAT_TITLER_SYSTEM_PROMPT,
     api_keys=GeminiConfig.GEMINI_API_KEYS,
     max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
 )
@@ -61,7 +69,7 @@ def chat_with_agent(
         str: The agent's response.
     """
 
-    response = agent.invoke(
+    response = chat_agent.invoke(
         messages,
         context=Context(
             session_id=session_id,
@@ -95,7 +103,7 @@ def stream_with_agent(
         str: The agent's response chunks.
     """
 
-    for chunk, metadata in agent.stream(
+    for chunk, metadata in chat_agent.stream(
         messages,
         context=Context(
             session_id=session_id,
@@ -107,3 +115,17 @@ def stream_with_agent(
         stream_mode="messages",
     ):
         yield chunk, metadata
+
+
+def generate_chat_title(
+    first_user_message: str,
+) -> str:
+    """Generate a concise and descriptive title for a chat session based on the first user message."""
+    response = titler_agent.invoke(
+        [
+            HumanMessage(
+                content=f"Generate title for the following message: {first_user_message}"
+            )
+        ],
+    )
+    return response.content

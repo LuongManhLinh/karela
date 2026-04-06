@@ -1,20 +1,112 @@
 "use client";
 
 import React from "react";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Button, Paper, Typography, useTheme } from "@mui/material";
 import type { ChatMessageDto } from "@/types/chat";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import SyntaxHighlighter from "react-syntax-highlighter";
-import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import {
+  atomOneDark,
+  atomOneLight,
+} from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 interface MessageBubbleProps {
   message: ChatMessageDto;
 }
 
+interface CodeRendererProps {
+  inline?: boolean;
+  className?: string;
+  children: React.ReactNode;
+  themeMode: "light" | "dark";
+}
+
+const CodeRenderer: React.FC<CodeRendererProps> = ({
+  inline,
+  className,
+  children,
+  themeMode,
+}) => {
+  const [copied, setCopied] = React.useState(false);
+  const match = /language-([\w-]+)/.exec(className || "");
+  const language = match?.[1] || "text";
+  const codeText = String(children).replace(/\n$/, "");
+
+  if (inline) {
+    return <code className={className}>{children}</code>;
+  }
+
+  if (match) {
+    const handleCopy = async () => {
+      try {
+        await navigator.clipboard.writeText(codeText);
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 1200);
+      } catch {
+        setCopied(false);
+      }
+    };
+
+    return (
+      <Box
+        sx={{
+          borderRadius: 1,
+          overflow: "hidden",
+          my: 1,
+          border: (theme) => `1px solid ${theme.palette.divider}`,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            px: 1.5,
+            py: 0.75,
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{
+              fontWeight: 600,
+              textTransform: "lowercase",
+              letterSpacing: 0.3,
+            }}
+          >
+            {language}
+          </Typography>
+          <Button size="small" variant="text" onClick={handleCopy}>
+            {copied ? "Copied" : "Copy"}
+          </Button>
+        </Box>
+
+        <SyntaxHighlighter
+          style={
+            themeMode === "dark" ? (atomOneDark as any) : (atomOneLight as any)
+          }
+          language={language}
+          wrapLongLines
+          customStyle={{
+            margin: 0,
+            borderRadius: 0,
+            padding: 16,
+          }}
+        >
+          {codeText}
+        </SyntaxHighlighter>
+      </Box>
+    );
+  }
+
+  return <code className={className}>{children}</code>;
+};
+
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   const isUser = message.role === "user";
   const isAgent = message.role === "agent";
+
+  const theme = useTheme();
 
   if (isUser) {
     const content =
@@ -27,39 +119,29 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
         sx={{
           display: "flex",
           justifyContent: "flex-end",
-          mb: 2,
         }}
       >
-        <Box
+        <Paper
+          elevation={2}
           sx={{
+            p: 1.5,
+            borderRadius: 2,
+            bgcolor: "surfaceContainer",
+            color: "onSurface",
             maxWidth: "75%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-end",
           }}
         >
-          <Paper
-            elevation={2}
+          <Typography
+            variant="body1"
             sx={{
-              p: 2.5,
-              borderRadius: "16px 0px 16px 16px",
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-              color: "white",
-              boxShadow: "0 4px 16px rgba(102, 126, 234, 0.3)",
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
+              lineHeight: 1.5,
             }}
           >
-            <Typography
-              variant="body1"
-              sx={{
-                whiteSpace: "pre-wrap",
-                wordBreak: "break-word",
-                lineHeight: 1.6,
-              }}
-            >
-              {content}
-            </Typography>
-          </Paper>
-        </Box>
+            {content}
+          </Typography>
+        </Paper>
       </Box>
     );
   }
@@ -74,7 +156,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
         sx={{
           display: "flex",
           justifyContent: "flex-start",
-          mb: 2,
         }}
       >
         <Box
@@ -85,63 +166,33 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
             textAlign: "left",
             maxWidth: "100%",
             "& p": {
-              margin: "0 0 1em 0",
-              "&:last-child": {
-                marginBottom: 0,
-              },
+              margin: "0.3em 0",
+              lineHeight: 1.5,
             },
-            "& code": {
-              backgroundColor: "rgba(175, 184, 193, 0.2)",
-              padding: "2px 6px",
-              borderRadius: "4px",
-              fontSize: "0.875rem",
-              fontFamily: "monospace",
+            "& li": {
+              lineHeight: 1.5,
+            },
+            "& ul, & ol": {
+              margin: "0.3em 0",
+              paddingLeft: "1.4em",
             },
             "& pre": {
-              backgroundColor: "#1e1e1e",
-              borderRadius: "6px",
-              padding: "12px",
-              overflowX: "auto",
-              margin: "0.75em 0",
-              "& code": {
-                backgroundColor: "transparent",
-                padding: 0,
-                fontSize: "0.875rem",
-              },
+              margin: "0.5em 0",
             },
           }}
         >
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
-              code({ node, inline, className, children, ...props }: any) {
-                const match = /language-(\w+)/.exec(className || "");
-
-                if (!inline && match) {
-                  // Render fenced code blocks with language via SyntaxHighlighter
-                  return (
-                    <SyntaxHighlighter
-                      style={atomOneDark as any}
-                      language={match[1]}
-                      PreTag="div"
-                      wrapLongLines
-                      customStyle={{
-                        borderRadius: "16px",
-                        margin: "0.75em 0",
-                        padding: "12px",
-                      }}
-                      {...props}
-                    >
-                      {String(children).replace(/\n$/, "")}
-                    </SyntaxHighlighter>
-                  );
-                }
-
-                // Let ReactMarkdown handle inline code and plain code blocks naturally
+              code({ inline, className, children }: any) {
                 return (
-                  <code className={className} {...props}>
+                  <CodeRenderer
+                    inline={inline}
+                    className={className}
+                    themeMode={theme.palette.mode}
+                  >
                     {children}
-                  </code>
+                  </CodeRenderer>
                 );
               },
             }}

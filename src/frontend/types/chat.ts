@@ -22,7 +22,9 @@ export interface ChatMessageDto {
   created_at: string;
 }
 
-export interface ChatSessionSummary extends SessionSummary {}
+export interface ChatSessionSummary extends SessionSummary {
+  title?: string;
+}
 
 export interface ChatSessionDto extends ChatSessionSummary {
   messages: ChatMessageDto[];

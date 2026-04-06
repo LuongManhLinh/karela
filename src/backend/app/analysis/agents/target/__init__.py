@@ -49,6 +49,18 @@ def run_analysis(
         nonlocal res
         res = defects
 
+    context = Context(
+        connection_id=connection_id,
+        project_key=project_key,
+        db=db,
+        target_story=target_user_story,
+        user_stories=user_stories,
+        on_done=on_done,
+        existing_defects=existing_defects or [],
+        extra_prompt=extra_prompt,
+        initial_messages=initial_messages,
+    )
+
     graph.invoke(
         State(
             done_adapter=False,
@@ -60,17 +72,7 @@ def run_analysis(
             raw_defects=[],
             defects=[],
         ),
-        context=Context(
-            connection_id=connection_id,
-            project_key=project_key,
-            db=db,
-            target_story=target_user_story,
-            user_stories=user_stories,
-            on_done=on_done,
-            existing_defects=existing_defects or [],
-            extra_prompt=extra_prompt,
-            initial_messages=initial_messages,
-        ),
+        context=context,
         config=RunnableConfig(max_concurrency=3),
     )
 

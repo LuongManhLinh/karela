@@ -1,5 +1,5 @@
-from typing import Optional, List
-from pydantic import json
+from typing import Optional
+import json
 from sqlalchemy.orm import Session
 from fastapi import UploadFile
 from langchain.messages import AIMessage, ToolMessage
@@ -9,7 +9,6 @@ from common.database import uuid_generator
 
 from .models import TextDocumentation, FileDocumentation
 from .schemas import (
-    DocumentationSummary,
     TextDocumentationDto,
     CreateTextDocumentationRequest,
     UpdateTextDocumentationRequest,
@@ -18,6 +17,7 @@ from .schemas import (
 )
 from .vectorstore import DocumentationVectorStore
 from .tasks import process_document_task
+from uuid import uuid4
 
 
 def _text_doc_to_dto(doc: TextDocumentation) -> TextDocumentationDto:
@@ -345,13 +345,14 @@ class DocumentationService:
         ai_message = AIMessage(
             content=f"Listing all documentation for project {project_key}...",
             additional_kwargs={
-                "function_call": {"name": "list_available_docs", "arguments": {}}
+                "function_call": {"name": "list_available_docs", "arguments": {}},
             },
         )
         docs = self.list_all_docs_for_project(connection_id, project_key)
         content = json.dumps({"docs": docs}, indent=2)
         tool_msg = ToolMessage(
             content=content,
+            tool_call_id=str(uuid4()),
         )
 
         return [ai_message, tool_msg]

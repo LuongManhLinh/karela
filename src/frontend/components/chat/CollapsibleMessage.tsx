@@ -29,12 +29,12 @@ export const CollapsibleMessage: React.FC<CollapsibleMessageProps> = ({
     typeof content === "string" ? content : JSON.stringify(content, null, 2);
 
   return (
-    <Box sx={{ my: 2, width: "100%" }}>
+    <Box sx={{ width: "100%" }}>
       <Accordion
         expanded={expanded}
         onChange={() => setExpanded(!expanded)}
         sx={{
-          // borderRadius: 2,
+          borderRadius: 2,
           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
           "&:before": {
             display: "none",

@@ -173,6 +173,7 @@ export const MyAppBar: React.FC<AppBarProps> = ({
                 href={`${basePath || ""}${page.href}`}
                 key={page.name}
                 onClick={resetHeaderKeys}
+                title={page.name}
                 sx={{
                   bgcolor: pathname.includes(page.href)
                     ? "action.selected"
