@@ -25,13 +25,13 @@ class GeminiConfig:
     GEMINI_API_DEFECT_TEMPERATURE = float(
         os.getenv("GEMINI_API_DEFECT_TEMPERATURE", "0")
     )
-    GEMINI_API_DEFECT_MODEL = os.getenv("GEMINI_API_DEFECT_MODEL", "gemini-2.0-flash")
+    GEMINI_API_DEFECT_MODEL = os.getenv("GEMINI_API_DEFECT_MODEL", "gemini-2.5-flash")
     GEMINI_API_CHAT_TEMPERATURE = float(os.getenv("GEMINI_API_CHAT_TEMPERATURE", "0.7"))
-    GEMINI_API_CHAT_MODEL = os.getenv("GEMINI_API_CHAT_MODEL", "gemini-2.0-flash")
+    GEMINI_API_CHAT_MODEL = os.getenv("GEMINI_API_CHAT_MODEL", "gemini-2.5-flash")
     GEMINI_API_DEFAULT_TEMPERATURE = float(
         os.getenv("GEMINI_API_DEFAULT_TEMPERATURE", "0.3")
     )
-    GEMINI_API_DEFAULT_MODEL = os.getenv("GEMINI_API_DEFAULT_MODEL", "gemini-2.0-flash")
+    GEMINI_API_DEFAULT_MODEL = os.getenv("GEMINI_API_DEFAULT_MODEL", "gemini-2.5-flash")
     GEMINI_API_MAX_RETRY = int(os.getenv("GEMINI_API_MAX_RETRY", "3"))
     GEMINI_API_RETRY_DELAY_MS = int(os.getenv("GEMINI_API_RETRY_DELAY_MS", "1000"))
 
@@ -80,3 +80,11 @@ class MinioConfig:
 
 class UnstructuredConfig:
     API_KEY = os.getenv("UNSTRUCTURED_API_KEY", "")
+
+
+class GraphRAGConfig:
+    MODEL_API_KEY = os.getenv("GRAPHRAG_MODEL_API_KEY", "")
+    MODEL_PROVIDER = os.getenv("GRAPHRAG_MODEL_PROVIDER", "gemini")
+    TOKENIZER_MODEL_ID = os.getenv("GRAPHRAG_MODEL_ID", "gemini/gemini-2.5-flash-lite")
+    CHAT_MODEL = os.getenv("GRAPHRAG_CHAT_MODEL", "gemini/gemini-2.5-flash-lite")
+    EMBEDDING_MODEL = os.getenv("GRAPHRAG_EMBEDDING_MODEL", "gemini-embedding-001")

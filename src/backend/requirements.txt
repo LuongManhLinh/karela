@@ -1,7 +1,6 @@
 pandas
 openpyxl
 requests
-scikit-learn
 fastapi[all]
 sqlalchemy
 uvicorn
@@ -25,7 +24,11 @@ unstructred[docx]
 unstructured[txt]
 langchain_text_splitters
 markitdown[docx]
-# pypandoc_binary
-# nltk
-# sentence-transformers
-# torch
+
+litellm==1.82.0
+pymupdf==1.26.4
+PyPDF2==3.0.1
+python-dotenv==1.1.0
+pyyaml==6.0.2
+
+graphrag

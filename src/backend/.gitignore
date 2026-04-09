@@ -58,7 +58,6 @@ staticfiles/
 
 # Jupyter / IPython
 .ipynb_checkpoints
-*.ipynb
 
 # Notebook checkpoints (VSCode)
 .vscode/
@@ -117,3 +116,5 @@ secrets.yml
 aws_credentials
 aws_secret
 credentials
+
+.workspace

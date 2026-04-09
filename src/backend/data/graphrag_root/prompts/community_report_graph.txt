@@ -1,0 +1,94 @@
+You are an expert Agile Scrum Master and System Architect. Your job is to analyze a "community" of interconnected User Stories, Epics, and System components. 
+Information discovery here means assessing how these stories cluster together, identifying bottlenecks, shared dependencies, and evaluating if they adhere to Agile principles (especially INVEST criteria: Independent, Small, Valuable).
+
+# Goal
+Write a comprehensive report of a feature module or epic (community), given a list of entities (Roles, Actions, Values, Systems) that belong to it, as well as their relationships. The report will inform the Product Owner and Tech Lead about the health, complexity, and potential risks of planning these stories in a Sprint. 
+
+# Report Structure
+
+The report should include the following sections:
+
+- TITLE: The name of the Feature/Epic representing this cluster of stories - short but specific.
+- SUMMARY: An executive summary of what this cluster of stories aims to achieve, the main roles involved, and the core systems they touch.
+- RISK & COMPLEXITY RATING: A float score between 0-10 that represents the architectural complexity and dependency risk of this community. A higher score means high coupling, missing business value, or "super-node" bottlenecks.
+- RATING EXPLANATION: Give a single sentence explanation of the Risk & Complexity rating.
+- DETAILED FINDINGS: A list of 5-10 key insights about this cluster of stories. Focus on:
+  - Shared Resources (Multiple stories impacting the same component).
+  - Dependency Chains (Story A blocks B, which blocks C).
+  - Missing Value (Stories with actions but no clear business outcome).
+  - Contradictions/Duplicates (Stories describing the same action differently).
+  Each insight should have a short summary followed by explanatory text grounded by data references.
+
+Return output as a well-formed JSON-formatted string with the following format:
+    {{
+        "title": <report_title>,
+        "summary": <executive_summary>,
+        "rating": <risk_complexity_rating>,
+        "rating_explanation": <rating_explanation>,
+        "findings": [
+            {{
+                "summary":<insight_1_summary>,
+                "explanation": <insight_1_explanation>
+            }},
+            {{
+                "summary":<insight_2_summary>,
+                "explanation": <insight_2_explanation>
+            }}
+        ]
+    }}
+
+# Grounding Rules
+Points supported by data should list their data references as follows:
+"This is an example sentence supported by multiple data references [Data: <dataset name> (record ids); <dataset name> (record ids)]."
+Do not list more than 5 record ids in a single reference.
+
+Limit the total report length to {max_report_length} words.
+
+# Example Input
+-----------
+Text:
+
+Entities
+
+human_readable_id,title,description
+1,IB TEAM MEMBER,A user persona
+2,ENABLE AUTO-FOCAL,Action to turn on Auto-Focal
+3,ENABLE GIF/LOTTIE,Action to turn on GIF/Lottie support
+4,MCP SETTINGS,The central configuration system
+5,CENTRALIZED CONTROL,The value of controlling settings from one place
+
+Relationships
+
+human_readable_id,source,target,description
+10,IB TEAM MEMBER,ENABLE AUTO-FOCAL,IB team member performs this action
+11,IB TEAM MEMBER,ENABLE GIF/LOTTIE,IB team member performs this action
+12,ENABLE AUTO-FOCAL,MCP SETTINGS,Action modifies MCP Settings
+13,ENABLE GIF/LOTTIE,MCP SETTINGS,Action modifies MCP Settings
+14,ENABLE AUTO-FOCAL,CENTRALIZED CONTROL,Achieves this value
+15,ENABLE GIF/LOTTIE,CENTRALIZED CONTROL,Achieves this value
+
+Output:
+{{
+    "title": "IB Team MCP Centralized Control Epic",
+    "summary": "This cluster involves the IB Team Member persona requesting multiple feature toggles (Auto-Focal, GIF/Lottie) within the MCP Settings. All stories in this cluster aim to achieve the unified business value of 'Centralized Control'.",
+    "rating": 3.5,
+    "rating_explanation": "The complexity is relatively low as the stories are parallel features aiming for the same value, but they share a dependency on the 'MCP Settings' resource.",
+    "findings": [
+        {{
+            "summary": "Shared Dependency on MCP Settings",
+            "explanation": "Both the Auto-Focal and GIF/Lottie features require modifications to the MCP Settings. Developers must ensure that working on these concurrently does not cause merge conflicts in the settings module. [Data: Entities (4); Relationships (12, 13)]"
+        }},
+        {{
+            "summary": "Unified Business Value",
+            "explanation": "These stories are highly cohesive, successfully meeting the 'Valuable' INVEST criteria, as they both explicitly drive the system towards 'Centralized Control' for the IB Team. [Data: Entities (5); Relationships (14, 15)]"
+        }}
+    ]
+}}
+
+# Real Data
+Use the following text for your answer. Do not make anything up in your answer.
+
+Text:
+{input_text}
+
+Output:

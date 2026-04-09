@@ -4,7 +4,7 @@ from typing import Literal
 from sqlalchemy.orm import Session
 from .models import TextDocumentation, FileDocumentation
 from .vectorstore import DocumentationVectorStore
-from utils.file_processor import process_document
+from utils.unstructured_file_processor import process_document
 from utils.file_storage import download_file
 
 
