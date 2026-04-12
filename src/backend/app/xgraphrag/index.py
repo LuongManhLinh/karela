@@ -3,6 +3,8 @@ import os
 import json
 import subprocess
 
+from .db.importer import import_from_graphrag_output
+
 
 def index_user_stories(connection_id: str, project_key: str, user_stories: list[dict]):
     """Index user stories using graphrag.
@@ -35,3 +37,9 @@ def index_user_stories(connection_id: str, project_key: str, user_stories: list[
 
     # Run graphrag index
     subprocess.run(["graphrag", "index"], cwd=folder_path)
+
+    # Import the generated graph data into Neo4j
+    import_from_graphrag_output(
+        input_dir=os.path.join(folder_path, "output"),
+        bucket_name=f"{connection_id}_{project_key}",
+    )

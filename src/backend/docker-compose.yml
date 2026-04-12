@@ -42,7 +42,20 @@ services:
     volumes:
       - minio_data:/data
 
+  # Neo4j
+  neo4j:
+    image: neo4j:latest
+    container_name: karela_neo4j
+    environment:
+      NEO4J_AUTH: neo4j/password
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - ./neo4j_data:/data
+
 volumes:
   redis_data:
   chroma_data:
   minio_data:
+  neo4j_data:

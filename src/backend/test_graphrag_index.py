@@ -1,26 +1,20 @@
-from app.graphrag.index import index_user_stories
-from app.connection.jira.services import JiraService
-from common.database import get_db
+from app.xgraphrag.index import index_user_stories
+import json
 
-service = JiraService(next(get_db()))
-stories = service.fetch_stories(
-    connection_id="515b536d-ab6f-4c9c-9e8e-caf2147d0aed",
-    project_key="VBS",
-)
+with open("data/extracted_data.json", "r") as f:
+    stories = json.load(f)
 
 story_dicts = [
     {
-        "id": story.id,
-        "key": story.key,
-        "summary": story.summary or f"Story {story.key}",
-        "description": f"SUMMARY:\n{story.summary}\n\nDESCRIPTION:\n{story.description}",
+        "key": f"EX-{story['id']}",
+        "summary": story["user_story"] or f"Story {story['id']}",
+        "full_content": f"KEY: EX-{story['id']}\n\nSUMMARY: {story['user_story']}\n\nDESCRIPTION:\n{story['requirements']}",
     }
-    for story in stories
+    for story in stories[:10]
 ]
 
-# Index first 20 stories for testing
 index_user_stories(
-    connection_id="515b536d-ab6f-4c9c-9e8e-caf2147d0aed",
-    project_key="VBS",
-    user_stories=story_dicts[:20],
+    connection_id="root",
+    project_key="EX",
+    user_stories=story_dicts,
 )

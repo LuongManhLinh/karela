@@ -118,3 +118,8 @@ aws_secret
 credentials
 
 .workspace
+
+mysql-init/
+neo4j_data/
+
+TASKS.md

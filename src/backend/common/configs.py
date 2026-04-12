@@ -88,3 +88,9 @@ class GraphRAGConfig:
     TOKENIZER_MODEL_ID = os.getenv("GRAPHRAG_MODEL_ID", "gemini/gemini-2.5-flash-lite")
     CHAT_MODEL = os.getenv("GRAPHRAG_CHAT_MODEL", "gemini/gemini-2.5-flash-lite")
     EMBEDDING_MODEL = os.getenv("GRAPHRAG_EMBEDDING_MODEL", "gemini-embedding-001")
+
+
+class Neo4jConfig:
+    NEO4J_URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
+    NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
+    NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "password")

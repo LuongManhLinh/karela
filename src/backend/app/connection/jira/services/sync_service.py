@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
-from concurrent.futures import ThreadPoolExecutor, as_completed
-
+import json
 from app.connection.jira.services.base_service import (
     AC_ISSUE_TYPE_DESCRIPTION,
     AC_ISSUE_TYPE_LEVEL,
@@ -18,7 +17,7 @@ from ..schemas import (
 
 from utils.security_utils import decrypt_token
 from common.redis_app import redis_client
-import json
+from app.xgraphrag import index_user_stories
 
 
 class JiraSyncService(JiraBaseService):
@@ -195,40 +194,34 @@ class JiraSyncService(JiraBaseService):
 
                 return project, stories, gherkin_acs, story_dtos
 
-            # Process projects in batches
-            total_projects = len(projects_data)
-            for batch_start in range(0, total_projects, project_batch_size):
-                batch_end = min(batch_start + project_batch_size, total_projects)
-                batch = projects_data[batch_start:batch_end]
-
+            for project_data in projects_data:
                 self._publish_status(
                     connection,
-                    status=SyncStatus.IN_PROGRESS,
-                    message=f"Syncing projects {batch_start + 1}-{batch_end} of {total_projects}: {', '.join(p.key for p in batch)}",
+                    message=f"Processing project {project_data.key}...",
+                )
+                project, stories, gherkin_acs, story_dtos = process_project(
+                    project_data
                 )
 
-                # Process batch concurrently
-                with ThreadPoolExecutor(max_workers=project_batch_size) as executor:
-                    futures = [
-                        executor.submit(process_project, project_data)
-                        for project_data in batch
-                    ]
+                project.synced = True
+                self.db.add(project)
+                self.db.add_all(stories)
+                self.db.add_all(gherkin_acs)
 
-                    for future in as_completed(futures):
-                        project, stories, gherkin_acs, story_dtos = future.result()
-
-                        project.synced = True
-                        self.db.add(project)
-                        self.db.add_all(stories)
-                        self.db.add_all(gherkin_acs)
-
-                        # Push this project's stories to vector store
-                        if story_dtos:
-                            self.vector_store.add_stories(
-                                connection_id=connection.id,
-                                project_key=project.key,
-                                stories=story_dtos,
-                            )
+                # Push this project's stories to vector store
+                if story_dtos:
+                    index_user_stories(
+                        connection_id=connection.id,
+                        project_key=project.key,
+                        stories=[
+                            {
+                                "key": story.key,
+                                "summary": story.summary,
+                                "description": f"# SUMMARY: {story.summary}\n\n#DESCRIPTION: {story.description}",
+                            }
+                            for story in story_dtos
+                        ],
+                    )
 
             self.db.commit()
             self._publish_status(

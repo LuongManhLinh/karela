@@ -26,6 +26,7 @@ from ..schemas import (
 from ..tasks import setup_connection, sync_projects
 
 from app.documentation.services import DocumentationService
+from app.xgraphrag.increment import GraphRAGUpdater, Increment
 
 
 class JiraService(JiraBaseService):
@@ -616,8 +617,6 @@ class JiraService(JiraBaseService):
         self, connection: Connection, project: Project, story_keys: list[str]
     ):
         try:
-            to_vector: list[StoryDto] = []
-
             stories = self.fetch_stories(
                 connection_id=connection.id,
                 project_key=project.key,
@@ -635,15 +634,14 @@ class JiraService(JiraBaseService):
                 )
                 self.db.add(jira_story)
 
-                to_vector.append(story)
-
             self.db.commit()
 
-            self.vector_store.add_stories(
+            graphrag_updater = GraphRAGUpdater(
                 connection_id=connection.id,
                 project_key=project.key,
-                stories=to_vector,
             )
+
+            graphrag_updater.add_stories(stories=stories)
 
             for story_key in story_keys:
                 self._run_analysis_targeted(
@@ -687,8 +685,6 @@ class JiraService(JiraBaseService):
             if not stories:
                 return
 
-            to_vector: list[StoryDto] = []
-
             fetched_stories = self.fetch_stories(
                 connection_id=connection.id,
                 project_key=project.key,
@@ -702,15 +698,15 @@ class JiraService(JiraBaseService):
                 if updated_story:
                     story.summary = updated_story.summary
                     story.description = updated_story.description
-                    to_vector.append(updated_story)
 
             self.db.commit()
 
-            self.vector_store.update_stories(
+            graphrag_updater = GraphRAGUpdater(
                 connection_id=connection.id,
                 project_key=project.key,
-                stories=to_vector,
             )
+
+            graphrag_updater.update_stories(stories=fetched_stories)
 
             for story_key in story_keys:
                 self._run_analysis_targeted(
@@ -751,18 +747,16 @@ class JiraService(JiraBaseService):
                 )
                 .all()
             )
-
-            ids_to_delete = []
             for story in stories:
                 self.db.delete(story)
-                ids_to_delete.append(story.id_)
             self.db.commit()
 
-            self.vector_store.remove_stories(
+            graphrag_updater = GraphRAGUpdater(
                 connection_id=connection.id,
                 project_key=project.key,
-                story_ids=ids_to_delete,
             )
+
+            graphrag_updater.delete_stories(story_keys=story_keys)
 
         except Exception as e:
             self.db.rollback()

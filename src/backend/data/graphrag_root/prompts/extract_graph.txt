@@ -4,7 +4,7 @@ Given a text document containing Agile User Stories, technical requirements, or 
 -Steps-
 1. Identify all entities. For each identified entity, extract the following information:
 - entity_name: Name of the entity, capitalized
-- entity_type: One of the following types: [STORY_KEY, ROLE, ACTION, VALUE, RESOURCE, SYSTEM]
+- entity_type: One of the following types: [{entity_types}]
 - entity_description: Comprehensive description of the entity's attributes, goals, or technical nature
 Format each entity as ("entity"<|><entity_name><|><entity_type><|><entity_description>)
 
@@ -12,7 +12,7 @@ Format each entity as ("entity"<|><entity_name><|><entity_type><|><entity_descri
 For each pair of related entities, extract the following information:
 - source_entity: name of the source entity, as identified in step 1
 - target_entity: name of the target entity, as identified in step 1
-- relationship_description: explanation of how they interact (e.g., PERFORMS, ACHIEVES, AFFECTS_RESOURCE, DEPENDS_ON, CONFLICTS_WITH, PART_OF)
+- relationship_description: explanation of how they interact (e.g., IMPLEMENTS, PERFORMS, ACHIEVES, AFFECTS_RESOURCE, DEPENDS_ON, CONFLICTS_WITH, PART_OF)
 - relationship_strength: a numeric score indicating the strength or criticality of the relationship (1-10)
 Format each relationship as ("relationship"<|><source_entity><|><target_entity><|><relationship_description><|><relationship_strength>)
 
@@ -24,50 +24,74 @@ Format each relationship as ("relationship"<|><source_entity><|><target_entity><
 -Examples-
 ######################
 Example 1:
-Entity_types: ROLE, ACTION, VALUE, RESOURCE, SYSTEM
+Entity_types: KEY, ROLE, ACTION, VALUE, RESOURCE, SYSTEM
 Text:
-As an IB team member, I want to be able to enable an Auto-Focal setting in MCP so that I can control all the settings from one place.
+KEY: EC-42
+SUMMARY: As a registered customer, I want to add products to a wishlist so that I can buy them later during the holiday sale.
+DESCRIPTION: The product detail page must have a "Heart" icon next to the Add to Cart button. When clicked, the item is saved to the User Wishlist database table. This feature relies strictly on the User Authentication Service being active to identify the user.
 ######################
 Output:
-("entity"<|>IB TEAM MEMBER<|>ROLE<|>A user persona representing a member of the IB team)
+("entity"<|>EC-42<|>KEY<|>The Jira ticket identifier for the wishlist feature)
 ##
-("entity"<|>ENABLE AUTO-FOCAL<|>ACTION<|>The action of turning on the Auto-Focal configuration)
+("entity"<|>REGISTERED CUSTOMER<|>ROLE<|>A user persona representing an authenticated shopper on the platform)
 ##
-("entity"<|>CONTROL FROM ONE PLACE<|>VALUE<|>The business value of centralizing control and management)
+("entity"<|>ADD TO WISHLIST<|>ACTION<|>The action of saving a product to a personal list for future purchase)
 ##
-("entity"<|>MCP<|>SYSTEM<|>The main system or platform where settings are configured)
+("entity"<|>BUY LATER<|>VALUE<|>The business value of retaining customer interest for future sales events)
 ##
-("relationship"<|>IB TEAM MEMBER<|>ENABLE AUTO-FOCAL<|>The IB team member performs the action of enabling Auto-Focal<|>10)
+("entity"<|>PRODUCT DETAIL PAGE<|>RESOURCE<|>The frontend user interface where product information is displayed)
 ##
-("relationship"<|>ENABLE AUTO-FOCAL<|>CONTROL FROM ONE PLACE<|>Enabling Auto-Focal achieves the value of centralized control<|>9)
+("entity"<|>USER WISHLIST DATABASE TABLE<|>RESOURCE<|>The backend storage where saved items are recorded)
 ##
-("relationship"<|>ENABLE AUTO-FOCAL<|>MCP<|>The action directly affects or is located within the MCP system<|>8)
+("entity"<|>USER AUTHENTICATION SERVICE<|>SYSTEM<|>The security service responsible for verifying user identity)
+##
+("relationship"<|>EC-42<|>ADD TO WISHLIST<|>The user story EC-42 implements the Add to Wishlist action<|>10)
+##
+("relationship"<|>REGISTERED CUSTOMER<|>ADD TO WISHLIST<|>The registered customer performs the action of adding products to the wishlist<|>10)
+##
+("relationship"<|>ADD TO WISHLIST<|>BUY LATER<|>Adding items to the wishlist achieves the value of buying them later<|>9)
+##
+("relationship"<|>ADD TO WISHLIST<|>PRODUCT DETAIL PAGE<|>The wishlist action is triggered from a button located on the product detail page<|>8)
+##
+("relationship"<|>ADD TO WISHLIST<|>USER WISHLIST DATABASE TABLE<|>The action directly writes data to the wishlist database table<|>10)
+##
+("relationship"<|>ADD TO WISHLIST<|>USER AUTHENTICATION SERVICE<|>The action strictly depends on the authentication service to identify the customer<|>10)
 <|COMPLETE|>
 
 ######################
 Example 2:
-Entity_types: ROLE, ACTION, VALUE, RESOURCE, SYSTEM
+Entity_types: KEY, ROLE, ACTION, VALUE, RESOURCE, SYSTEM
 Text:
-As a user, I want to enable image tagging from the Asset Intelligence section in the MCP settings. This depends on the Image Recognition API being deployed.
+KEY: TRL-36
+SUMMARY: As a project manager, I want to export the weekly sprint metrics as a PDF so that I can share them with the executive board.
+DESCRIPTION: The sprint dashboard will feature an "Export" dropdown menu. When the user selects "PDF", the system will send a payload to the PDF Generator API. Note: Document generation might cause heavy system load, so the task must be queued in the Background Worker system to prevent UI freezing.
 ######################
 Output:
-("entity"<|>USER<|>ROLE<|>A generic user of the system)
+("entity"<|>TRL-36<|>KEY<|>The Jira ticket identifier for the PDF export feature)
 ##
-("entity"<|>ENABLE IMAGE TAGGING<|>ACTION<|>The feature allowing users to tag images)
+("entity"<|>PROJECT MANAGER<|>ROLE<|>A user persona responsible for overseeing sprint progress and reporting)
 ##
-("entity"<|>ASSET INTELLIGENCE<|>RESOURCE<|>A specific section or module within the system)
+("entity"<|>EXPORT SPRINT METRICS AS PDF<|>ACTION<|>The process of generating a downloadable PDF document from sprint data)
 ##
-("entity"<|>MCP SETTINGS<|>RESOURCE<|>The configuration area of the MCP platform)
+("entity"<|>SHARE WITH EXECUTIVE BOARD<|>VALUE<|>The business value of communicating project status to high-level stakeholders)
 ##
-("entity"<|>IMAGE RECOGNITION API<|>SYSTEM<|>The backend API required for processing images)
+("entity"<|>SPRINT DASHBOARD<|>RESOURCE<|>The frontend interface displaying agile metrics and the export menu)
 ##
-("relationship"<|>USER<|>ENABLE IMAGE TAGGING<|>The user performs the image tagging action<|>10)
+("entity"<|>PDF GENERATOR API<|>SYSTEM<|>An external or internal service used to render HTML/data into a PDF file)
 ##
-("relationship"<|>ENABLE IMAGE TAGGING<|>ASSET INTELLIGENCE<|>Image tagging is located within the Asset Intelligence section<|>8)
+("entity"<|>BACKGROUND WORKER<|>SYSTEM<|>An asynchronous task queue system used to handle heavy processes)
 ##
-("relationship"<|>ASSET INTELLIGENCE<|>MCP SETTINGS<|>Asset Intelligence is a sub-section of MCP settings<|>9)
+("relationship"<|>TRL-36<|>EXPORT SPRINT METRICS AS PDF<|>The user story TRL-36 implements the PDF export action<|>10)
 ##
-("relationship"<|>ENABLE IMAGE TAGGING<|>IMAGE RECOGNITION API<|>The image tagging feature heavily depends on the Image Recognition API to function<|>10)
+("relationship"<|>PROJECT MANAGER<|>EXPORT SPRINT METRICS AS PDF<|>The project manager performs the action of exporting metrics<|>10)
+##
+("relationship"<|>EXPORT SPRINT METRICS AS PDF<|>SHARE WITH EXECUTIVE BOARD<|>Exporting the PDF achieves the value of sharing information with the board<|>9)
+##
+("relationship"<|>EXPORT SPRINT METRICS AS PDF<|>SPRINT DASHBOARD<|>The export action is initiated from the sprint dashboard interface<|>8)
+##
+("relationship"<|>EXPORT SPRINT METRICS AS PDF<|>PDF GENERATOR API<|>The action relies heavily on the PDF Generator API to create the file<|>10)
+##
+("relationship"<|>EXPORT SPRINT METRICS AS PDF<|>BACKGROUND WORKER<|>The action depends on the background worker system to prevent UI performance issues<|>9)
 <|COMPLETE|>
 
 ######################

@@ -8,10 +8,11 @@ completion_models:
   default_completion_model:
     model_provider: gemini
     model: gemini-2.5-flash-lite
-    auth_method: api_key # or azure_managed_identity
-    api_key: ${GRAPHRAG_API_KEY} # set this in the generated .env file, or remove if managed identity
+    auth_method: api_key
+    api_key: ${GRAPHRAG_API_KEY}
     retry:
       type: exponential_backoff
+      max_retries: 11
 
 embedding_models:
   default_embedding_model:
@@ -21,6 +22,7 @@ embedding_models:
     api_key: ${GRAPHRAG_API_KEY}
     retry:
       type: exponential_backoff
+      max_retries: 11
 
 ### Document processing settings ###
 
@@ -28,7 +30,6 @@ input:
   type: json
   title_column: key
   text_column: full_content
-  metadata: [summary]
 
 chunking:
   type: tokens
@@ -70,7 +71,7 @@ embed_text:
 extract_graph:
   completion_model_id: default_completion_model
   prompt: "prompts/extract_graph.txt"
-  entity_types: [organization, person, geo, event]
+  entity_types: [KEY, ROLE, ACTION, VALUE, RESOURCE, SYSTEM]
   max_gleanings: 1
 
 summarize_descriptions:
