@@ -1,14 +1,23 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import PageLayout from "@/components/PageLayout";
-import { SessionItem } from "@/components/SessionList";
 import { useStorySummariesQuery } from "@/hooks/queries/useConnectionQueries";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
-import type { StorySummary } from "@/types/connection";
+import {
+  Box,
+  Chip,
+  Divider,
+  List,
+  ListItem,
+  ListItemButton,
+  Skeleton,
+  Typography,
+} from "@mui/material";
+import { scrollBarSx } from "@/constants/scrollBarSx";
 
 interface WorkspaceLayoutProps {
   children?: React.ReactNode;
@@ -22,12 +31,12 @@ const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
   storyKey,
 }) => {
   const t = useTranslations("workspace.WorkspaceLayout");
+  const tSessionList = useTranslations("SessionList");
   const router = useRouter();
   const {
     setHeaderProjectKey,
     setHeaderStoryKey,
     setSelectedStory,
-    stories,
     setStories,
   } = useWorkspaceStore();
 
@@ -80,18 +89,110 @@ const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
     if (selectedStory) {
       setSelectedStory(selectedStory);
     }
+    router.push(`/app/projects/${projectKey}/workspace/${storyKey}`);
   };
 
-  // Convert stories to session items for the sidebar
-  const sessionItems = useMemo<SessionItem[]>(() => {
-    return storySummaries.map((story) => ({
-      id: story.key,
-      title: story.key,
-      subtitle: story.summary || undefined,
-    }));
-  }, [storySummaries]);
+  const sessionsComponent = (
+    <Box
+      sx={{
+        flex: 1,
+        minHeight: 0,
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {isStoriesLoading ? (
+        <List
+          sx={{
+            flex: 1,
+            minHeight: 0,
+            overflowY: "auto",
 
-  const basePath = `/app/projects/${projectKey}`;
+            ...scrollBarSx,
+          }}
+        >
+          {[1, 2, 3, 4].map((idx) => (
+            <ListItem
+              key={`workspace-skeleton-${idx}`}
+              disablePadding
+              sx={{ mb: 1 }}
+            >
+              <Box
+                sx={{
+                  width: "100%",
+                  border: "1px solid",
+                  borderColor: "divider",
+                  borderRadius: 1.5,
+                  px: 1.5,
+                  py: 1,
+                }}
+              >
+                <Skeleton variant="text" width="40%" />
+                <Skeleton variant="text" width="85%" />
+              </Box>
+            </ListItem>
+          ))}
+        </List>
+      ) : storySummaries.length === 0 ? (
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mt: 2, px: 2 }}
+        >
+          {t("noStoriesYet")}
+        </Typography>
+      ) : (
+        <List
+          sx={{
+            flex: 1,
+            minHeight: 0,
+            px: 1,
+            overflowY: "auto",
+            ...scrollBarSx,
+          }}
+        >
+          {storySummaries.map((story) => {
+            const isSelected = selectedStoryKey === story.key;
+            return (
+              <ListItem key={story.key} disablePadding sx={{ mb: 0.75 }}>
+                <ListItemButton
+                  selected={isSelected}
+                  onClick={() => handleSelectStory(story.key)}
+                  sx={{
+                    borderRadius: 1.5,
+                    border: "1px solid",
+                    borderColor: isSelected ? "primary.main" : "divider",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <Box sx={{ width: "100%" }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }} noWrap>
+                      {story.key}
+                    </Typography>
+                    {story.summary && (
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ display: "block", mt: 0.4 }}
+                      >
+                        {story.summary}
+                      </Typography>
+                    )}
+                    <Box sx={{ mt: 1 }}>
+                      <Chip
+                        size="small"
+                        label={`${tSessionList("story")}: ${story.key}`}
+                      />
+                    </Box>
+                  </Box>
+                </ListItemButton>
+              </ListItem>
+            );
+          })}
+        </List>
+      )}
+    </Box>
+  );
 
   return (
     <PageLayout
@@ -99,14 +200,7 @@ const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
       projectKey={projectKey}
       href="workspace"
       headerText={t("headerText")}
-      primarySessions={{
-        sessions: sessionItems,
-        loading: isStoriesLoading,
-        selectedSessionId: selectedStoryKey,
-        onSelectSession: handleSelectStory,
-        label: t("stories"),
-        emptyStateText: t("noStoriesYet"),
-      }}
+      sessionsComponent={sessionsComponent}
       disablePrimaryAutoRoute={false}
       createable={false}
     >

@@ -93,7 +93,6 @@ class JiraSyncService(JiraBaseService):
         self,
         connection: Connection,
         project_keys: list[str],
-        project_batch_size: int = 5,
     ):
         """Fetch projects and stories from Jira and cache them locally, including vector store"""
         self.db.add(connection)
@@ -198,6 +197,7 @@ class JiraSyncService(JiraBaseService):
                 self._publish_status(
                     connection,
                     message=f"Processing project {project_data.key}...",
+                    status=SyncStatus.IN_PROGRESS,
                 )
                 project, stories, gherkin_acs, story_dtos = process_project(
                     project_data
@@ -210,17 +210,15 @@ class JiraSyncService(JiraBaseService):
 
                 # Push this project's stories to vector store
                 if story_dtos:
+                    self._publish_status(
+                        connection,
+                        message=f"Indexing {len(story_dtos)} stories for project {project_data.key}...",
+                        status=SyncStatus.IN_PROGRESS,
+                    )
                     index_user_stories(
                         connection_id=connection.id,
                         project_key=project.key,
-                        stories=[
-                            {
-                                "key": story.key,
-                                "summary": story.summary,
-                                "description": f"# SUMMARY: {story.summary}\n\n#DESCRIPTION: {story.description}",
-                            }
-                            for story in story_dtos
-                        ],
+                        user_stories=story_dtos,
                     )
 
             self.db.commit()
@@ -234,6 +232,7 @@ class JiraSyncService(JiraBaseService):
             self._publish_status(
                 connection=connection,
                 message=f"Sync failed: {e}",
+                status=SyncStatus.FAILED,
                 error=SyncError.DATA_SYNC_ERROR,
             )
             raise

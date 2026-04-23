@@ -21,7 +21,10 @@ def search(
     global_search_reduce_system_prompt: str | None = None,
     drift_search_prompt: str | None = None,
     drift_search_reduce_prompt: str | None = None,
+    auto_prompt: bool = True,
+    stream: bool = False,
 ):
+    """Performs a search in the Graphrag system using the specified method (local, global, or drift)."""
     history = None
     if conversation_turns:
         history = ConversationHistory.from_list(conversation_turns)
@@ -35,6 +38,8 @@ def search(
             text_embedder=text_embedder,
             conversation_history=history,
             system_prompt=local_search_system_prompt,
+            auto_prompt=auto_prompt,
+            stream=stream,
         )
     elif method == "global":
         return global_search(
@@ -46,6 +51,8 @@ def search(
             conversation_history=history,
             map_system_prompt=global_search_map_system_prompt,
             reduce_system_prompt=global_search_reduce_system_prompt,
+            auto_prompt=auto_prompt,
+            stream=stream,
         )
     elif method == "drift":
         return drift_search(
@@ -58,6 +65,8 @@ def search(
             conversation_history=history,
             prompt=drift_search_prompt,
             reduce_prompt=drift_search_reduce_prompt,
+            auto_prompt=auto_prompt,
+            stream=stream,
         )
     else:
         raise ValueError(f"Unsupported search method: {method}")

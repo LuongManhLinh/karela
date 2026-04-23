@@ -17,7 +17,16 @@ def _format_dataframe(data, columns):
     return df
 
 
-def get_documents(parquet_dir):
+def _get_parquet_dir(connection_id: str, project_key: str):
+    return f".workspace/{connection_id}/{project_key}/output"
+
+
+def _get_bucket_name(connection_id: str, project_key: str):
+    return f"{connection_id}_{project_key}"
+
+
+def get_documents(connection_id: str, project_key: str):
+    parquet_dir = _get_parquet_dir(connection_id, project_key)
     try:
         return pd.read_parquet(os.path.join(parquet_dir, "documents.parquet"))
     except FileNotFoundError:
@@ -25,7 +34,8 @@ def get_documents(parquet_dir):
         return pd.DataFrame()
 
 
-def get_text_units(parquet_dir):
+def get_text_units(connection_id: str, project_key: str):
+    parquet_dir = _get_parquet_dir(connection_id, project_key)
     try:
         return pd.read_parquet(os.path.join(parquet_dir, "text_units.parquet"))
     except FileNotFoundError:
@@ -33,17 +43,60 @@ def get_text_units(parquet_dir):
         return pd.DataFrame()
 
 
-def get_entities(driver, bucket_name, entity_ids: list[str] = None):
-    columns = [
-        "id",
-        "human_readable_id",
-        "title",
-        "type",
-        "description",
-        "text_unit_ids",
-        "frequency",
-        "degree",
-    ]
+def get_community_reports(connection_id: str, project_key: str):
+    parquet_dir = _get_parquet_dir(connection_id, project_key)
+    try:
+        return pd.read_parquet(os.path.join(parquet_dir, "community_reports.parquet"))
+    except FileNotFoundError:
+        print(f"community_reports.parquet not found in {parquet_dir}")
+        return pd.DataFrame()
+
+
+ENTITY_COLUMNS = [
+    "id",
+    "human_readable_id",
+    "title",
+    "type",
+    "description",
+    "text_unit_ids",
+    "frequency",
+    "degree",
+]
+
+RELATIONSHIP_COLUMNS = [
+    "id",
+    "human_readable_id",
+    "source",
+    "target",
+    "description",
+    "weight",
+    "combined_degree",
+    "text_unit_ids",
+]
+
+COMMUNITY_COLUMNS = [
+    "id",
+    "human_readable_id",
+    "community",
+    "level",
+    "parent",
+    "children",
+    "title",
+    "entity_ids",
+    "relationship_ids",
+    "text_unit_ids",
+    "period",
+    "size",
+]
+
+
+def get_entities(
+    connection_id: str,
+    project_key: str,
+    entity_ids: list[str] = None,
+    driver: Driver = default_driver,
+):
+    bucket_name = _get_bucket_name(connection_id, project_key)
 
     match_clause = "MATCH (e:Entity {bucket: $bucket})"
     if entity_ids:
@@ -70,21 +123,17 @@ def get_entities(driver, bucket_name, entity_ids: list[str] = None):
             for r in session.run(query, bucket=bucket_name, entity_ids=entity_ids or [])
         ]
 
-    return _format_dataframe(data, columns)
+    return _format_dataframe(data, ENTITY_COLUMNS)
 
 
 # LƯU Ý: Thêm tham số driver
-def get_relationships(driver, bucket_name, relationship_ids: list[str] = None):
-    columns = [
-        "id",
-        "human_readable_id",
-        "source",
-        "target",
-        "description",
-        "weight",
-        "combined_degree",
-        "text_unit_ids",
-    ]
+def get_relationships(
+    connection_id: str,
+    project_key: str,
+    relationship_ids: list[str] = None,
+    driver: Driver = default_driver,
+):
+    bucket_name = _get_bucket_name(connection_id, project_key)
 
     match_clause = "MATCH (src:Entity {bucket: $bucket})-[r:RELATED {bucket: $bucket}]->(tgt:Entity {bucket: $bucket})"
     if relationship_ids:
@@ -112,38 +161,22 @@ def get_relationships(driver, bucket_name, relationship_ids: list[str] = None):
             )
         ]
 
-    return _format_dataframe(data, columns)
-
-
-from neo4j import Driver
-import pandas as pd
+    return _format_dataframe(data, RELATIONSHIP_COLUMNS)
 
 
 def get_communities(
-    driver: Driver,
-    bucket_name: str,
+    connection_id: str,
+    project_key: str,
     community_ids: list[str] = None,
     entity_ids: list[str] = None,
+    driver: Driver = default_driver,
 ):
     """
     Get communities with optional filtering by entity_ids.
     Dynamically resolves entities, relationships, and text units via Graph Traversal
     to guarantee 100% data integrity after re-clustering.
     """
-    columns = [
-        "id",
-        "human_readable_id",
-        "community",
-        "level",
-        "parent",
-        "children",
-        "title",
-        "entity_ids",
-        "relationship_ids",
-        "text_unit_ids",
-        "period",
-        "size",
-    ]
+    bucket_name = _get_bucket_name(connection_id, project_key)
 
     # Pre-filter by entity_ids if provided
     match_clause = "MATCH (c:Community {bucket: $bucket})"
@@ -162,16 +195,14 @@ def get_communities(
     {match_clause}
     
     // 1. DYNAMIC ENTITIES: Find all entities belonging to this community
-    CALL {{
-        WITH c
+    CALL (c) {{
         MATCH (e:Entity {{bucket: $bucket}})-[:BELONGS_TO]->(c)
         RETURN collect(DISTINCT e.id) AS dynamic_entity_ids
     }}
     
     // 2. DYNAMIC RELATIONSHIPS: Find all relationships connected to the entities in this community
     // GraphRAG needs edges to understand how community members interact.
-    CALL {{
-        WITH c
+    CALL (c) {{
         MATCH (e:Entity {{bucket: $bucket}})-[:BELONGS_TO]->(c)
         // Find any RELATED edge connected to these entities
         MATCH (e)-[r:RELATED]-(:Entity {{bucket: $bucket}})
@@ -179,8 +210,7 @@ def get_communities(
     }}
     
     // 3. DYNAMIC TEXT UNITS: Find all text units that mention the entities in this community
-    CALL {{
-        WITH c
+    CALL (c) {{
         MATCH (e:Entity {{bucket: $bucket}})-[:BELONGS_TO]->(c)
         MATCH (e)-[:MENTIONED_IN]->(t:TextUnit {{bucket: $bucket}})
         RETURN collect(DISTINCT t.id) AS dynamic_text_unit_ids
@@ -213,12 +243,4 @@ def get_communities(
         ]
 
     # Assume _format_dataframe handles filling empty lists [] for NaN/None
-    return _format_dataframe(data, columns)
-
-
-def get_community_reports(parquet_dir):
-    try:
-        return pd.read_parquet(os.path.join(parquet_dir, "community_reports.parquet"))
-    except FileNotFoundError:
-        print(f"community_reports.parquet not found in {parquet_dir}")
-        return pd.DataFrame()
+    return _format_dataframe(data, COMMUNITY_COLUMNS)

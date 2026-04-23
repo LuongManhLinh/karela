@@ -1,4 +1,4 @@
-import pandas as pd
+from pathlib import Path
 from graphrag.query.indexer_adapters import (
     read_indexer_communities,
     read_indexer_entities,
@@ -12,6 +12,10 @@ from graphrag.query.context_builder.conversation_history import ConversationHist
 
 from ..db.query import get_communities, get_community_reports, get_entities
 from ..defines import COMMUNITY_LEVEL
+
+
+GLOBAL_SEARCH_MAP_SYSTEM_PROMPT_FILE = "global_search_map_system_prompt.txt"
+GLOBAL_SEARCH_REDUCE_SYSTEM_PROMPT_FILE = "global_search_reduce_system_prompt.txt"
 
 
 COMMUNITY_LEVEL = 2
@@ -51,7 +55,23 @@ async def global_search(
     reduce_system_prompt: str | None = None,
     conversation_history: ConversationHistory | None = None,
     use_community_weights: bool = False,
+    auto_prompt: bool = True,
+    stream: bool = False,
 ):
+    if auto_prompt and not map_system_prompt:
+        map_system_prompt = _read_project_prompt(
+            connection_id=connection_id,
+            project_key=project_key,
+            prompt_file=GLOBAL_SEARCH_MAP_SYSTEM_PROMPT_FILE,
+        )
+
+    if auto_prompt and not reduce_system_prompt:
+        reduce_system_prompt = _read_project_prompt(
+            connection_id=connection_id,
+            project_key=project_key,
+            prompt_file=GLOBAL_SEARCH_REDUCE_SYSTEM_PROMPT_FILE,
+        )
+
     search_engine = GlobalSearch(
         model=chat_model,
         map_system_prompt=map_system_prompt,
@@ -67,27 +87,33 @@ async def global_search(
         map_llm_params=map_llm_params,
         reduce_llm_params=reduce_llm_params,
         allow_general_knowledge=False,  # set this to True will add instruction to encourage the LLM to incorporate general knowledge in the response, which may increase hallucinations, but could be useful in some use cases.
-        json_mode=True,  # set this to False if your LLM model does not support JSON mode.
+        json_mode=False,  # set this to False if your LLM model does not support JSON mode.
         context_builder_params=context_builder_params,
         concurrent_coroutines=32,
         response_type="multiple paragraphs",  # free form text describing the response type and format, can be anything, e.g. prioritized list, single paragraph, multiple paragraphs, multiple-page report
     )
 
-    return await search_engine.search(
-        query=query,
-        conversation_history=conversation_history,
+    if stream:
+        async for chunk in search_engine.stream_search(query, conversation_history):
+            yield chunk
+    else:
+        return await search_engine.search(query, conversation_history)
+
+
+def _read_project_prompt(connection_id: str, project_key: str, prompt_file: str) -> str:
+    prompt_path = Path(
+        f".workspace/{connection_id}/{project_key}/prompts/{prompt_file}"
     )
+    return prompt_path.read_text(encoding="utf-8")
 
 
 def _get_community_context(
     connection_id: str, project_key: str, tokenizer, use_community_weights: bool = False
 ) -> GlobalCommunityContext:
-    bucket_name = f"{connection_id}_{project_key}"
-    parquet_dir = f".workspace/{connection_id}/{project_key}/output"
 
-    community_df = get_communities(bucket_name)
-    entity_df = get_entities(bucket_name)
-    report_df = get_community_reports(parquet_dir)
+    community_df = get_communities(connection_id, project_key)
+    entity_df = get_entities(connection_id, project_key)
+    report_df = get_community_reports(connection_id, project_key)
 
     communities = read_indexer_communities(community_df, report_df)
     reports = read_indexer_reports(report_df, community_df, COMMUNITY_LEVEL)

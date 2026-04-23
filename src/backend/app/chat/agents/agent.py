@@ -128,4 +128,8 @@ def generate_chat_title(
             )
         ],
     )
-    return response.content
+    try:
+        title = response["messages"][-1].content.strip()
+    except:
+        title = "New Chat Session"
+    return title

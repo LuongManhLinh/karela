@@ -1,12 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import type {
-  ConnectionDto,
-  ProjectDto,
-  StorySummary,
-} from "@/types/connection";
-import { SessionItem } from "@/components/SessionList";
+import type { ProjectDto, StorySummary } from "@/types/connection";
 import {
   useAnalysisSummariesByProjectQuery,
   useRunAnalysisMutation,
@@ -19,8 +14,22 @@ import { useWebSocketContext } from "@/providers/WebSocketProvider";
 import PageLayout from "../PageLayout";
 import { useTranslations } from "next-intl";
 import { PageLevel } from "@/types";
+import { useRouter } from "next/navigation";
+import {
+  Box,
+  Chip,
+  ChipProps,
+  Divider,
+  LinearProgress,
+  List,
+  ListItem,
+  ListItemButton,
+  Skeleton,
+  Typography,
+} from "@mui/material";
+import { scrollBarSx } from "@/constants/scrollBarSx";
 
-const getStatusColor = (status?: string) => {
+const getStatusColor = (status?: string): ChipProps["color"] => {
   switch (status) {
     case "DONE":
       return "success";
@@ -51,29 +60,30 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
   idOrKey,
 }) => {
   const t = useTranslations("analysis.AnalysisLayout");
+  const tSessionList = useTranslations("SessionList");
+  const router = useRouter();
   const { setHeaderProjectKey, setHeaderStoryKey } = useWorkspaceStore();
 
   const [selectedAnalysisKey, setSelectedAnalysisKey] = useState<string | null>(
     idOrKey || null,
   );
 
-  const getAnalysisQuery = () => {
-    switch (level) {
-      case "connection":
-        return useAnalysisSummariesByConnectionQuery();
-      case "project":
-        return useAnalysisSummariesByProjectQuery(projectKey!);
-      case "story":
-        return useAnalysisSummariesByStoryQuery(projectKey!, storyKey!);
-    }
-  };
+  const connectionQuery = useAnalysisSummariesByConnectionQuery();
+  const projectQuery = useAnalysisSummariesByProjectQuery(projectKey);
+  const storyQuery = useAnalysisSummariesByStoryQuery(projectKey, storyKey);
+  const currentQuery =
+    level === "connection"
+      ? connectionQuery
+      : level === "project"
+        ? projectQuery
+        : storyQuery;
 
   // Analysis Hooks
   const {
     data: summariesData,
     isLoading: isSummariesLoading,
     refetch: refetchSummaries,
-  } = getAnalysisQuery();
+  } = currentQuery;
   const summaries = useMemo(() => summariesData?.data || [], [summariesData]);
 
   // Mutations
@@ -88,8 +98,9 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
       .filter((s) => s.status === "IN_PROGRESS" || s.status === "PENDING")
       .map((s) => s.id);
 
-    const handleMessage = (data: any) => {
-      if (data.status === "DONE" || data.status === "FAILED") {
+    const handleMessage = (data: unknown) => {
+      const status = (data as { status?: string })?.status;
+      if (status === "DONE" || status === "FAILED") {
         queryClient.invalidateQueries({ queryKey: ["analysis", "summaries"] });
       } else {
         queryClient.invalidateQueries({ queryKey: ["analysis", "summaries"] });
@@ -109,6 +120,17 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
 
   const handleSelectAnalysis = async (analysisKey: string) => {
     setSelectedAnalysisKey(analysisKey);
+    if (level === "connection") {
+      router.push(`/app/analyses/${analysisKey}`);
+      return;
+    }
+    if (level === "story") {
+      router.push(
+        `/app/projects/${projectKey}/stories/${storyKey}/analyses/${analysisKey}`,
+      );
+      return;
+    }
+    router.push(`/app/projects/${projectKey}/analyses/${analysisKey}`);
   };
 
   const handleRunAnalysis = async (
@@ -131,46 +153,163 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
         },
       });
       await refetchSummaries();
-    } catch (err: any) {
+    } catch (err: unknown) {
       const errorMessage =
-        err.response?.data?.detail || t("failedToStartAnalysis");
+        (err as { response?: { data?: { detail?: string } } })?.response?.data
+          ?.detail || t("failedToStartAnalysis");
       console.error(errorMessage);
     }
     return null;
   };
 
-  const sessionItems = useMemo<SessionItem[]>(() => {
-    return summaries.map((summary) => ({
-      id: summary.key,
-      title: summary.key,
-      subtitle: summary.created_at
-        ? new Date(summary.created_at).toLocaleString()
-        : undefined,
-      projectKey: summary.project_key,
-      storyKey: summary.story_key || undefined,
-      chips: [
-        summary.type
-          ? { label: `${t("type")}: ${t(summary.type)}`, color: "info" }
-          : undefined,
-        summary.status
-          ? {
-              label: `${t("status")}: ${summary.status}`,
-              color: getStatusColor(summary.status),
-            }
-          : undefined,
-        summary.num_defects
-          ? { label: `${summary.num_defects} ${t("defects")}`, color: "error" }
-          : undefined,
-        summary.num_proposals
-          ? {
-              label: `${summary.num_proposals} ${t("proposals")}`,
-              color: "warning",
-            }
-          : undefined,
-      ].filter(Boolean) as Array<{ label: string; color?: any }>,
-      running: summary.status === "IN_PROGRESS" || summary.status === "PENDING",
-    }));
-  }, [summaries]);
+  const sessionsComponent = (
+    <Box
+      sx={{
+        flex: 1,
+        minHeight: 0,
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {isSummariesLoading ? (
+        <List
+          sx={{
+            flex: 1,
+            px: 1,
+            minHeight: 0,
+            overflowY: "auto",
+            ...scrollBarSx,
+          }}
+        >
+          {[1, 2, 3].map((idx) => (
+            <ListItem
+              key={`analysis-skeleton-${idx}`}
+              disablePadding
+              sx={{ mb: 1 }}
+            >
+              <Box
+                sx={{
+                  width: "100%",
+                  border: "1px solid",
+                  borderColor: "divider",
+                  borderRadius: 1.5,
+                  px: 1.5,
+                  py: 1,
+                }}
+              >
+                <Skeleton variant="text" width="50%" />
+                <Skeleton variant="rounded" width={190} height={22} />
+                <Skeleton variant="text" width="70%" />
+              </Box>
+            </ListItem>
+          ))}
+        </List>
+      ) : summaries.length === 0 ? (
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mt: 2, px: 2 }}
+        >
+          {t("noAnalysesYet")}
+        </Typography>
+      ) : (
+        <List
+          sx={{
+            flex: 1,
+            px: 1,
+            minHeight: 0,
+            overflowY: "auto",
+            ...scrollBarSx,
+          }}
+        >
+          {summaries.map((summary) => {
+            const isSelected = selectedAnalysisKey === summary.key;
+            const isRunning =
+              summary.status === "IN_PROGRESS" || summary.status === "PENDING";
+
+            return (
+              <ListItem key={summary.key} disablePadding sx={{ mb: 0.75 }}>
+                <ListItemButton
+                  selected={isSelected}
+                  onClick={() => handleSelectAnalysis(summary.key)}
+                  sx={{
+                    borderRadius: 1.5,
+                    border: "1px solid",
+                    borderColor: isSelected ? "primary.main" : "divider",
+                    alignItems: "flex-start",
+                    flexDirection: "column",
+                    gap: 1,
+                  }}
+                >
+                  {isRunning && (
+                    <LinearProgress
+                      sx={{ width: "100%", height: 4, borderRadius: 2 }}
+                      color="inherit"
+                    />
+                  )}
+                  <Box sx={{ width: "100%" }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }} noWrap>
+                      {summary.key}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ display: "block", mt: 0.4 }}
+                    >
+                      {summary.created_at
+                        ? new Date(summary.created_at).toLocaleString()
+                        : ""}
+                    </Typography>
+                    <Box
+                      sx={{
+                        mt: 1,
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 0.75,
+                      }}
+                    >
+                      <Chip
+                        size="small"
+                        label={`${tSessionList("project")}: ${summary.project_key}`}
+                      />
+                      {summary.story_key && (
+                        <Chip
+                          size="small"
+                          label={`${tSessionList("story")}: ${summary.story_key}`}
+                        />
+                      )}
+                      <Chip
+                        size="small"
+                        label={`${t("status")}: ${summary.status}`}
+                        color={getStatusColor(summary.status)}
+                      />
+                      {summary.type && (
+                        <Chip
+                          size="small"
+                          color="info"
+                          label={`${t("type")}: ${t(summary.type)}`}
+                        />
+                      )}
+                      <Chip
+                        size="small"
+                        color="error"
+                        label={`${summary.num_defects || 0} ${t("defects")}`}
+                      />
+                      <Chip
+                        size="small"
+                        color="warning"
+                        label={`${summary.num_proposals || 0} ${t("proposals")}`}
+                      />
+                    </Box>
+                  </Box>
+                </ListItemButton>
+              </ListItem>
+            );
+          })}
+        </List>
+      )}
+    </Box>
+  );
 
   // Update header keys in useEffect to avoid setState during render
   useEffect(() => {
@@ -190,14 +329,7 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
       projectKey={projectKey}
       storyKey={storyKey}
       href="analyses"
-      primarySessions={{
-        sessions: sessionItems,
-        selectedSessionId: selectedAnalysisKey,
-        onSelectSession: handleSelectAnalysis,
-        loading: isSummariesLoading,
-        emptyStateText: t("noAnalysesYet"),
-        label: t("analyses"),
-      }}
+      sessionsComponent={sessionsComponent}
       onNewLabel={t("runAnalysis")}
       dialogLabel={t("runAnalysis")}
       primaryAction={handleRunAnalysis}

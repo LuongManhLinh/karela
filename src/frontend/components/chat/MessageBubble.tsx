@@ -121,8 +121,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
           justifyContent: "flex-end",
         }}
       >
-        <Paper
-          elevation={2}
+        <Box
           sx={{
             p: 1.5,
             borderRadius: 2,
@@ -141,7 +140,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
           >
             {content}
           </Typography>
-        </Paper>
+        </Box>
       </Box>
     );
   }

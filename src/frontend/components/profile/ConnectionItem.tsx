@@ -8,6 +8,7 @@ import {
   Tooltip,
   useTheme,
   CircularProgress,
+  Link,
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { useTranslations } from "next-intl";
@@ -218,6 +219,15 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
             color="text.secondary"
             display="block"
             noWrap
+            component={Link}
+            sx={{
+              cursor: "pointer",
+            }}
+            onClick={() => {
+              // Open the url in a new window
+              console.log("Opening URL:", connection.url);
+              window.open(connection.url, "_blank", "noopener,noreferrer");
+            }}
           >
             {connection.url}
           </Typography>

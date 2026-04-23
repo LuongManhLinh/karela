@@ -1,4 +1,5 @@
 from graphrag.query.context_builder.conversation_history import ConversationHistory
+from pathlib import Path
 from graphrag.query.indexer_adapters import (
     read_indexer_entities,
     read_indexer_relationships,
@@ -25,6 +26,10 @@ from ..db.query import (
 from ..defines import COMMUNITY_LEVEL
 
 
+DRIFT_SEARCH_REDUCE_PROMPT_FILE = "drift_reduce_prompt.txt"
+DRIFT_SEARCH_PROMPT_FILE = "drift_search_system_prompt.txt"
+
+
 async def drift_search(
     connection_id: str,
     project_key: str,
@@ -36,7 +41,23 @@ async def drift_search(
     reduce: bool = True,
     prompt: str | None = None,
     reduce_prompt: str | None = None,
+    auto_prompt: bool = True,
+    stream: bool = False,
 ):
+    if auto_prompt and not prompt:
+        prompt = _read_project_prompt(
+            connection_id=connection_id,
+            project_key=project_key,
+            prompt_file=DRIFT_SEARCH_PROMPT_FILE,
+        )
+
+    if auto_prompt and not reduce_prompt:
+        reduce_prompt = _read_project_prompt(
+            connection_id=connection_id,
+            project_key=project_key,
+            prompt_file=DRIFT_SEARCH_REDUCE_PROMPT_FILE,
+        )
+
     search = DRIFTSearch(
         model=chat_model,
         context_builder=_get_drift_context_builder(
@@ -51,11 +72,18 @@ async def drift_search(
         tokenizer=tokenizer,
     )
 
-    return await search.search(
-        query=query,
-        conversation_history=conversation_history,
-        reduce=reduce,
+    if stream:
+        async for chunk in search.stream_search(query, conversation_history):
+            yield chunk
+    else:
+        return await search.search(query, conversation_history, reduce)
+
+
+def _read_project_prompt(connection_id: str, project_key: str, prompt_file: str) -> str:
+    prompt_path = Path(
+        f".workspace/{connection_id}/{project_key}/prompts/{prompt_file}"
     )
+    return prompt_path.read_text(encoding="utf-8")
 
 
 def _get_drift_context_builder(
@@ -67,14 +95,13 @@ def _get_drift_context_builder(
     prompt=None,
     reduce_prompt=None,
 ):
-    bucket_name = f"{connection_id}_{project_key}"
     lancedb_uri = f".workspace/{connection_id}/{project_key}/output/lancedb"
 
-    entity_df = get_entities(bucket_name)
-    community_df = get_communities(bucket_name)
-    relationship_df = get_relationships(bucket_name)
-    text_unit_df = get_text_units(bucket_name)
-    report_df = get_community_reports(bucket_name)
+    entity_df = get_entities(connection_id, project_key)
+    community_df = get_communities(connection_id, project_key)
+    relationship_df = get_relationships(connection_id, project_key)
+    text_unit_df = get_text_units(connection_id, project_key)
+    report_df = get_community_reports(connection_id, project_key)
 
     entities = read_indexer_entities(entity_df, community_df, COMMUNITY_LEVEL)
 

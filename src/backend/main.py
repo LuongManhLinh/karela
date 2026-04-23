@@ -16,7 +16,9 @@ for queue_type in queue_types:
         processes.append(p)
         time.sleep(0.1)  # Stagger worker startups
 
-uvicorn_process = subprocess.Popen(["uvicorn", "app:app", "--port", ServerConfig.PORT])
+uvicorn_process = subprocess.Popen(
+    ["uvicorn", "app:app", "--port", ServerConfig.PORT, "--loop", "asyncio"]
+)
 
 try:
     uvicorn_process.wait()

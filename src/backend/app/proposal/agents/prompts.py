@@ -9,7 +9,7 @@ _CONTEXT_DESCRIPTION = """## **INPUT CONTEXT**
 *   **Clarifications:** (Optional) Additional info provided by stakeholders.
 """
 
-_EXTRA_PROMPTING = """## **EXTRA PROMPTING**
+_EXTRA_PROMPTING = """## **EXTRA PROMPT**
 {extra_prompt}
 """
 
@@ -33,11 +33,11 @@ Synthesize technical **Fix Proposals** for Jira User Stories to resolve the iden
 *   **DELETE:** Use **ONLY** for `DUPLICATION` or `OUT_OF_SCOPE` defects.
     *   *Requirement:* Provide a strong `Reasoning` for why it cannot be fixed via UPDATE.
 
+{_EXTRA_PROMPTING}
+
 ## **OUTPUT RULES**
 *   **Uniqueness:** Each Story Key must appear in **exactly one** proposal (no conflicting proposals for the same story).
 *   **Format:** STRICTLY follow the JSON schema.
-
-{_EXTRA_PROMPTING}
 """
 
 IMPACT_ANALYZER_SYSTEM_PROMPT = f"""{_BASE_SYSTEM_PROMPT}
@@ -59,11 +59,11 @@ Simulate the application of `CREATE`/`UPDATE`/`DELETE` actions and check for:
 *   **REWRITE:** Proposal is valid but content is weak or introduces minor issues.
 *   **REJECT:** Proposal violates scope, risks data loss, or is illogical.
 
+{_EXTRA_PROMPTING}
+
 ## **OUTPUT RULES**
 *   For `REWRITE`/`REJECT`, provide specific **Feedback** on *what* to change.
 *   Format: STRICTLY follow the JSON schema.
-
-{_EXTRA_PROMPTING}
 """
 
 REWRITER_SYSTEM_PROMPT = f"""{_BASE_SYSTEM_PROMPT}
@@ -78,12 +78,12 @@ Refine the **Rejected/Rewrite** proposals based **STRICTLY** on the Impact Analy
 2.  **Surgical Editing:** Modify ONLY the fields flagged by the feedback. Do not rewrite safe sections.
 3.  **Verification:** Ensure the new proposal explicitly resolves the failure state described in the feedback.
 
+{_EXTRA_PROMPTING}
+
 ## **OUTPUT RULES**
 *   Return the exact JSON structure as the Drafter.
 *   **Uniqueness:** Maintain the constraint that each Story Key appears only once.
 *   **Format:** STRICTLY follow the JSON schema.
-
-{_EXTRA_PROMPTING}
 """
 
 # Simple system prompt will be used to replace the 3 above, which mean there is only one agent that will do everything
@@ -104,7 +104,7 @@ Synthesize technical **Fix Proposals** for Jira User Stories to resolve the iden
     *   *Must include:* Exact fields to change.
 *   **DELETE:** Use **ONLY** for `DUPLICATION` or `OUT_OF_SCOPE` defects.
     *   *Requirement:* Provide a strong `Reasoning` for why it cannot be fixed via UPDATE.
-    
+
 ## **AUDIT PROCESS**
 Simulate the application of `CREATE`/`UPDATE`/`DELETE` actions and check for:
 1.  **Duplicate Actions:** Does the same story appear in multiple proposals? (FORBIDDEN).

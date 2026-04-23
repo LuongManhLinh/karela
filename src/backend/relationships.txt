@@ -1,0 +1,335 @@
+PASSENGER -> BOOK A POINT-TO-POINT TAXI RIDE: The passenger initiates the action of booking a taxi ride
+BOOK A POINT-TO-POINT TAXI RIDE -> TRAVEL COMFORTABLY: Booking a taxi ride achieves the value of comfortable travel
+SELECTED DESTINATION -> BOOK A POINT-TO-POINT TAXI RIDE: The taxi booking requires a selected destination
+CONFIRM BOOKING -> BOOK A POINT-TO-POINT TAXI RIDE: The 'Confirm Booking' action is part of the taxi booking process
+CONFIRM BOOKING -> MATCH WITH NEAREST AVAILABLE DRIVER: Clicking 'Confirm Booking' triggers the system to match the passenger with a driver
+MATCH WITH NEAREST AVAILABLE DRIVER -> DRIVER'S NAME AND VEHICLE PLATE: The driver matching process results in displaying the driver's details
+BOOK A POINT-TO-POINT TAXI RIDE -> SYSTEM: The booking action is performed within the taxi booking system
+MATCH WITH NEAREST AVAILABLE DRIVER -> SYSTEM: The system is responsible for matching passengers with drivers
+PASSENGER FEEDBACK AND STAR RATING -> PROVIDE STAR RATING: The user story implements the action of providing a star rating
+CUSTOMER -> PROVIDE STAR RATING: The customer performs the action of providing a star rating
+PROVIDE STAR RATING -> AUDIT DRIVER QUALITY: Providing a star rating contributes to the goal of auditing driver quality
+PROVIDE STAR RATING -> TRIP IS FINISHED: Providing feedback is conditional on the trip being finished
+PROVIDE STAR RATING -> STAR LEVEL: The action involves choosing a star level
+PROVIDE STAR RATING -> SYSTEM RECORDS FEEDBACK: The action of providing feedback leads to the system recording it
+SYSTEM RECORDS FEEDBACK -> DRIVER'S PROFILE: The feedback is recorded against the driver's profile
+AUDIT DRIVER QUALITY -> DRIVER: The quality of drivers is audited as a result of the feedback
+SHARED RIDE (POOL) SELECTION -> SELECT RIDE POOL OPTION: The user story SHARED RIDE (POOL) SELECTION implements the action of selecting a ride pool option
+BUDGET TRAVELER -> SELECT RIDE POOL OPTION: The budget traveler performs the action of selecting the ride pool option
+SELECT RIDE POOL OPTION -> SHARE COST: Selecting the ride pool option achieves the value of sharing costs
+SELECT RIDE POOL OPTION -> POOL MODE: The action involves choosing the 'Pool' mode
+CONFIRM BOOKING -> UP TO 2 OTHER PICKUPS: Confirming the booking leads to a system that allows up to 2 other pickups
+UP TO 2 OTHER PICKUPS -> SAME ROUTE: Additional pickups occur on the same route as the initial booking
+SELECT RIDE POOL OPTION -> SYSTEM: The action of selecting a ride pool option is processed by the system
+CONFIRM BOOKING -> SYSTEM: The **SYSTEM** is responsible for the **CONFIRM BOOKING** process. This includes handling and processing the confirmation of the booking. The provided descriptions appear to be duplicates, stating the same functionality with slightly different wording.
+STRICT 15-MINUTE CANCELLATION GRACE PERIOD -> ALLOW PASSENGERS TO CANCEL WITHOUT FEE: The feature implements the ability to allow passengers to cancel without a fee
+SYSTEM -> ALLOW PASSENGERS TO CANCEL WITHOUT FEE: The system is responsible for enabling passengers to cancel without a fee
+ALLOW PASSENGERS TO CANCEL WITHOUT FEE -> MAINTAIN CUSTOMER SATISFACTION: Allowing cancellations without fees achieves the value of maintaining customer satisfaction
+ALLOW PASSENGERS TO CANCEL WITHOUT FEE -> 15 MINUTES: The cancellation without fee is permitted only within 15 minutes of booking
+ALLOW PASSENGERS TO CANCEL WITHOUT FEE -> BOOKED RIDE: The action of cancellation applies to a booked ride
+ALLOW PASSENGERS TO CANCEL WITHOUT FEE -> CANCELLATION FEE: When the action is performed within the grace period, no cancellation fee is charged
+CANCELLATION FEE -> ACCOUNT: The cancellation fee is charged to the passenger's account
+PASSENGER -> ALLOW PASSENGERS TO CANCEL WITHOUT FEE: The passenger is the one who performs the cancellation action
+BOOKING -> ALLOW PASSENGERS TO CANCEL WITHOUT FEE: The cancellation action is performed on a booking
+ALLOW PASSENGERS TO CANCEL WITHOUT FEE -> CHARGED: If the cancellation is outside the grace period, the passenger will be charged a fee
+PASSENGER -> ADD UP TO 3 STOPS: The passenger wants to add up to 3 stops
+ADD UP TO 3 STOPS -> PICK UP FRIENDS: Adding stops enables the value of picking up friends
+ADD UP TO 3 STOPS -> DESTINATION SETTING INTERFACE: The ability to add stops is initiated from the destination setting interface
+ADD UP TO 3 STOPS -> FARE AND ROUTE CALCULATION SYSTEM: Adding stops triggers a recalculation of the fare and route
+DESTINATION SETTING INTERFACE -> STOP B: The destination setting interface allows adding 'Stop B'
+ADD UP TO 3 STOPS -> STOP B: The action of adding stops includes adding 'Stop B'
+STOP B -> FARE AND ROUTE CALCULATION SYSTEM: Stop B is included in the recalculation of fare and route
+RENTAL VEHICLE: FUEL LEVEL TRACKING -> TRACK FUEL LEVEL: The ticket implements the action of tracking fuel levels
+RENTAL PROVIDER -> TRACK FUEL LEVEL: The rental provider performs the action of tracking fuel levels
+TRACK FUEL LEVEL -> CHARGE FOR MISSING FUEL: Tracking fuel level enables the charging for missing fuel
+TRACK FUEL LEVEL -> RETURNED VEHICLE: Fuel level tracking is performed on a returned vehicle
+SENSOR REPORTS FUEL IS < 90% -> REFUELING FEE IS AUTOMATICALLY CALCULATED AND BILLED: When the sensor reports low fuel, a fee is calculated and billed
+TRACK FUEL LEVEL -> SENSOR REPORTS FUEL IS < 90%: The tracking action is informed by the sensor's report
+RENTAL PROVIDER -> USER: The rental provider serves the user by renting vehicles
+CHARGE FOR MISSING FUEL -> USER: The user is billed for missing fuel
+RETURNED VEHICLE -> FUEL LEVEL: The fuel level is checked when a vehicle is returned
+SENSOR REPORTS FUEL IS < 90% -> FUEL LEVEL: The sensor report directly relates to the fuel level
+REFUELING FEE IS AUTOMATICALLY CALCULATED AND BILLED -> RENTAL PROVIDER: The rental provider is responsible for the billing process
+PASSENGER -> SOS BUTTON: The passenger interacts with the SOS button
+SOS BUTTON -> ALERT LOCAL AUTHORITIES: Activating the SOS button triggers an alert to local authorities
+RIDE IS IN PROGRESS -> SOS BUTTON: The SOS button is intended for use when a ride is 'In Progress'
+ALERT LOCAL AUTHORITIES -> CURRENT GPS: Alerting authorities includes sending the current GPS location
+ALERT LOCAL AUTHORITIES -> TRIP DETAILS: Alerting authorities includes sending trip details
+ALERT LOCAL AUTHORITIES -> POLICE: The alert is sent to the police
+CALCULATE DRIVER WEEKLY PAYOUTS -> CALCULATE TOTAL EARNINGS: The user story CALCULATE DRIVER WEEKLY PAYOUTS involves calculating total earnings
+FINANCE ADMIN -> CALCULATE TOTAL EARNINGS: The Finance Admin initiates or is responsible for the calculation of total earnings
+CALCULATE TOTAL EARNINGS -> PROCESS PAYMENTS: Calculating total earnings enables the processing of payments
+CALCULATE TOTAL EARNINGS -> COMPLETED RIDES: The calculation of earnings is based on completed rides
+CALCULATE TOTAL EARNINGS -> COMMISSION: The calculation of earnings involves subtracting commission
+CALCULATE TOTAL EARNINGS -> PAYOUT SCRIPT: The payout script performs the calculation of total earnings
+PROCESS PAYMENTS -> BANK ACCOUNTS: Payments are processed to driver bank accounts
+CALCULATE TOTAL EARNINGS -> DRIVER: The calculation of total earnings is performed for each driver
+PROCESS PAYMENTS -> DRIVER: Payments are processed to drivers
+WALLET BALANCE TOP-UP -> ADD FUNDS TO WALLET: The user story WALLET BALANCE TOP-UP is about the action of adding funds to the wallet
+USER -> ADD FUNDS TO WALLET: The USER performs the action of adding funds to their wallet
+ADD FUNDS TO WALLET -> PAY FOR RIDES WITHOUT USING A CARD: Adding funds to the wallet contributes to the value of paying for rides without a card
+ADD FUNDS TO WALLET -> WALLET SCREEN: The action of adding funds is initiated from the WALLET SCREEN
+ADD FUNDS TO WALLET -> BANK TRANSFER: The action of adding funds is confirmed via BANK TRANSFER
+ADD FUNDS TO WALLET -> WALLET BALANCE: The action of adding funds immediately updates the WALLET BALANCE
+DRIVER AVAILABILITY TOGGLE SWITCH -> TOGGLE STATUS BETWEEN ONLINE AND OFFLINE: The feature enables the action of toggling status
+DRIVER -> TOGGLE STATUS BETWEEN ONLINE AND OFFLINE: The driver performs the action of toggling their status
+TOGGLE STATUS BETWEEN ONLINE AND OFFLINE -> CONTROL WHEN TO RECEIVE RIDE REQUESTS: Toggling status achieves the value of controlling ride requests
+STATUS IS OFFLINE -> SLIDE THE TOGGLE TO ONLINE: The action is performed when the status is offline
+SLIDE THE TOGGLE TO ONLINE -> VISIBLE TO PASSENGERS SEARCHING FOR RIDES: Sliding the toggle to online makes the driver visible to passengers
+DRIVER NAVIGATION WITH GOOGLE MAPS -> INTEGRATE WITH GOOGLE MAPS: The user story Driver Navigation with Google Maps implements the integration action
+DRIVER -> INTEGRATE WITH GOOGLE MAPS: The driver is the user who benefits from the Google Maps integration
+INTEGRATE WITH GOOGLE MAPS -> FOLLOW EFFICIENT ROUTE: Integrating with Google Maps achieves the value of following an efficient route
+INTEGRATE WITH GOOGLE MAPS -> GOOGLE MAPS: The integration action directly utilizes the Google Maps system
+ACCEPTED A RIDE -> CLICK 'NAVIGATE': The 'Navigate' button is available to be clicked only after a ride has been accepted
+CLICK 'NAVIGATE' -> GOOGLE MAPS OVERLAY: Clicking 'Navigate' triggers the opening of the Google Maps overlay
+GOOGLE MAPS OVERLAY -> TURN-BY-TURN ROUTE: The Google Maps overlay displays the turn-by-turn route
+CLICK 'NAVIGATE' -> TURN-BY-TURN ROUTE: Clicking 'Navigate' initiates the display of the turn-by-turn route
+INTEGRATE WITH GOOGLE MAPS -> ACCEPTED A RIDE: The integration is relevant when a driver has accepted a ride
+DRIVER -> APP: The driver interacts with the application
+DRIVER NAVIGATION WITH GOOGLE MAPS -> APP: The feature is part of the application
+INTEGRATE WITH GOOGLE MAPS -> APP: The integration action modifies or enhances the application's capabilities
+ACCEPTED A RIDE -> RIDE: The action of accepting a ride results in a specific ride assignment
+DRIVER -> RIDE: The driver is assigned a ride
+CLICK 'NAVIGATE' -> NAVIGATION FEATURE: Clicking 'Navigate' activates the navigation feature
+NAVIGATION FEATURE -> APP: The navigation feature is a component of the app
+GOOGLE MAPS -> APP: The application utilizes the Google Maps system
+TURN-BY-TURN ROUTE -> GOOGLE MAPS: The turn-by-turn route is generated by Google Maps
+GOOGLE MAPS OVERLAY -> GOOGLE MAPS: The overlay is a display component of Google Maps
+INTER-CITY BUS TICKET BOOKING -> BOOK SEAT ON LONG-DISTANCE BUS: The feature involves the action of booking a bus seat
+TRAVELER -> BOOK SEAT ON LONG-DISTANCE BUS: The traveler performs the action of booking a bus seat
+BOOK SEAT ON LONG-DISTANCE BUS -> TRAVEL BETWEEN MAJOR CITIES CHEAPLY: Booking a seat on a bus achieves the value of traveling cheaply between cities
+BOOK SEAT ON LONG-DISTANCE BUS -> INTER-CITY TAB: The action of booking starts from the 'Inter-City' tab
+BOOK SEAT ON LONG-DISTANCE BUS -> BUS ROUTE: The traveler selects a bus route as part of the booking action
+BOOK SEAT ON LONG-DISTANCE BUS -> SEAT NUMBER: The traveler selects a specific seat number as part of the booking action
+BOOK SEAT ON LONG-DISTANCE BUS -> TICKET PAYMENT PROCESSING: After selecting a seat, the system processes the ticket payment
+DO THE RIGHT THING -> PERFORM CORRECT LOGIC PERFECTLY: The system logic "Do the Right Thing" ensures the action of performing correct logic perfectly
+DEVELOPER -> PERFORM CORRECT LOGIC PERFECTLY: The developer's goal is for the system to perform correct logic perfectly
+PERFORM CORRECT LOGIC PERFECTLY -> NO BUGS: Performing correct logic perfectly directly leads to the value of having no bugs
+PERFORM CORRECT LOGIC PERFECTLY -> APP: The action of performing correct logic happens within the app
+PERFORM CORRECT LOGIC PERFECTLY -> BUTTON: The action is triggered by clicking any button
+PERFORM CORRECT LOGIC PERFECTLY -> SYSTEM: The system is responsible for executing the correct logic
+USER -> BUTTON: The user interacts with the application by clicking buttons.
+BUTTON -> PERFORM CORRECT LOGIC PERFECTLY: Clicking a button triggers the action of performing correct logic.
+PROCESS INSURANCE CLAIM FOR ACCIDENT -> SUBMIT INSURANCE CLAIM: The user story PROCESS INSURANCE CLAIM FOR ACCIDENT is about the action of SUBMIT INSURANCE CLAIM
+USER -> SUBMIT INSURANCE CLAIM: The USER performs the action of SUBMIT INSURANCE CLAIM
+SUBMIT INSURANCE CLAIM -> GET REIMBURSED: Submitting a claim aims to achieve the value of GET REIMBURSED
+SUBMIT INSURANCE CLAIM -> APP: The claim is submitted through the APP
+UPLOAD PHOTOS OF DAMAGE -> FILE CLAIM: Uploading photos is a prerequisite for the FILE CLAIM action
+FILE CLAIM -> SYSTEM PROCESSES INSURANCE PAPERWORK IMMEDIATELY: Filing a claim triggers the system to process paperwork immediately
+SUBMIT INSURANCE CLAIM -> RENTAL IS ACTIVE: The action of SUBMIT INSURANCE CLAIM requires RENTAL IS ACTIVE to be true
+DAMAGE -> SUBMIT INSURANCE CLAIM: The insurance claim is submitted due to DAMAGE to the rental car
+CALCULATE DYNAMIC FARE FOR RIDES -> CALCULATE FARES BASED ON DISTANCE AND TRAFFIC: The key defines the action of calculating dynamic fares
+SYSTEM -> CALCULATE FARES BASED ON DISTANCE AND TRAFFIC: The system performs the action of calculating fares
+CALCULATE FARES BASED ON DISTANCE AND TRAFFIC -> FAIR PRICING: Calculating fares dynamically achieves the value of fair pricing
+CALCULATE FARES BASED ON DISTANCE AND TRAFFIC -> PICKUP AND DROP-OFF POINT: Fare calculation requires pickup and drop-off points
+CALCULATE FARES BASED ON DISTANCE AND TRAFFIC -> ROUTE CALCULATION: Fare calculation is dependent on the system calculating the route first
+CALCULATE FARES BASED ON DISTANCE AND TRAFFIC -> BASE FARE: The calculation includes the base fare
+CALCULATE FARES BASED ON DISTANCE AND TRAFFIC -> DISTANCE RATE: The calculation applies a rate per kilometer
+CALCULATE FARES BASED ON DISTANCE AND TRAFFIC -> TRAFFIC SURCHARGE: The calculation includes a traffic surcharge
+ROUTE CALCULATION -> PICKUP AND DROP-OFF POINT: Route calculation is based on pickup and drop-off points
+CALCULATE FARES BASED ON DISTANCE AND TRAFFIC -> DISTANCE: The fare calculation directly uses the distance of the route
+CALCULATE FARES BASED ON DISTANCE AND TRAFFIC -> TRAFFIC CONDITIONS: The fare calculation is influenced by traffic conditions
+ROUTE CALCULATION -> DISTANCE: The route calculation determines the distance
+ROUTE CALCULATION -> TRAFFIC CONDITIONS: Route calculation may be influenced by traffic conditions to estimate time, which then affects fare
+BIKE RENTAL: HELMET INCLUDED POLICY -> SAFETY OFFICER: The Safety Officer is the role concerned with this policy
+SAFETY OFFICER -> INCLUDE HELMET: The Safety Officer's goal is to ensure helmets are included
+INCLUDE HELMET -> COMPLY WITH LOCAL SAFETY LAWS: Including a helmet helps to comply with safety laws
+BIKE RENTAL BOOKING -> INCLUDE HELMET: The policy is applied during the bike rental booking process
+CONFIRM BOOKING -> INCLUDE HELMET: Confirming the booking triggers the inclusion of a helmet
+CONFIRM BOOKING -> PROMPT USER TO PICK UP HELMET: Confirming the booking leads to a prompt to pick up a helmet
+PROMPT USER TO PICK UP HELMET -> LOCKER: The helmet is to be picked up from the locker
+INCLUDE HELMET -> SYSTEM: The action of including a helmet is managed by the system
+PROMPT USER TO PICK UP HELMET -> SYSTEM: The system is responsible for prompting the user
+BIKE RENTAL BOOKING -> SYSTEM: The system handles the bike rental booking process
+BOOK A RIDE FOR A FRIEND -> BOOK A RIDE FOR A CONTACT: The user story "Book a Ride for a Friend" describes the action of booking a ride for a contact
+USER -> BOOK A RIDE FOR A CONTACT: The **USER** entity is described as the initiator of the **BOOK A RIDE FOR A CONTACT** action. This entity performs the action of booking a ride specifically on behalf of a contact. No contradictions or duplicate descriptions were identified.
+BOOK A RIDE FOR A CONTACT -> GET HOME SAFELY: Booking a ride for a contact helps them get home safely
+BOOK A RIDE FOR A CONTACT -> USE MY PAYMENT METHOD: The booking action utilizes the user's payment method as a feature
+BOOK A RIDE FOR A CONTACT -> PHONE BOOK: The action requires selecting a contact from the phone book
+BOOK A RIDE FOR A CONTACT -> DRIVER: The booking action is performed for the driver to complete
+BOOK A RIDE FOR A CONTACT -> FRIEND'S NAME: The driver receives the friend's name as part of the booking details
+BOOK A RIDE FOR A CONTACT -> SMS WITH TRIP TRACKING: The friend receives an SMS with trip tracking after the ride is booked
+BOOK A RIDE FOR A CONTACT -> CONTACT: The action of booking a ride is performed for a specific contact
+BOOK A RIDE FOR A CONTACT -> PHONE: The user selects a contact from their phone to book a ride
+BOOK A RIDE FOR A CONTACT -> PAYMENT METHOD: The booking uses the user's payment method
+BOOK A RIDE FOR A CONTACT -> RIDE: The action is to book a ride
+RIDE -> DRIVER: The ride is provided by a driver
+RIDE -> FRIEND'S NAME: The driver receives the friend's name associated with the ride
+RIDE -> SMS: The ride details are sent via SMS
+SMS -> TRIP TRACKING: The SMS contains trip tracking information
+UPDATE USER PAYMENT INFO -> UPDATE STORED CREDIT CARD DETAILS: The user story Update User Payment Info implements the action of updating stored credit card details
+MEMBER -> UPDATE STORED CREDIT CARD DETAILS: A member performs the action of updating their stored credit card details
+UPDATE STORED CREDIT CARD DETAILS -> USE DIFFERENT CARD FOR VEHICLE BOOKINGS: Updating credit card details achieves the value of using a different card for bookings
+UPDATE STORED CREDIT CARD DETAILS -> SAVED CARD: The action directly affects the user's saved card information
+EDIT -> UPDATE STORED CREDIT CARD DETAILS: Clicking 'Edit' initiates the process of updating card details
+NEW EXPIRY DATE -> DATABASE: The new expiry date is a critical piece of information for updating the record in the database
+UPDATE STORED CREDIT CARD DETAILS -> DATABASE: The action results in an update to the record in the database
+VIEW TRIP HISTORY AND DIGITAL RECEIPTS -> VIEW PAST TRIPS: The user story implements the action of viewing past trips
+VIEW TRIP HISTORY AND DIGITAL RECEIPTS -> DOWNLOAD RECEIPTS: The user story implements the action of downloading receipts
+USER -> VIEW PAST TRIPS: The user performs the action of viewing past trips
+USER -> DOWNLOAD RECEIPTS: The user performs the action of downloading receipts
+VIEW PAST TRIPS -> TRACK TRANSPORTATION EXPENSES: Viewing past trips contributes to tracking transportation expenses
+DOWNLOAD RECEIPTS -> TRACK TRANSPORTATION EXPENSES: Downloading receipts directly supports tracking transportation expenses
+VIEW PAST TRIPS -> MY TRIPS SECTION: Past trips are viewed within the 'My Trips' section
+DOWNLOAD RECEIPTS -> COMPLETED TRIP: Receipts are downloaded for specific completed trips
+DOWNLOAD RECEIPTS -> DOWNLOAD PDF BUTTON: The download PDF button triggers the receipt download action
+DOWNLOAD RECEIPTS -> RECEIPT WITH FARE BREAKDOWN AND DATE: The download action generates a receipt with fare breakdown and date
+RECEIPT WITH FARE BREAKDOWN AND DATE -> DATE: The receipt includes the date of the trip
+MESSAGE DRIVER VIA CHAT INTERFACE -> USE INTERNAL MESSAGING SYSTEM: The user story implements the ability to use the internal messaging system
+USER -> USE INTERNAL MESSAGING SYSTEM: The user performs the action of using the internal messaging system
+USE INTERNAL MESSAGING SYSTEM -> COMMUNICATE WITH DRIVER: Using the messaging system enables communication with the driver
+COMMUNICATE WITH DRIVER -> EXPLAIN EXACT LOCATION: Communicating with the driver allows for explaining the exact location
+USE INTERNAL MESSAGING SYSTEM -> APP: The messaging system is accessed through the application
+COMMUNICATE WITH DRIVER -> DRIVER: Communication occurs directly with the driver
+DRIVER ON THE WAY -> COMMUNICATE WITH DRIVER: The driver being on the way is a prerequisite for communication
+REAL-TIME VEHICLE SEARCH BY LOCATION -> SEE AVAILABLE TAXIS AND BIKES: The user story focuses on the action of seeing available vehicles
+USER -> SEE AVAILABLE TAXIS AND BIKES: The user performs the action of seeing available vehicles
+SEE AVAILABLE TAXIS AND BIKES -> ESTIMATE PICKUP TIMES: Seeing vehicles helps the user estimate pickup times
+SEE AVAILABLE TAXIS AND BIKES -> GPS PERMISSIONS: The action of seeing vehicles depends on having GPS permissions
+SEE AVAILABLE TAXIS AND BIKES -> HOME SCREEN: The action is initiated when the user opens the home screen
+SEE AVAILABLE TAXIS AND BIKES -> SYSTEM: The system is responsible for fetching and displaying nearby vehicles
+SYSTEM -> VEHICLES: The system fetches vehicles
+SYSTEM -> 5KM RADIUS: The system fetches vehicles within a specified radius
+SYSTEM -> MAP: The system displays vehicles on the map
+VEHICLES -> MAP: Vehicles are displayed on the map
+VEHICLES -> ICONS: Vehicles are represented by icons
+REAL-TIME VEHICLE SEARCH BY LOCATION -> ESTIMATE PICKUP TIMES: The user story aims to provide the value of estimating pickup times
+VERIFY DRIVER DOCUMENTS -> REVIEW AND APPROVE DOCUMENTS: The user story 'Verify Driver Documents' is about the action of reviewing and approving documents
+ADMIN -> REVIEW AND APPROVE DOCUMENTS: The Admin performs the action of reviewing and approving documents
+REVIEW AND APPROVE DOCUMENTS -> MAINTAIN SAFE FLEET: Approving documents contributes to maintaining a safe fleet
+REVIEW AND APPROVE DOCUMENTS -> DRIVER LICENSE DOCUMENT: The action involves reviewing the driver license document
+REVIEW AND APPROVE DOCUMENTS -> INSURANCE DOCUMENT: The action involves reviewing the insurance document
+REVIEW AND APPROVE DOCUMENTS -> DRIVER ACCOUNT ACTIVATED FOR WORK: Approving documents leads to the driver's account being activated for work
+JPG OF DRIVER'S LICENSE -> DRIVER LICENSE DOCUMENT: A JPG is a specific type of driver license document
+REVIEW AND APPROVE DOCUMENTS -> ADMIN PANEL: The action of approving documents is performed within the Admin Panel
+VERIFY DRIVER DOCUMENTS -> ADMIN: The 'Verify Driver Documents' feature is intended for the Admin role
+RENTAL: UNLIMITED MILEAGE OPTION -> CHOOSE UNLIMITED MILEAGE ADD-ON: The feature 'Rental: Unlimited Mileage Option' is implemented by the action 'Choose Unlimited Mileage Add-on'
+RENTER -> CHOOSE UNLIMITED MILEAGE ADD-ON: The Renter performs the action of choosing the unlimited mileage add-on
+CHOOSE UNLIMITED MILEAGE ADD-ON -> NO EXTRA PAYMENT FOR LONG DISTANCES: Choosing the unlimited mileage add-on achieves the value of no extra payment for long distances
+CHOOSE UNLIMITED MILEAGE ADD-ON -> RENTAL OPTIONS PAGE: The action of choosing the add-on takes place on the rental options page
+CHOOSE UNLIMITED MILEAGE ADD-ON -> UNLIMITED MILEAGE BOX: The action involves checking the 'Unlimited Mileage' box
+CHOOSE UNLIMITED MILEAGE ADD-ON -> DAILY RATE: Selecting unlimited mileage causes the daily rate to increase
+CHOOSE UNLIMITED MILEAGE ADD-ON -> PER-KM FEE: Selecting unlimited mileage results in no per-km fee being applied
+USER PROFILE: UPLOAD PHOTO -> UPLOAD PROFILE PICTURE: The user story User Profile: Upload Photo describes the Upload Profile Picture action
+USER -> UPLOAD PROFILE PICTURE: The User performs the action of uploading a profile picture
+UPLOAD PROFILE PICTURE -> DRIVER RECOGNITION AT PICKUP: Uploading a profile picture achieves the value of driver recognition at pickup
+UPLOAD PROFILE PICTURE -> PROFILE SETTINGS PAGE: The upload action is initiated from the Profile Settings page
+UPLOAD PROFILE PICTURE -> IMAGE CROPPING AND SAVING: The upload action involves image cropping and saving
+PUSH NOTIFICATION FOR DRIVER ARRIVAL -> RECEIVE PUSH NOTIFICATION: The user story implements the action of receiving a push notification
+PASSENGER -> RECEIVE PUSH NOTIFICATION: The passenger is the recipient of the push notification
+RECEIVE PUSH NOTIFICATION -> HEAD OUTSIDE: Receiving the notification allows the passenger to head outside
+RECEIVE PUSH NOTIFICATION -> DRIVER'S GPS: The notification is triggered when the driver's GPS shows they are within 500m
+RECEIVE PUSH NOTIFICATION -> SYSTEM: The system is responsible for triggering the alert and sending the notification
+ALERT TRIGGER -> RECEIVE PUSH NOTIFICATION: The alert trigger initiates the process of receiving the notification
+RECEIVE PUSH NOTIFICATION -> NOTIFICATION MESSAGE: The notification received contains the specific message: 'Your driver is nearly there!'
+DRIVER -> DRIVER'S GPS: The driver's location is tracked by GPS
+DRIVER -> ARRIVAL ALERT: The driver's proximity triggers the arrival alert
+ARRIVAL ALERT -> RECEIVE PUSH NOTIFICATION: The arrival alert is the event that leads to the passenger receiving a notification
+ARRIVAL ALERT -> PUSH NOTIFICATION SYSTEM: The arrival alert is sent via the push notification system
+RECEIVE PUSH NOTIFICATION -> PUSH NOTIFICATION SYSTEM: The push notification system delivers the notification to the passenger
+USER -> MAKE THE APP RUN FASTER: The user desires the app to run faster to avoid frustration
+PERFORM ANY ACTION -> INSTANTANEOUS EXECUTION: Performing any action should result in instantaneous execution
+PERFORM ANY ACTION -> SMOOTH FEEL: Performing any action should feel very smooth
+PERFORM ANY ACTION -> WAITING TIMES: Performing actions should eliminate waiting times which cause frustration
+APP IS OPEN -> PERFORM ANY ACTION: Performing an action is only possible when the app is open
+USER -> PERFORM ANY ACTION: The user is the one who performs actions in the app
+PERFORM ANY ACTION -> INSTANTLY: Actions should be performed instantly
+PERFORM ANY ACTION -> VERY SMOOTH: Actions should feel very smooth
+APP -> PERFORM ANY ACTION: Actions are performed within the app
+APP -> APP IS OPEN: The app needs to be open to perform actions
+MAKE THE APP RUN FASTER -> APP: The goal is to make the app run faster
+USER -> WAITING TIMES: Users experience frustration due to waiting times
+MAKE THE APP RUN FASTER -> WAITING TIMES: The goal of making the app run faster is to eliminate waiting times
+IN-APP CHAT WITH DRIVER -> CHAT WITH DRIVER: The user story "In-App Chat with Driver" implements the action of chatting with the driver
+PASSENGER -> CHAT WITH DRIVER: The passenger performs the action of chatting with the driver
+CHAT WITH DRIVER -> PROVIDE SPECIFIC PICKUP INSTRUCTIONS: Chatting with the driver achieves the value of providing specific pickup instructions
+CHAT WITH DRIVER -> ACTIVE BOOKING: The chat functionality is only available when there is an active booking
+CHAT WITH DRIVER -> CHAT OVERLAY: Messages are sent and received through the chat overlay interface
+CHAT WITH DRIVER -> DRIVER RECEIVES NOTIFICATION: When a passenger chats, the driver receives a real-time notification
+USER -> ENABLE DARK MODE: The User performs the action of enabling Dark Mode
+ENABLE DARK MODE -> USE APP COMFORTABLY AT NIGHT WITHOUT EYE STRAIN: Enabling Dark Mode achieves the value of comfortable night-time app usage without eye strain
+ENABLE DARK MODE -> DISPLAY SETTINGS: Dark Mode is enabled from within the Display Settings
+ENABLE DARK MODE -> DARK MODE TOGGLE: The action of enabling Dark Mode is performed by interacting with the Dark Mode Toggle
+DARK MODE TOGGLE -> DISPLAY SETTINGS: The Dark Mode Toggle is located within the Display Settings
+ENABLE DARK MODE -> BACKGROUND COLOR CHANGES TO #121212: Enabling Dark Mode results in the background color changing to #121212
+ENABLE DARK MODE -> TEXT CHANGES TO WHITE: Enabling Dark Mode results in the text color changing to white
+ENABLE DARK MODE -> DARK MODE: The action of enabling Dark Mode applies the Dark Mode theme
+DARK MODE -> APP: Dark Mode is a visual style applied to the App
+ADD MULTIPLE PAYMENT METHODS -> SAVE MULTIPLE CREDIT CARDS: The user story 'Add Multiple Payment Methods' is about the action of saving multiple credit cards
+USER -> SAVE MULTIPLE CREDIT CARDS: The user performs the action of saving multiple credit cards
+SAVE MULTIPLE CREDIT CARDS -> CHOOSE PAYMENT METHOD FOR BOOKING: Saving multiple cards enables the user to choose which one to use for bookings
+SAVE MULTIPLE CREDIT CARDS -> PAYMENTS SECTION: The action of saving a card takes place within the 'Payments' section
+SAVE MULTIPLE CREDIT CARDS -> VALID CARD DETAILS: Saving a card requires the input of valid card details
+SAVE MULTIPLE CREDIT CARDS -> MASKED CARD FOR FUTURE USE: The result of saving a card is that it is masked for future use
+USER -> BOOKING: The user performs the action of making a booking
+PROFILE -> SAVE MULTIPLE CREDIT CARDS: The credit cards are saved to the user's profile
+BOOKING -> CHOOSE PAYMENT METHOD FOR BOOKING: The choice of payment method for a booking is a result of this value
+USER -> PLAN TRAVEL: The user's goal is to plan travel
+ARRIVED AT THE AIRPORT VIA TAXI -> GLOBAL CONNECTIONS: The user clicks 'Global Connections' after arriving at the airport
+GLOBAL CONNECTIONS -> INTERNATIONAL FLIGHT CONNECTION SEARCH: Clicking 'Global Connections' triggers the search for international flights
+INTERNATIONAL FLIGHT CONNECTION SEARCH -> REAL-TIME FLIGHT SCHEDULES FROM EXTERNAL AIRLINES: The search displays real-time flight schedules from external airlines
+INTERNATIONAL FLIGHT CONNECTION SEARCH -> PLAN TRAVEL: Displaying flight schedules helps the user plan travel
+AUTOMATED TOLL FEE DETECTION -> DETECT TOLL ROAD: The feature aims to implement the detection of toll roads
+SYSTEM -> DETECT TOLL ROAD: The system performs the action of detecting toll roads
+DETECT TOLL ROAD -> ADD TOLL AMOUNT TO FINAL FARE: Detecting toll roads leads to the value of adding the toll amount to the fare
+GPS ROUTE -> DETECT TOLL ROAD: The GPS route data is used to detect if a toll gate was passed
+TOLL GATE -> DETECT TOLL ROAD: The detection action is triggered by passing a toll gate
+DETECT TOLL ROAD -> SYSTEM: The system processes the detection of toll roads
+TRIP ENDS -> ADD TOLL AMOUNT TO FINAL FARE: When the trip ends, the toll amount is added to the final fare
+SPECIFIC TOLL FEE -> ADD TOLL AMOUNT TO FINAL FARE: The specific toll fee is the value that gets added
+TOTAL BALANCE -> ADD TOLL AMOUNT TO FINAL FARE: The toll fee is added to the total balance
+TRIP ENDS -> DETECT TOLL ROAD: The detection of toll roads is relevant when the trip ends
+SYSTEM -> TOTAL BALANCE: The system manages and updates the total balance
+AUTOMATED TOLL FEE DETECTION -> ADD TOLL AMOUNT TO FINAL FARE: The feature facilitates the addition of toll fees to the final fare
+FIXED PRICE FOR ALL AIRPORT TRIPS -> TRIPS TO THE AIRPORT: The feature aims to implement fixed pricing for all airport trips
+USER -> TRIPS TO THE AIRPORT: The user is the one who books and experiences trips to the airport
+FIXED PRICE OF $30 -> TRIPS TO THE AIRPORT: This value is achieved for all trips to the airport
+TRIPS TO THE AIRPORT -> INTERNATIONAL AIRPORT: Trips to the airport specifically include the International Airport as a destination
+TRIPS TO THE AIRPORT -> FARE: The fare for airport trips will be affected by the fixed price rule
+FARE -> FIXED PRICE OF $30: The displayed fare should be exactly $30.00 for airport trips
+TRIPS TO THE AIRPORT -> DISTANCE: The fixed price is intended to be regardless of the exact distance
+PASSENGER -> SCHEDULE RIDE FOR LATER: The passenger performs the action of scheduling a ride for later
+SCHEDULE RIDE FOR LATER -> DON'T WORRY ABOUT FINDING A CAR LATER: Scheduling a ride for later achieves the value of not having to worry about finding a car later
+SCHEDULE RIDE FOR LATER -> BOOKING SCREEN: The scheduling action is initiated from the booking screen
+SCHEDULE RIDE FOR LATER -> SYSTEM: The system processes the scheduled ride request
+SCHEDULE RIDE FOR LATER -> CONFIRM BOOKING: The system confirms the booking after a ride is scheduled
+SCHEDULE RIDE FOR LATER -> NOTIFY DRIVER: The system notifies a driver as part of the scheduled ride process
+NOTIFY DRIVER -> SYSTEM: The system is responsible for notifying the driver
+NOTIFY DRIVER -> 15 MINS BEFORE: The driver is notified 15 minutes before the scheduled ride time
+PASSENGER ACCOUNT REGISTRATION VIA EMAIL -> CREATE ACCOUNT USING EMAIL: The user story implements the action of creating an account using email
+PASSENGER -> CREATE ACCOUNT USING EMAIL: The Passenger role performs the action of creating an account
+CREATE ACCOUNT USING EMAIL -> START BOOKING RIDES AND RENTALS: Creating an account enables the value of booking rides and rentals
+CREATE ACCOUNT USING EMAIL -> SIGNUP PAGE: The account creation action is performed on the Signup page
+CREATE ACCOUNT USING EMAIL -> VALID EMAIL AND PASSWORD: The action requires a valid email and password
+CREATE ACCOUNT USING EMAIL -> VERIFICATION LINK: The action triggers the sending of a verification link
+CREATE ACCOUNT USING EMAIL -> ACCOUNT PENDING STATUS: Successful registration results in an account with a 'Pending' status
+CREATE ACCOUNT USING EMAIL -> SYSTEM: The account creation action is processed by the system
+DAILY CAR RENTAL RESERVATION -> RENT A CAR FOR 24 HOURS: The feature Daily Car Rental Reservation involves the action of renting a car
+USER -> RENT A CAR FOR 24 HOURS: The user performs the action of renting a car
+RENT A CAR FOR 24 HOURS -> TRAVEL LONG DISTANCES AT OWN PACE: Renting a car enables the user to travel at their own pace
+RENT A CAR FOR 24 HOURS -> DAILY RENTAL PACKAGE: The rental action is associated with the Daily Rental package
+RENT A CAR FOR 24 HOURS -> VEHICLE BLOCKING: The rental process requires the system to block the vehicle
+RENT A CAR FOR 24 HOURS -> SECURITY DEPOSIT: The rental process requires a security deposit
+RENT A CAR FOR 24 HOURS -> CAR: The action of renting a car is performed on a specific car
+RENT A CAR FOR 24 HOURS -> PICK-UP TIME: The action of renting a car involves selecting a pick-up time
+VEHICLE BLOCKING -> CAR: The action of blocking a vehicle pertains to a specific car
+DAILY RENTAL PACKAGE -> RENT A CAR FOR 24 HOURS: The Daily Rental Package is a type of rental that can be performed
+PRODUCT OWNER -> ENSURE HIGH QUALITY EXPERIENCE: The Product Owner's goal is to ensure a high quality user experience
+ENSURE HIGH QUALITY EXPERIENCE -> USERS TELL FRIENDS: A high quality experience leads to users telling their friends about the product
+USER COMPLETES A TRIP -> USER THINKS ABOUT APP: A user trip completion precedes the user thinking about the app
+USER THINKS ABOUT APP -> HIGH QUALITY SATISFACTION: The user's thoughts about the app after a trip are an indicator of their satisfaction level
+HIGH QUALITY SATISFACTION -> ENSURE HIGH QUALITY EXPERIENCE: High quality satisfaction is the direct measure of the success of the "Ensure High Quality Experience" goal
+IMMEDIATE CANCELLATION FEE POLICY -> CHARGE CANCELLATION FEE: The policy dictates the immediate charging of a cancellation fee
+FINANCE MANAGER -> CHARGE CANCELLATION FEE: The Finance Manager is responsible for ensuring the cancellation fee is charged
+CHARGE CANCELLATION FEE -> COMPENSATE DRIVERS: Charging the fee achieves the value of compensating drivers
+CHARGE CANCELLATION FEE -> DRIVER HAS ACCEPTED BOOKING: The fee is charged specifically when a driver has already accepted the booking
+CHARGE CANCELLATION FEE -> CANCELLATION FEE OF $5.00: The action results in the charging of a $5.00 cancellation fee
+CHARGE CANCELLATION FEE -> ACCOUNT: The cancellation fee is charged to the user's account
+PASSENGER -> CANCELLATION FEE OF $5.00: The passenger is the entity responsible for incurring the cancellation fee
+DRIVER -> DRIVER HAS ACCEPTED BOOKING: The driver is the entity that accepts the booking
+PASSENGER -> BOOKING: The passenger initiates the booking for a ride
+DRIVER -> BOOKING: The driver accepts the booking for a ride
+BOOKING -> RIDE: A booking is a prerequisite for a ride to occur
+PASSENGER -> CHARGE CANCELLATION FEE: The passenger's cancellation triggers the fee charge
+DRIVER -> COMPENSATE DRIVERS: The compensation of drivers is the direct outcome of charging the fee
+CANCELLATION FEE OF $5.00 -> ACCOUNT: The cancellation fee is a specific value that is charged to an account

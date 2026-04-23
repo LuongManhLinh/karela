@@ -21,6 +21,9 @@ from app.analysis.models import (
 )
 from app.connection.jira.services import JiraService
 
+from ..graphrag.agents import run_analysis_all, run_analysis_targeted
+from ..graphrag.schemas import SingleDefectResponse, PairwiseDefectResponse
+
 from sqlalchemy.orm import Session
 from sqlalchemy import func, select
 
@@ -161,7 +164,56 @@ class AnalysisRunService:
                 )
             )
 
-    def run_analysis(self, analysis_id: str):
+    def _convert_graphrag_defects(
+        self,
+        analysis_id: str,
+        self_defect_response: SingleDefectResponse,
+        pairwise_defect_response: PairwiseDefectResponse,
+        connection_id: str,
+        project_key: str,
+    ):
+        """Convert graphrag SingleDefectResponse and PairwiseDefectResponse into Defect ORM objects."""
+        count = self._count_defects(connection_id, project_key)
+        idx = 0
+
+        # Convert self (single-story) defects
+        for case in self_defect_response.valid_defects:
+            for defect in case.defects:
+                self.db.add(
+                    Defect(
+                        key=f"{project_key}-DEF-{count + idx + 1}",
+                        type=DefectType(defect.defect_type.upper()),
+                        severity=DefectSeverity(defect.severity.upper()),
+                        explanation=defect.explanation,
+                        confidence=defect.confidence_score,
+                        analysis_id=analysis_id,
+                        story_keys=[
+                            DefectStoryKey(story_key=case.story_key),
+                        ],
+                    )
+                )
+                idx += 1
+
+        # Convert pairwise (cross-story) defects
+        for case in pairwise_defect_response.valid_defects:
+            for satellite in case.satellite_defects:
+                self.db.add(
+                    Defect(
+                        key=f"{project_key}-DEF-{count + idx + 1}",
+                        type=DefectType(satellite.defect_type.upper()),
+                        severity=DefectSeverity(satellite.severity.upper()),
+                        explanation=satellite.explanation,
+                        confidence=satellite.confidence_score,
+                        analysis_id=analysis_id,
+                        story_keys=[
+                            DefectStoryKey(story_key=case.anchor_story_key),
+                            DefectStoryKey(story_key=satellite.story_key),
+                        ],
+                    )
+                )
+                idx += 1
+
+    def run_analysis(self, analysis_id: str, use_graphrag: bool = True):
         analysis = self._get_analysis_or_raise(analysis_id)
         targeted = analysis.type == AnalysisType.TARGETED
         target_key = analysis.story_key if targeted else None
@@ -243,33 +295,59 @@ class AnalysisRunService:
             ]
 
             start = time.perf_counter()
-            if targeted:
-                defects = run_user_stories_analysis_target(
-                    connection_id=analysis.connection_id,
-                    project_key=analysis.project_key,
-                    db=self.db,
-                    target_user_story=target,
-                    user_stories=normalized_stories,
-                    existing_defects=existing_defects,
-                    extra_prompt=preference.extra_prompt if preference else None,
-                    initial_messages=initial_messages,
-                )
-                log_message = "Target story analysis completed in:"
-            else:
-                defects = run_user_stories_analysis_all(
-                    connection_id=analysis.connection_id,
-                    project_key=analysis.project_key,
-                    db=self.db,
-                    user_stories=normalized_stories,
-                    existing_defects=existing_defects,
-                    extra_prompt=preference.extra_prompt if preference else None,
-                    initial_messages=initial_messages,
-                )
-                log_message = "User stories analysis completed in:"
+            if use_graphrag:
+                extra_prompt = preference.extra_prompt if preference else None
+                if targeted:
+                    self_resp, pairwise_resp = run_analysis_targeted(
+                        connection_id=analysis.connection_id,
+                        project_key=analysis.project_key,
+                        target_titles=[target_key],
+                        extra_prompt=extra_prompt,
+                    )
+                    log_message = "GraphRAG targeted analysis completed in:"
+                else:
+                    self_resp, pairwise_resp = run_analysis_all(
+                        connection_id=analysis.connection_id,
+                        project_key=analysis.project_key,
+                        extra_prompt=extra_prompt,
+                    )
+                    log_message = "GraphRAG all analysis completed in:"
 
-            self._convert_llm_defects(
-                analysis_id, defects, analysis.connection_id, analysis.project_key
-            )
+                self._convert_graphrag_defects(
+                    analysis_id,
+                    self_resp,
+                    pairwise_resp,
+                    analysis.connection_id,
+                    analysis.project_key,
+                )
+            else:
+                if targeted:
+                    defects = run_user_stories_analysis_target(
+                        connection_id=analysis.connection_id,
+                        project_key=analysis.project_key,
+                        db=self.db,
+                        target_user_story=target,
+                        user_stories=normalized_stories,
+                        existing_defects=existing_defects,
+                        extra_prompt=preference.extra_prompt if preference else None,
+                        initial_messages=initial_messages,
+                    )
+                    log_message = "Target story analysis completed in:"
+                else:
+                    defects = run_user_stories_analysis_all(
+                        connection_id=analysis.connection_id,
+                        project_key=analysis.project_key,
+                        db=self.db,
+                        user_stories=normalized_stories,
+                        existing_defects=existing_defects,
+                        extra_prompt=preference.extra_prompt if preference else None,
+                        initial_messages=initial_messages,
+                    )
+                    log_message = "User stories analysis completed in:"
+
+                self._convert_llm_defects(
+                    analysis_id, defects, analysis.connection_id, analysis.project_key
+                )
 
             print(
                 log_message,

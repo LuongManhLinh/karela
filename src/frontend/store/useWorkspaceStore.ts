@@ -11,7 +11,6 @@ interface WorkspaceState {
 
   runSelectedProject: ProjectDto | null;
   runSelectedStory: StorySummary | null;
-  runProjects: ProjectDto[];
   runStories: StorySummary[];
 
   headerProjectKey: string;
@@ -26,7 +25,6 @@ interface WorkspaceState {
 
   setRunSelectedProject: (project: ProjectDto | null) => void;
   setRunSelectedStory: (story: StorySummary | null) => void;
-  setRunProjects: (projects: ProjectDto[]) => void;
   setRunStories: (stories: StorySummary[]) => void;
 
   setHeaderProjectKey: (key: string) => void;
@@ -51,7 +49,6 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       headerStoryKey: "",
       projects: [],
       stories: [],
-      runProjects: [],
       runStories: [],
 
       setConnection: (connection) => set({ connection: connection }),
@@ -78,7 +75,6 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       setProjects: (projects) => set({ projects: projects }),
       setStories: (stories) => set({ stories: stories }),
 
-      setRunProjects: (projects) => set({ runProjects: projects }),
       setRunStories: (stories) => set({ runStories: stories }),
 
       resetSelection: () =>
@@ -103,7 +99,6 @@ export const useWorkspaceStore = create<WorkspaceState>()(
           headerStoryKey: "",
           projects: [],
           stories: [],
-          runProjects: [],
           runStories: [],
         }),
     }),

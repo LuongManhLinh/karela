@@ -3,17 +3,21 @@ import os
 import json
 import subprocess
 
+from app.connection.jira.schemas import StoryDto
+
 from .db.importer import import_from_graphrag_output
+from .utils import story_to_doc
 
 
-def index_user_stories(connection_id: str, project_key: str, user_stories: list[dict]):
+def index_user_stories(
+    connection_id: str, project_key: str, user_stories: list[StoryDto]
+):
     """Index user stories using graphrag.
     Expected user story format:
 
         {
-            "key": "VBS-123",
-            "summary": "User story summary",
-            "full_content": summary + description,
+            "key": "STR-123",
+            "full_content": key + summary + description,
         }
 
     Please run this function in a separate thread or process to avoid blocking the main thread, as it will run a subprocess that may take some time to complete.
@@ -30,10 +34,14 @@ def index_user_stories(connection_id: str, project_key: str, user_stories: list[
 
     # For each user story, create a json file inside folder_path/input
     input_folder_path = os.path.join(folder_path, "input")
-    for i, user_story in enumerate(user_stories):
-        file_path = os.path.join(input_folder_path, f"user_story_{i}.json")
+    for user_story in user_stories:
+        file_path = os.path.join(input_folder_path, f"{user_story.key}.json")
         with open(file_path, "w") as f:
-            json.dump(user_story, f, indent=4)
+            json.dump(
+                story_to_doc(user_story),
+                f,
+                indent=4,
+            )
 
     # Run graphrag index
     subprocess.run(["graphrag", "index"], cwd=folder_path)

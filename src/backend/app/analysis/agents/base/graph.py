@@ -161,23 +161,16 @@ def build_graph(
             )
 
             # Inject History
-            # messages = single_check_history + [
-            #     HumanMessage(
-            #         content="Here is the input data:\n"
-            #         + input_data.model_dump_json(indent=2)
-            #     )
-            # ]
-
-            # init_messages = runtime.context.initial_messages
-            # if init_messages:
-            #     messages = init_messages + messages
-
-            messages = [
+            messages = single_check_history + [
                 HumanMessage(
                     content="Here is the input data:\n"
                     + input_data.model_dump_json(indent=2)
                 )
             ]
+
+            init_messages = runtime.context.initial_messages
+            if init_messages:
+                messages = init_messages + messages
 
             resp = single_check_agent.invoke(messages)
             # Dump it to debug

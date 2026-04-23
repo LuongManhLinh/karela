@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException, Depends
-from typing import List
 import traceback
 
 from app.auth_factory import get_jwt_payload
@@ -106,7 +105,7 @@ async def generate_proposals_for_analysis(
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
         service.set_generating_proposals(analysis_id, True)
-        generate_proposals(connection_id=conn_id, analysis_id=analysis_id)
+        generate_proposals(analysis_id=analysis_id)
         return BasicResponse()
     except ValueError as e:
         traceback.print_exc()
@@ -139,7 +138,7 @@ async def run_analysis(
         if run_req.analysis_type not in ["ALL", "TARGETED"]:
             raise HTTPException(status_code=400, detail="Unsupported analysis type")
 
-        run_analysis_task(connection_id=conn_id, analysis_id=analysis_id)
+        run_analysis_task(analysis_id=analysis_id)
 
         return BasicResponse(
             detail="Analysis started successfully",
@@ -163,7 +162,7 @@ async def rerun_analysis(
     if not analysis:
         raise HTTPException(status_code=404, detail="Analysis not found")
     try:
-        run_analysis_task(connection_id=conn_id, analysis_id=analysis_id)
+        run_analysis_task(analysis_id=analysis_id)
 
         return BasicResponse(detail="Analysis started successfully")
     except ValueError as e:

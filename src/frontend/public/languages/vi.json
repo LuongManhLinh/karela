@@ -294,7 +294,8 @@
       "newChat": "Trò chuyện mới",
       "createChatLabel": "Tạo phiên trò chuyện",
       "headerText": "Trò chuyện",
-      "create": "Tạo"
+      "create": "Tạo",
+      "untitled": "Chưa đặt tên"
     },
     "ChatPage": {
       "gettingStarted": "Chọn hoặc tạo mới một phiên trò chuyện để bắt đầu."

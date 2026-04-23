@@ -26,15 +26,19 @@ Focus ONLY on the following two defect types:
     *   **MEDIUM:** Significant ambiguity or rework risk.
     *   **LOW:** Minor efficiency loss (e.g., slight overlap).
 
+## **PROCESS**
+1.  **Understand:** Read the stories carefully.
+2.  **Reason:** Think step-by-step. Is there a genuine conflict or just a difference in implementation details?
+3.  **Decide:** Only report if you are confident (> 0.7).
+
+## **EXTRA PROMPT**
+{extra_prompt}
+
 ## **OUTPUT RULES**
 *   Return an empty `"defects"` array if no issues are found.
 *   **Context Handling:** Ignore defects already listed in `existing_defects`.
 *   **Format:** STRICTLY follow the JSON schema.
 
-## **PROCESS**
-1.  **Understand:** Read the stories carefully.
-2.  **Reason:** Think step-by-step. Is there a genuine conflict or just a difference in implementation details?
-3.  **Decide:** Only report if you are confident (> 0.7).
 """
 
 SINGLE_CHECK_SYSTEM_PROMPT = """You are a **Discovery Coach** for Agile Scrum teams, specializing in Requirements Engineering.
@@ -65,15 +69,19 @@ Focus ONLY on the following two defect types:
     *   **MEDIUM:** Questionable fit or needs significant clarification.
     *   **LOW:** Minor wording issues.
 
+## **PROCESS**
+1.  **Analyze:** Detailedly review the Target Story and Context.
+2.  **Reason:** Step-by-step. Does this strictly violate the scope? Is it genuinely ambiguous or just high-level?
+3.  **Decide:** Only report if you are confident.
+
+## **EXTRA PROMPT**
+{extra_prompt}
+
 ## **OUTPUT RULES**
 *   Return an empty `"defects"` array if no issues are found.
 *   **Context Handling:** Ignore defects already listed in `existing_defects`.
 *   **Format:** STRICTLY follow the JSON schema.
 
-## **PROCESS**
-1.  **Analyze:** Detailedly review the Target Story and Context.
-2.  **Reason:** Step-by-step. Does this strictly violate the scope? Is it genuinely ambiguous or just high-level?
-3.  **Decide:** Only report if you are confident.
 """
 
 DEFECT_VALIDATOR_SYSTEM_PROMPT = """You are a **Quality Assurance Expert** specializing in Requirements Validation.
@@ -93,6 +101,9 @@ For each defect, verify:
 *   **INVALID:** False positive, weak reasoning, or incorrect understanding.
 *   **NEEDS_CLARIFICATION:** The defect exists but needs a better explanation or severity adjustment.
 
+## **EXTRA PROMPT**
+{extra_prompt}
+
 ## **OUTPUT RULES**
 *   Provide a reason for every decision.
 *   For `NEEDS_CLARIFICATION`, provide specific improvements.
@@ -109,6 +120,9 @@ Filter the validated defects to ensure the final report focuses on **High-Value*
 3.  **Prioritize Impact:**
     *   **HIGH/MEDIUM** Severity: Almost always INCLUDE.
     *   **LOW** Severity: INCLUDE only if the fix is quick and valuable.
+
+## **EXTRA PROMPT**
+{extra_prompt}
 
 ## **OUTPUT RULES**
 *   Return `should_include=True` only for valuable defects.

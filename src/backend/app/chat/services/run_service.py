@@ -26,6 +26,7 @@ from datetime import datetime
 import inspect
 import json
 import traceback
+import asyncio
 
 
 class ChatService:
@@ -59,21 +60,6 @@ class ChatService:
         if not session:
             raise ValueError(f"Chat session with id '{session_id_or_key}' not found.")
 
-        title = generate_chat_title(user_message)
-        session.title = title
-
-        yield {"type": "title", "data": {"title": title}}
-
-        new_message = Message(
-            role=SenderRole.USER,
-            content=user_message,
-            session_id=session.id,
-            created_at=datetime.now(),
-        )
-
-        self.db.add(new_message)
-        self.db.commit()
-
         cache = {}
 
         try:
@@ -87,6 +73,27 @@ class ChatService:
                     history_messages.append(
                         ToolMessage(content=msg.content, tool_call_id=msg.id)
                     )
+            print(
+                f"Loaded {len(history_messages)} history messages for session {session.key}"
+            )
+            if not history_messages:
+                title = generate_chat_title(user_message)
+                print(f"Generated title for session {session.key}: {title}")
+                session.title = title
+                self.db.commit()
+
+                yield {"type": "title", "data": title}
+
+            new_message = Message(
+                role=SenderRole.USER,
+                content=user_message,
+                session_id=session.id,
+                created_at=datetime.now(),
+            )
+
+            self.db.add(new_message)
+            self.db.commit()
+
             history_messages.append(HumanMessage(content=user_message))
             project_key = session.project_key
             connection_id = session.connection_id

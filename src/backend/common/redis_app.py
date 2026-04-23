@@ -23,23 +23,3 @@ QUEUES = {
 }
 
 queue_types = list(QUEUES.keys())
-
-
-def enqueue_task(
-    f,
-    queue_type: Literal[
-        "default",
-        "analysis",
-        "sync",
-        "proposal",
-        "doc",
-    ] = "default",
-    *args,
-    **kwargs,
-):
-    print(
-        f"Enqueuing task {f.__name__} to queue {queue_type} with args: {args} kwargs: {kwargs}"
-    )
-    queue = QUEUES.get(queue_type, QUEUES["default"])
-    job = queue.enqueue(f, *args, **kwargs)
-    return job

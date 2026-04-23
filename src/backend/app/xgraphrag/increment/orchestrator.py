@@ -22,7 +22,7 @@ from .neo4j_processor import Neo4jProcessor
 
 from common.neo4j_app import default_driver
 from .schemas import Increment
-
+from ..utils import story_to_full_content
 from app.connection.jira.schemas import StoryDto
 
 
@@ -67,7 +67,7 @@ class GraphRAGUpdater:
             increments=[
                 Increment(
                     title=story.key,
-                    doc_text=f"# SUMMARY:\n{story.summary}\n\n# DESCRIPTION:\n{story.description}",
+                    doc_text=story_to_full_content(story),
                     action="add",
                 )
                 for story in stories
@@ -87,7 +87,7 @@ class GraphRAGUpdater:
             increments.append(
                 Increment(
                     title=story.key,
-                    doc_text=f"# SUMMARY:\n{story.summary}\n\n# DESCRIPTION:\n{story.description}",
+                    doc_text=story_to_full_content(story),
                     action=action,
                     doc_id=doc_id,
                 )
@@ -218,7 +218,6 @@ class GraphRAGUpdater:
         self.neo4j.drop_communities(dead_community_ids)
 
         communities_df = get_communities(
-            driver=self.neo4j_driver,
             bucket_name=self.bucket_name,
             community_ids=dirty_community_ids,
         )
@@ -229,11 +228,9 @@ class GraphRAGUpdater:
             entity_ids.update(row["entity_ids"])
             relationship_ids.update(row["relationship_ids"])
 
-        entities_df = get_entities(
-            self.neo4j_driver, self.bucket_name, list(entity_ids)
-        )
+        entities_df = get_entities(self.bucket_name, entity_ids=list(entity_ids))
         relationships_df = get_relationships(
-            self.neo4j_driver, self.bucket_name, list(relationship_ids)
+            self.bucket_name, relationship_ids=list(relationship_ids)
         )
         # 5. RUN WORKFLOW (Community Reports)
         print("Generating Community Reports via LLM Workflow...")

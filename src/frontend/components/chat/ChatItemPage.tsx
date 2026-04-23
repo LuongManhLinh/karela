@@ -48,15 +48,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
   idOrKey,
 }) => {
   const t = useTranslations("chat.ChatItemPage");
-  // Simulate all kind of messages for testing
-  //  return <MessageBubble key={message.id} message={message} />;
-  //   case "error":
-  //     return <ErrorMessage key={message.id} message={message} />;
-  //   case "agent_function_call":
-  //     return <FunctionCallMessage key={message.id} message={message} />;
-  //   case "tool":
-  //     return <ToolMessage key={message.id} message={message} />;
-  //   case "analysis_progress":
+
   const [messages, setMessages] = useState<ChatMessageDto[]>([]);
 
   // Separate streaming state - isolate active stream from history
@@ -491,15 +483,13 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
         position: "relative",
       }}
     >
-    
       {loadingSession ? <CircularProgress /> : chatContent}
-  
 
       {/* Section for chat input */}
       <Box
         sx={{
           width: "60%",
-          mb: 2,
+          p: 2,
           ...(!isEmptyState
             ? {
                 zIndex: 10,

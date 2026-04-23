@@ -23,6 +23,7 @@ export interface AnalysisSummary extends SessionSummary {
   generating_proposals?: boolean;
   num_defects?: number;
   num_proposals?: number;
+  error?: string;
 }
 
 export interface DefectDto {

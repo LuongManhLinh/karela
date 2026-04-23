@@ -2,6 +2,7 @@ from graphrag.query.structured_search.local_search.search import LocalSearch
 from graphrag.query.context_builder.entity_extraction import EntityVectorStoreKey
 from graphrag.query.context_builder.conversation_history import ConversationHistory
 import pandas as pd
+from pathlib import Path
 from graphrag.query.context_builder.entity_extraction import EntityVectorStoreKey
 from graphrag.query.indexer_adapters import (
     read_indexer_entities,
@@ -24,6 +25,9 @@ from ..db.query import (
 )
 
 from ..defines import COMMUNITY_LEVEL
+
+
+LOCAL_SEARCH_SYSTEM_PROMPT_FILE = "local_search_system_prompt.txt"
 
 local_context_params = {
     "text_unit_prop": 0.5,
@@ -55,7 +59,16 @@ async def local_search(
     text_embedder,
     system_prompt: str | None = None,
     conversation_history: ConversationHistory | None = None,
+    auto_prompt: bool = True,
+    stream: bool = False,
 ):
+    if auto_prompt and not system_prompt:
+        system_prompt = _read_project_prompt(
+            connection_id=connection_id,
+            project_key=project_key,
+            prompt_file=LOCAL_SEARCH_SYSTEM_PROMPT_FILE,
+        )
+
     search_engine = LocalSearch(
         model=chat_model,
         system_prompt=system_prompt,
@@ -71,24 +84,30 @@ async def local_search(
         response_type="multiple paragraphs",
     )
 
-    return await search_engine.search(
-        query=query,
-        conversation_history=conversation_history,
+    if stream:
+        async for chunk in search_engine.stream_search(query, conversation_history):
+            yield chunk
+    else:
+        return await search_engine.search(query, conversation_history)
+
+
+def _read_project_prompt(connection_id: str, project_key: str, prompt_file: str) -> str:
+    prompt_path = Path(
+        f".workspace/{connection_id}/{project_key}/prompts/{prompt_file}"
     )
+    return prompt_path.read_text(encoding="utf-8")
 
 
 def _get_context_builder(
     connection_id: str, project_key: str, text_embedder, tokenizer
 ):
-    bucket_name = f"{connection_id}_{project_key}"
-    parquet_dir = f".workspace/{connection_id}/{project_key}/output"
-    lancedb_uri = f"{parquet_dir}/lancedb"
+    lancedb_uri = f".workspace/{connection_id}/{project_key}/output/lancedb"
 
-    entity_df = get_entities(bucket_name)
-    community_df = get_communities(bucket_name)
-    relationship_df = get_relationships(bucket_name)
-    report_df = get_community_reports(parquet_dir)
-    text_unit_df = get_text_units(parquet_dir)
+    entity_df = get_entities(connection_id, project_key)
+    community_df = get_communities(connection_id, project_key)
+    relationship_df = get_relationships(connection_id, project_key)
+    report_df = get_community_reports(connection_id, project_key)
+    text_unit_df = get_text_units(connection_id, project_key)
 
     entities = read_indexer_entities(entity_df, community_df, COMMUNITY_LEVEL)
     description_embedding_store = LanceDBVectorStore(

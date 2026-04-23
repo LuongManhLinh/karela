@@ -3,11 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { WorkspaceSessions } from "@/types/workspace";
-import type {
-  ConnectionDto,
-  ProjectDto,
-  StorySummary,
-} from "@/types/connection";
+import type { ProjectDto, StorySummary } from "@/types/connection";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import {
   DefaultSessionFilterDialog,
@@ -30,8 +26,9 @@ export interface PageLayoutProps {
   projectKey?: string;
   storyKey?: string;
   href: string;
-  primarySessions: WorkspaceSessions;
+  primarySessions?: WorkspaceSessions;
   secondarySessions?: WorkspaceSessions;
+  sessionsComponent?: React.ReactNode;
   disablePrimaryAutoRoute?: boolean;
   disableSecondaryAutoRoute?: boolean;
   onNewLabel?: string;
@@ -60,6 +57,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   storyKey,
   primarySessions,
   secondarySessions,
+  sessionsComponent,
   disablePrimaryAutoRoute,
   disableSecondaryAutoRoute,
   onNewLabel,
@@ -72,25 +70,21 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   requireStory = false,
   createable = true,
 }) => {
-  const tCommon = useTranslations("Common");
   const tPage = useTranslations("PageLayout");
   const [startDialogOpen, setStartDialogOpen] = useState(false);
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 
   const {
-    connection,
-    projects,
     selectedProject,
     setSelectedProject,
     selectedStory,
     setSelectedStory,
     runSelectedProject,
     runSelectedStory,
-    runProjects,
+    projects,
     runStories,
     setRunSelectedProject,
     setRunSelectedStory,
-    setRunProjects,
     setRunStories,
     headerProjectKey,
     headerStoryKey,
@@ -109,22 +103,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
 
   const router = useRouter();
 
-  const [dialogIsProjectsLoading, setDialogIsProjectsLoading] = useState(false);
   const [dialogIsStoriesLoading, setDialogIsStoriesLoading] = useState(false);
-
-  const handleDialogConnectionChange = async (conn: ConnectionDto | null) => {
-    setDialogIsProjectsLoading(true);
-    setRunSelectedProject(null);
-    setRunSelectedStory(null);
-    setRunProjects([]);
-    setRunStories([]);
-
-    if (conn) {
-      const projectsData = await connectionService.getProjects();
-      setRunProjects(projectsData?.data || []);
-    }
-    setDialogIsProjectsLoading(false);
-  };
 
   const handleDialogProjectChange = async (proj: ProjectDto | null) => {
     setDialogIsStoriesLoading(true);
@@ -143,7 +122,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   };
 
   const handleSelectPrimarySession = async (sessionId: string) => {
-    primarySessions.onSelectSession &&
+    primarySessions?.onSelectSession &&
       primarySessions.onSelectSession(sessionId);
     if (!disablePrimaryAutoRoute) {
       router.push(`${basePath}/${href}/${sessionId}`);
@@ -208,7 +187,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({
         leftChildren={
           <Box
             sx={{
-              px: 2,
               height: "100%",
               minHeight: 0,
               flexDirection: "column",
@@ -221,47 +199,59 @@ const PageLayout: React.FC<PageLayoutProps> = ({
               <Button
                 variant="contained"
                 onClick={() => setStartDialogOpen(true)}
+                sx={{ mx: 2 }}
               >
                 {onNewLabel || tPage("createNewItem")}
               </Button>
             )}
             <Divider />
-            <Typography
-              variant="subtitle2"
-              sx={{
-                textTransform: "uppercase",
-                color: "text.secondary",
-              }}
-            >
-              {primarySessions.label || "Sessions"}
-            </Typography>
-            <SessionList
-              sessions={primarySessions.sessions}
-              selectedId={primarySessions.selectedSessionId}
-              onSelect={handleSelectPrimarySession}
-              loading={primarySessions.loading}
-              emptyStateText={primarySessions.emptyStateText}
-            />
-            {secondarySessions && (
-              <>
-                <Divider sx={{ my: 2 }} />
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    textTransform: "uppercase",
 
-                    color: "text.secondary",
-                  }}
-                >
-                  {secondarySessions.label || "Sessions"}
-                </Typography>
-                <SessionList
-                  sessions={secondarySessions.sessions}
-                  selectedId={secondarySessions.selectedSessionId}
-                  onSelect={handleSelectSecondarySession}
-                  loading={secondarySessions.loading}
-                  emptyStateText={secondarySessions.emptyStateText}
-                />
+            {sessionsComponent ? (
+              sessionsComponent
+            ) : (
+              <>
+                {primarySessions && (
+                  <>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        textTransform: "uppercase",
+                        color: "text.secondary",
+                      }}
+                    >
+                      {primarySessions.label || "Sessions"}
+                    </Typography>
+                    <SessionList
+                      sessions={primarySessions.sessions}
+                      selectedId={primarySessions.selectedSessionId}
+                      onSelect={handleSelectPrimarySession}
+                      loading={primarySessions.loading}
+                      emptyStateText={primarySessions.emptyStateText}
+                    />
+                  </>
+                )}
+                {secondarySessions && (
+                  <>
+                    <Divider sx={{ my: 2 }} />
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        textTransform: "uppercase",
+
+                        color: "text.secondary",
+                      }}
+                    >
+                      {secondarySessions.label || "Sessions"}
+                    </Typography>
+                    <SessionList
+                      sessions={secondarySessions.sessions}
+                      selectedId={secondarySessions.selectedSessionId}
+                      onSelect={handleSelectSecondarySession}
+                      loading={secondarySessions.loading}
+                      emptyStateText={secondarySessions.emptyStateText}
+                    />
+                  </>
+                )}
               </>
             )}
           </Box>
@@ -288,10 +278,9 @@ const PageLayout: React.FC<PageLayoutProps> = ({
         onClose={() => setStartDialogOpen(false)}
         title={dialogLabel || tPage("createNewItem")}
         projectOptions={{
-          options: runProjects,
+          options: projects,
           onChange: handleDialogProjectChange,
           selectedOption: runSelectedProject,
-          loading: dialogIsProjectsLoading,
         }}
         storyOptions={{
           options: runStories,

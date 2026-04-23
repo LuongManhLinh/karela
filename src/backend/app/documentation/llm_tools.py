@@ -1,9 +1,9 @@
 from langchain.tools import tool, ToolRuntime
+from common.agents.schemas import LlmContext
 import json
 
 from .vectorstore import DocumentationVectorStore
 from .services import DocumentationService
-from common.agents.schemas import LlmContext
 
 
 @tool

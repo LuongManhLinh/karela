@@ -294,7 +294,8 @@
       "newChat": "New Chat",
       "createChatLabel": "Create Chat Session",
       "headerText": "Chat",
-      "create": "Create"
+      "create": "Create",
+      "untitled": "Untitled Session"
     },
     "ChatPage": {
       "gettingStarted": "Select or create a chat session to get started."

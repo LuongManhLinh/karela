@@ -1,4 +1,3 @@
-from common.redis_app import enqueue_task
 from common.database import SessionLocal
 from typing import Literal
 from sqlalchemy.orm import Session
@@ -6,9 +5,12 @@ from .models import TextDocumentation, FileDocumentation
 from .vectorstore import DocumentationVectorStore
 from utils.unstructured_file_processor import process_document
 from utils.file_storage import download_file
+from rq.decorators import job
+from common.redis_app import redis_client
 
 
-def _process_doc(doc_id: str, type: str):
+@job("doc", timeout=3600, connection=redis_client)
+def process_document_task(doc_id: str, type: str):
     db = SessionLocal()
     vectorsore = DocumentationVectorStore()
     if type == "text":
@@ -81,12 +83,3 @@ def _process_and_save_file_doc(
             )
     except Exception as e:
         print(f"Failed to process uploaded file {doc.name}: {e}")
-
-
-def process_document_task(doc_id: str, type: Literal["text", "file"]):
-    enqueue_task(
-        f=_process_doc,
-        queue_type="doc",
-        doc_id=doc_id,
-        type=type,
-    )

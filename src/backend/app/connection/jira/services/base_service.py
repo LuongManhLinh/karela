@@ -129,7 +129,7 @@ class JiraBaseService:
             story_key=story_key,
             analysis_type="TARGETED",
         )
-        run_analysis(connection_id=connection_id, analysis_id=analysis_id)
+        run_analysis(analysis_id=analysis_id)
 
     def _run_analysis_all(self, connection_id: str, project_key: str):
         from app.analysis.services import AnalysisDataService
@@ -142,4 +142,4 @@ class JiraBaseService:
             story_key=None,
             analysis_type="ALL",
         )
-        run_analysis(connection_id=connection_id, analysis_id=analysis_id)
+        run_analysis(analysis_id=analysis_id)

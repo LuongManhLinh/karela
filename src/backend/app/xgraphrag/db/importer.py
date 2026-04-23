@@ -3,6 +3,7 @@ import numpy as np
 from common.neo4j_app import default_driver
 from neo4j import Driver
 import traceback
+import re
 from ..defines import (
     COMMUNITY_TABLE,
     COMMUNITY_REPORT_TABLE,
@@ -68,18 +69,37 @@ def import_entities(driver: Driver, df: pd.DataFrame, bucket_name: str):
         session.run(query, rows=clean_df(df), bucket=bucket_name)
 
 
+# 1. Tách Type từ Description ngay trên Pandas
+def _extract_type_and_desc(text):
+    if not isinstance(text, str):
+        return "RELATED", str(text)
+
+    # Tìm pattern [TYPE] ở đầu câu
+    match = re.match(r"^\[(.*?)\]\s*(.*)", text.strip())
+    if match:
+        return match.group(1).upper(), match.group(2)
+    return "RELATED", text
+
+
 def import_relationships(driver: Driver, df: pd.DataFrame, bucket_name: str):
+    df[["relationship_type", "clean_description"]] = df["description"].apply(
+        lambda x: pd.Series(_extract_type_and_desc(x))
+    )
+
     query = """
     UNWIND $rows AS row
     MATCH (src:Entity {title: row.source, bucket: $bucket})
     MATCH (tgt:Entity {title: row.target, bucket: $bucket})
+    
     MERGE (src)-[r:RELATED {bucket: $bucket}]->(tgt)
-    SET r.human_readable_id = row.human_readable_id,
-        r.description = row.description,
+    SET r.type = row.relationship_type, // Đã có thuộc tính type
+        r.human_readable_id = row.human_readable_id,
+        r.description = row.clean_description, // Đã xóa chữ [TYPE] ở đầu
         r.weight = row.weight,
         r.combined_degree = row.combined_degree,
         r.text_unit_ids = row.text_unit_ids
     """
+
     with driver.session() as session:
         session.run(query, rows=clean_df(df), bucket=bucket_name)
     print(f"Imported {len(df)} Relationships.")
@@ -97,22 +117,14 @@ def import_communities(driver: Driver, df: pd.DataFrame, bucket_name: str):
         c.title = row.title,
         c.size = row.size,
         c.period = row.period,
-        // LƯU Ý KỸ: Lưu thẳng mảng relationship_ids vào Node để lúc get() lấy ra cực nhanh
-        c.relationship_ids = row.relationship_ids
 
-    // SUB-QUERY 1: An toàn tạo liên kết Entity (Không sợ list rỗng)
-    WITH c, row
-    CALL {
-        WITH c, row
+    CALL (c, row) {
         UNWIND COALESCE(row.entity_ids, []) AS e_id
         MATCH (e:Entity {id: e_id, bucket: $bucket})
         MERGE (e)-[:BELONGS_TO]->(c)
     }
 
-    // SUB-QUERY 2: An toàn tạo liên kết TextUnit
-    WITH c, row
-    CALL {
-        WITH c, row
+    CALL (c, row) {
         UNWIND COALESCE(row.text_unit_ids, []) AS tu_id
         MATCH (t:TextUnit {id: tu_id, bucket: $bucket})
         MERGE (c)-[:MENTIONED_IN]->(t)

@@ -2,7 +2,6 @@
 
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { SessionItem } from "@/components/SessionList";
 import {
   useConnectionProposalsQuery,
   useProjectProposalsQuery,
@@ -11,6 +10,17 @@ import {
 import PageLayout from "../PageLayout";
 import { useTranslations } from "next-intl";
 import { PageLevel } from "@/types";
+import {
+  Box,
+  Chip,
+  Divider,
+  List,
+  ListItem,
+  ListItemButton,
+  Skeleton,
+  Typography,
+} from "@mui/material";
+import { scrollBarSx } from "@/constants/scrollBarSx";
 
 export interface ProposalLayoutProps {
   children: React.ReactNode;
@@ -28,19 +38,19 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({
   idOrKey,
 }) => {
   const t = useTranslations("proposals.ProposalLayout");
+  const tSessionList = useTranslations("SessionList");
 
-  const getDataQuery = () => {
-    switch (level) {
-      case "connection":
-        return useConnectionProposalsQuery();
-      case "project":
-        return useProjectProposalsQuery(projectKey!);
-      case "story":
-        return useStoryProposalsQuery(projectKey!, storyKey!);
-    }
-  };
+  const connectionQuery = useConnectionProposalsQuery();
+  const projectQuery = useProjectProposalsQuery(projectKey);
+  const storyQuery = useStoryProposalsQuery(projectKey, storyKey);
+  const currentQuery =
+    level === "connection"
+      ? connectionQuery
+      : level === "project"
+        ? projectQuery
+        : storyQuery;
 
-  const { data: sessionsData, isLoading: isSessionsLoading } = getDataQuery();
+  const { data: sessionsData, isLoading: isSessionsLoading } = currentQuery;
 
   const basePath = useMemo(() => {
     switch (level) {
@@ -69,39 +79,169 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({
     router.push(`${basePath}/proposals/${sessionKey}?source=CHAT`);
   };
 
-  const analysisSessions = useMemo<SessionItem[]>(() => {
-    if (!sessionsData?.data) return [];
+  const analysisSessions = sessionsData?.data?.analysis_sessions || [];
+  const chatSessions = sessionsData?.data?.chat_sessions || [];
 
-    return sessionsData.data.analysis_sessions.map((session) => ({
-      id: session.key,
-      title: `${t("analysis")} - ${session.key}`,
-      subtitle: new Date(session.created_at).toLocaleString(),
-      projectKey: session.project_key,
-      chips: [
-        {
-          label: `${session.num_proposals} ${t("proposals")}`,
-          color: "warning",
-        },
-      ],
-    }));
-  }, [sessionsData]);
+  const renderSessionGroup = (
+    sessions: typeof analysisSessions,
+    emptyStateText: string,
+    sourceLabel: string,
+    onSelect: (sessionKey: string) => Promise<void>,
+  ) => {
+    if (isSessionsLoading) {
+      return (
+        <List sx={{ mb: 1.5 }}>
+          {[1, 2].map((idx) => (
+            <ListItem
+              key={`${sourceLabel}-skeleton-${idx}`}
+              disablePadding
+              sx={{ mb: 1 }}
+            >
+              <Box
+                sx={{
+                  width: "100%",
+                  border: "1px solid",
+                  borderColor: "divider",
+                  borderRadius: 1.5,
+                  px: 1.5,
+                  py: 1,
+                }}
+              >
+                <Skeleton variant="text" width="65%" />
+                <Skeleton variant="rounded" width={180} height={22} />
+                <Skeleton variant="text" width="50%" />
+              </Box>
+            </ListItem>
+          ))}
+        </List>
+      );
+    }
 
-  const chatSessions = useMemo<SessionItem[]>(() => {
-    if (!sessionsData?.data) return [];
+    if (sessions.length === 0) {
+      return (
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mt: 1, mb: 2 }}
+        >
+          {emptyStateText}
+        </Typography>
+      );
+    }
 
-    return sessionsData.data.chat_sessions.map((session) => ({
-      id: session.key,
-      title: `${t("chat")} - ${session.key}`,
-      subtitle: new Date(session.created_at).toLocaleString(),
-      projectKey: session.project_key,
-      chips: [
-        {
-          label: `${session.num_proposals} ${t("proposals")}`,
-          color: "warning",
-        },
-      ],
-    }));
-  }, [sessionsData]);
+    return (
+      <List
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          px: 1,
+          overflowY: "auto",
+          ...scrollBarSx,
+        }}
+      >
+        {sessions.map((session) => {
+          const isSelected = selectedSessionId === session.key;
+          return (
+            <ListItem
+              key={`${sourceLabel}-${session.key}`}
+              disablePadding
+              sx={{ mb: 0.75 }}
+            >
+              <ListItemButton
+                selected={isSelected}
+                onClick={() => onSelect(session.key)}
+                sx={{
+                  borderRadius: 1.5,
+                  border: "1px solid",
+                  borderColor: isSelected ? "primary.main" : "divider",
+                  alignItems: "flex-start",
+                }}
+              >
+                <Box sx={{ width: "100%" }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }} noWrap>
+                    {session.key}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: "block", mt: 0.4 }}
+                  >
+                    {new Date(session.created_at).toLocaleString()}
+                  </Typography>
+                  <Box
+                    sx={{
+                      mt: 1,
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 0.75,
+                    }}
+                  >
+                    <Chip size="small" label={`Source: ${sourceLabel}`} />
+                    <Chip
+                      size="small"
+                      label={`${tSessionList("project")}: ${session.project_key}`}
+                    />
+                    {session.story_key && (
+                      <Chip
+                        size="small"
+                        label={`${tSessionList("story")}: ${session.story_key}`}
+                      />
+                    )}
+                    <Chip
+                      size="small"
+                      color="warning"
+                      label={`${session.num_proposals} ${t("proposals")}`}
+                    />
+                  </Box>
+                </Box>
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
+      </List>
+    );
+    2;
+  };
+
+  const sessionsComponent = (
+    <Box
+      sx={{
+        flex: 1,
+        minHeight: 0,
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Typography
+        variant="subtitle2"
+        sx={{ textTransform: "uppercase", color: "text.secondary", px: 2 }}
+      >
+        {t("analysisProposals")}
+      </Typography>
+
+      {renderSessionGroup(
+        analysisSessions,
+        t("noAnalysisSessions"),
+        "ANALYSIS",
+        handleSelectAnalysisSession,
+      )}
+
+      <Divider sx={{ my: 1.5 }} />
+
+      <Typography
+        variant="subtitle2"
+        sx={{ textTransform: "uppercase", color: "text.secondary", mt: 1 }}
+      >
+        {t("chatProposals")}
+      </Typography>
+      {renderSessionGroup(
+        chatSessions,
+        t("noChatSessions"),
+        "CHAT",
+        handleSelectChatSession,
+      )}
+    </Box>
+  );
 
   return (
     <PageLayout
@@ -110,24 +250,10 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({
       headerText={t("headerText")}
       projectKey={projectKey}
       storyKey={storyKey}
-      primarySessions={{
-        sessions: analysisSessions,
-        selectedSessionId: selectedSessionId,
-        onSelectSession: handleSelectAnalysisSession,
-        loading: isSessionsLoading,
-        emptyStateText: t("noAnalysisSessions"),
-        label: t("analysisProposals"),
-      }}
-      secondarySessions={{
-        sessions: chatSessions,
-        selectedSessionId: selectedSessionId,
-        onSelectSession: handleSelectChatSession,
-        loading: isSessionsLoading,
-        emptyStateText: t("noChatSessions"),
-        label: t("chatProposals"),
-      }}
+      sessionsComponent={sessionsComponent}
       disablePrimaryAutoRoute
       disableSecondaryAutoRoute
+      createable={false}
     >
       {children}
     </PageLayout>

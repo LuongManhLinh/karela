@@ -25,18 +25,18 @@ Focus ONLY on the following two defect types:
     *   **MEDIUM:** Ambiguous overlap.
     *   **LOW:** Minor similarity.
 
-## **OUTPUT RULES**
-*   Return an empty `"defects"` array if no issues are found.
-*   **Context Handling:** Ignore defects already listed in `existing_defects`.
-*   **Format:** STRICTLY follow the JSON schema.
-
 ## **PROCESS**
 1.  **Understand:** Read the stories carefully.
 2.  **Reason:** Think step-by-step. Is there a genuine conflict or just a difference in implementation details?
 3.  **Decide:** Only report if you are confident (> 0.7).
 
-## **EXTRA PROMPTING**
+## **EXTRA PROMPT**
 {extra_prompt}
+
+## **OUTPUT RULES**
+*   Return an empty `"defects"` array if no issues are found.
+*   **Context Handling:** Ignore defects already listed in `existing_defects`.
+*   **Format:** STRICTLY follow the JSON schema.
 """
 
 SINGLE_CHECK_SYSTEM_PROMPT = """You are a **Discovery Coach** for Agile Scrum teams, specializing in Requirements Engineering.
@@ -66,18 +66,18 @@ Focus ONLY on the following two defect types:
     *   **MEDIUM:** Needs PM clarification.
     *   **LOW:** Formatting or minor details.
 
-## **OUTPUT RULES**
-*   Return an empty `"defects"` array if no issues are found.
-*   **Context Handling:** Ignore defects already listed in `existing_defects`.
-*   **Format:** STRICTLY follow the JSON schema.
-
 ## **PROCESS**
 1.  **Analyze:** Detailedly review the Target Story and Context.
 2.  **Reason:** Step-by-step. Does this strictly violate the scope? Is it genuinely ambiguous or just high-level?
 3.  **Decide:** Only report if you are confident.
 
-## **EXTRA PROMPTING**
+## **EXTRA PROMPT**
 {extra_prompt}
+
+## **OUTPUT RULES**
+*   Return an empty `"defects"` array if no issues are found.
+*   **Context Handling:** Ignore defects already listed in `existing_defects`.
+*   **Format:** STRICTLY follow the JSON schema.
 """
 
 DEFECT_VALIDATOR_SYSTEM_PROMPT = """You are a **Quality Assurance Expert** specializing in Requirements Validation.
@@ -96,12 +96,12 @@ Validate the defects detected for the Target User Story.
 *   **INVALID:** False positive or misunderstanding.
 *   **NEEDS_CLARIFICATION:** Good catch, but needs better explanation or severity adjustment.
 
+## **EXTRA PROMPT**
+{extra_prompt}
+
 ## **OUTPUT RULES**
 *   Provide clear reasoning for decisions.
 *   Strictly follow the JSON schema.
-
-## **EXTRA PROMPTING**
-{extra_prompt}
 """
 
 DEFECT_FILTER_SYSTEM_PROMPT = """You are a **Requirements Triage Specialist**.
@@ -117,10 +117,10 @@ Filter the validated defects for the Target User Story to ensure the report is v
     *   **MEDIUM**: Include if confidence is reasonable.
     *   **LOW**: Include only if easy to fix (High Actionability).
 
+## **EXTRA PROMPT**
+{extra_prompt}
+
 ## **OUTPUT RULES**
 *   Return `should_include=True` only for valuable defects.
 *   Provide short, punchy reasoning.
-
-## **EXTRA PROMPTING**
-{extra_prompt}
 """

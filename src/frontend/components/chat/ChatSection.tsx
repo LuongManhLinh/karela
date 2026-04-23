@@ -2,7 +2,7 @@
 
 import { Box, IconButton, TextField, Paper } from "@mui/material";
 import React, { useState, useRef } from "react";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import { Send } from "@mui/icons-material";
 import { scrollBarSx } from "@/constants/scrollBarSx";
 import { useTranslations } from "next-intl";
 
@@ -23,7 +23,7 @@ export const ChatSection: React.FC<{
 
   return (
     <Paper
-      elevation={2}
+      elevation={4}
       onClick={handleFocusTextField}
       sx={{
         cursor: disabled ? "default" : "text",
@@ -32,7 +32,7 @@ export const ChatSection: React.FC<{
         borderRadius: 2.5,
         flexShrink: 0,
         width: "100%",
-        bgcolor: "surfaceDim",
+        bgcolor: "surface",
         color: "onSurface",
       }}
     >
@@ -75,17 +75,16 @@ export const ChatSection: React.FC<{
             },
           }}
         />
-        <Box>
-          <IconButton
-            onClick={() => {
-              sendMessage(userMessage);
-              setUserMessage("");
-            }}
-            disabled={disabled}
-          >
-            <ArrowUpwardIcon color="info" />
-          </IconButton>
-        </Box>
+
+        <IconButton
+          onClick={() => {
+            sendMessage(userMessage);
+            setUserMessage("");
+          }}
+          disabled={disabled || userMessage.trim() === ""}
+        >
+          <Send />
+        </IconButton>
       </Box>
     </Paper>
   );
