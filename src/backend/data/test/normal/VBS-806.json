@@ -1,0 +1,4 @@
+{
+  "key": "VBS-806",
+  "full_content": "# Summary:\nAs a Passenger, I want to rate my driver from 1 to 5 stars after the trip so that I can provide feedback on the service.\n --- \n # DESCRIPTION:\nShow a rating pop-up immediately after the trip status changes to 'Completed'.\nAllow users to select optional tags like 'Clean Car' or 'Professional Driver'.\nCalculate and update the driver's average rating in the database upon submission."
+}

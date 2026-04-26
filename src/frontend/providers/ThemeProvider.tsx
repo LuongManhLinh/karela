@@ -146,7 +146,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
             borderRadius: 12,
             padding: "8px 16px",
             fontWeight: 600,
-            boxShadow: "none",
+            // boxShadow: "none",
             "&:hover": {
               boxShadow: `0 2px 4px ${scheme.shadow}`,
             },

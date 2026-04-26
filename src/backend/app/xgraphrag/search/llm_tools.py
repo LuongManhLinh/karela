@@ -21,7 +21,9 @@ def graphrag_local_search(
     query: str,
     runtime: ToolRuntime[LlmContext],
 ) -> str:
-    """Run GraphRAG Local Search for precise, ticket-centric retrieval.
+    """ONLY USE WHEN THE USER ASKS PRECISE, TICKET-CENTRIC QUESTIONS FOCUSED ON 1-3 SPECIFIC STORIES OR EPICS.
+
+    Run GraphRAG Local Search for precise, ticket-centric retrieval.
 
     This mode is best when the user asks about specific User Stories (e.g., SCRUM-123),
     specific Epics, exact features, user roles, or direct dependencies of a component.
@@ -66,7 +68,9 @@ def graphrag_global_search(
     runtime: ToolRuntime[LlmContext],
     use_community_weights: bool = False,
 ) -> str:
-    """Run GraphRAG Global Search for backlog-level synthesis and Epic/Sprint summaries.
+    """ONLY USE WHEN THE USER ASKS BROAD ANALYTICAL QUESTIONS REQUIRING SYNTHESIS ACROSS MANY STORIES OR EPICS.
+
+    Run GraphRAG Global Search for backlog-level synthesis and Epic/Sprint summaries.
 
     This mode is designed for broad analytical questions that span across dozens or
     hundreds of User Stories. Global Search uses a map-reduce strategy over community reports
@@ -111,7 +115,9 @@ def graphrag_drift_search(
     runtime: ToolRuntime[LlmContext],
     reduce: bool = True,
 ) -> str:
-    """Run GraphRAG DRIFT Search for Impact Analysis and deep dependency tracing.
+    """ONLY USE WHEN THE USER ASKS INVESTIGATIVE QUESTIONS REQUIRING DEEP TRACING ACROSS STORIES, ACTIONS, SYSTEMS, AND RESOURCES.
+
+    Run GraphRAG DRIFT Search for Impact Analysis and deep dependency tracing.
 
     DRIFT Search performs guided multi-step traversal, making it the perfect tool for
     exploratory queries and deep dependency tracking across the Agile workflow.

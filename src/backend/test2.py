@@ -1,57 +1,13 @@
-from app.xgraphrag.increment.lancedb_processor import LanceDBProcessor
-from app.xgraphrag.defines import text_embedder
-from app.xgraphrag.increment.schemas import Increment
+from common.neo4j_app import delete_bucket_safe
+from app.xgraphrag.db.importer import import_from_graphrag_output
 
-lancedb_sync = LanceDBProcessor(
-    uri=".workspace/root/EX/lancedb", embedding_model=text_embedder
-)
+conn_id = "sudo"
+proj_key = "ORG5"
 
-# lancedb_sync.push_increment(
-#     Increment(
-#         title="Test Record 1",
-#         doc_text="This is a test record for LanceDB synchronization.",
-#         action="add",
-#     )
-# )
+delete_bucket_safe(f"{conn_id}_{proj_key}")
+import_from_graphrag_output(connection_id=conn_id, project_key=proj_key)
 
-# lancedb_sync.push_increment(
-#     Increment(
-#         title="Test Record 2",
-#         doc_text="This is another test record for LanceDB synchronization.",
-#         action="add",
-#     )
-# )
+proj_key = "ORG51"
 
-# lancedb_sync.push_increment(
-#     Increment(
-#         action="update",
-#         title="Test Record 3",
-#         doc_text="This is an updated test record for LanceDB synchronization.",
-#         doc_id="id-of-existing-record",
-#     )
-# )
-
-increments = [
-    Increment(
-        title="Test Record 1",
-        doc_text="This is a test record for LanceDB synchronization.",
-        action="add",
-    ),
-    Increment(
-        title="Test Record 2",
-        doc_text="This is another test record for LanceDB synchronization.",
-        action="add",
-    ),
-    Increment(
-        action="update",
-        title="Test Record 3",
-        doc_text="This is an updated test record for LanceDB synchronization.",
-        doc_id="id-of-existing-record",
-    ),
-]
-
-lancedb_sync.push_increments(increments)
-increments = lancedb_sync.pop_all_increments()
-print(f"Popped {len(increments)} increments:")
-for inc in increments:
-    print(inc)
+delete_bucket_safe(f"{conn_id}_{proj_key}")
+import_from_graphrag_output(connection_id=conn_id, project_key=proj_key)

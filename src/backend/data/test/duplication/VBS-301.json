@@ -1,0 +1,4 @@
+{
+  "key": "VBS-301",
+  "full_content": "# Summary:\nAs a Passenger, I want to book a ride by entering my destination so that a driver can find me.\n --- \n # DESCRIPTION:\nThe user enters a destination address in the search bar.\nThe system calculates the estimated fare and shows available vehicle types.\nUpon clicking 'Confirm,' the system searches for the nearest available driver."
+}

@@ -34,3 +34,4 @@ pyyaml==6.0.2
 graphrag
 neo4j
 pyarrow
+langchain-neo4j

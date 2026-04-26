@@ -47,12 +47,19 @@ services:
     image: neo4j:latest
     container_name: karela_neo4j
     environment:
-      NEO4J_AUTH: neo4j/password
+      - NEO4J_AUTH=neo4j/password
+      - NEO4J_PLUGINS=["apoc"]
+      # Optional: enables file exporting/importing via APOC
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*
     ports:
       - "7474:7474"
       - "7687:7687"
     volumes:
-      - ./neo4j_data:/data
+      - ./neo4j_data/data:/data
+      - ./neo4j_data/import:/import
+      - ./neo4j_data/plugins:/plugins
 
 volumes:
   redis_data:

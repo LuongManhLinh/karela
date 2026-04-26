@@ -1,5 +1,4 @@
-PAIRWISE_DEFECT_DEFINITIONS = """
-Paired Story Defects (Evaluating Story A vs. Story B)
+PAIRWISE_DEFECT_DEFINITIONS = """Paired Story Defects (Evaluating Story A vs. Story B)
 
 **1. DUPLICATION (Feature or Rule Overlap)**
 * **Definition:** Both stories implement the exact same action, or enforce the exact same Non-Functional Requirement (NFR), on the same target system or resource. Developing both would result in redundant effort.
@@ -10,8 +9,7 @@ Paired Story Defects (Evaluating Story A vs. Story B)
 * **Verification Question:** *If Story A is implemented exactly as written, does it make it technically or logically impossible to fulfill the requirements of Story B?*
 """
 
-SELF_DEFECT_DEFINITIONS = """
-Single Story Defects (Evaluating a Story in Isolation)
+SELF_DEFECT_DEFINITIONS = """Single Story Defects (Evaluating a Story in Isolation)
 
 **1. NOT_INDEPENDENT (Dependency Bottleneck)**
 * **Definition:** The story is heavily coupled with other stories. It either blocks too many items, is blocked by too many items, or exists within a circular dependency. It cannot be safely picked up and developed in isolation during a Sprint.
@@ -29,3 +27,30 @@ Single Story Defects (Evaluating a Story in Isolation)
 * **Definition:** The scope of the story is too broad to be completed within a standard Sprint. It implements multiple distinct actions, modifies numerous independent resources, or encompasses a multi-step workflow that should be split into smaller, independent stories.
 * **Verification Question:** *Could this story easily be split into two or more smaller, self-contained user stories?*
 """
+
+
+SELF_DEFECT_DEFINITIONS_V2 = """## SELF_DEFECT_DEFINITIONS (Single Story Defects)
+
+**1. NOT_INDEPENDENT (Dependency Bottleneck)**
+* **Definition:** The story is heavily coupled with other stories. It either blocks too many items, is blocked by too many items, or exists within a circular dependency. It cannot be safely picked up and developed in isolation during a Sprint.
+* **Verification Question:** *Does this story require the completion of multiple external features first, or is its scope hopelessly entangled with other tickets?*
+
+**2. NOT_NEGOTIABLE (Over-Specified / Rigid Contract)**
+* **Definition:** The story is written as an inflexible technical specification or a "done deal" rather than an invitation to a conversation. It dictates specific implementation details (UI pixel values, exact database schema names) instead of focusing on the desired outcome, leaving no room for the Scrum team to suggest better solutions.
+* **Verification Question:** *Does the story dictate "HOW" to build it (technical constraints) rather than "WHAT" is needed, effectively closing the door on collaboration?*
+
+**3. NOT_VALUABLE (Orphan Technical Task)**
+* **Definition:** The story lacks a clear business value or target user persona. It reads like a purely internal technical chore (e.g., "update library", "refactor table") rather than a feature that delivers a tangible outcome to an end-user or stakeholder.
+* **Verification Question:** *Does this story fail to explain WHO it is for and WHY it matters to the business?*
+
+**4. NOT_ESTIMABLE (High Ambiguity or Technical Risk)**
+* **Definition:** The story is too vague or touches an unusually high number of complex systems or strict Non-Functional Requirements (NFRs). The development team would not be able to accurately estimate the effort without heavy prior technical investigation.
+* **Verification Question:** *Does the story lack necessary technical clarity, or is the architecture impact so dangerously broad that estimating its effort is a wild guess?*
+
+**5. NOT_SMALL (Epic Disguised as a Story)**
+* **Definition:** The scope of the story is too broad to be completed within a standard Sprint. It implements multiple distinct actions, modifies numerous independent resources, or encompasses a multi-step workflow that should be split into smaller, independent stories.
+* **Verification Question:** *Could this story easily be split into two or more smaller, self-contained user stories?*
+
+**6. NOT_TESTABLE (Ambiguous Acceptance Criteria)**
+* **Definition:** The story lacks clear, binary Acceptance Criteria (AC). It uses subjective language (e.g., "fast," "user-friendly," "better performance") that cannot be verified by a Quality Assurance (QA) engineer. Without measurable boundaries, the "Definition of Done" is impossible to reach.
+* **Verification Question:** *Is there a clear, objective way to prove this story is finished, or is the success criteria based on subjective opinion?*"""

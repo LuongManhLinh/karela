@@ -1,0 +1,4 @@
+{
+  "key": "VBS-805",
+  "full_content": "# KEY: VBS-805\n---\n# Summary:\nAs a User, I want to be a driver \n --- \n # DESCRIPTION:\nUsers can sign up to become drivers by providing necessary documents and information.\nThe system verifies the driver's credentials before allowing them to accept ride requests.\nDrivers can set their availability status to 'Online' or 'Offline' in the app."
+}

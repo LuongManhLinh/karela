@@ -4,6 +4,8 @@ Information discovery here means assessing how these stories cluster together, i
 # Goal
 Write a comprehensive report of a feature module or epic (community), given a list of entities (Roles, Actions, Values, Systems) that belong to it, as well as their relationships. The report will inform the Product Owner and Tech Lead about the health, complexity, and potential risks of planning these stories in a Sprint. 
 
+{system_context}
+
 # Report Structure
 
 The report should include the following sections:

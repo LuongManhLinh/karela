@@ -1,0 +1,4 @@
+{
+  "key": "VBS-502",
+  "full_content": "# KEY: VBS-502\n---\n# Summary:\nAs a Passenger, I want the app to play a 30-second unskippable video advertisement every time I click the 'Confirm Booking' button so that I can be entertained while waiting for a driver.\n --- \n # DESCRIPTION:\nTrigger a high-volume video ad immediately upon booking confirmation.\nThe 'Close' button must be hidden until the entire media file has finished playing.\nThis must occur even in emergency or high-priority booking scenarios to ensure maximum ad impressions."
+}

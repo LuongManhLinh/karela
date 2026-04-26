@@ -1,0 +1,4 @@
+{
+    "key": "VBS-803",
+    "full_content": "# KEY: VBS-803\n---\n# Summary:\nAs a Passenger, I want to save 'Home' and 'Work' locations so that I can book rides faster.\n --- \n # DESCRIPTION:\nUsers can long-press a location on the map to save it as a favorite.\nProvide a 'Favorites' shortcut menu on the main booking screen.\nLimit the number of saved locations to 5 per user account."
+}

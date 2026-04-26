@@ -215,10 +215,17 @@ class JiraSyncService(JiraBaseService):
                         message=f"Indexing {len(story_dtos)} stories for project {project_data.key}...",
                         status=SyncStatus.IN_PROGRESS,
                     )
+
                     index_user_stories(
                         connection_id=connection.id,
                         project_key=project.key,
                         user_stories=story_dtos,
+                    )
+
+                    self.vector_store.add_stories(
+                        connection_id=connection.id,
+                        project_key=project.key,
+                        stories=story_dtos,
                     )
 
             self.db.commit()

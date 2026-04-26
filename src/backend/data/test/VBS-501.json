@@ -1,0 +1,4 @@
+{
+    "key": "VBS-501",
+    "full_content": "# KEY: VBS-501\n---\n# Summary:\nAs a Developer, I want to optimize the database indexes so that the system runs better.\n --- \n # DESCRIPTION:\nRun performance profiling on all SQL tables related to the booking engine.\nApply new indexing strategies to the 'Trips' and 'Users' tables.\nRefactor the legacy query structure to ensure it is modern and follows best practices."
+}

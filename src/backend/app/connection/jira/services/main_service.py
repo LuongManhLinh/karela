@@ -5,7 +5,8 @@ from typing import Optional
 from utils.markdown_adf_bridge.markdown_adf_bridge import md_to_adf, adf_to_md
 from utils.security_utils import encrypt_token, generate_jwt
 from common.configs import JiraConfig
-from common.vectorstore import DEFAULT_VECTOR_STORE
+from common.vectorstore import default_vectorstore
+from common.neo4j_app import delete_bucket_safe
 from .base_service import JiraBaseService
 from ..client import JiraClient
 from ..models import Connection, Project, Story, GherkinAC
@@ -26,7 +27,8 @@ from ..schemas import (
 from ..tasks import setup_connection, sync_projects
 
 from app.documentation.services import DocumentationService
-from app.xgraphrag.increment import GraphRAGUpdater, Increment
+from app.xgraphrag.increment import GraphRAGUpdater
+from common.database import uuid_generator
 
 
 class JiraService(JiraBaseService):
@@ -624,8 +626,12 @@ class JiraService(JiraBaseService):
                 local=False,
             )
 
+            to_vector = []
+
             for story in stories:
+                id = uuid_generator()
                 jira_story = Story(
+                    id=id,
                     id_=story.id,
                     key=story.key,
                     summary=story.summary,
@@ -633,6 +639,8 @@ class JiraService(JiraBaseService):
                     project_id=project.id,
                 )
                 self.db.add(jira_story)
+                story.id = id
+                to_vector.append(story)
 
             self.db.commit()
 
@@ -641,7 +649,13 @@ class JiraService(JiraBaseService):
                 project_key=project.key,
             )
 
-            graphrag_updater.add_stories(stories=stories)
+            graphrag_updater.add_stories(stories=to_vector)
+
+            self.vector_store.add_stories(
+                connection_id=connection.id,
+                project_key=project.key,
+                stories=to_vector,
+            )
 
             for story_key in story_keys:
                 self._run_analysis_targeted(
@@ -692,12 +706,15 @@ class JiraService(JiraBaseService):
                 local=False,
             )
             fetched_stories_dict = {story.key: story for story in fetched_stories}
-
+            to_vector = []
             for story in stories:
                 updated_story = fetched_stories_dict.get(story.key)
                 if updated_story:
                     story.summary = updated_story.summary
                     story.description = updated_story.description
+
+                    updated_story.id = story.id
+                    to_vector.append(updated_story)
 
             self.db.commit()
 
@@ -706,7 +723,13 @@ class JiraService(JiraBaseService):
                 project_key=project.key,
             )
 
-            graphrag_updater.update_stories(stories=fetched_stories)
+            graphrag_updater.update_stories(stories=to_vector)
+
+            self.vector_store.update_stories(
+                connection_id=connection.id,
+                project_key=project.key,
+                stories=to_vector,
+            )
 
             for story_key in story_keys:
                 self._run_analysis_targeted(
@@ -747,8 +770,10 @@ class JiraService(JiraBaseService):
                 )
                 .all()
             )
+            story_ids = []
             for story in stories:
                 self.db.delete(story)
+                story_ids.append(story.id)
             self.db.commit()
 
             graphrag_updater = GraphRAGUpdater(
@@ -757,6 +782,12 @@ class JiraService(JiraBaseService):
             )
 
             graphrag_updater.delete_stories(story_keys=story_keys)
+
+            self.vector_store.remove_stories(
+                connection_id=connection.id,
+                project_key=project.key,
+                story_ids=story_ids,
+            )
 
         except Exception as e:
             self.db.rollback()
@@ -775,17 +806,6 @@ class JiraService(JiraBaseService):
         )
         if not connection:
             raise ValueError("Connection not found")
-
-        # Delete from vector store
-        print("Deleting connection from vector store:", connection_id)
-        DEFAULT_VECTOR_STORE.delete(
-            where={"connection_id": connection_id},
-        )
-
-        # Delete all documentation related to this connection
-        print("Deleting documentation for connection:", connection_id)
-        DocumentationService(self.db).delete_all_docs(connection_id)
-
         # Delete webhooks in Jira
         print("Deleting webhooks for connection:", connection_id)
         webhooks = self._exec_refreshing_access_token(
@@ -803,8 +823,29 @@ class JiraService(JiraBaseService):
                 webhook_ids=webhook_ids,
             )
 
+        # Delete from vector store
+        print("Deleting connection from vector store:", connection_id)
+        default_vectorstore.delete(
+            where={"connection_id": connection_id},
+        )
+
+        # Delete all documentation related to this connection
+        print("Deleting documentation for connection:", connection_id)
+        DocumentationService(self.db).delete_all_docs(connection_id)
+
+        print("Deleting connection from neo4j:", connection_id)
+        projects = (
+            self.db.query(Project).filter(Project.connection_id == connection_id).all()
+        )
+        for project in projects:
+            delete_bucket_safe(f"{connection_id}_{project.key}")
+
         self.db.delete(connection)
         self.db.commit()
+
+        print(
+            f"Connection {connection_id} and all associated data deleted successfully"
+        )
 
     def handle_webhook(
         self,

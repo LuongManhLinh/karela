@@ -7,6 +7,8 @@ from ..schemas import (
     Issue,
 )
 
+from ..vectorstore import JiraVectorStore
+
 
 AC_ISSUE_TYPE_NAME = "Gherkin Test"
 AC_ISSUE_TYPE_DESCRIPTION = "Issue type for Gherkin acceptance criteria"
@@ -16,6 +18,7 @@ AC_ISSUE_TYPE_LEVEL = "subtask"
 class JiraBaseService:
     def __init__(self, db: Session):
         self.db = db
+        self.vector_store = JiraVectorStore()
 
     def __refresh_access_token(self, connection: Connection):
         refresh_token = decrypt_token(

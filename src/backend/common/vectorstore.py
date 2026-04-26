@@ -3,14 +3,14 @@ from common.configs import GeminiConfig, VectorStoreConfig
 from langchain_chroma import Chroma
 
 
-DEFAULT_EMBEDDINGS = GoogleGenerativeAIEmbeddings(
+default_embeddings = GoogleGenerativeAIEmbeddings(
     model="models/gemini-embedding-001", google_api_key=GeminiConfig.GEMINI_API_KEYS[0]
 )
 
 
-DEFAULT_VECTOR_STORE = Chroma(
+default_vectorstore = Chroma(
     collection_name=VectorStoreConfig.COLLECTION_NAME,
-    embedding_function=DEFAULT_EMBEDDINGS,
+    embedding_function=default_embeddings,
     host=VectorStoreConfig.HOST,
     port=VectorStoreConfig.PORT,
 )

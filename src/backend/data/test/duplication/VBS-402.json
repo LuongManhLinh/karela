@@ -1,0 +1,4 @@
+{
+  "key": "VBS-402",
+  "full_content": "# Summary:\nAs a System, I want to process automated payments at the end of a journey so that drivers get paid promptly.\n --- \n # DESCRIPTION:\nTrigger a payment request to the external gateway (Stripe) once a ride is completed.\nThe system should support all major credit card providers.\nEnsure the transaction status is updated in the billing ledger immediately."
+}

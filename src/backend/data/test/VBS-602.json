@@ -1,0 +1,4 @@
+{
+    "key": "VBS-602",
+    "full_content": "# KEY: VBS-602\n---\n# Summary:\nAs a Product Owner, I want to launch the Driver Onboarding and Rewards Module so that we can scale our fleet.\n --- \n # DESCRIPTION:\nImplement a multi-step document upload for driver licenses, insurance, and vehicle inspections.\nBuild a real-time background check integration with third-party providers.\nDevelop a gamified rewards dashboard with weekly progress bars, referral bonuses, and tier-based payouts."
+}

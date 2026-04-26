@@ -1,0 +1,4 @@
+{
+  "key": "VBS-601",
+  "full_content": "# Summary:\nAs a Passenger, I want a complete profile management system so that I can control all my data and settings.\n --- \n # DESCRIPTION:\nUsers can upload photos, change passwords, and manage multiple credit cards.\nInclude a history tab showing all past 5 years of trips with PDF export functionality.\nAllow users to set favorites, manage notification preferences, and delete their entire account data."
+}

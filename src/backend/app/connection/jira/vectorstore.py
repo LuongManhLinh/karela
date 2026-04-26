@@ -1,11 +1,11 @@
 from langchain_core.documents import Document
 
-from common.vectorstore import DEFAULT_VECTOR_STORE
+from common.vectorstore import default_vectorstore
 from .schemas import StoryDto
 
 
 class JiraVectorStore:
-    def __init__(self, vector_store=DEFAULT_VECTOR_STORE):
+    def __init__(self, vector_store=default_vectorstore):
         self.vector_store = vector_store
 
     def retrieve_similar_stories(

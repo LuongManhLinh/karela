@@ -159,6 +159,7 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
 
   const handleSync = async () => {
     if (selectedKeys.size === 0) return;
+    onClose();
     setIsSyncing(true);
     try {
       await connectionService.syncProjects(

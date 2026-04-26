@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 from langchain_core.messages import HumanMessage
 from langgraph.graph import StateGraph, START, END
@@ -9,7 +9,7 @@ from llm.dynamic_agent import GenimiDynamicAgent
 from common.configs import GeminiConfig
 from .prompts import SELF_DEFECT_SYSTEM_PROMPT, PAIRWISE_DEFECT_SYSTEM_PROMPT
 from .schemas import SingleDefectResponse, PairwiseDefectResponse
-from .context_builder import build_llm_contexts, build_llm_contexts_targeted
+from .context_builder import build_llm_contexts_all, build_llm_contexts_targeted
 
 
 def get_dynamic_prompt_middleware_for_node(node_name: str) -> str:
@@ -73,16 +73,20 @@ def context_builder_all(state: State, runtime: Runtime[Context]) -> State:
     print("Executing Context Builder (all) Node")
     context = runtime.context
 
-    self_defect_context, pairwise_defect_context = build_llm_contexts(
+    self_defect_context, pairwise_defect_context = build_llm_contexts_all(
         connection_id=context.connection_id,
         project_key=context.project_key,
     )
 
     state.self_defect_context = self_defect_context
     state.pairwise_defect_context = pairwise_defect_context
+    # Save to a file for debugging
+    with open("self_defect_context.txt", "w") as f:
+        f.write(self_defect_context)
+    with open("pairwise_defect_context.txt", "w") as f:
+        f.write(pairwise_defect_context)
     print(
-        f"Context built (all). Self context length: {len(self_defect_context)}, "
-        f"Pairwise context length: {len(pairwise_defect_context)}"
+        "Saved generated contexts to self_defect_context.txt and pairwise_defect_context.txt"
     )
     return state
 
@@ -153,15 +157,16 @@ def _build_analysis_graph(
 
     # Add nodes
     workflow.add_node("context_builder", context_builder_fn)
-    workflow.add_node("self_defect", self_defect_node)
-    workflow.add_node("pairwise_defect", pairwise_defect_node)
+    # workflow.add_node("self_defect", self_defect_node)
+    # workflow.add_node("pairwise_defect", pairwise_defect_node)
 
     # Add edges: START -> context_builder -> [self_defect, pairwise_defect] -> END
     workflow.add_edge(START, "context_builder")
-    workflow.add_edge("context_builder", "self_defect")
-    workflow.add_edge("context_builder", "pairwise_defect")
-    workflow.add_edge("self_defect", END)
-    workflow.add_edge("pairwise_defect", END)
+    workflow.add_edge("context_builder", END)
+    # workflow.add_edge("context_builder", "self_defect")
+    # workflow.add_edge("context_builder", "pairwise_defect")
+    # workflow.add_edge("self_defect", END)
+    # workflow.add_edge("pairwise_defect", END)
 
     return workflow.compile()
 
@@ -199,6 +204,9 @@ def run_analysis_all(
             final_state.get("self_defect_response"),
             final_state.get("pairwise_defect_response"),
         )
+
+    # raise for testing
+    raise Exception("This is a test exception to check error handling in the workflow.")
 
     return (
         final_state.self_defect_response,
@@ -238,6 +246,8 @@ def run_analysis_targeted(
             final_state.get("self_defect_response"),
             final_state.get("pairwise_defect_response"),
         )
+    # raise for testing
+    raise Exception("This is a test exception to check error handling in the workflow.")
 
     return (
         final_state.self_defect_response,

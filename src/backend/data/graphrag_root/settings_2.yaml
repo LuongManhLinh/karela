@@ -6,6 +6,8 @@
 
 completion_models:
   default_completion_model:
+    # model_provider: openai
+    # model: gpt-5-nano
     model_provider: gemini
     model: gemini-2.5-flash-lite
     auth_method: api_key
@@ -16,6 +18,8 @@ completion_models:
 
 embedding_models:
   default_embedding_model:
+    # model_provider: openai
+    # model: text-embedding-3-small
     model_provider: gemini
     model: gemini-embedding-001
     auth_method: api_key
@@ -64,6 +68,11 @@ vector_store:
   db_uri: output/lancedb
 
 ### Workflow settings ###
+workflows:
+  - create_communities
+  - create_final_text_units
+  - create_community_reports
+  - generate_text_embeddings
 
 embed_text:
   embedding_model_id: default_embedding_model
@@ -71,7 +80,21 @@ embed_text:
 extract_graph:
   completion_model_id: default_completion_model
   prompt: "prompts/extract_graph.txt"
-  entity_types: [KEY, ROLE, ACTION, VALUE, RESOURCE, SYSTEM]
+  entity_types:
+    [
+      KEY,
+      EPIC,
+      ROLE,
+      ACTION,
+      VALUE,
+      RESOURCE,
+      SYSTEM,
+      COMPONENT,
+      DATA,
+      RULE,
+      CONDITION,
+      METRIC,
+    ]
   max_gleanings: 1
 
 summarize_descriptions:

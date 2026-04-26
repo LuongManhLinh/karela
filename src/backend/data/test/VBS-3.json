@@ -1,0 +1,4 @@
+{
+    "key": "VBS-3",
+    "full_content": "# KEY: VBS-3\n---\n# Summary:\nAs a Passenger, I want to chat with the driver via an in-app messenger so that I can provide specific pickup instructions.\n --- \n # DESCRIPTION:\nThe system must support real-time text messaging between assigned parties.\nMessages must be stored permanently in the database for safety audits.\nChat remains active for 24 hours after the trip is completed."
+}

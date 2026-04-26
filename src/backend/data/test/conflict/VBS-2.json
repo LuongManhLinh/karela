@@ -1,0 +1,4 @@
+{
+  "key": "VBS-2",
+  "full_content": "# Summary:\nAs a Driver, I want to receive a cancellation fee if the passenger cancels after 2 minutes of booking so that my time is compensated.\n --- \n # DESCRIPTION:\nIf a passenger cancels more than 120 seconds after the initial booking, a flat $5 fee is charged.\nCancellation is blocked if the driver is already en route for more than 5 minutes.\nThis rule applies regardless of the driver's current distance from the passenger."
+}

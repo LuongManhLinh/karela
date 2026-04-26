@@ -1,0 +1,4 @@
+{
+    "key": "VBS-302",
+    "full_content": "# KEY: VBS-302\n---\n# Summary:\nAs a User, I want to request a vehicle to a specific location so that I can travel to my destination.\n --- \n # DESCRIPTION:\nUsers provide a drop-off point and see a list of cars nearby.\nThe app displays the price for the trip before the user confirms the request.\nMatching logic initiates to find a driver once the user submits the booking."
+}

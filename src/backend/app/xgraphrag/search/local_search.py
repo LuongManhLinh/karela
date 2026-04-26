@@ -60,7 +60,6 @@ async def local_search(
     system_prompt: str | None = None,
     conversation_history: ConversationHistory | None = None,
     auto_prompt: bool = True,
-    stream: bool = False,
 ):
     if auto_prompt and not system_prompt:
         system_prompt = _read_project_prompt(
@@ -84,11 +83,7 @@ async def local_search(
         response_type="multiple paragraphs",
     )
 
-    if stream:
-        async for chunk in search_engine.stream_search(query, conversation_history):
-            yield chunk
-    else:
-        return await search_engine.search(query, conversation_history)
+    return await search_engine.search(query, conversation_history)
 
 
 def _read_project_prompt(connection_id: str, project_key: str, prompt_file: str) -> str:

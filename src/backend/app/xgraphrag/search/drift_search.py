@@ -42,7 +42,6 @@ async def drift_search(
     prompt: str | None = None,
     reduce_prompt: str | None = None,
     auto_prompt: bool = True,
-    stream: bool = False,
 ):
     if auto_prompt and not prompt:
         prompt = _read_project_prompt(
@@ -72,11 +71,7 @@ async def drift_search(
         tokenizer=tokenizer,
     )
 
-    if stream:
-        async for chunk in search.stream_search(query, conversation_history):
-            yield chunk
-    else:
-        return await search.search(query, conversation_history, reduce)
+    return await search.search(query, conversation_history, reduce)
 
 
 def _read_project_prompt(connection_id: str, project_key: str, prompt_file: str) -> str:

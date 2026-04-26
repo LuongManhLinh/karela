@@ -14,6 +14,38 @@ from app.xgraphrag.search.llm_tools import graphrag_search_tools
 
 
 @tool
+def search_stories_by_keywords(keywords: str, runtime: ToolRuntime[Context]) -> str:
+    """Retrieve user stories based on keywords.
+
+    Args:
+        keywords (str): Keywords to search for user stories. For example: "authentication", "payment gateway", "user profile".
+
+    Returns:
+        str: A JSON string containing: the list of matching user stories or an error message.
+            Disclaimer: results are based on similarity search and may not be exact matches.
+    """
+    print(
+        f"""
+{"-"*100}
+| Retrieve Stories Tool Called
+{"-"*100}
+"""
+    )
+    context = runtime.context
+
+    vector_store = JiraVectorStore()
+    stories = vector_store.retrieve_similar_stories(
+        connection_id=context.connection_id,
+        project_key=context.project_key,
+        query=keywords,
+        k=10,
+        min_similarity=0.25,
+    )
+
+    return json.dumps({"stories": [story.model_dump() for story in stories]}, indent=2)
+
+
+@tool
 def get_story_details(story_key: str, runtime: ToolRuntime[Context]) -> str:
     """Fetch details of a User Story by its key.
 
@@ -322,6 +354,7 @@ def create_stories(
 
 
 tools = [
+    search_stories_by_keywords,
     get_story_details,
     get_defects_for_story,
     run_defect_analysis,

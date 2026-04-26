@@ -1,0 +1,4 @@
+{
+    "key": "VBS-804",
+    "full_content": "# KEY: VBS-804\n---\n# Summary:\nAs a Driver, I want to switch my status to 'Offline' so that I stop receiving ride requests when I am finished working.\n --- \n # DESCRIPTION:\nAdd a toggle switch on the driver dashboard for 'Online/Offline' status.\nWhen offline, the driver's location is no longer tracked by the matching engine.\nShow a confirmation toast message when the status changes successfully."
+}

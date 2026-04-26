@@ -174,10 +174,10 @@ def build_graph(
 
             resp = single_check_agent.invoke(messages)
             # Dump it to debug
-            import pickle
+            # import pickle
 
-            with open("data/temp.pkl", "wb") as f:
-                pickle.dump(resp, f)
+            # with open("data/temp.pkl", "wb") as f:
+            #     pickle.dump(resp, f)
             output: DetectDefectOutput = resp["structured_response"]
 
             if output.defects:

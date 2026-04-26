@@ -1,0 +1,4 @@
+{
+    "key": "VBS-701",
+    "full_content": "# KEY: VBS-701\n---\n# Summary:\nAs a System Administrator, I want to migrate the entire booking logic to a decentralized blockchain ledger so that we ensure absolute transparency.\n --- \n # DESCRIPTION:\nResearch and implement a distributed ledger technology to replace the current SQL-based booking flow.\nEnsure smart contracts handle fare distribution automatically.\nThe system must remain 100% compatible with existing mobile clients during the transition."
+}

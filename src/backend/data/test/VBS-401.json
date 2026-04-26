@@ -1,0 +1,4 @@
+{
+    "key": "VBS-401",
+    "full_content": "# KEY: VBS-401\n---\n# Summary:\nAs a Passenger, I want to pay for my ride using a Credit Card so that the transaction is cashless.\n --- \n # DESCRIPTION:\nIntegrate the Stripe payment gateway to handle Visa and Mastercard transactions.\nStore a tokenized version of the card for future use.\nExecute the charge automatically when the driver clicks 'End Trip'."
+}

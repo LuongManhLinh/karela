@@ -1,8 +1,13 @@
-a = {}
+import tiktoken
 
-keys = ["13", "12", "11", "13", "11", "11"]
 
-for key in keys:
-    a.setdefault(key, []).append("x")
+def count_tokens(text):
+    encoding = tiktoken.get_encoding("o200k_base")
+    tokens = encoding.encode(text)
+    return len(tokens)
 
-print(a)
+
+with open("data/500_us.json", "r") as f:
+    data = f.read()
+token_count = count_tokens(data)
+print(f"Token count: {token_count}")

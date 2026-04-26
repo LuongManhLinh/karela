@@ -1,0 +1,4 @@
+{
+    "key": "VBS-4",
+    "full_content": "# KEY: VBS-4\n---\n# Summary:\nAs a System Administrator, I want to protect user privacy by preventing any direct communication between users so that we avoid off-platform transactions.\n --- \n # DESCRIPTION:\nAll communication must be routed through automated IVR phone masking only.\nNo text-based messaging or storage of chat logs is permitted to comply with strict data privacy laws.\nAny active communication channel must be destroyed immediately once the trip status is 'Completed'."
+}

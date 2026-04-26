@@ -12,6 +12,7 @@ from ..defines import (
     TEXT_UNIT_TABLE,
     DOCUMENT_TABLE,
 )
+from ..logger import Logger
 
 
 def clean_df(df: pd.DataFrame):
@@ -34,7 +35,6 @@ def create_constraints(driver):
     with driver.session() as session:
         for q in queries:
             session.run(q)
-    print("Constraints and indexes created.")
 
 
 def import_text_units(driver: Driver, df: pd.DataFrame, bucket_name: str):
@@ -46,7 +46,6 @@ def import_text_units(driver: Driver, df: pd.DataFrame, bucket_name: str):
     """
     with driver.session() as session:
         session.run(query, rows=clean_df(df), bucket=bucket_name)
-    print(f"Imported {len(df)} TextUnits.")
 
 
 def import_entities(driver: Driver, df: pd.DataFrame, bucket_name: str):
@@ -69,7 +68,6 @@ def import_entities(driver: Driver, df: pd.DataFrame, bucket_name: str):
         session.run(query, rows=clean_df(df), bucket=bucket_name)
 
 
-# 1. Tách Type từ Description ngay trên Pandas
 def _extract_type_and_desc(text):
     if not isinstance(text, str):
         return "RELATED", str(text)
@@ -86,23 +84,38 @@ def import_relationships(driver: Driver, df: pd.DataFrame, bucket_name: str):
         lambda x: pd.Series(_extract_type_and_desc(x))
     )
 
+    # query = """
+    # UNWIND $rows AS row
+    # MATCH (src:Entity {title: row.source, bucket: $bucket})
+    # MATCH (tgt:Entity {title: row.target, bucket: $bucket})
+
+    # CALL apoc.create.relationship(src, row.relationship_type, {
+    #     bucket: $bucket,
+    #     human_readable_id: row.human_readable_id,
+    #     description: row.clean_description,
+    #     weight: row.weight,
+    #     combined_degree: row.combined_degree,
+    #     text_unit_ids: row.text_unit_ids
+    # }, tgt) YIELD rel
+    # RETURN count(rel)
+    # """
     query = """
     UNWIND $rows AS row
     MATCH (src:Entity {title: row.source, bucket: $bucket})
     MATCH (tgt:Entity {title: row.target, bucket: $bucket})
-    
-    MERGE (src)-[r:RELATED {bucket: $bucket}]->(tgt)
-    SET r.type = row.relationship_type, // Đã có thuộc tính type
-        r.human_readable_id = row.human_readable_id,
-        r.description = row.clean_description, // Đã xóa chữ [TYPE] ở đầu
-        r.weight = row.weight,
-        r.combined_degree = row.combined_degree,
-        r.text_unit_ids = row.text_unit_ids
-    """
+
+    // The $(row.relationship_type) syntax creates the native type dynamically
+    CREATE (src)-[r:$(row.relationship_type) {bucket: $bucket}]->(tgt)
+    SET r += {
+        human_readable_id: row.human_readable_id,
+        description: row.clean_description,
+        weight: row.weight,
+        combined_degree: row.combined_degree,
+        text_unit_ids: row.text_unit_ids
+    }"""
 
     with driver.session() as session:
         session.run(query, rows=clean_df(df), bucket=bucket_name)
-    print(f"Imported {len(df)} Relationships.")
 
 
 def import_communities(driver: Driver, df: pd.DataFrame, bucket_name: str):
@@ -116,7 +129,7 @@ def import_communities(driver: Driver, df: pd.DataFrame, bucket_name: str):
         c.children = row.children,
         c.title = row.title,
         c.size = row.size,
-        c.period = row.period,
+        c.period = row.period
 
     CALL (c, row) {
         UNWIND COALESCE(row.entity_ids, []) AS e_id
@@ -132,11 +145,16 @@ def import_communities(driver: Driver, df: pd.DataFrame, bucket_name: str):
     """
     with driver.session() as session:
         session.run(query, rows=clean_df(df), bucket=bucket_name)
-    print(f"[{bucket_name}] Imported {len(df)} Communities.")
 
 
-def import_from_graphrag_output(input_dir: str, bucket_name: str):
-    print("Importing from Parquet...")
+def import_from_graphrag_output(
+    connection_id: str, project_key: str, logger: Logger | None = None
+):
+    if logger is None:
+        logger = Logger(connection_id, project_key)
+    logger.info("Importing from Parquet...")
+    input_dir = f".workspace/{connection_id}/{project_key}/output"
+    bucket_name = f"{connection_id}_{project_key}"
 
     try:
         text_unit_df = pd.read_parquet(f"{input_dir}/{TEXT_UNIT_TABLE}.parquet")
@@ -144,7 +162,7 @@ def import_from_graphrag_output(input_dir: str, bucket_name: str):
         relationship_df = pd.read_parquet(f"{input_dir}/{RELATIONSHIP_TABLE}.parquet")
         community_df = pd.read_parquet(f"{input_dir}/{COMMUNITY_TABLE}.parquet")
     except FileNotFoundError as e:
-        print(f"Error reading file. Please check the path: {e}")
+        logger.error(f"Error reading file. Please check the path: {e}")
         return
 
     try:
@@ -152,11 +170,18 @@ def import_from_graphrag_output(input_dir: str, bucket_name: str):
 
         # Import data in the correct order to satisfy dependencies
         import_text_units(default_driver, text_unit_df, bucket_name)
-        import_entities(default_driver, entity_df, bucket_name)
-        import_relationships(default_driver, relationship_df, bucket_name)
-        import_communities(default_driver, community_df, bucket_name)
+        logger.info(f"Imported {len(text_unit_df)} TextUnits.")
 
-        print("Import completed successfully.")
+        import_entities(default_driver, entity_df, bucket_name)
+        logger.info(f"Imported {len(entity_df)} Entities.")
+
+        import_relationships(default_driver, relationship_df, bucket_name)
+        logger.info(f"Imported {len(relationship_df)} Relationships.")
+
+        import_communities(default_driver, community_df, bucket_name)
+        logger.info(f"Imported {len(community_df)} Communities.")
+
+        logger.info("Import completed successfully.")
     except Exception as e:
-        print(f"An error occurred during import: {e}")
+        logger.error(f"An error occurred during import: {e}")
         traceback.print_exc()

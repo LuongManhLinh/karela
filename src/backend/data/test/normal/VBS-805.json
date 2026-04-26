@@ -1,0 +1,4 @@
+{
+  "key": "VBS-805",
+  "full_content": "# Summary:\nAs a Passenger, I want to see the driver's vehicle make and model so that I can easily identify the car at the pickup point.\n --- \n # DESCRIPTION:\nDisplay the car description (e.g., 'White Toyota Camry') on the 'Driver Arriving' screen.\nEnsure the license plate number is shown in a large, readable font.\nUpdate the car icon on the map to match the color of the actual vehicle."
+}

@@ -56,7 +56,6 @@ async def global_search(
     conversation_history: ConversationHistory | None = None,
     use_community_weights: bool = False,
     auto_prompt: bool = True,
-    stream: bool = False,
 ):
     if auto_prompt and not map_system_prompt:
         map_system_prompt = _read_project_prompt(
@@ -93,11 +92,7 @@ async def global_search(
         response_type="multiple paragraphs",  # free form text describing the response type and format, can be anything, e.g. prioritized list, single paragraph, multiple paragraphs, multiple-page report
     )
 
-    if stream:
-        async for chunk in search_engine.stream_search(query, conversation_history):
-            yield chunk
-    else:
-        return await search_engine.search(query, conversation_history)
+    return await search_engine.search(query, conversation_history)
 
 
 def _read_project_prompt(connection_id: str, project_key: str, prompt_file: str) -> str:

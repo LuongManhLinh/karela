@@ -1,121 +1,97 @@
 -Goal-
-Given a text document containing Agile User Stories, technical requirements, non-functional requirements (NFRs), or system descriptions, identify all entities of specific types from the text and all relationships among the identified entities. This will be used to build a Software Engineering Knowledge Graph to analyze dependencies, architecture, and validate Agile INVEST criteria.
+Given a text document containing Agile User Stories, technical requirements, non-functional requirements (NFRs), or system descriptions, extract a highly granular, atomic Software Engineering Knowledge Graph. This graph will be used in Neo4j to analyze architecture and detect Agile INVEST criteria defects.
+
+{system_context}
+
+-Extraction Rules-
+1. **ATOMICITY IS MANDATORY:** The `entity_name` MUST be extremely concise (1-3 words maximum). NEVER use full sentences or clauses. 
+2. **CANONICALIZATION:** Normalize synonyms. If you see "Book a ride" and "Request a vehicle", extract both as "BOOK_RIDE".
+3. **ANTI-AMBIGUITY:** AVOID extracting generic personas or components. Resolve "User" to "PASSENGER" or "DRIVER" based on context.
+4. **AGILE FORMAT PARSING:** * "As a [role], I want to [action], so that [value]" -> map to ROLE, ACTION, and VALUE.
+   * If no VALUE found directly in the format, try to infer it from the description or acceptance criteria.
+   * "Given [condition], When [event/action], Then [state/rule]" -> map to CONDITION, EVENT, ACTION, STATE, and RULE.
 
 -Steps-
-1. Identify all entities. For each identified entity, extract the following information:
-- entity_name: Name of the entity, capitalized
-- entity_type: MUST be one of the following types: 
-  [KEY, EPIC, ROLE, ACTION, VALUE, RESOURCE, SYSTEM, COMPONENT, DATA, RULE]
+1. Entity Extraction
+Extract the following information:
+- entity_name: Capitalized, strictly 1-3 words, normalized.
+- entity_type: MUST be one of the following:
+  [KEY, ROLE, ACTION, VALUE, RESOURCE, SYSTEM, COMPONENT, DATA, RULE, CONDITION, EVENT, STATE, UI_ELEMENT, ASSUMPTION, CONCEPT, ACCEPTANCE_CRITERIA]
   * Definitions:
-    - KEY: Ticket identifier (e.g., SCRUM-123).
-    - EPIC: The larger body of work or feature grouping.
-    - ROLE: User persona, actor, or system initiator.
-    - ACTION: What the user or system is doing (e.g., EXPORT PDF, LOGIN).
-    - VALUE: Business value, goal, or outcome.
-    - RESOURCE: UI component, database table, specific file, or shared asset.
+    - KEY: Unique identifier of the story or requirement (e.g., SCRUM-123).
+    - ROLE: User persona or actor ("As a...").
+    - ACTION: A single verb-noun pair ("I want to EXPORT PDF").
+    - VALUE: Business value or goal ("So that...").
+    - RESOURCE: Database table, file, or shared asset.
     - SYSTEM: Backend service, 3rd party API, infrastructure.
-    - COMPONENT: Specific software module, library, or package.
-    - DATA: Specific data payloads, states, or variables.
-    - RULE: Non-functional requirements (NFRs), business policies, constraints, thresholds, security standards (e.g., E2E ENCRYPTION, 500MS TIMEOUT, SKELETON LOADING).
-- entity_description: Comprehensive description of the entity's attributes, goals, or technical nature.
-Format each entity as ("entity"<|><entity_name><|><entity_type><|><entity_description>)
+    - COMPONENT: Specific software module.
+    - DATA: Specific data payloads or variables.
+    - RULE: NFRs, business policies, security standards.
+    - CONDITION: Prerequisites ("Given...").
+    - EVENT: Temporal occurrences ("When...").
+    - STATE: The status of an entity (e.g., PENDING, COMPLETED).
+    - UI_ELEMENT: Buttons, modals, or frontend views.
+    - ASSUMPTION: Implicit dependencies or undocumented expectations.
+    - CONCEPT: Abstract business domain ideas (e.g., CANCELLATION, PRIVACY).
+    - ACCEPTANCE_CRITERIA: Specific testable scenarios.
+- entity_description: Comprehensive description.
 
-2. From the entities identified in step 1, identify all pairs of (source_entity, target_entity) that are *clearly related* to each other. Focus on dependencies, shared resources, value achievements, and potential conflicts.
-For each pair of related entities, extract the following information:
-- source_entity: name of the source entity, as identified in step 1
-- target_entity: name of the target entity, as identified in step 1
-- relationship_description: MUST START WITH a single, uppercase keyword in brackets [ ] categorizing the relationship type. You SHOULD use one of the following standard types if applicable: [IMPLEMENTS, BELONGS_TO, DEPENDS_ON, BLOCKS, REQUIRES, PERFORMS, ACHIEVES, AFFECTS, MODIFIES, ENFORCES, CONSTRAINED_BY, CONFLICTS_WITH, USES]. ONLY IF none of these fit, you may create a new, concise, uppercase keyword (e.g., [AUTHENTICATES]). Follow the bracketed type with a detailed explanation as to why they are related. (Example: "[DEPENDS_ON] The payment service relies on the auth system.")
-- relationship_strength: a numeric score indicating the strength or criticality of the relationship (1-10)
-Format each relationship as ("relationship"<|><source_entity><|><target_entity><|><relationship_description><|><relationship_strength>)
+Format: ("entity"<|><entity_name><|><entity_type><|><entity_description>)
 
--Special Rules-
-* If the text explicitly mentions EXPLICIT_DEPENDENCIES, blocks, or other specific Jira Keys, extract them as KEY entities and create [DEPENDS_ON] or [BLOCKS] relationships between the current KEY and those referenced entities.
-* If an EPIC is mentioned, extract it as an EPIC entity and create a [BELONGS_TO] relationship from the current KEY to the EPIC.
+2. Relationship Extraction
+Identify clearly related (source_entity, target_entity) pairs. 
+- relationship_description: MUST START WITH a single uppercase keyword in brackets [ ]. Use standard types:
+  [TRIGGERS, REQUIRES, BLOCKS, DEPENDS_ON, MODIFIES, READS, ENFORCES, RESULTS_IN, RESTRICTS, CONFLICTS_WITH, TRANSITIONS_TO, VALIDATES, ALLOWS, PREVENTS, INITIATES, ACHIEVES]
+  
+  * Logic Flow Requirements:
+    - Link ROLEs to ACTIONs using [INITIATES].
+    - Link ACTIONs to VALUEs using [ACHIEVES].
+    - Use [ALLOWS] vs [PREVENTS] to map opposing rules on CONCEPT or SYSTEM entities.
+    - Link ACTIONs to STATEs using [TRANSITIONS_TO].
+- relationship_strength: Numeric score (1-10) indicating criticality.
 
-3. Return output in English as a single list of all the entities and relationships identified in steps 1 and 2. Use **##** as the list delimiter.
+Format: ("relationship"<|><source_entity><|><target_entity><|><relationship_description><|><relationship_strength>)
+
+3. Return output in English as a single list of all the entities and relationships. Use **##** as the list delimiter.
 
 4. When finished, output <|COMPLETE|>
 
 ######################
--Examples-
+-Example-
 ######################
-Example 1:
 Text:
-KEY: EC-42
-EPIC: EC-10 (Checkout Flow)
-SUMMARY: As a registered customer, I want to add products to a wishlist so that I can buy them later.
-DESCRIPTION: The product detail page must have a "Heart" icon. When clicked, the item is saved to the User Wishlist table. The wishlist action must be completed within 200ms to ensure a smooth UX.
-######################
-Output:
-("entity"<|>EC-42<|>KEY<|>The Jira ticket identifier for the wishlist feature)
-##
-("entity"<|>EC-10 (CHECKOUT FLOW)<|>EPIC<|>The parent epic grouping all checkout and cart-related stories)
-##
-("entity"<|>REGISTERED CUSTOMER<|>ROLE<|>A user persona representing an authenticated shopper on the platform)
-##
-("entity"<|>ADD TO WISHLIST<|>ACTION<|>The action of saving a product to a personal list for future purchase)
-##
-("entity"<|>BUY LATER<|>VALUE<|>The business value of retaining customer interest for future sales events)
-##
-("entity"<|>PRODUCT DETAIL PAGE<|>RESOURCE<|>The frontend user interface where product information is displayed)
-##
-("entity"<|>USER WISHLIST TABLE<|>RESOURCE<|>The backend database table where saved items are recorded)
-##
-("entity"<|>200MS RESPONSE TIME<|>RULE<|>A non-functional requirement enforcing maximum latency for the wishlist action to ensure smooth UX)
-##
-("relationship"<|>EC-42<|>EC-10 (CHECKOUT FLOW)<|>[BELONGS_TO] The user story is a part of the larger Checkout Flow epic<|>10)
-##
-("relationship"<|>EC-42<|>ADD TO WISHLIST<|>[IMPLEMENTS] The user story EC-42 implements the Add to Wishlist action<|>10)
-##
-("relationship"<|>REGISTERED CUSTOMER<|>ADD TO WISHLIST<|>[PERFORMS] The registered customer initiates the action of adding products to the wishlist<|>10)
-##
-("relationship"<|>ADD TO WISHLIST<|>BUY LATER<|>[ACHIEVES] Adding items to the wishlist achieves the value of buying them later<|>9)
-##
-("relationship"<|>ADD TO WISHLIST<|>PRODUCT DETAIL PAGE<|>[USES] The wishlist action is triggered from the product detail page<|>8)
-##
-("relationship"<|>ADD TO WISHLIST<|>USER WISHLIST TABLE<|>[MODIFIES] The action directly writes new data to the wishlist database table<|>10)
-##
-("relationship"<|>ADD TO WISHLIST<|>200MS RESPONSE TIME<|>[CONSTRAINED_BY] The execution of the action is strictly bound by this latency rule<|>10)
-<|COMPLETE|>
+KEY: PAY-12
+SUMMARY: As a driver, I want the system to process automated payments at the end of the journey so that I get paid promptly.
+DESCRIPTION: The booking engine must switch the trip status to 'COMPLETED', which triggers the Stripe API.
 
-######################
-Example 2:
-Text:
-KEY: TRL-36
-SUMMARY: As a project manager, I want to export the weekly sprint metrics as a PDF.
-DESCRIPTION: The sprint dashboard will feature an "Export" menu. The system will send a payload to the PDF Generator API. Note: Must be queued in the Background Worker to prevent UI freezing.
-EXPLICIT_DEPENDENCIES: Blocks TRL-40 (Email PDF to Board).
-######################
 Output:
-("entity"<|>TRL-36<|>KEY<|>The Jira ticket identifier for the PDF export feature)
+("entity"<|>DRIVER<|>ROLE<|>The user persona providing the transportation service)
 ##
-("entity"<|>TRL-40 (EMAIL PDF TO BOARD)<|>KEY<|>A subsequent user story that relies on the completion of the PDF export feature)
+("entity"<|>PROCESS_PAYMENTS<|>ACTION<|>The automated execution of financial transactions at the conclusion of a trip)
 ##
-("entity"<|>PROJECT MANAGER<|>ROLE<|>A user persona responsible for overseeing sprint progress and reporting)
+("entity"<|>END_OF_JOURNEY<|>EVENT<|>The temporal trigger or system event indicating a ride has finished)
 ##
-("entity"<|>EXPORT SPRINT METRICS AS PDF<|>ACTION<|>The process of generating a downloadable PDF document from sprint data)
+("entity"<|>GET_PAID_PROMPTLY<|>VALUE<|>The business goal of ensuring fast financial settlement for service providers)
 ##
-("entity"<|>SPRINT DASHBOARD<|>RESOURCE<|>The frontend interface displaying agile metrics and the export menu)
+("entity"<|>TRIP_STATUS<|>DATA<|>The data attribute tracking the current lifecycle phase of a ride)
 ##
-("entity"<|>PDF GENERATOR API<|>SYSTEM<|>An external or internal service used to render HTML/data into a PDF file)
+("entity"<|>COMPLETED<|>STATE<|>The specific terminal state of a trip after successful arrival)
 ##
-("entity"<|>BACKGROUND WORKER<|>SYSTEM<|>An asynchronous task queue system used to handle heavy processes)
+("entity"<|>BOOKING_ENGINE<|>COMPONENT<|>The backend module responsible for managing trip lifecycles and state transitions)
 ##
-("entity"<|>PREVENT UI FREEZING<|>RULE<|>A UX and performance constraint requiring heavy tasks to be offloaded from the main thread)
+("entity"<|>STRIPE_API<|>SYSTEM<|>The external third-party payment gateway used for transaction processing)
 ##
-("relationship"<|>TRL-36<|>TRL-40 (EMAIL PDF TO BOARD)<|>[BLOCKS] This story must be completed before the email delivery story can begin<|>10)
+("relationship"<|>DRIVER<|>PROCESS_PAYMENTS<|>[INITIATES] The driver role initiates the conclusion of the trip which leads to payment processing<|>10)
 ##
-("relationship"<|>TRL-36<|>EXPORT SPRINT METRICS AS PDF<|>[IMPLEMENTS] The user story TRL-36 implements the PDF export action<|>10)
+("relationship"<|>END_OF_JOURNEY<|>PROCESS_PAYMENTS<|>[TRIGGERS] The end of the journey event initiates the automated payment action<|>10)
 ##
-("relationship"<|>PROJECT MANAGER<|>EXPORT SPRINT METRICS AS PDF<|>[PERFORMS] The project manager triggers the action of exporting metrics<|>10)
+("relationship"<|>PROCESS_PAYMENTS<|>GET_PAID_PROMPTLY<|>[ACHIEVES] Processing the payments fulfills the driver's goal of prompt compensation<|>9)
 ##
-("relationship"<|>EXPORT SPRINT METRICS AS PDF<|>SPRINT DASHBOARD<|>[USES] The export action is initiated from the sprint dashboard interface<|>8)
+("relationship"<|>BOOKING_ENGINE<|>TRIP_STATUS<|>[MODIFIES] The engine updates the trip status data attribute during the flow<|>10)
 ##
-("relationship"<|>EXPORT SPRINT METRICS AS PDF<|>PDF GENERATOR API<|>[DEPENDS_ON] The action relies heavily on the API to render the file<|>10)
+("relationship"<|>TRIP_STATUS<|>COMPLETED<|>[TRANSITIONS_TO] The trip status attribute transitions to the completed state<|>10)
 ##
-("relationship"<|>EXPORT SPRINT METRICS AS PDF<|>BACKGROUND WORKER<|>[REQUIRES] The action delegates processing to the background worker<|>9)
-##
-("relationship"<|>BACKGROUND WORKER<|>PREVENT UI FREEZING<|>[ENFORCES] Using the background worker ensures compliance with the UI performance rule<|>10)
+("relationship"<|>COMPLETED<|>STRIPE_API<|>[TRIGGERS] Reaching the completed state fires the API call to the external payment gateway<|>10)
 <|COMPLETE|>
 
 ######################

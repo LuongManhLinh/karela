@@ -8,6 +8,8 @@ The report will be used to inform decision-makers about information associated w
 The content of this report includes an overview of the community's key entities, their core attributes or capabilities, their connections, and noteworthy claims.
 Retain as much time specific information as possible so your end user can build a timeline of events.
 
+{system_context}
+
 # Report Structure
 The report should include the following sections:
 - TITLE: community's name that represents its key entities - title should be short but specific. When possible, include representative named entities in the title. Avoid including phrases like 'eligibility assessment' or 'eligibility assessment report' in the title.
