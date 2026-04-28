@@ -41,7 +41,7 @@ Format: ("entity"<|><entity_name><|><entity_type><|><entity_description>)
 2. Relationship Extraction
 Identify clearly related (source_entity, target_entity) pairs. 
 - relationship_description: MUST START WITH a single uppercase keyword in brackets [ ]. Use standard types:
-  [TRIGGERS, REQUIRES, BLOCKS, DEPENDS_ON, MODIFIES, READS, ENFORCES, RESULTS_IN, RESTRICTS, CONFLICTS_WITH, TRANSITIONS_TO, VALIDATES, ALLOWS, PREVENTS, INITIATES, ACHIEVES]
+  [TRIGGERS, REQUIRES, BLOCKS, DEPENDS_ON, MODIFIES, READS, ENFORCES, RESULTS_IN, RESTRICTS, CONFLICTS_WITH, TRANSITIONS_TO, VALIDATES, ALLOWS, PREVENTS, INITIATES, ACHIEVES, IMPLEMENTS, CONTAINS, MEASURED_BY, TESTS]
   
   * Logic Flow Requirements:
     - Link ROLEs to ACTIONs using [INITIATES].

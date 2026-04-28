@@ -20,18 +20,17 @@ class DatabaseConfig:
     DATA_SOURCE = f"mysql+pymysql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
 
 
-class GeminiConfig:
+class LlmConfig:
+    LLM_DEFECT_TEMPERATURE = float(os.getenv("LLM_DEFECT_TEMPERATURE", "0"))
+    LLM_CHAT_TEMPERATURE = float(os.getenv("LLM_CHAT_TEMPERATURE", "0.7"))
+    LLM_DEFAULT_TEMPERATURE = float(os.getenv("LLM_DEFAULT_TEMPERATURE", "0.3"))
+    LLM_TAXONOMY_TEMPERATURE = float(os.getenv("LLM_TAXONOMY_TEMPERATURE", "0.1"))
+
     GEMINI_API_KEYS = os.getenv("GEMINI_API_KEYS", "").split(",")
-    GEMINI_API_DEFECT_TEMPERATURE = float(
-        os.getenv("GEMINI_API_DEFECT_TEMPERATURE", "0")
-    )
-    GEMINI_API_DEFECT_MODEL = os.getenv("GEMINI_API_DEFECT_MODEL", "gemini-2.5-flash")
-    GEMINI_API_CHAT_TEMPERATURE = float(os.getenv("GEMINI_API_CHAT_TEMPERATURE", "0.7"))
-    GEMINI_API_CHAT_MODEL = os.getenv("GEMINI_API_CHAT_MODEL", "gemini-2.5-flash")
-    GEMINI_API_DEFAULT_TEMPERATURE = float(
-        os.getenv("GEMINI_API_DEFAULT_TEMPERATURE", "0.3")
-    )
-    GEMINI_API_DEFAULT_MODEL = os.getenv("GEMINI_API_DEFAULT_MODEL", "gemini-2.5-flash")
+    GEMINI_DEFECT_MODEL = os.getenv("GEMINI_DEFECT_MODEL", "gemini-2.5-flash")
+    GEMINI_CHAT_MODEL = os.getenv("GEMINI_CHAT_MODEL", "gemini-2.5-flash")
+    GEMINI_DEFAULT_MODEL = os.getenv("GEMINI_DEFAULT_MODEL", "gemini-2.5-flash")
+    GEMINI_TAXONOMY_MODEL = os.getenv("GEMINI_TAXONOMY_MODEL", "gemini-2.5-flash-lite")
     GEMINI_API_MAX_RETRY = int(os.getenv("GEMINI_API_MAX_RETRY", "3"))
     GEMINI_API_RETRY_DELAY_MS = int(os.getenv("GEMINI_API_RETRY_DELAY_MS", "1000"))
 

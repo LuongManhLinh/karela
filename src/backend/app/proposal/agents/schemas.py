@@ -1,7 +1,7 @@
 from typing import Literal, Optional
 from pydantic import BaseModel, Field
 
-from app.analysis.agents.schemas import UserStoryMinimal, DefectInput
+from app.analysis.agents.schemas import UserStoryMinimal, DefectByLlm
 
 
 class ProposalContent(BaseModel):
@@ -41,7 +41,7 @@ class ProposalInput(BaseModel):
     user_stories: list[UserStoryMinimal] = Field(
         description="List of User Stories relevant to the given defects",
     )
-    defects: list[DefectInput] = Field(
+    defects: list[DefectByLlm] = Field(
         description="List of identified defects that need to be addressed.",
     )
 
@@ -79,7 +79,7 @@ class ImpactAnalyzerInput(BaseModel):
     user_stories: list[UserStoryMinimal] = Field(
         description="List of original User Stories.",
     )
-    defects: list[DefectInput] = Field(
+    defects: list[DefectByLlm] = Field(
         description="List of identified defects.",
     )
     proposals: list[Proposal] = Field(
@@ -101,7 +101,7 @@ class RewriterInput(BaseModel):
     user_stories: list[UserStoryMinimal] = Field(
         description="List of original User Stories.",
     )
-    defects: list[DefectInput] = Field(
+    defects: list[DefectByLlm] = Field(
         description="List of identified defects.",
     )
     original_proposals: list[Proposal] = Field(
@@ -137,7 +137,7 @@ class ImpactAnalyzerInput(BaseModel):
     user_stories: list[UserStoryMinimal] = Field(
         description="List of original User Stories.",
     )
-    defects: list[DefectInput] = Field(
+    defects: list[DefectByLlm] = Field(
         description="List of identified defects.",
     )
     proposals: list[Proposal] = Field(
@@ -159,7 +159,7 @@ class RewriterInput(BaseModel):
     user_stories: list[UserStoryMinimal] = Field(
         description="List of original User Stories.",
     )
-    defects: list[DefectInput] = Field(
+    defects: list[DefectByLlm] = Field(
         description="List of identified defects.",
     )
     original_proposals: list[Proposal] = Field(

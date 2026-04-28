@@ -21,41 +21,6 @@ class DefectByLlm(BaseModel):
     )
 
 
-class DefectInput(DefectByLlm):
-    """The schema for detected defects among the User Stories."""
-
-    id: str = Field(
-        ...,
-        description="The key to identify the defect.",
-    )
-
-    model_config = ConfigDict(
-        extra="ignore",
-    )
-
-
-class Lint(BaseModel):
-    field: Optional[str] = None
-    issue: Optional[str] = None
-    suggested_replacement: Optional[str] = None
-    message: Optional[str] = None
-
-    model_config = ConfigDict(
-        extra="ignore",
-    )
-
-
-class UserStoryDto(BaseModel):
-    title: Optional[str] = None
-    role: Optional[str] = None
-    feature: Optional[str] = None
-    benefit: Optional[str] = None
-
-    model_config = ConfigDict(
-        extra="ignore",
-    )
-
-
 class UserStoryMinimal(BaseModel):
     key: Optional[str] = None
     summary: Optional[str] = None
@@ -66,17 +31,23 @@ class UserStoryMinimal(BaseModel):
     )
 
 
-class UserStory(UserStoryMinimal):
-    type: Optional[str] = None
+class RelatedStory(UserStoryMinimal):
+    """Represents a user story that is related to the target story, as identified by the Relational Graph Search."""
+
+    reason: Optional[str] = Field(
+        None,
+        description="The reason why this story is considered related to the target story, as provided by the agent.",
+    )
 
     model_config = ConfigDict(
         extra="ignore",
     )
 
 
-class UserStoryWithRef(UserStory):
-    related_story_keys: list[str] = Field(default_factory=list)
+class UserStoryTag(UserStoryMinimal):
+    tags: Optional[list[str]] = None
 
-    model_config = ConfigDict(
-        extra="ignore",
-    )
+
+class BucketGroup(BaseModel):
+    target_story: UserStoryMinimal
+    related_stories: List[UserStoryMinimal]

@@ -15,7 +15,7 @@ from app.connection.jira.models import Story, Project, Connection
 from app.connection.jira.services import JiraService
 from app.connection.jira.services.base_service import AC_ISSUE_TYPE_NAME
 from app.connection.jira.schemas import IssueUpdate, StoryDto
-from common.configs import GeminiConfig
+from common.configs import LlmConfig
 from utils.markdown_adf_bridge import md_to_adf
 
 from llm.dynamic_agent import GenimiDynamicAgent
@@ -47,9 +47,9 @@ RULES:
 
 suggestion_agent = GenimiDynamicAgent(
     system_prompt=system_prompt,
-    model_name=GeminiConfig.GEMINI_API_CHAT_MODEL,
+    model_name=LlmConfig.GEMINI_CHAT_MODEL,
     temperature=0.2,
-    api_keys=GeminiConfig.GEMINI_API_KEYS,
+    api_keys=LlmConfig.GEMINI_API_KEYS,
 )
 
 
@@ -214,7 +214,7 @@ class ACService:
                 db=self.db,
                 connection_id=connection_id,
                 project_key=project_key,
-                extra_prompt=prefrence.gen_ac_guidelines if prefrence else None,
+                extra_instruction=prefrence.gen_ac_guidelines if prefrence else None,
                 initial_messages=self.documentation_service.simulate_list_docs_messages(
                     connection_id=connection_id, project_key=project_key
                 ),
@@ -317,7 +317,7 @@ class ACService:
             db=self.db,
             connection_id=connection_id,
             project_key=project_key,
-            extra_prompt=prefrence.gen_ac_guidelines if prefrence else None,
+            extra_instruction=prefrence.gen_ac_guidelines if prefrence else None,
             initial_messages=self.documentation_service.simulate_list_docs_messages(
                 connection_id=connection_id, project_key=project_key
             ),

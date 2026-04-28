@@ -1,0 +1,5 @@
+{
+  "key": "VBS-802",
+  "summary": "As a Driver, I want to view my 'Verification Badge' on my profile so that passengers trust my credentials.",
+  "description": "The badge only appears if the background check from VBS-602 returns a 'Clear' status.\nThis feature relies on the document upload UI being fully operational as defined in VBS-602.\nIf the background check is pending, the badge must remain invisible to the user."
+}

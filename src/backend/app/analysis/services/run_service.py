@@ -1,4 +1,4 @@
-from app.analysis.agents.schemas import DefectByLlm, UserStoryMinimal, DefectInput
+from app.analysis.agents.schemas import DefectByLlm, UserStoryMinimal
 from app.analysis.services.data_service import AnalysisDataService
 from app.proposal.services.run_service import ProposalRunService
 
@@ -213,7 +213,7 @@ class AnalysisRunService:
                 )
                 idx += 1
 
-    def run_analysis(self, analysis_id: str, use_graphrag: bool = True):
+    def run_analysis(self, analysis_id: str):
         analysis = self._get_analysis_or_raise(analysis_id)
         targeted = analysis.type == AnalysisType.TARGETED
         target_key = analysis.story_key if targeted else None
@@ -282,8 +282,7 @@ class AnalysisRunService:
                 query = query.filter(DefectStoryKey.story_key == target_key)
 
             existing_defects = [
-                DefectInput(
-                    id=d.key,
+                DefectByLlm(
                     type=d.type.value,
                     severity=d.severity.value,
                     explanation=d.explanation,
@@ -295,59 +294,38 @@ class AnalysisRunService:
             ]
 
             start = time.perf_counter()
-            if use_graphrag:
-                extra_prompt = preference.extra_prompt if preference else None
-                if targeted:
-                    self_resp, pairwise_resp = run_analysis_targeted(
-                        connection_id=analysis.connection_id,
-                        project_key=analysis.project_key,
-                        target_titles=[target_key],
-                        extra_prompt=extra_prompt,
-                    )
-                    log_message = "GraphRAG targeted analysis completed in:"
-                else:
-                    self_resp, pairwise_resp = run_analysis_all(
-                        connection_id=analysis.connection_id,
-                        project_key=analysis.project_key,
-                        extra_prompt=extra_prompt,
-                    )
-                    log_message = "GraphRAG all analysis completed in:"
 
-                self._convert_graphrag_defects(
-                    analysis_id,
-                    self_resp,
-                    pairwise_resp,
-                    analysis.connection_id,
-                    analysis.project_key,
+            if targeted:
+                defects = run_user_stories_analysis_target(
+                    connection_id=analysis.connection_id,
+                    project_key=analysis.project_key,
+                    db=self.db,
+                    target_user_story=target,
+                    user_stories=normalized_stories,
+                    existing_defects=existing_defects,
+                    extra_instruction=(
+                        preference.extra_instruction if preference else None
+                    ),
+                    initial_messages=initial_messages,
                 )
+                log_message = "Target story analysis completed in:"
             else:
-                if targeted:
-                    defects = run_user_stories_analysis_target(
-                        connection_id=analysis.connection_id,
-                        project_key=analysis.project_key,
-                        db=self.db,
-                        target_user_story=target,
-                        user_stories=normalized_stories,
-                        existing_defects=existing_defects,
-                        extra_prompt=preference.extra_prompt if preference else None,
-                        initial_messages=initial_messages,
-                    )
-                    log_message = "Target story analysis completed in:"
-                else:
-                    defects = run_user_stories_analysis_all(
-                        connection_id=analysis.connection_id,
-                        project_key=analysis.project_key,
-                        db=self.db,
-                        user_stories=normalized_stories,
-                        existing_defects=existing_defects,
-                        extra_prompt=preference.extra_prompt if preference else None,
-                        initial_messages=initial_messages,
-                    )
-                    log_message = "User stories analysis completed in:"
-
-                self._convert_llm_defects(
-                    analysis_id, defects, analysis.connection_id, analysis.project_key
+                defects = run_user_stories_analysis_all(
+                    connection_id=analysis.connection_id,
+                    project_key=analysis.project_key,
+                    db=self.db,
+                    user_stories=normalized_stories,
+                    existing_defects=existing_defects,
+                    extra_instruction=(
+                        preference.extra_instruction if preference else None
+                    ),
+                    initial_messages=initial_messages,
                 )
+                log_message = "User stories analysis completed in:"
+
+            self._convert_llm_defects(
+                analysis_id, defects, analysis.connection_id, analysis.project_key
+            )
 
             print(
                 log_message,

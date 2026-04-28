@@ -53,8 +53,8 @@ SYSTEM_PROMPT = """You are a **Discovery Coach** specialized in **software requi
       - Use **Gherkin** for acceptance criteria
 
       
-## EXTRA PROMPT
-{extra_prompt}
+## EXTRA INSTRUCTION
+{extra_instruction}
 """
 
 TOOL_SLECTOR_SYSTEM_PROMPT = """You are a **Tool Selector** that chooses the **most appropriate tool** for software requirements quality tasks."""

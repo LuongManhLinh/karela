@@ -23,9 +23,9 @@ from .schemas import (
     ProposalReview,
     RewriterInput,
 )
-from app.analysis.agents.schemas import UserStoryMinimal, DefectInput
+from app.analysis.agents.schemas import UserStoryMinimal, DefectByLlm
 from common.agents.schemas import LlmContext
-from common.configs import GeminiConfig
+from common.configs import LlmConfig
 from app.documentation.llm_tools import doc_tools
 from .fake_history import (
     DRAFTER_FAKE_HISTORY,
@@ -37,15 +37,17 @@ from .fake_history import (
 def get_dynamic_prompt_middleware_for_node(node_name: str) -> str:
     @dynamic_prompt
     def user_context_prompt(request: ModelRequest) -> str:
-        extra_prompt = request.runtime.context.extra_prompt or ""
+        extra_instruction = request.runtime.context.extra_instruction or ""
         if node_name == "proposal_drafter":
-            return DRAFTER_SYSTEM_PROMPT.format(extra_prompt=extra_prompt)
+            return DRAFTER_SYSTEM_PROMPT.format(extra_instruction=extra_instruction)
         elif node_name == "impact_analyzer":
-            return IMPACT_ANALYZER_SYSTEM_PROMPT.format(extra_prompt=extra_prompt)
+            return IMPACT_ANALYZER_SYSTEM_PROMPT.format(
+                extra_instruction=extra_instruction
+            )
         elif node_name == "proposal_rewriter":
-            return REWRITER_SYSTEM_PROMPT.format(extra_prompt=extra_prompt)
+            return REWRITER_SYSTEM_PROMPT.format(extra_instruction=extra_instruction)
         elif node_name == "simple_agent":
-            return SIMPLE_SYSTEM_PROMPT.format(extra_prompt=extra_prompt)
+            return SIMPLE_SYSTEM_PROMPT.format(extra_instruction=extra_instruction)
         else:
             return ""
 
@@ -54,45 +56,45 @@ def get_dynamic_prompt_middleware_for_node(node_name: str) -> str:
 
 # Create agents for each node
 drafter_agent = GenimiDynamicAgent(
-    model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
-    temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    model_name=LlmConfig.GEMINI_DEFECT_MODEL,
+    temperature=LlmConfig.LLM_DEFECT_TEMPERATURE,
     response_mime_type="application/json",
     response_schema=ProposalOutput,
-    api_keys=GeminiConfig.GEMINI_API_KEYS,
-    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    api_keys=LlmConfig.GEMINI_API_KEYS,
+    max_retries=LlmConfig.GEMINI_API_MAX_RETRY,
     middleware=[get_dynamic_prompt_middleware_for_node("proposal_drafter")],
     tools=doc_tools,
 )
 
 impact_analyzer_agent = GenimiDynamicAgent(
-    model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
-    temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    model_name=LlmConfig.GEMINI_DEFECT_MODEL,
+    temperature=LlmConfig.LLM_DEFECT_TEMPERATURE,
     response_mime_type="application/json",
     response_schema=ImpactAnalyzerOutput,
-    api_keys=GeminiConfig.GEMINI_API_KEYS,
-    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    api_keys=LlmConfig.GEMINI_API_KEYS,
+    max_retries=LlmConfig.GEMINI_API_MAX_RETRY,
     middleware=[get_dynamic_prompt_middleware_for_node("impact_analyzer")],
     tools=doc_tools,
 )
 
 rewriter_agent = GenimiDynamicAgent(
-    model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
-    temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    model_name=LlmConfig.GEMINI_DEFECT_MODEL,
+    temperature=LlmConfig.LLM_DEFECT_TEMPERATURE,
     response_mime_type="application/json",
     response_schema=ProposalOutput,
-    api_keys=GeminiConfig.GEMINI_API_KEYS,
-    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    api_keys=LlmConfig.GEMINI_API_KEYS,
+    max_retries=LlmConfig.GEMINI_API_MAX_RETRY,
     middleware=[get_dynamic_prompt_middleware_for_node("proposal_rewriter")],
     tools=doc_tools,
 )
 
 simple_agent = GenimiDynamicAgent(
-    model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
-    temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    model_name=LlmConfig.GEMINI_DEFECT_MODEL,
+    temperature=LlmConfig.LLM_DEFECT_TEMPERATURE,
     response_mime_type="application/json",
     response_schema=ProposalOutput,
-    api_keys=GeminiConfig.GEMINI_API_KEYS,
-    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    api_keys=LlmConfig.GEMINI_API_KEYS,
+    max_retries=LlmConfig.GEMINI_API_MAX_RETRY,
     middleware=[get_dynamic_prompt_middleware_for_node("simple_agent")],
     tools=doc_tools,
 )
@@ -109,16 +111,16 @@ class State:
     is_complete: bool = False
     # Store messages of the rewrite loop (Human request + AI response)
     loop_history: list[BaseMessage] = field(default_factory=list)
-    extra_prompt: Optional[str] = None
+    extra_instruction: Optional[str] = None
 
 
 class Context(LlmContext):
     """Context shared across all nodes."""
 
     user_stories: list[UserStoryMinimal]
-    defects: list[DefectInput]
+    defects: list[DefectByLlm]
     initial_messages: Optional[list[BaseMessage]] = None
-    extra_prompt: Optional[str] = None
+    extra_instruction: Optional[str] = None
     clarifications: Optional[str] = None
 
 
@@ -293,12 +295,12 @@ _graph = build_graph()
 def generate_proposals(
     mode: Literal["SIMPLE", "COMPLEX"],
     user_stories: list[UserStoryMinimal],
-    defects: list[DefectInput],
+    defects: list[DefectByLlm],
     db: Session,
     connection_id: str,
     project_key: str,
     max_rewrite_attempts: int = 3,
-    extra_prompt: Optional[str] = None,
+    extra_instruction: Optional[str] = None,
     initial_messages: Optional[list[BaseMessage]] = None,
     clarifications: Optional[str] = None,
 ) -> list[Proposal]:
@@ -317,7 +319,7 @@ def generate_proposals(
     context = Context(
         user_stories=user_stories,
         defects=defects,
-        extra_prompt=extra_prompt,
+        extra_instruction=extra_instruction,
         connection_id=connection_id,
         project_key=project_key,
         db=db,

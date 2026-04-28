@@ -1,79 +1,63 @@
+"""TARGETED analysis workflow entry point.
+
+Analyzes a single user story for self-defects and compares it
+against related stories (discovered via GraphRAG) for pairwise defects.
+"""
+
+from ..schemas import UserStoryMinimal, DefectByLlm
+from .state import TargetedState, TargetedContext
+from .graph import build_targeted_graph
 from sqlalchemy.orm import Session
-from langchain_core.messages import BaseMessage
-from ..schemas import UserStoryMinimal, DefectInput
-from ..output_schemas import DefectByLlm
 
-from langchain_core.runnables import RunnableConfig
-
-from .prompts import (
-    CROSS_CHECK_SYSTEM_PROMPT,
-    SINGLE_CHECK_SYSTEM_PROMPT,
-    DEFECT_VALIDATOR_SYSTEM_PROMPT,
-    DEFECT_FILTER_SYSTEM_PROMPT,
-)
-from .fake_history import (
-    CROSS_CHECK_FAKE_HISTORY,
-    SINGLE_CHECK_FAKE_HISTORY,
-    VALIDATOR_FAKE_HISTORY,
-    FILTER_FAKE_HISTORY,
-)
-
-from ..base.graph import State, Context, build_graph
-
-graph = build_graph(
-    targeted=True,
-    cross_check_prompt=CROSS_CHECK_SYSTEM_PROMPT,
-    single_check_prompt=SINGLE_CHECK_SYSTEM_PROMPT,
-    validator_prompt=DEFECT_VALIDATOR_SYSTEM_PROMPT,
-    filter_prompt=DEFECT_FILTER_SYSTEM_PROMPT,
-    cross_check_history=CROSS_CHECK_FAKE_HISTORY,
-    single_check_history=SINGLE_CHECK_FAKE_HISTORY,
-    validator_history=VALIDATOR_FAKE_HISTORY,
-    filter_history=FILTER_FAKE_HISTORY,
-)
+# Build the compiled graph at module level
+_graph = build_targeted_graph()
 
 
 def run_analysis(
     target_user_story: UserStoryMinimal,
-    user_stories: list[UserStoryMinimal],
-    db: Session,
     connection_id: str,
     project_key: str,
-    existing_defects: list[DefectInput] = [],
-    extra_prompt: str = None,
-    initial_messages: list[BaseMessage] = None,
+    db: Session,
+    existing_defects: list[DefectByLlm] = None,
+    extra_instruction: str = None,
 ) -> list[DefectByLlm]:
-    res = None
+    """Run the TARGETED defect detection workflow on a single user story.
 
-    def on_done(defects: list[DefectByLlm]):
-        nonlocal res
-        res = defects
+    This workflow:
+    1. Gathers project context (docs, NFRs, scope) in parallel with
+       finding related stories via GraphRAG community search.
+    2. Analyzes the target story for self-defects (INVEST criteria) and
+       pairwise defects (conflicts/duplications with related stories) in parallel.
+    3. Validates and filters detected defects to remove false positives.
 
-    context = Context(
+    Args:
+        target_user_story: The user story to analyze.
+        connection_id: The connection ID for the project data sources.
+        project_key: The Jira/project key.
+        extra_instruction: Optional extra instructions to append to agent prompts.
+
+    Returns:
+        A list of validated DefectByLlm objects representing confirmed defects.
+    """
+    initial_state: TargetedState = {
+        "target_story": target_user_story,
+        "project_context": "",
+        "related_stories": [],
+        "raw_defects": [],
+        "final_defects": [],
+    }
+
+    context = TargetedContext(
         connection_id=connection_id,
         project_key=project_key,
         db=db,
-        target_story=target_user_story,
-        user_stories=user_stories,
-        on_done=on_done,
-        existing_defects=existing_defects or [],
-        extra_prompt=extra_prompt,
-        initial_messages=initial_messages,
+        extra_instruction=extra_instruction,
+        existing_defects=existing_defects,
     )
 
-    graph.invoke(
-        State(
-            done_adapter=False,
-            done_cross_check=False,
-            done_single_check=False,
-            done_validation=False,
-            done_filtering=False,
-            done_signing=False,
-            raw_defects=[],
-            defects=[],
-        ),
-        context=context,
-        config=RunnableConfig(max_concurrency=3),
-    )
+    final_state = _graph.invoke(initial_state, context=context)
 
-    return res
+    if isinstance(final_state, dict):
+        return final_state.get("final_defects", [])
+
+    return final_state.final_defects if hasattr(final_state, "final_defects") else []

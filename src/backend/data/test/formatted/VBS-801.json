@@ -1,0 +1,5 @@
+{
+  "key": "VBS-801",
+  "summary": "As a Passenger, I want to receive a digital tax receipt via email so that I can track my business expenses.",
+  "description": "This story is strictly blocked by VBS-401; do not start until the Stripe integration is finished.\nThe receipt must pull the specific transaction ID and card masking details generated in VBS-401.\nAutomatically trigger the email only after the payment status is confirmed as 'Succeeded'."
+}

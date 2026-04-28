@@ -1,0 +1,5 @@
+{
+  "key": "VBS-805",
+  "summary": "As a User, I want to be a driver",
+  "description": "Users can sign up to become drivers by providing necessary documents and information.\nThe system verifies the driver's credentials before allowing them to accept ride requests.\nDrivers can set their availability status to 'Online' or 'Offline' in the app."
+}

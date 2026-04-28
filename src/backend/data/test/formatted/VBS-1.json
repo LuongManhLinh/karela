@@ -1,0 +1,5 @@
+{
+  "key": "VBS-1",
+  "summary": "As a Passenger, I want to cancel my trip at any time before the driver arrives so that I have maximum flexibility.",
+  "description": "Passengers can cancel a booking without penalty until the driver is within 100 meters of the pickup point.\nNo cancellation fees shall be applied if the trip has not started.\nSystem must update trip status to 'Cancelled' immediately upon request."
+}

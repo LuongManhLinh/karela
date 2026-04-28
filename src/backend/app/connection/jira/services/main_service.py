@@ -252,7 +252,7 @@ class JiraService(JiraBaseService):
             if max_results:
                 query = query.limit(max_results)
 
-            stories = query.all()
+            stories = query.order_by(Story.key).all()
 
             return [
                 StoryDto(

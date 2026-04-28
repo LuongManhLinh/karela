@@ -6,7 +6,7 @@ from langgraph.runtime import Runtime
 from langchain.agents.middleware import dynamic_prompt, ModelRequest
 
 from llm.dynamic_agent import GenimiDynamicAgent
-from common.configs import GeminiConfig
+from common.configs import LlmConfig
 from .prompts import SELF_DEFECT_SYSTEM_PROMPT, PAIRWISE_DEFECT_SYSTEM_PROMPT
 from .schemas import SingleDefectResponse, PairwiseDefectResponse
 from .context_builder import build_llm_contexts_all, build_llm_contexts_targeted
@@ -15,11 +15,13 @@ from .context_builder import build_llm_contexts_all, build_llm_contexts_targeted
 def get_dynamic_prompt_middleware_for_node(node_name: str) -> str:
     @dynamic_prompt
     def user_context_prompt(request: ModelRequest) -> str:
-        extra_prompt = request.runtime.context.extra_prompt or ""
+        extra_instruction = request.runtime.context.extra_instruction or ""
         if node_name == "self_defect":
-            return SELF_DEFECT_SYSTEM_PROMPT.format(extra_prompt=extra_prompt)
+            return SELF_DEFECT_SYSTEM_PROMPT.format(extra_instruction=extra_instruction)
         elif node_name == "pairwise_defect":
-            return PAIRWISE_DEFECT_SYSTEM_PROMPT.format(extra_prompt=extra_prompt)
+            return PAIRWISE_DEFECT_SYSTEM_PROMPT.format(
+                extra_instruction=extra_instruction
+            )
         else:
             return ""
 
@@ -27,22 +29,22 @@ def get_dynamic_prompt_middleware_for_node(node_name: str) -> str:
 
 
 self_defect_agent = GenimiDynamicAgent(
-    model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
-    temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    model_name=LlmConfig.GEMINI_DEFECT_MODEL,
+    temperature=LlmConfig.LLM_DEFECT_TEMPERATURE,
     response_mime_type="application/json",
     response_schema=SingleDefectResponse,
-    api_keys=GeminiConfig.GEMINI_API_KEYS,
-    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    api_keys=LlmConfig.GEMINI_API_KEYS,
+    max_retries=LlmConfig.GEMINI_API_MAX_RETRY,
     middleware=[get_dynamic_prompt_middleware_for_node("self_defect")],
 )
 
 pairwise_defect_agent = GenimiDynamicAgent(
-    model_name=GeminiConfig.GEMINI_API_DEFECT_MODEL,
-    temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,
+    model_name=LlmConfig.GEMINI_DEFECT_MODEL,
+    temperature=LlmConfig.LLM_DEFECT_TEMPERATURE,
     response_mime_type="application/json",
     response_schema=PairwiseDefectResponse,
-    api_keys=GeminiConfig.GEMINI_API_KEYS,
-    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    api_keys=LlmConfig.GEMINI_API_KEYS,
+    max_retries=LlmConfig.GEMINI_API_MAX_RETRY,
     middleware=[get_dynamic_prompt_middleware_for_node("pairwise_defect")],
 )
 
@@ -55,7 +57,7 @@ class State:
     pairwise_defect_context: str = ""
     self_defect_response: Optional[SingleDefectResponse] = None
     pairwise_defect_response: Optional[PairwiseDefectResponse] = None
-    extra_prompt: Optional[str] = None
+    extra_instruction: Optional[str] = None
 
 
 @dataclass
@@ -65,7 +67,7 @@ class Context:
     connection_id: str
     project_key: str
     target_titles: Optional[list[str]] = None
-    extra_prompt: Optional[str] = None
+    extra_instruction: Optional[str] = None
 
 
 def context_builder_all(state: State, runtime: Runtime[Context]) -> State:
@@ -178,14 +180,14 @@ _graph_targeted = _build_analysis_graph(context_builder_targeted)
 def run_analysis_all(
     connection_id: str,
     project_key: str,
-    extra_prompt: Optional[str] = None,
+    extra_instruction: Optional[str] = None,
 ) -> tuple[SingleDefectResponse, PairwiseDefectResponse]:
     """Run the full defect analysis workflow on all stories.
 
     Args:
         connection_id: The connection ID for Neo4j bucket.
         project_key: The Jira project key.
-        extra_prompt: Optional extra instructions for the LLM agents.
+        extra_instruction: Optional extra instructions for the LLM agents.
 
     Returns:
         A tuple of (SingleDefectResponse, PairwiseDefectResponse).
@@ -193,10 +195,10 @@ def run_analysis_all(
     context = Context(
         connection_id=connection_id,
         project_key=project_key,
-        extra_prompt=extra_prompt,
+        extra_instruction=extra_instruction,
     )
 
-    initial_state = State(extra_prompt=extra_prompt)
+    initial_state = State(extra_instruction=extra_instruction)
     final_state = _graph_all.invoke(initial_state, context=context)
 
     if isinstance(final_state, dict):
@@ -218,7 +220,7 @@ def run_analysis_targeted(
     connection_id: str,
     project_key: str,
     target_titles: list[str],
-    extra_prompt: Optional[str] = None,
+    extra_instruction: Optional[str] = None,
 ) -> tuple[SingleDefectResponse, PairwiseDefectResponse]:
     """Run the targeted defect analysis workflow on specific stories.
 
@@ -226,7 +228,7 @@ def run_analysis_targeted(
         connection_id: The connection ID for Neo4j bucket.
         project_key: The Jira project key.
         target_titles: List of story keys to analyze.
-        extra_prompt: Optional extra instructions for the LLM agents.
+        extra_instruction: Optional extra instructions for the LLM agents.
 
     Returns:
         A tuple of (SingleDefectResponse, PairwiseDefectResponse).
@@ -235,10 +237,10 @@ def run_analysis_targeted(
         connection_id=connection_id,
         project_key=project_key,
         target_titles=target_titles,
-        extra_prompt=extra_prompt,
+        extra_instruction=extra_instruction,
     )
 
-    initial_state = State(extra_prompt=extra_prompt)
+    initial_state = State(extra_instruction=extra_instruction)
     final_state = _graph_targeted.invoke(initial_state, context=context)
 
     if isinstance(final_state, dict):

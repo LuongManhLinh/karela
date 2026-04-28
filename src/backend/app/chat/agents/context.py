@@ -5,4 +5,4 @@ from common.agents.schemas import LlmContext
 
 class Context(LlmContext):
     session_id: str
-    extra_prompt: Optional[str] = None
+    extra_instruction: Optional[str] = None

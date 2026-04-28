@@ -4,7 +4,7 @@ from langchain_core.messages import BaseMessage, HumanMessage
 
 from sqlalchemy.orm import Session
 
-from common.configs import GeminiConfig
+from common.configs import LlmConfig
 from .prompts import SYSTEM_PROMPT, CHAT_TITLER_SYSTEM_PROMPT
 from .tools import tools
 from .context import Context
@@ -25,27 +25,27 @@ from .context import Context
 @dynamic_prompt
 def user_context_prompt(request: ModelRequest) -> str:
     """Generate system prompt based on user role."""
-    extra_prompt = request.runtime.context.extra_prompt or ""
+    extra_instruction = request.runtime.context.extra_instruction or ""
     return SYSTEM_PROMPT.format(
-        extra_prompt=extra_prompt,
+        extra_instruction=extra_instruction,
     )
 
 
 chat_agent = GenimiDynamicAgent(
-    model_name=GeminiConfig.GEMINI_API_CHAT_MODEL,
-    temperature=GeminiConfig.GEMINI_API_CHAT_TEMPERATURE,
+    model_name=LlmConfig.GEMINI_CHAT_MODEL,
+    temperature=LlmConfig.LLM_CHAT_TEMPERATURE,
     tools=tools,
     middleware=[user_context_prompt],
-    api_keys=GeminiConfig.GEMINI_API_KEYS,
-    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    api_keys=LlmConfig.GEMINI_API_KEYS,
+    max_retries=LlmConfig.GEMINI_API_MAX_RETRY,
 )
 
 titler_agent = GenimiDynamicAgent(
-    model_name=GeminiConfig.GEMINI_API_CHAT_MODEL,
-    temperature=GeminiConfig.GEMINI_API_CHAT_TEMPERATURE,
+    model_name=LlmConfig.GEMINI_CHAT_MODEL,
+    temperature=LlmConfig.LLM_CHAT_TEMPERATURE,
     system_prompt=CHAT_TITLER_SYSTEM_PROMPT,
-    api_keys=GeminiConfig.GEMINI_API_KEYS,
-    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    api_keys=LlmConfig.GEMINI_API_KEYS,
+    max_retries=LlmConfig.GEMINI_API_MAX_RETRY,
 )
 
 
@@ -55,7 +55,7 @@ def chat_with_agent(
     session_id: str,
     db: Session,
     project_key: str,
-    extra_prompt: str = None,
+    extra_instruction: str = None,
 ) -> dict:
     """Chat with the resolver agent.
 
@@ -76,7 +76,7 @@ def chat_with_agent(
             connection_id=connection_id,
             project_key=project_key,
             db=db,
-            extra_prompt=extra_prompt,
+            extra_instruction=extra_instruction,
         ),
     )
 
@@ -89,7 +89,7 @@ def stream_with_agent(
     session_id: str,
     db: Session,
     project_key: str,
-    extra_prompt: str = None,
+    extra_instruction: str = None,
 ):
     """Chat with the resolver agent with streaming response.
 
@@ -110,7 +110,7 @@ def stream_with_agent(
             connection_id=connection_id,
             project_key=project_key,
             db=db,
-            extra_prompt=extra_prompt,
+            extra_instruction=extra_instruction,
         ),
         stream_mode="messages",
     ):

@@ -1,8 +1,8 @@
 _BASE_SYSTEM_PROMPT = """You are an expert QA Engineer and Product Owner specializing in Behavior Driven Development (BDD).
 Your goal is to ensure User Stories have high-quality, executable Acceptance Criteria in Gherkin syntax."""
 
-_EXTRA_PROMPTING = """## **EXTRA PROMPT**
-{extra_prompt}
+_EXTRA_INSTRUCTION = """## **EXTRA INSTRUCTION**
+{extra_instruction}
 """
 
 AC_GENERATOR_SYSTEM_PROMPT = f"""{_BASE_SYSTEM_PROMPT}
@@ -25,7 +25,7 @@ Generate comprehensive **Gherkin Acceptance Criteria** for the provided User Sto
 4.  **Independence:** Scenarios should be independent of each other.
 5.  **Refinement:** If `Existing AC` is provided, act as an editor. PRESERVE existing good tests, only update what is necessary or requested.
 
-{_EXTRA_PROMPTING}
+{_EXTRA_INSTRUCTION}
 
 ## **OUTPUT RULES**
 *   Return the Gherkin content in the `gherkin_ac` field.
@@ -47,7 +47,7 @@ Audit the generated Gherkin Acceptance Criteria for **Syntax**, **Completeness**
 *   **APPROVE:** The AC is high quality and ready for use.
 *   **REWRITE:** The AC has syntax errors, missing scenarios, or logic gaps.
 
-{_EXTRA_PROMPTING}
+{_EXTRA_INSTRUCTION}
 
 ## **OUTPUT RULES**
 *   If **REWRITE**, provide specific, actionable `feedback` on what looks wrong and how to fix it.
@@ -63,7 +63,7 @@ Refine the Acceptance Criteria based **STRICTLY** on the Reviewer's feedback.
 2.  **Surgical Editing:** Fix the identified issues. Do not introduce new problems.
 3.  **Verification:** Ensure the new AC explicitly addresses the feedback.
 
-{_EXTRA_PROMPTING}
+{_EXTRA_INSTRUCTION}
 
 ## **OUTPUT RULES**
 *   Return the corrected Gherkin content in the `gherkin_ac` field.

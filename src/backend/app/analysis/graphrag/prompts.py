@@ -19,8 +19,8 @@ A static graph analyzer has flagged User Stories for potential INVEST criteria v
    - **Severity:** `HIGH` (Blocks development/Sprint), `MEDIUM` (Creates technical debt or delays), or `LOW` (Minor refinement needed).
    - **Confidence Score:** An integer from 0.0 to 1.0 representing how certain you are of this verdict.
 
-**EXTRA PROMPT**
-{{extra_prompt}}
+**EXTRA INSTRUCTION**
+{{extra_instruction}}
 
 **OUTPUT FORMAT**
 Return a JSON object containing an array of ONLY the valid defects.
@@ -47,8 +47,8 @@ A static graph analyzer has detected potential logic clashes or feature overlaps
    - **Severity:** `HIGH` (System-breaking conflict / 100% duplicate work), `MEDIUM` (Partial overlap / edge-case conflict), or `LOW` (Minor terminology clash).
    - **Confidence Score:** An integer from 0.0 to 1.0 representing your certainty.
 
-**EXTRA PROMPT**
-{{extra_prompt}}
+**EXTRA INSTRUCTION**
+{{extra_instruction}}
 
 **OUTPUT FORMAT**
 Return a JSON object containing an array of ONLY the valid defects.

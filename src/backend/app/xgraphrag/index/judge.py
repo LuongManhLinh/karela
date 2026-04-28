@@ -2,7 +2,7 @@ import json
 from typing import Optional, List, Dict
 from pydantic import BaseModel, Field
 from llm.dynamic_agent import GenimiDynamicAgent
-from common.configs import GeminiConfig
+from common.configs import LlmConfig
 from langchain_core.messages import HumanMessage
 from ..logger import Logger
 
@@ -58,10 +58,10 @@ class BatchResponseSchema(BaseModel):
 
 llm = GenimiDynamicAgent(
     system_prompt=system_prompt,
-    model_name=GeminiConfig.GEMINI_API_CHAT_MODEL,
+    model_name=LlmConfig.GEMINI_CHAT_MODEL,
     temperature=0.0,  # Dropped to 0.0 for maximum consistency on batched arrays
-    api_keys=GeminiConfig.GEMINI_API_KEYS,
-    max_retries=GeminiConfig.GEMINI_API_MAX_RETRY,
+    api_keys=LlmConfig.GEMINI_API_KEYS,
+    max_retries=LlmConfig.GEMINI_API_MAX_RETRY,
     response_mime_type="application/json",
     response_schema=BatchResponseSchema,
 )

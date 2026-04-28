@@ -6,7 +6,7 @@ from langgraph.runtime import Runtime
 from sqlalchemy.orm import Session
 
 from llm.dynamic_agent import GenimiDynamicAgent
-from common.configs import GeminiConfig
+from common.configs import LlmConfig
 from common.agents.schemas import LlmContext
 from app.documentation.llm_tools import doc_tools as doc_tools
 from langchain.agents.middleware import dynamic_prompt, ModelRequest
@@ -36,13 +36,15 @@ from .fake_history import (
 def get_dynamic_prompt_middleware_for_node(node_name: str) -> str:
     @dynamic_prompt
     def user_context_prompt(request: ModelRequest) -> str:
-        extra_prompt = request.runtime.context.extra_prompt or ""
+        extra_instruction = request.runtime.context.extra_instruction or ""
         if node_name == "ac_generator":
-            return AC_GENERATOR_SYSTEM_PROMPT.format(extra_prompt=extra_prompt)
+            return AC_GENERATOR_SYSTEM_PROMPT.format(
+                extra_instruction=extra_instruction
+            )
         elif node_name == "ac_reviewer":
-            return AC_REVIEWER_SYSTEM_PROMPT.format(extra_prompt=extra_prompt)
+            return AC_REVIEWER_SYSTEM_PROMPT.format(extra_instruction=extra_instruction)
         elif node_name == "ac_rewriter":
-            return AC_REWRITER_SYSTEM_PROMPT.format(extra_prompt=extra_prompt)
+            return AC_REWRITER_SYSTEM_PROMPT.format(extra_instruction=extra_instruction)
         else:
             return ""
 
@@ -51,31 +53,31 @@ def get_dynamic_prompt_middleware_for_node(node_name: str) -> str:
 
 # Create agents for each node
 ac_generator_agent = GenimiDynamicAgent(
-    model_name=GeminiConfig.GEMINI_API_CHAT_MODEL,
-    temperature=GeminiConfig.GEMINI_API_CHAT_TEMPERATURE,
+    model_name=LlmConfig.GEMINI_CHAT_MODEL,
+    temperature=LlmConfig.LLM_CHAT_TEMPERATURE,
     response_mime_type="application/json",
     response_schema=ACGeneratorOutput,
-    api_keys=GeminiConfig.GEMINI_API_KEYS,
+    api_keys=LlmConfig.GEMINI_API_KEYS,
     tools=doc_tools,
     middleware=[get_dynamic_prompt_middleware_for_node("ac_generator")],
 )
 
 ac_reviewer_agent = GenimiDynamicAgent(
-    model_name=GeminiConfig.GEMINI_API_CHAT_MODEL,
-    temperature=GeminiConfig.GEMINI_API_DEFECT_TEMPERATURE,  # Use lower temp for critique
+    model_name=LlmConfig.GEMINI_CHAT_MODEL,
+    temperature=LlmConfig.LLM_DEFECT_TEMPERATURE,  # Use lower temp for critique
     response_mime_type="application/json",
     response_schema=ACReviewerOutput,
-    api_keys=GeminiConfig.GEMINI_API_KEYS,
+    api_keys=LlmConfig.GEMINI_API_KEYS,
     tools=doc_tools,
     middleware=[get_dynamic_prompt_middleware_for_node("ac_reviewer")],
 )
 
 ac_rewriter_agent = GenimiDynamicAgent(
-    model_name=GeminiConfig.GEMINI_API_CHAT_MODEL,
-    temperature=GeminiConfig.GEMINI_API_CHAT_TEMPERATURE,
+    model_name=LlmConfig.GEMINI_CHAT_MODEL,
+    temperature=LlmConfig.LLM_CHAT_TEMPERATURE,
     response_mime_type="application/json",
     response_schema=ACGeneratorOutput,  # Re-use generator output schema
-    api_keys=GeminiConfig.GEMINI_API_KEYS,
+    api_keys=LlmConfig.GEMINI_API_KEYS,
     tools=doc_tools,
     middleware=[get_dynamic_prompt_middleware_for_node("ac_rewriter")],
 )
@@ -103,7 +105,7 @@ class Context(LlmContext):
     existing_ac: Optional[str] = None
     user_feedback: Optional[str] = None
     initial_messages: Optional[list[BaseMessage]] = None
-    extra_prompt: Optional[str] = None
+    extra_instruction: Optional[str] = None
 
 
 def ac_generator(state: State, runtime: Runtime[Context]) -> State:
@@ -257,7 +259,7 @@ def generate_ac_from_story(
     existing_ac: Optional[str] = None,
     feedback: Optional[str] = None,
     max_rewrite_attempts: int = 3,
-    extra_prompt: Optional[str] = None,
+    extra_instruction: Optional[str] = None,
     initial_messages: Optional[list[BaseMessage]] = None,
 ) -> str:
     """
@@ -274,7 +276,7 @@ def generate_ac_from_story(
         project_key=project_key,
         db=db,
         initial_messages=initial_messages,
-        extra_prompt=extra_prompt,
+        extra_instruction=extra_instruction,
     )
 
     final_state = _graph.invoke(initial_state, context=context_data)

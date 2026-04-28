@@ -1,0 +1,305 @@
+"""ALL (batch) workflow LangGraph definition.
+
+Pipeline:
+    START
+      ├─→ context_gatherer (Node A)              ─┐
+      └─→ bucket_mapper (Node B)                  ┤ [Parallel]
+                                                   ▼
+                                        [Wait for A & B]
+      ├─→ batch_self_defect_analyzer (Node C)     ─┐
+      ├─→ pairwise_defect_analyzer (Node D)        ┤ [Parallel]
+      └─→ dependency_matrix (Node C2)              ┘
+                                                   ▼
+                                        [Wait for C, D & C2]
+                          defect_validator (Node E)
+                                                   ▼
+                                                  END
+"""
+
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+from langchain_core.messages import HumanMessage
+from langgraph.graph import StateGraph, START, END
+from langgraph.runtime import Runtime
+
+from .state import AllState, AllContext
+from ..schemas import BucketGroup, UserStoryMinimal, UserStoryTag
+from ..nodes import (
+    build_context_gatherer_agent,
+    build_self_defect_agent,
+    build_pairwise_defect_agent,
+    build_validator_agent,
+    build_dependency_matrix_agent,
+    run_context_gatherer,
+    run_self_defect_analyzer,
+    run_pairwise_defect_analyzer,
+    run_defect_validator,
+    run_defect_filter,
+    run_dependency_matrix_analyzer,
+)
+
+from app.taxonomy.query import get_project_stories_tags
+from app.connection.jira.services import JiraService
+
+
+def build_all_graph():
+    """Build and compile the ALL (batch) analysis LangGraph workflow."""
+
+    # Instantiate agents
+    context_agent = build_context_gatherer_agent()
+    self_defect_agent = build_self_defect_agent()
+    pairwise_agent = build_pairwise_defect_agent(targeted=True)
+    validator_agent = build_validator_agent()
+    dependency_matrix_agent = build_dependency_matrix_agent()
+
+    def context_gatherer_node(state: AllState, runtime: Runtime[AllContext]) -> dict:
+        project_context = run_context_gatherer(
+            agent=context_agent, context=runtime.context
+        )
+        return {"project_context": project_context}
+
+    def bucket_mapper_node(state: AllState, runtime: Runtime[AllContext]) -> dict:
+        print(f"\n{'='*80}\n| Bucket Mapper Node — Starting\n{'='*80}")
+
+        context = runtime.context
+        jira_service = JiraService(context.db)
+        story_dtos = jira_service.fetch_stories(
+            connection_id=context.connection_id,
+            project_key=context.project_key,
+        )
+
+        key_to_story = {
+            dto.key: UserStoryMinimal(
+                key=dto.key,
+                summary=dto.summary,
+                description=dto.description,
+            )
+            for dto in story_dtos
+        }
+
+        story_to_tags, tag_to_stories = get_project_stories_tags(
+            db=context.db,
+            connection_id=context.connection_id,
+            project_key=context.project_key,
+        )
+
+        all_stories = []
+        bucket_groups = []
+        checked_pairs = set()
+
+        for key in sorted(key_to_story.keys()):
+            story = key_to_story[key]
+            all_stories.append(story)
+
+            tags = story_to_tags.get(key, set())
+            related_keys = set()
+            for tag in tags:
+                related_keys.update(tag_to_stories.get(tag, set()))
+
+            related_keys.discard(key)  # Remove self from related keys
+
+            related_stories = []
+            for related_key in related_keys:
+                pair = tuple(sorted([key, related_key]))
+                if pair in checked_pairs:
+                    continue
+                checked_pairs.add(pair)
+
+                related_story = key_to_story.get(related_key)
+                if related_story:
+                    related_stories.append(
+                        UserStoryTag(
+                            key=related_story.key,
+                            summary=related_story.summary,
+                            description=related_story.description,
+                            tags=list(story_to_tags.get(related_story.key, set())),
+                        )
+                    )
+            if related_stories:
+                bucket_groups.append(
+                    BucketGroup(
+                        target_story=UserStoryTag(
+                            key=story.key,
+                            summary=story.summary,
+                            description=story.description,
+                            tags=list(tags),
+                        ),
+                        related_stories=related_stories,
+                    )
+                )
+        print(
+            f"| Bucket Mapper Node — Completed with {len(all_stories)} stories and {len(bucket_groups)} bucket groups\n{'='*80}"
+        )
+        # print bucket for debugging
+        for i, group in enumerate(bucket_groups):
+            print(f"Bucket Group {i+1}")
+            print(f"Target Story: {group.target_story.key}")
+            print(f"Related Stories: {[s.key for s in group.related_stories]}")
+            print("---")
+        return {
+            "all_stories": all_stories,
+            "bucket_groups": bucket_groups,
+        }
+
+    def batch_self_defect_analyzer_node(
+        state: AllState, runtime: Runtime[AllContext]
+    ) -> dict:
+        all_stories = state.get("all_stories", [])
+        project_context = state.get("project_context", "")
+        batch_size = runtime.context.self_batch_size
+        concurrent_batches = runtime.context.self_concurrent_batches
+
+        print(
+            f"\n{'='*80}\n| Batch Self-Defect Analyzer\n"
+            f"| Total unique stories: {len(all_stories)}\n{'='*80}"
+        )
+        defects = []
+
+        if concurrent_batches is None or concurrent_batches < 2:
+            # Run without concurrency
+            for i in range(0, len(all_stories), batch_size):
+                batch = all_stories[i : i + batch_size]
+                defects.extend(
+                    run_self_defect_analyzer(
+                        agent=self_defect_agent,
+                        stories=batch,
+                        project_context=project_context,
+                    )
+                )
+        else:
+            batches = [
+                all_stories[i : i + batch_size]
+                for i in range(0, len(all_stories), batch_size)
+            ]
+
+            with ThreadPoolExecutor(max_workers=concurrent_batches) as executor:
+                futures = {
+                    executor.submit(
+                        run_self_defect_analyzer,
+                        agent=self_defect_agent,
+                        stories=batch,
+                        project_context=project_context,
+                    ): idx
+                    for idx, batch in enumerate(batches)
+                }
+                for future in as_completed(futures):
+                    idx = futures[future]
+                    print(f"Batch {idx + 1}/{len(batches)} completed")
+                    defects.extend(future.result())
+        return {"raw_defects": defects}
+
+    def pairwise_defect_analyzer_node(
+        state: AllState, runtime: Runtime[AllContext]
+    ) -> dict:
+        bucket_groups = state.get("bucket_groups", [])
+        project_context = state.get("project_context", "")
+        concurrent_batches = runtime.context.pairwise_concurrent_batches
+
+        print(
+            f"\n{'='*80}\n| Intra-Community Pairwise Analyzer\n"
+            f"| Total bucket groups: {len(bucket_groups)}\n{'='*80}"
+        )
+        all_defects = []
+        if concurrent_batches is None or concurrent_batches < 2:
+            # Run without concurrency
+
+            for group in bucket_groups:
+                defects = run_pairwise_defect_analyzer(
+                    agent=pairwise_agent,
+                    stories=group.related_stories,
+                    target_story=group.target_story,
+                    project_context=project_context,
+                )
+                all_defects.extend(defects)
+        else:
+            with ThreadPoolExecutor(max_workers=concurrent_batches) as executor:
+                futures = {
+                    executor.submit(
+                        run_pairwise_defect_analyzer,
+                        agent=pairwise_agent,
+                        stories=group.related_stories,
+                        target_story=group.target_story,
+                        project_context=project_context,
+                    ): group.target_story.key
+                    for group in bucket_groups
+                }
+                for future in as_completed(futures):
+                    key = futures[future]
+                    print(f"Bucket group for target story {key} completed")
+                    all_defects.extend(future.result())
+        return {"raw_defects": all_defects}
+
+    def defect_validator_node(state: AllState) -> dict:
+        raw_defects = state.get("raw_defects", [])
+        all_stories = state.get("all_stories", [])
+
+        final = run_defect_validator(
+            agent=validator_agent,
+            raw_defects=raw_defects,
+            stories=all_stories,
+        )
+        return {"final_defects": final}
+
+    def defect_filter_node(state: AllState, runtime: Runtime[AllContext]) -> dict:
+        final_defects = state.get("final_defects", [])
+        existing_defects = runtime.context.existing_defects
+
+        filtered = run_defect_filter(
+            existing_defects=existing_defects,
+            new_defects=final_defects,
+        )
+        return {"final_defects": filtered}
+
+    def dependency_matrix_node(state: AllState) -> dict:
+        all_stories = state.get("all_stories", [])
+
+        print(
+            f"\n{'='*80}\n| Dependency Matrix (ALL)\n"
+            f"| Total stories: {len(all_stories)}\n{'='*80}"
+        )
+
+        defects = run_dependency_matrix_analyzer(
+            agent=dependency_matrix_agent,
+            stories=all_stories,
+        )
+        return {"raw_defects": defects}
+
+    # -------------------------------------------------------------------------
+    # Build the graph
+    # -------------------------------------------------------------------------
+    graph = StateGraph(AllState)
+
+    # Add nodes
+    graph.add_node("context_gatherer", context_gatherer_node)
+    graph.add_node("bucket_mapper", bucket_mapper_node)
+    graph.add_node("batch_self_defect_analyzer", batch_self_defect_analyzer_node)
+    graph.add_node("pairwise_defect_analyzer", pairwise_defect_analyzer_node)
+    graph.add_node("dependency_matrix", dependency_matrix_node)
+    graph.add_node("defect_validator", defect_validator_node)
+    graph.add_node("defect_filter", defect_filter_node)
+
+    # Phase 1: Parallel — Context Gatherer + Bucket Mapper
+    graph.add_edge(START, "context_gatherer")
+    graph.add_edge(START, "bucket_mapper")
+
+    # End now for debugging
+    # graph.add_edge("bucket_mapper", END)
+    # graph.add_edge("context_gatherer", END)
+
+    # Phase 2: Parallel — Self-Defect + Pairwise + Inter-Community
+    # All three depend on both Phase 1 nodes completing
+    graph.add_edge("context_gatherer", "batch_self_defect_analyzer")
+    graph.add_edge("context_gatherer", "pairwise_defect_analyzer")
+    graph.add_edge("bucket_mapper", "batch_self_defect_analyzer")
+    graph.add_edge("bucket_mapper", "pairwise_defect_analyzer")
+    graph.add_edge("context_gatherer", "dependency_matrix")
+    graph.add_edge("bucket_mapper", "dependency_matrix")
+
+    # Phase 3: Sequential — Validator (after all Phase 2 nodes complete)
+    graph.add_edge("batch_self_defect_analyzer", "defect_validator")
+    graph.add_edge("pairwise_defect_analyzer", "defect_validator")
+    graph.add_edge("dependency_matrix", "defect_validator")
+    graph.add_edge("defect_validator", "defect_filter")
+    graph.add_edge("defect_filter", END)
+
+    return graph.compile()

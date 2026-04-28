@@ -1,0 +1,5 @@
+{
+  "key": "VBS-501",
+  "summary": "As a Developer, I want to optimize the database indexes so that the system runs better.",
+  "description": "Run performance profiling on all SQL tables related to the booking engine.\nApply new indexing strategies to the 'Trips' and 'Users' tables.\nRefactor the legacy query structure to ensure it is modern and follows best practices."
+}

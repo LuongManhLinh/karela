@@ -106,7 +106,7 @@ class ChatService:
                 connection_id=connection_id,
                 db=self.db,
                 project_key=project_key,
-                extra_prompt=preference.chat_guidelines if preference else None,
+                extra_instruction=preference.chat_guidelines if preference else None,
             ):
                 msg_chunk = MessageChunk(
                     id=chunk.id,
