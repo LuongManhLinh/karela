@@ -14,23 +14,18 @@ class Bucket(Base):
     __tablename__ = "buckets"
 
     id = Column(String(64), primary_key=True, default=uuid_generator)
-    connection_id = Column(String(64), nullable=False, index=True)
+    connection_id = Column(
+        String(64),
+        ForeignKey("connections.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
     project_key = Column(String(64), nullable=False, index=True)
-    tag = Column(String(128), nullable=False)
+    tag = Column(String(128), nullable=False, index=True)
     description = Column(Text, nullable=True)
 
     items = relationship(
         "BucketItem", back_populates="bucket", cascade="all, delete-orphan"
-    )
-
-    __table_args__ = (
-        Index(
-            "uq_bucket_project_tag",
-            "connection_id",
-            "project_key",
-            "tag",
-            unique=True,
-        ),
     )
 
 

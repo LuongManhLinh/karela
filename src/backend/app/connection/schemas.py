@@ -11,14 +11,18 @@ class DashboardDto(BaseModel):
     model_config: ConfigDict = ConfigDict(extra="ignore")
 
 
+class StoryInfo(BaseModel):
+    id: str
+    key: str
+    analysis_count: int = 0
+    proposal_count: int = 0
+    ac_count: int = 0
+    is_ready: bool = False
+
+
 class ProjectDashboardDto(DashboardDto):
     num_chats: int
     num_stories: int
-    stories_with_analyses: list[StorySummary]
-    stories_with_proposals: list[StorySummary]
-    stories_with_acs: list[StorySummary]
-
-    ready_stories: list[StorySummary]
     readiness_score: float
 
 
@@ -26,10 +30,22 @@ class StoryDashboardDto(DashboardDto):
     pass
 
 
+class ProjectInfo(BaseModel):
+    id: str
+    key: str
+    name: str | None = None
+    analysis_count: int = 0
+    chat_count: int = 0
+    proposal_count: int = 0
+    ac_count: int = 0
+
+
 class ConnectionDashboardDto(DashboardDto):
     num_chats: int
     num_projects: int
-    projects_with_analyses: list[ProjectDto]
-    projects_with_chats: list[ProjectDto]
-    projects_with_proposals: list[ProjectDto]
-    projects_with_acs: list[ProjectDto]
+
+
+class UpdateProjectDescriptionRequest(BaseModel):
+    description: str
+
+    model_config = ConfigDict(extra="forbid")

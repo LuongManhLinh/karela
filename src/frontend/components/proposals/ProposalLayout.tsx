@@ -152,8 +152,7 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({
                 onClick={() => onSelect(session.key)}
                 sx={{
                   borderRadius: 1.5,
-                  border: "1px solid",
-                  borderColor: isSelected ? "primary.main" : "divider",
+                  bgcolor: "surfaceContainerHighest",
                   alignItems: "flex-start",
                 }}
               >
@@ -200,7 +199,6 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({
         })}
       </List>
     );
-    2;
   };
 
   const sessionsComponent = (
@@ -208,13 +206,14 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({
       sx={{
         flex: 1,
         minHeight: 0,
+        px: 2,
         display: "flex",
         flexDirection: "column",
       }}
     >
       <Typography
         variant="subtitle2"
-        sx={{ textTransform: "uppercase", color: "text.secondary", px: 2 }}
+        sx={{ textTransform: "uppercase", color: "text.secondary" }}
       >
         {t("analysisProposals")}
       </Typography>

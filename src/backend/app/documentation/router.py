@@ -9,9 +9,45 @@ from .schemas import (
     UpdateFileDocumentationRequest,
 )
 import traceback
+import json
 from .services import DocumentationService
 
 router = APIRouter()
+
+# ── Bulk Documentation ───────────────────────────────────────────────
+
+@router.post("/projects/{project_key}/bulk-docs")
+def bulk_upload_docs(
+    project_key: str,
+    text_docs_json: str = Form("[]"),
+    file_docs_meta_json: str = Form("{}"),
+    files: list[UploadFile] = File([]),
+    service: DocumentationService = Depends(get_settings_service),
+    jwt_payload=Depends(get_jwt_payload),
+):
+    conn_id = jwt_payload.get("sub")
+    if not conn_id:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload")
+    
+    try:
+        text_docs = json.loads(text_docs_json)
+        file_docs_meta = json.loads(file_docs_meta_json)
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid JSON metadata: {str(e)}")
+
+    try:
+        result = service.bulk_upload_docs(
+            connection_id=conn_id,
+            project_key=project_key,
+            text_docs=text_docs,
+            files=files,
+            file_docs_meta=file_docs_meta,
+        )
+        return BasicResponse(detail="Bulk documentation uploaded successfully", data=result)
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=400, detail=str(e))
+
 
 
 # ── Text Documentation ───────────────────────────────────────────────

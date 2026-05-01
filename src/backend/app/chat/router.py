@@ -136,3 +136,19 @@ async def get_session_detail(
     )
 
     return BasicResponse(data=dto)
+
+
+@router.delete("/{session_id}")
+async def delete_chat_session(
+    session_id: str,
+    jwt_payload=Depends(get_jwt_payload),
+    service: ChatDataService = Depends(get_chat_data_service),
+):
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+    service.delete_chat_session(
+        session_id=session_id,
+    )
+
+    return BasicResponse(data=True)

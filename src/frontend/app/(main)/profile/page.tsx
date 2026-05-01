@@ -13,9 +13,18 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  ToggleButtonGroup,
+  ToggleButton,
+  Divider,
 } from "@mui/material";
-import { Logout, Article, Settings } from "@mui/icons-material";
-import { useTranslations } from "next-intl";
+import {
+  Logout,
+  Article,
+  Settings,
+  Brightness4,
+  Brightness7,
+} from "@mui/icons-material";
+import { useTranslations, useLocale } from "next-intl";
 import { Layout } from "@/components/Layout";
 import {
   useConnectionQuery as useGetConnectionQuery,
@@ -24,13 +33,15 @@ import {
 import { useNotificationContext } from "@/providers/NotificationProvider";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useRouter } from "next/navigation";
-import type { ProjectDtoSync } from "@/types/connection";
+import type { ProjectSyncDto } from "@/types/connection";
 import { ConnectionItem } from "@/components/profile/ConnectionItem";
 import { SyncProjectsDialog } from "@/components/profile/SyncProjectsDialog";
 import { getThemeName, setThemeName } from "@/utils/themeStorageUtil";
 import { getThemesAction } from "@/app/actions";
 import { removeToken } from "@/utils/jwtUtils";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
+import { useThemeMode } from "@/providers/ThemeProvider";
+import { setLanguage } from "@/utils/languageUtils";
 
 type ThemeOption = {
   name: string;
@@ -39,6 +50,8 @@ type ThemeOption = {
 
 export default function ProfilePage() {
   const t = useTranslations("profile.ProfilePage");
+  const tAppBar = useTranslations("MyAppBar");
+  const locale = useLocale();
 
   const router = useRouter();
 
@@ -58,7 +71,7 @@ export default function ProfilePage() {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   const { data, isLoading } = useProjectsSyncQuery();
-  const syncStatuses: ProjectDtoSync[] = useMemo(() => {
+  const syncStatuses: ProjectSyncDto[] = useMemo(() => {
     return data?.data || [];
   }, [data]);
 
@@ -70,6 +83,12 @@ export default function ProfilePage() {
   const { resetAll } = useWorkspaceStore();
 
   const totalProjectsCount = syncStatuses.length;
+  const { mode, toggleColorMode } = useThemeMode();
+
+  const handleLanguageChange = (newLocale: string) => {
+    setLanguage(newLocale);
+    router.refresh();
+  };
 
   // Show snackbar to alert to connect Jira if no connections exist
   useEffect(() => {
@@ -206,32 +225,95 @@ export default function ProfilePage() {
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
             {t("theme")}
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            {t("chooseTheme")}
-          </Typography>
-          <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap>
-            {themes.map((theme) => {
-              const isSelected = selectedThemeName === theme.name;
-              const size = isSelected ? 48 : 36;
 
-              return (
-                <IconButton
-                  key={theme.name}
-                  onClick={() => handleThemeSelect(theme.name)}
-                  title={theme.name.replace(/\.json$/, "")}
-                  sx={{
-                    width: size,
-                    height: size,
-                    bgcolor: theme.primary,
-                    color: isSelected ? "text.primary" : "transparent",
-                    "&:hover": {
-                      opacity: 0.75,
-                      bgcolor: theme.primary,
-                    },
-                  }}
-                />
-              );
-            })}
+          <Stack spacing={3}>
+            <Box>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                {tAppBar("changeTheme")}
+              </Typography>
+              <ToggleButtonGroup
+                value={mode}
+                exclusive
+                onChange={(_e, newMode) => {
+                  if (newMode && newMode !== mode) toggleColorMode();
+                }}
+                aria-label="theme mode"
+              >
+                <ToggleButton
+                  value="light"
+                  aria-label="light mode"
+                  sx={{ px: 3 }}
+                >
+                  <Brightness7 sx={{ mr: 1 }} /> {t("light")}
+                </ToggleButton>
+                <ToggleButton
+                  value="dark"
+                  aria-label="dark mode"
+                  sx={{ px: 3 }}
+                >
+                  <Brightness4 sx={{ mr: 1 }} /> {t("dark")}
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+
+            <Box>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                {t("chooseTheme")}
+              </Typography>
+              <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap>
+                {themes.map((theme) => {
+                  const isSelected = selectedThemeName === theme.name;
+                  const size = isSelected ? 48 : 36;
+
+                  return (
+                    <IconButton
+                      key={theme.name}
+                      onClick={() => handleThemeSelect(theme.name)}
+                      title={theme.name.replace(/\.json$/, "")}
+                      sx={{
+                        width: size,
+                        height: size,
+                        bgcolor: theme.primary,
+                        color: isSelected ? "text.primary" : "transparent",
+                        "&:hover": {
+                          opacity: 0.75,
+                          bgcolor: theme.primary,
+                        },
+                      }}
+                    />
+                  );
+                })}
+              </Stack>
+            </Box>
+
+            <Box>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                {tAppBar("language")}
+              </Typography>
+              <ToggleButtonGroup
+                value={locale}
+                exclusive
+                onChange={(_e, newLocale) => {
+                  if (newLocale) handleLanguageChange(newLocale);
+                }}
+                aria-label="language"
+              >
+                <ToggleButton
+                  value="en"
+                  aria-label="english"
+                  sx={{ px: 3, fontWeight: 600 }}
+                >
+                  EN
+                </ToggleButton>
+                <ToggleButton
+                  value="vi"
+                  aria-label="vietnamese"
+                  sx={{ px: 3, fontWeight: 600 }}
+                >
+                  VI
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
           </Stack>
         </Paper>
 

@@ -8,6 +8,9 @@ import {
   Grid,
   CircularProgress,
   useTheme,
+  Button,
+  Chip,
+  Stack,
 } from "@mui/material";
 import {
   Analytics,
@@ -15,14 +18,16 @@ import {
   EmojiObjects,
   Code,
   MenuBook,
+  KeyboardArrowDown,
+  CheckCircle,
+  Cancel,
 } from "@mui/icons-material";
 import { useParams, useRouter } from "next/navigation";
 
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { StatsGrid } from "@/components/dashboard/StatsGrid";
-import { StoryListSection } from "@/components/dashboard/StoryListSection";
-import { useProjectDashboardQuery } from "@/hooks/queries/useDashboardQueries";
+import { useProjectDashboardQuery, useDashboardStoriesInfiniteQuery } from "@/hooks/queries/useConnectionQueries";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { useTranslations } from "next-intl";
 import type { StorySummary } from "@/types/connection";
@@ -54,10 +59,23 @@ const ProjectDashboard: React.FC = () => {
     setSelectedStory,
   } = useWorkspaceStore();
 
-  const { data: dashboardData, isLoading } =
-    useProjectDashboardQuery(projectKey);
+  const { data: dashboardData, isLoading: isDashboardLoading } = useProjectDashboardQuery(projectKey);
+  const dashboard = dashboardData?.data;
 
-  const dashboard = useMemo(() => dashboardData?.data || null, [dashboardData]);
+  const {
+    data: storiesData,
+    isLoading: isStoriesLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useDashboardStoriesInfiniteQuery(projectKey, 10, dashboard?.num_stories || 0);
+
+  const stories = useMemo(() => {
+    if (!storiesData) return [];
+    return storiesData.pages.flatMap((page) => page.data || []);
+  }, [storiesData]);
+
+  const isLoading = isDashboardLoading || (isStoriesLoading && !stories.length);
 
   const handleStoryClick = async (story: StorySummary) => {
     setSelectedStory(story);
@@ -159,9 +177,9 @@ const ProjectDashboard: React.FC = () => {
             <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
               {t("readinessScore")}
             </Typography>
-            <Grid container spacing={3}>
+            <Grid container spacing={3} justifyContent="center">
               {/* Readiness Score Gauge */}
-              <Grid size={{ xs: 12, md: 4 }}>
+              <Grid size={{ xs: 12 }}>
                 <Box
                   sx={{
                     display: "flex",
@@ -216,17 +234,6 @@ const ProjectDashboard: React.FC = () => {
                   </Box>
                 </Box>
               </Grid>
-
-              {/* Ready Stories List */}
-              <Grid size={{ xs: 12, md: 8 }}>
-                <StoryListSection
-                  title={t("readyStories")}
-                  stories={dashboard.ready_stories}
-                  emptyText={t("noReadyStories")}
-                  onStoryClick={handleStoryClick}
-                  maxHeight={250}
-                />
-              </Grid>
             </Grid>
           </Paper>
 
@@ -239,37 +246,69 @@ const ProjectDashboard: React.FC = () => {
             }}
           >
             <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-              {t("storiesByActivity")}
+              {t("stories")}
             </Typography>
             <Grid container spacing={2}>
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <StoryListSection
-                  title={t("withAnalyses")}
-                  stories={dashboard.stories_with_analyses}
-                  emptyText={t("noStoriesWithAnalyses")}
-                  onStoryClick={handleStoryClick}
-                  maxHeight={250}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <StoryListSection
-                  title={t("withProposals")}
-                  stories={dashboard.stories_with_proposals}
-                  emptyText={t("noStoriesWithProposals")}
-                  onStoryClick={handleStoryClick}
-                  maxHeight={250}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <StoryListSection
-                  title={t("withAcs")}
-                  stories={dashboard.stories_with_acs}
-                  emptyText={t("noStoriesWithAcs")}
-                  onStoryClick={handleStoryClick}
-                  maxHeight={250}
-                />
-              </Grid>
+              {stories.map((story) => story && (
+                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={story.id}>
+                  <Paper
+                    elevation={1}
+                    sx={{
+                      p: 2,
+                      borderRadius: 1,
+                      cursor: "pointer",
+                      "&:hover": { bgcolor: "action.hover" },
+                    }}
+                    onClick={() => handleStoryClick(story as any)}
+                  >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                      <Typography variant="subtitle1" fontWeight={600} noWrap sx={{ flex: 1, mr: 1 }}>
+                        {story.key}
+                      </Typography>
+                      <Chip
+                        icon={story.is_ready ? <CheckCircle fontSize="small" /> : <Cancel fontSize="small" />}
+                        label={story.is_ready ? t("ready", { defaultValue: "Ready" }) : t("notReady", { defaultValue: "Not Ready" })}
+                        size="small"
+                        color={story.is_ready ? "success" : "default"}
+                        variant={story.is_ready ? "filled" : "outlined"}
+                      />
+                    </Box>
+                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
+                      <Chip
+                        icon={<Analytics fontSize="small" />}
+                        label={story.analysis_count}
+                        size="small"
+                        color={story.analysis_count > 0 ? "primary" : "default"}
+                      />
+                      <Chip
+                        icon={<EmojiObjects fontSize="small" />}
+                        label={story.proposal_count}
+                        size="small"
+                        color={story.proposal_count > 0 ? "warning" : "default"}
+                      />
+                      <Chip
+                        icon={<Code fontSize="small" />}
+                        label={story.ac_count}
+                        size="small"
+                        color={story.ac_count > 0 ? "success" : "default"}
+                      />
+                    </Stack>
+                  </Paper>
+                </Grid>
+              ))}
             </Grid>
+            {hasNextPage && (
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                  endIcon={<KeyboardArrowDown />}
+                >
+                  {isFetchingNextPage ? t("loadingMore", { defaultValue: "Loading..." }) : t("more", { defaultValue: "More" })}
+                </Button>
+              </Box>
+            )}
           </Paper>
         </Box>
       ) : connection && selectedProject ? (

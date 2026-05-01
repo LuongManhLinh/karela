@@ -11,15 +11,14 @@ class DocumentationVectorStore:
         self,
         documentation_id: str,
         connection_id: str,
-        chunks: list[dict],
+        chunks: list[str],
     ):
         """Store document chunks in the vector store.
 
         Args:
             documentation_id: ID of the TextDocumentation or FileDocumentation record.
             doc_type: Either "text" or "file".
-            chunks: List of dicts with 'metadata' and 'content' keys
-                    (output of process_document).
+            chunks: List of strings representing the document chunks.
         """
         documents = []
         for idx, chunk in enumerate(chunks):
@@ -28,13 +27,10 @@ class DocumentationVectorStore:
                 "documentation_id": documentation_id,
                 "connection_id": connection_id,
             }
-            # Headers are a list of dicts like [{"#": "Header 1"}, {"##": "Subheader"}]
-            for header in chunk["headers"]:
-                metadata.update(header)
 
             documents.append(
                 Document(
-                    page_content=chunk.get("content", ""),
+                    page_content=chunk,
                     id=chunk_id,
                     metadata=metadata,
                 )
@@ -53,9 +49,7 @@ class DocumentationVectorStore:
         self,
         query: str,
         documentation_id: str | None = None,
-        where_headers: dict[str, str] | None = None,
         k: int = 5,
-        min_similarity: float | None = None,
     ) -> list[dict]:
         """Retrieve similar document chunks for a query.
 
@@ -74,26 +68,18 @@ class DocumentationVectorStore:
         if documentation_id:
             and_conditions.append({"documentation_id": {"$eq": documentation_id}})
 
-        if where_headers:
-            for key, value in where_headers.items():
-                and_conditions.append({key: {"$eq": value}})
+        where_filter = {"$and": and_conditions} if and_conditions else None
 
-        where_filter = {"$and": and_conditions}
-
-        results = self.vector_store._similarity_search_with_relevance_scores(
+        results = self.vector_store.similarity_search_with_relevance_scores(
             query=query,
             k=k,
             filter=where_filter,
         )
 
-        similar_chunks = []
-        for doc, sim in results:
-            if min_similarity is not None and sim < min_similarity:
-                continue
-            similar_chunks.append(
-                {
-                    "content": doc.page_content,
-                    "similarity": sim,
-                }
-            )
-        return similar_chunks
+        return [
+            {
+                "content": doc.page_content,
+                "similarity": sim,
+            }
+            for doc, sim in results
+        ]

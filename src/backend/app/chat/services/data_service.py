@@ -182,3 +182,15 @@ class ChatDataService:
         )
         self.db.add(message)
         self.db.commit()
+
+    def delete_chat_session(self, session_id: str):
+        session = (
+            self.db.query(ChatSession)
+            .filter(ChatSession.id == session_id)
+            .first()
+        )
+        if not session:
+            raise ValueError(f"Chat session {session_id} not found")
+
+        self.db.delete(session)
+        self.db.commit()

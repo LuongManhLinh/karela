@@ -17,7 +17,8 @@ from ..schemas import (
 
 from utils.security_utils import decrypt_token
 from common.redis_app import redis_client
-from app.xgraphrag import index_user_stories
+
+# from app.xgraphrag import index_user_stories
 
 
 class JiraSyncService(JiraBaseService):
@@ -40,7 +41,7 @@ class JiraSyncService(JiraBaseService):
             connection.sync_error = error
         self.db.commit()
         try:
-            payload = {"id": connection.id}
+            payload = {}
             if status:
                 payload["sync_status"] = connection.sync_status.value
             if message:
@@ -53,19 +54,8 @@ class JiraSyncService(JiraBaseService):
         except Exception as e:
             print(f"Failed to publish connection update: {e}")
 
-    def sync_projects(self, connection_id: str, project_keys: list[str]):
-        connection = (
-            self.db.query(Connection).filter(Connection.id == connection_id).first()
-        )
-        if not connection:
-            raise ValueError("Connection not found")
-
-        self._sync_projects(connection, project_keys=project_keys)
-        self._publish_status(
-            connection, status=SyncStatus.DONE, message="Sync completed"
-        )
-
     def setup_new_connection(self, connection_id: str):
+        print("Setting up new connection with ID:", connection_id)
         connection = (
             self.db.query(Connection).filter(Connection.id == connection_id).first()
         )
@@ -89,10 +79,32 @@ class JiraSyncService(JiraBaseService):
                 message=f"Connection setup failed: {e}",
             )
 
+    def sync_projects(
+        self,
+        connection_id: str,
+        project_keys: list[str],
+        project_context_map: dict[str, str],
+    ):
+        connection = (
+            self.db.query(Connection).filter(Connection.id == connection_id).first()
+        )
+        if not connection:
+            raise ValueError("Connection not found")
+
+        self._sync_projects(
+            connection,
+            project_keys=project_keys,
+            project_context_map=project_context_map,
+        )
+        self._publish_status(
+            connection, status=SyncStatus.DONE, message="Sync completed"
+        )
+
     def _sync_projects(
         self,
         connection: Connection,
         project_keys: list[str],
+        project_context_map: dict[str, str],
     ):
         """Fetch projects and stories from Jira and cache them locally, including vector store"""
         self.db.add(connection)
@@ -204,6 +216,7 @@ class JiraSyncService(JiraBaseService):
                 )
 
                 project.synced = True
+                project.description = project_context_map.get(project.key, "")
                 self.db.add(project)
                 self.db.add_all(stories)
                 self.db.add_all(gherkin_acs)
@@ -216,10 +229,17 @@ class JiraSyncService(JiraBaseService):
                         status=SyncStatus.IN_PROGRESS,
                     )
 
-                    index_user_stories(
+                    # index_user_stories(
+                    #     connection_id=connection.id,
+                    #     project_key=project.key,
+                    #     user_stories=story_dtos,
+                    # )
+
+                    self.taxonomy_service.initialize_buckets(
                         connection_id=connection.id,
                         project_key=project.key,
-                        user_stories=story_dtos,
+                        stories=story_dtos,
+                        project_context=project.description or "",
                     )
 
                     self.vector_store.add_stories(

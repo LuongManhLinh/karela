@@ -57,8 +57,9 @@
     "proposals": "Proposals",
     "ac": "AC",
     "documentation": "Documentation",
-    "preferences": "Preferences",
-    "close": "Close"
+    "preferences": "Project Preferences",
+    "close": "Close",
+    "dashboard": "Dashboard"
   },
   "Common": {
     "workspace": "Workspace",
@@ -164,7 +165,22 @@
     "deleteFileFailed": "Failed to delete file",
     "noFilesUploaded": "No files uploaded yet.",
     "downloadAriaLabel": "download",
-    "deleteAriaLabel": "delete"
+    "deleteAriaLabel": "delete",
+    "projectDescription": "Project Description",
+    "projectDescriptionHelper": "Please enter a description for this project. This is necessary to classify user stories and run defect analysis.",
+    "projectDescriptionPlaceholder": "E.g., An e-commerce platform for selling electronic devices...",
+    "projectDescriptionLabel": "Project Description",
+    "projectDescriptionUpdatedSuccess": "Project description updated successfully.",
+    "projectDescriptionUpdateFailed": "Failed to update project description.",
+    "textDocAddedToPending": "Text documentation added to pending list. Please click 'Save All Pending' to upload.",
+    "fileAddedToPending": "File added to pending list. Please click 'Save All Pending' to upload.",
+    "saveAllPending": "Save All Pending",
+    "bulkUploadSuccess": "All pending documentation uploaded successfully.",
+    "addToPending": "Add to Pending",
+    "pendingLabel": "Pending",
+    "editPendingEntry": "Edit Pending Entry",
+    "selectFile": "Select File",
+    "editEntry": "Edit Entry"
   },
   "PreferencesPage": {
     "title": "Preferences",
@@ -245,7 +261,12 @@
       "type": "Type",
       "status": "Status",
       "TARGETED": "Targeted",
-      "ALL": "All"
+      "ALL": "All",
+      "delete": "Delete",
+      "PENDING": "Pending",
+      "IN_PROGRESS": "In Progress",
+      "DONE": "Done",
+      "FAILED": "Failed"
     },
     "AnalysisPage": {
       "selectAnalysis": "Select an analysis to view details."
@@ -274,6 +295,12 @@
     },
     "DefectChip": {
       "key": "Defect Key"
+    },
+    "DeleteWarningDialog": {
+      "title": "Warning",
+      "message": "If delete, all the related defects and proposals will be deleted, you may have to run analysis again.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
     }
   },
   "chat": {
@@ -295,7 +322,8 @@
       "createChatLabel": "Create Chat Session",
       "headerText": "Chat",
       "create": "Create",
-      "untitled": "Untitled Session"
+      "untitled": "Untitled Session",
+      "delete": "Delete"
     },
     "ChatPage": {
       "gettingStarted": "Select or create a chat session to get started."
@@ -311,6 +339,12 @@
     },
     "ToolMessage": {
       "title": "Tool Output"
+    },
+    "DeleteWarningDialog": {
+      "title": "Warning",
+      "message": "If delete, all the related messages and proposals will be deleted.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
     }
   },
   "dashboard": {
@@ -395,6 +429,12 @@
       "title": "Story Not Found",
       "message": "The story you are looking for does not exist in this project.",
       "goBack": "Go Back"
+    },
+    "ServiceUnavailable": {
+      "title": "Service Unavailable",
+      "message": "We're sorry, but the service is temporarily unavailable due to unexpected errors.",
+      "returnHome": "Return Home",
+      "reload": "Reload Page"
     }
   },
   "profile": {
@@ -443,7 +483,9 @@
       "areYouSureYouWantToLogout": "Are you sure you want to logout?",
       "cancel": "Cancel",
       "documentation": "Documentation",
-      "preferences": "Preferences"
+      "preferences": "Project Preferences",
+      "light": "Light",
+      "dark": "Dark"
     },
     "SyncProjectsDialog": {
       "title": "Sync Projects",
@@ -453,12 +495,25 @@
       "selectAll": "Select all",
       "deselectAll": "Deselect all",
       "alreadySynced": "Already synced ({count})",
-      "runAnalysisAfterSync": "Run analysis after sync",
+      "runAnalysisAfterSync": "Run defect analysis after sync",
       "cancel": "Cancel",
       "syncing": "Syncing...",
       "sync": "Sync{count, plural, =0 {} other { ({count})}}",
       "synced": "Synced",
-      "notSynced": "Not synced"
+      "notSynced": "Not synced",
+      "projectConfiguration": "Project Configuration",
+      "projectDescription": "Project Description",
+      "projectDescriptionHelper": "Please enter a description for this project. This is necessary to classify user stories and run defect analysis.",
+      "projectDescriptionPlaceholder": "E.g., An e-commerce platform for selling electronic devices...",
+      "configureProject": "Configure Project",
+      "editConfiguration": "Edit Configuration",
+      "save": "Save",
+      "projectDocumentation": "Project Documentation",
+      "projectDocumentationHelper": "Providing documentation (e.g., architecture, terminology, product scope) improves the quality of user story classification and defect analysis.",
+      "missingDocumentationTitle": "Missing Documentation",
+      "missingDocumentationMessage": "The following projects do not have any documentation provided:",
+      "missingDocumentationConfirmation": "Documentation is highly recommended to ensure the quality of user story classification and defect analysis. Are you sure you want to sync without documentation?",
+      "continueSync": "Continue Sync"
     }
   },
   "proposals": {

@@ -23,7 +23,7 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.runtime import Runtime
 
 from .state import AllState, AllContext
-from ..schemas import BucketGroup, UserStoryMinimal, UserStoryTag
+from ..schemas import BucketGroup, StoryMinimal, StoryTag
 from ..nodes import (
     build_context_gatherer_agent,
     build_self_defect_agent,
@@ -53,10 +53,14 @@ def build_all_graph():
     dependency_matrix_agent = build_dependency_matrix_agent()
 
     def context_gatherer_node(state: AllState, runtime: Runtime[AllContext]) -> dict:
-        project_context = run_context_gatherer(
-            agent=context_agent, context=runtime.context
+        """Gather project context if not already provided."""
+        print("\n| ALL Graph -> [context_gatherer]")
+        pj_context = run_context_gatherer(
+            agent=context_agent,
+            context=runtime.context,
+            project_desc=runtime.context.project_description,
         )
-        return {"project_context": project_context}
+        return {"project_context": pj_context}
 
     def bucket_mapper_node(state: AllState, runtime: Runtime[AllContext]) -> dict:
         print(f"\n{'='*80}\n| Bucket Mapper Node — Starting\n{'='*80}")
@@ -69,7 +73,7 @@ def build_all_graph():
         )
 
         key_to_story = {
-            dto.key: UserStoryMinimal(
+            dto.key: StoryMinimal(
                 key=dto.key,
                 summary=dto.summary,
                 description=dto.description,
@@ -108,7 +112,7 @@ def build_all_graph():
                 related_story = key_to_story.get(related_key)
                 if related_story:
                     related_stories.append(
-                        UserStoryTag(
+                        StoryTag(
                             key=related_story.key,
                             summary=related_story.summary,
                             description=related_story.description,
@@ -118,7 +122,7 @@ def build_all_graph():
             if related_stories:
                 bucket_groups.append(
                     BucketGroup(
-                        target_story=UserStoryTag(
+                        target_story=StoryTag(
                             key=story.key,
                             summary=story.summary,
                             description=story.description,
@@ -147,45 +151,17 @@ def build_all_graph():
         all_stories = state.get("all_stories", [])
         project_context = state.get("project_context", "")
         batch_size = runtime.context.self_batch_size
-        concurrent_batches = runtime.context.self_concurrent_batches
 
         print(
             f"\n{'='*80}\n| Batch Self-Defect Analyzer\n"
             f"| Total unique stories: {len(all_stories)}\n{'='*80}"
         )
-        defects = []
-
-        if concurrent_batches is None or concurrent_batches < 2:
-            # Run without concurrency
-            for i in range(0, len(all_stories), batch_size):
-                batch = all_stories[i : i + batch_size]
-                defects.extend(
-                    run_self_defect_analyzer(
-                        agent=self_defect_agent,
-                        stories=batch,
-                        project_context=project_context,
-                    )
-                )
-        else:
-            batches = [
-                all_stories[i : i + batch_size]
-                for i in range(0, len(all_stories), batch_size)
-            ]
-
-            with ThreadPoolExecutor(max_workers=concurrent_batches) as executor:
-                futures = {
-                    executor.submit(
-                        run_self_defect_analyzer,
-                        agent=self_defect_agent,
-                        stories=batch,
-                        project_context=project_context,
-                    ): idx
-                    for idx, batch in enumerate(batches)
-                }
-                for future in as_completed(futures):
-                    idx = futures[future]
-                    print(f"Batch {idx + 1}/{len(batches)} completed")
-                    defects.extend(future.result())
+        defects = run_self_defect_analyzer(
+            agent=self_defect_agent,
+            stories=all_stories,
+            project_context=project_context,
+            batch_size=batch_size,
+        )
         return {"raw_defects": defects}
 
     def pairwise_defect_analyzer_node(
@@ -193,41 +169,20 @@ def build_all_graph():
     ) -> dict:
         bucket_groups = state.get("bucket_groups", [])
         project_context = state.get("project_context", "")
-        concurrent_batches = runtime.context.pairwise_concurrent_batches
 
         print(
             f"\n{'='*80}\n| Intra-Community Pairwise Analyzer\n"
             f"| Total bucket groups: {len(bucket_groups)}\n{'='*80}"
         )
-        all_defects = []
-        if concurrent_batches is None or concurrent_batches < 2:
-            # Run without concurrency
-
-            for group in bucket_groups:
-                defects = run_pairwise_defect_analyzer(
-                    agent=pairwise_agent,
-                    stories=group.related_stories,
-                    target_story=group.target_story,
-                    project_context=project_context,
-                )
-                all_defects.extend(defects)
-        else:
-            with ThreadPoolExecutor(max_workers=concurrent_batches) as executor:
-                futures = {
-                    executor.submit(
-                        run_pairwise_defect_analyzer,
-                        agent=pairwise_agent,
-                        stories=group.related_stories,
-                        target_story=group.target_story,
-                        project_context=project_context,
-                    ): group.target_story.key
-                    for group in bucket_groups
-                }
-                for future in as_completed(futures):
-                    key = futures[future]
-                    print(f"Bucket group for target story {key} completed")
-                    all_defects.extend(future.result())
-        return {"raw_defects": all_defects}
+        buckets = [
+            (group.target_story, group.related_stories) for group in bucket_groups
+        ]
+        defects = run_pairwise_defect_analyzer(
+            agent=pairwise_agent,
+            buckets=buckets,
+            project_context=project_context,
+        )
+        return {"raw_defects": defects}
 
     def defect_validator_node(state: AllState) -> dict:
         raw_defects = state.get("raw_defects", [])

@@ -141,7 +141,11 @@ const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
           ))}
         </List>
       ) : acs.length === 0 ? (
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 2, px: 2 }}>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mt: 2, px: 2 }}
+        >
           {t("noAcceptanceCriteriaFound")}
           {storyKey ? ` ${t("forStory")} ${storyKey}` : ""}
         </Typography>
@@ -165,8 +169,7 @@ const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
                   onClick={() => handleSelectGherkinItem(itemId)}
                   sx={{
                     borderRadius: 1.5,
-                    border: "1px solid",
-                    borderColor: isSelected ? "primary.main" : "divider",
+                    bgcolor: "surfaceContainerHighest",
                     alignItems: "flex-start",
                   }}
                 >

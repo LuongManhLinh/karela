@@ -24,10 +24,19 @@ import {
   List,
   ListItem,
   ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
   Skeleton,
   Typography,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
+import { MoreHoriz, Delete, Warning } from "@mui/icons-material";
 import { scrollBarSx } from "@/constants/scrollBarSx";
+import DeleteWarningDialog from "./DeleteWarningDialog";
+import { analysisService } from "@/services/analysisService";
 
 const getStatusColor = (status?: string): ChipProps["color"] => {
   switch (status) {
@@ -92,6 +101,53 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
 
   // WebSocket
   const { subscribe, unsubscribe } = useWebSocketContext();
+
+  // Menu & Delete State
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const menuOpen = Boolean(menuAnchorEl);
+  const [idToDelete, setIdToDelete] = useState<string | null>(null);
+  const [deleteWarningOpen, setDeleteWarningOpen] = useState(false);
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, id: string) => {
+    event.stopPropagation();
+    setIdToDelete(id);
+    setMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+  };
+
+  const handleDeleteClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    handleMenuClose();
+    setDeleteWarningOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (idToDelete) {
+      try {
+        await analysisService.deleteAnalysis(idToDelete);
+        await refetchSummaries();
+        router.push(
+          level === "connection"
+            ? `/app/analyses`
+            : level === "project"
+              ? `/app/projects/${projectKey}/analyses`
+              : `/app/projects/${projectKey}/stories/${storyKey}/analyses`,
+        );
+      } catch (error) {
+        console.error("Failed to delete analysis:", error);
+      }
+    }
+    setDeleteWarningOpen(false);
+    setIdToDelete(null);
+  };
+
+  const handleCloseDeleteWarning = () => {
+    setDeleteWarningOpen(false);
+    setIdToDelete(null);
+  };
 
   useEffect(() => {
     const runningIds = summaries
@@ -234,8 +290,7 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
                   onClick={() => handleSelectAnalysis(summary.key)}
                   sx={{
                     borderRadius: 1.5,
-                    border: "1px solid",
-                    borderColor: isSelected ? "primary.main" : "divider",
+                    bgcolor: "surfaceContainerHighest",
                     alignItems: "flex-start",
                     flexDirection: "column",
                     gap: 1,
@@ -248,9 +303,42 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
                     />
                   )}
                   <Box sx={{ width: "100%" }}>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }} noWrap>
-                      {summary.key}
-                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{ fontWeight: 600, mr: 1 }}
+                        noWrap
+                      >
+                        {summary.key}
+                      </Typography>
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        {(summary as any).error && (
+                          <Tooltip
+                            title={(summary as any).error}
+                            placement="top"
+                          >
+                            <Warning
+                              fontSize="small"
+                              color="warning"
+                              sx={{ mr: 0.5 }}
+                            />
+                          </Tooltip>
+                        )}
+                        <IconButton
+                          size="small"
+                          onClick={(e) => handleMenuOpen(e, summary.id)}
+                          sx={{ p: 0.25 }}
+                        >
+                          <MoreHoriz fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </Box>
                     <Typography
                       variant="caption"
                       color="text.secondary"
@@ -280,7 +368,7 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
                       )}
                       <Chip
                         size="small"
-                        label={`${t("status")}: ${summary.status}`}
+                        label={`${t("status")}: ${t(summary.status)}`}
                         color={getStatusColor(summary.status)}
                       />
                       {summary.type && (
@@ -336,6 +424,32 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
       primaryActionLabel={t("run")}
     >
       {children}
+      <Menu
+        anchorEl={menuAnchorEl}
+        open={menuOpen}
+        onClose={handleMenuClose}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <MenuItem onClick={handleDeleteClick}>
+          <ListItemIcon>
+            <Delete fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>{t("delete")}</ListItemText>
+        </MenuItem>
+      </Menu>
+      <DeleteWarningDialog
+        open={deleteWarningOpen}
+        onClose={handleCloseDeleteWarning}
+        onConfirm={handleConfirmDelete}
+      />
     </PageLayout>
   );
 };

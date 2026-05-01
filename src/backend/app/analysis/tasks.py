@@ -6,6 +6,7 @@ from common.redis_app import redis_client
 
 @job("analysis", timeout=3600, connection=redis_client)
 def run_analysis(analysis_id: str):
+    print(f"Starting analysis run for analysis_id: {analysis_id}")
     db = SessionLocal()
     try:
         service = AnalysisRunService(db)
@@ -16,6 +17,7 @@ def run_analysis(analysis_id: str):
 
 @job("proposal", timeout=3600, connection=redis_client)
 def generate_proposals(analysis_id: str):
+    print(f"Starting proposal generation for analysis_id: {analysis_id}")
     db = SessionLocal()
     try:
         service = AnalysisRunService(db)

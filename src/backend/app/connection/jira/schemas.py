@@ -3,6 +3,8 @@ from typing import Any, Optional
 from enum import Enum
 from pydantic import BaseModel, Field, ConfigDict
 
+from common.schemas import StoryMinimal
+
 
 class Project(BaseModel):
     id: Optional[str] = None
@@ -203,11 +205,8 @@ class ProjectDtoSync(BaseModel):
     synced: bool = False
 
 
-class StoryDto(BaseModel):
+class StoryDto(StoryMinimal):
     id: str
-    key: str
-    summary: Optional[str] = None
-    description: Optional[str] = None
 
     model_config = ConfigDict(
         extra="ignore",
@@ -267,6 +266,11 @@ class ConnectionSyncStatusDto(BaseModel):
     )
 
 
-class SyncProjectsRequests(BaseModel):
-    project_keys: list[str] = Field(default_factory=list)
-    run_analysis_after_sync: bool = Field(default=False)
+class SyncProject(BaseModel):
+    key: str
+    description: str
+    run_analysis_after_sync: bool
+
+
+class SyncProjectsRequest(BaseModel):
+    projects: list[SyncProject]

@@ -7,7 +7,7 @@ from llm.dynamic_agent import GenimiDynamicAgent
 from common.configs import LlmConfig
 from common.agents.schemas import LlmContext
 
-from .schemas import DefectByLlm, UserStoryMinimal, RelatedStory
+from .schemas import DefectByLlm, StoryMinimal, RelatedStory
 from .response_schemas import (
     SelfDefectResponse,
     PairwiseDefectResponse,
@@ -31,14 +31,17 @@ from .prompts import (
 from .tools import (
     context_gatherer_tools,
     relational_search_tools,
-    community_mapper_tools,
-    inter_community_tools,
 )
+from app.documentation.services import DocumentationService
+
+from app.documentation.llm_tools import doc_tools
+
 from .utils import (
     format_stories,
     format_raw_defects,
     get_last_langchain_message,
     parse_last_message,
+    get_response_as_schema,
 )
 
 
@@ -68,6 +71,7 @@ def _build_agent(
         system_prompt=system_prompt,
         tools=tools,
         middleware=[user_context_prompt] if system_prompt else None,
+        top_p=LlmConfig.LLM_DEFECT_TOP_P,
     )
 
 
@@ -75,7 +79,7 @@ def _build_agent(
 def build_context_gatherer_agent():
     return _build_agent(
         system_prompt=CONTEXT_GATHERER_PROMPT,
-        tools=context_gatherer_tools,
+        tools=doc_tools + context_gatherer_tools,
     )
 
 
@@ -126,7 +130,8 @@ def build_dependency_matrix_agent():
 def run_context_gatherer(
     agent: GenimiDynamicAgent,
     context: LlmContext,
-    target_story: UserStoryMinimal = None,
+    target_story: StoryMinimal = None,
+    project_desc: str = None,
 ) -> str:
     """Run the Context Gatherer agent to retrieve project-level context.
 
@@ -134,6 +139,17 @@ def run_context_gatherer(
         The project context as a summarized string.
     """
     print(f"\n{'='*80}\n| Context Gatherer Node — Starting\n{'='*80}")
+    doc_service = DocumentationService(db=context.db)
+    doc_count = doc_service.count_docs_for_project(
+        connection_id=context.connection_id,
+        project_key=context.project_key,
+    )
+    if doc_count == 0:
+        print(
+            f"| Context Gatherer Node — No documentation found for project {context.project_key}"
+        )
+        project_context = f"Project Description:\n{project_desc}" if project_desc else ""
+        return project_context
 
     if target_story:
         story_text = format_stories([target_story])
@@ -148,18 +164,25 @@ def run_context_gatherer(
     response = agent.invoke(messages, context=context)
 
     # Extract text response (this agent returns plain text, not JSON)
-    context_text = get_last_langchain_message(response)
+    gathered_context = get_last_langchain_message(response)
+    project_context = (
+        f"# Project Description:\n{project_desc}\n\n# Documentation Context:\n{gathered_context}"
+        if project_desc
+        else f"Documentation Context:\n{gathered_context}"
+    )
+    
 
     print(
-        f"| Context Gatherer — Retrieved {len(context_text)} chars of project context"
+        f"| Context Gatherer — Retrieved {len(gathered_context)} chars of project context"
     )
-    return context_text
+    return project_context
 
 
 def run_self_defect_analyzer(
     agent: GenimiDynamicAgent,
-    stories: list[UserStoryMinimal],
+    stories: list[StoryMinimal],
     project_context: str,
+    batch_size: int = 1,
 ) -> list[DefectByLlm]:
     """Analyze stories for self-defects (INVEST criteria violations).
 
@@ -170,47 +193,44 @@ def run_self_defect_analyzer(
         f"\n{'='*80}\n| Self-Defect Analyzer Node\n"
         f"| Stories to analyze: {len(stories)}\n{'='*80}"
     )
-
     if not stories:
         print("| No stories to analyze. Skipping.")
         return []
 
-    stories_text = format_stories(stories)
+    msg_lists = []
+    for i in range(0, len(stories), batch_size):
+        batch_stories = stories[i : i + batch_size]
+        stories_text = format_stories(batch_stories)
 
-    msg = SELF_DEFECT_ANALYZER_MESSAGE.format(
-        project_context=project_context or "N/A",
-        stories=stories_text,
-    )
-
-    messages = [HumanMessage(content=msg)]
-    response = agent.invoke(messages)
-    output: SelfDefectResponse = None
-
-    try:
-        output = response["structured_response"]
-    except Exception as e:
-        print(f"| ERROR parsing SelfDefectResponse: {e}")
-
-    if not output:
-        print(f"| Try to parse last message")
-        output = parse_last_message(response, Clazz=SelfDefectResponse)
-
-    if not output:
-        print(f"| Failed to parse SelfDefectResponse. Returning empty defect list.")
-        return []
+        msg = SELF_DEFECT_ANALYZER_MESSAGE.format(
+            project_context=project_context or "N/A",
+            stories=stories_text,
+        )
+        msg_lists.append(HumanMessage(content=msg))
 
     defects = []
-    for d in output.defects:
-        defects.append(
-            DefectByLlm(
-                type=d.type,
-                story_keys=[d.story_key],
-                severity=d.severity,
-                explanation=d.explanation,
-                confidence=d.confidence,
-                suggested_fix=d.suggested_fix,
-            )
+
+    responses = agent.batch(msg_lists)
+    for response in responses:
+        output: SelfDefectResponse = get_response_as_schema(
+            response, SelfDefectResponse
         )
+
+        if not output:
+            print("| No structured response found in this response.")
+            continue
+
+        for d in output.defects:
+            defects.append(
+                DefectByLlm(
+                    type=d.type,
+                    story_keys=[d.story_key],
+                    severity=d.severity,
+                    explanation=d.explanation,
+                    confidence=d.confidence,
+                    suggested_fix=d.suggested_fix,
+                )
+            )
 
     print(f"| Self-Defect Analyzer — Found {len(defects)} defects")
     return defects
@@ -218,9 +238,8 @@ def run_self_defect_analyzer(
 
 def run_pairwise_defect_analyzer(
     agent: GenimiDynamicAgent,
-    stories: list[UserStoryMinimal] | str,
+    buckets: list[tuple[StoryMinimal, list[StoryMinimal]]],
     project_context: str,
-    target_story: UserStoryMinimal = None,
 ) -> list[DefectByLlm]:
     """Compare stories pairwise for CONFLICT and DUPLICATION.
 
@@ -232,61 +251,48 @@ def run_pairwise_defect_analyzer(
     """
     print(
         f"\n{'='*80}\n| Pairwise Defect Analyzer Node\n"
-        f"| Stories to compare: {len(stories)}"
-        f"{f' | Target: {target_story.key}' if target_story else ''}\n{'='*80}"
+        f"| Buckets to analyze: {len(buckets)}\n{'='*80}"
     )
 
-    if not stories:
-        print("| Not enough stories for pairwise comparison. Skipping.")
+    if not buckets:
+        print("| Not enough buckets for pairwise comparison. Skipping.")
         return []
 
-    stories_text = stories if isinstance(stories, str) else format_stories(stories)
-
-    if target_story:
-        # TARGETED mode: compare target vs. related stories
+    msg_lists = []
+    for target_story, related_stories in buckets:
+        if not related_stories:
+            continue
         target_text = format_stories([target_story])
-        prompt = PAIRWISE_DEFECT_ANALYZER_TARGETED_MESSAGE.format(
+        stories_text = format_stories(related_stories)
+        msg = PAIRWISE_DEFECT_ANALYZER_MESSAGE.format(
             project_context=project_context or "N/A",
             target_story=target_text,
             related_stories=stories_text,
         )
-    else:
-        # BATCH mode: compare all stories within the group
-        prompt = PAIRWISE_DEFECT_ANALYZER_MESSAGE.format(
-            project_context=project_context or "N/A",
-            stories=stories_text,
-        )
-
-    messages = [HumanMessage(content=prompt)]
-    response = agent.invoke(messages)
-
-    output: PairwiseDefectResponse = None
-
-    try:
-        output = response["structured_response"]
-    except Exception as e:
-        print(f"| ERROR parsing PairwiseDefectResponse: {e}")
-
-    if not output:
-        print(f"| Try to parse last message")
-        output = parse_last_message(response, Clazz=PairwiseDefectResponse)
-
-    if not output:
-        print(f"| Failed to parse PairwiseDefectResponse. Returning empty defect list.")
-        return []
+        msg_lists.append(HumanMessage(content=msg))
 
     defects = []
-    for d in output.defects:
-        defects.append(
-            DefectByLlm(
-                type=d.type,
-                story_keys=[d.story_key_a, d.story_key_b],
-                severity=d.severity,
-                explanation=d.explanation,
-                confidence=d.confidence,
-                suggested_fix=d.suggested_fix,
-            )
+    responses = agent.batch(msg_lists)
+    for response in responses:
+        output: PairwiseDefectResponse = get_response_as_schema(
+            response, PairwiseDefectResponse
         )
+
+        if not output:
+            print("| No structured response found in this response.")
+            continue
+
+        for d in output.defects:
+            defects.append(
+                DefectByLlm(
+                    type=d.type,
+                    story_keys=d.story_keys,
+                    severity=d.severity,
+                    explanation=d.explanation,
+                    confidence=d.confidence,
+                    suggested_fix=d.suggested_fix,
+                )
+            )
 
     print(f"| Pairwise Defect Analyzer — Found {len(defects)} defects")
     return defects
@@ -295,7 +301,7 @@ def run_pairwise_defect_analyzer(
 def run_defect_validator(
     agent: GenimiDynamicAgent,
     raw_defects: list[DefectByLlm],
-    stories: list[UserStoryMinimal] | str,
+    stories: list[StoryMinimal] | str,
 ) -> list[DefectByLlm]:
     """Validate and filter raw defects, returning only confirmed defects.
 
@@ -325,19 +331,14 @@ def run_defect_validator(
     messages = [HumanMessage(content=prompt)]
     response = agent.invoke(messages)
 
-    output: ValidatorResponse = None
-
-    try:
-        output = response["structured_response"]
-    except Exception as e:
-        print(f"| ERROR parsing ValidatorResponse: {e}")
+    output: ValidatorResponse = get_response_as_schema(
+        response=response, Clazz=ValidatorResponse
+    )
 
     if not output:
-        print(f"| Try to parse last message")
-        output = parse_last_message(response, Clazz=ValidatorResponse)
-
-    if not output:
-        print(f"| Failed to parse ValidatorResponse. Returning default defect list ")
+        print(
+            "| Failed to parse structured ValidatorResponse. Returning default defects"
+        )
         return sorted_defects
 
     # Apply validation decisions
@@ -390,7 +391,7 @@ def run_defect_filter(
 
 def run_dependency_matrix_analyzer(
     agent: GenimiDynamicAgent,
-    stories: list[UserStoryMinimal],
+    stories: list[StoryMinimal],
 ) -> list[DefectByLlm]:
     """Analyze stories for dependency defects (circular deps, extreme bottlenecks).
 

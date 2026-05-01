@@ -8,6 +8,7 @@ from ..schemas import DefectByLlm
 from .state import AllState, AllContext
 from .graph import build_all_graph
 from sqlalchemy.orm import Session
+from common.database import get_db
 
 # Build the compiled graph at module level
 _graph = build_all_graph()
@@ -16,12 +17,13 @@ _graph = build_all_graph()
 def run_analysis(
     connection_id: str,
     project_key: str,
-    db: Session,
+    db: Session | None = None,
     extra_instruction: str = None,
     existing_defects: list[DefectByLlm] = None,
     self_batch_size: int = 20,
     self_concurrent_batches: int | None = None,
     pairwise_concurrent_batches: int | None = None,
+    project_description: str | None = None,
 ) -> list[DefectByLlm]:
     """Run the ALL (batch) defect detection workflow on all project stories.
 
@@ -47,7 +49,7 @@ def run_analysis(
     }
 
     context = AllContext(
-        db=db,
+        db=db or next(get_db()),
         connection_id=connection_id,
         project_key=project_key,
         extra_instruction=extra_instruction,
@@ -55,6 +57,7 @@ def run_analysis(
         self_batch_size=self_batch_size,
         self_concurrent_batches=self_concurrent_batches,
         pairwise_concurrent_batches=pairwise_concurrent_batches,
+        project_description=project_description,
     )
 
     final_state = _graph.invoke(initial_state, context=context)

@@ -10,7 +10,6 @@ class TextDocumentationDto(BaseModel):
     name: str
     description: Optional[str] = None
     content: Optional[str] = None
-    headers: Optional[list[dict]] = None
     created_at: datetime
     updated_at: datetime
 
@@ -37,7 +36,6 @@ class FileDocumentationDto(BaseModel):
     name: str
     url: str
     description: Optional[str] = None
-    headers: Optional[list[dict]] = None
     created_at: datetime
     updated_at: datetime
 
@@ -52,4 +50,3 @@ class DocumentationSummary(BaseModel):
     key: str
     name: str
     description: Optional[str] = None
-    headers: Optional[list[dict]] = None

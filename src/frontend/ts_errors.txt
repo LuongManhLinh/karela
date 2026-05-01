@@ -1,0 +1,35 @@
+components/chat/ChatLayout.tsx(311,28): error TS2304: Cannot find name 'onDeleteChat'.
+components/dashboard/ConnectionDashboard.tsx(145,60): error TS18047: 'project' is possibly 'null'.
+components/dashboard/ConnectionDashboard.tsx(157,24): error TS18047: 'project' is possibly 'null'.
+components/dashboard/ConnectionDashboard.tsx(157,40): error TS18047: 'project' is possibly 'null'.
+components/dashboard/ConnectionDashboard.tsx(160,24): error TS18047: 'project' is possibly 'null'.
+components/dashboard/ConnectionDashboard.tsx(165,32): error TS18047: 'project' is possibly 'null'.
+components/dashboard/ConnectionDashboard.tsx(167,32): error TS18047: 'project' is possibly 'null'.
+components/dashboard/ConnectionDashboard.tsx(171,32): error TS18047: 'project' is possibly 'null'.
+components/dashboard/ConnectionDashboard.tsx(173,32): error TS18047: 'project' is possibly 'null'.
+components/dashboard/ConnectionDashboard.tsx(177,32): error TS18047: 'project' is possibly 'null'.
+components/dashboard/ConnectionDashboard.tsx(179,32): error TS18047: 'project' is possibly 'null'.
+components/dashboard/ConnectionDashboard.tsx(183,32): error TS18047: 'project' is possibly 'null'.
+components/dashboard/ConnectionDashboard.tsx(185,32): error TS18047: 'project' is possibly 'null'.
+components/dashboard/ProjectDashboard.tsx(253,60): error TS18047: 'story' is possibly 'null'.
+components/dashboard/ProjectDashboard.tsx(266,26): error TS18047: 'story' is possibly 'null'.
+components/dashboard/ProjectDashboard.tsx(269,31): error TS18047: 'story' is possibly 'null'.
+components/dashboard/ProjectDashboard.tsx(270,32): error TS18047: 'story' is possibly 'null'.
+components/dashboard/ProjectDashboard.tsx(272,32): error TS18047: 'story' is possibly 'null'.
+components/dashboard/ProjectDashboard.tsx(273,34): error TS18047: 'story' is possibly 'null'.
+components/dashboard/ProjectDashboard.tsx(279,32): error TS18047: 'story' is possibly 'null'.
+components/dashboard/ProjectDashboard.tsx(281,32): error TS18047: 'story' is possibly 'null'.
+components/dashboard/ProjectDashboard.tsx(285,32): error TS18047: 'story' is possibly 'null'.
+components/dashboard/ProjectDashboard.tsx(287,32): error TS18047: 'story' is possibly 'null'.
+components/dashboard/ProjectDashboard.tsx(291,32): error TS18047: 'story' is possibly 'null'.
+components/dashboard/ProjectDashboard.tsx(293,32): error TS18047: 'story' is possibly 'null'.
+hooks/queries/useConnectionQueries.ts(78,66): error TS18047: 'page.data' is possibly 'null'.
+hooks/queries/useConnectionQueries.ts(113,67): error TS18047: 'page.data' is possibly 'null'.
+hooks/queries/useDashboardQueries.ts(16,92): error TS2554: Expected 1 arguments, but got 3.
+hooks/queries/useDashboardQueries.ts(18,66): error TS18047: 'page.data' is possibly 'null'.
+hooks/queries/useDashboardQueries.ts(18,76): error TS2339: Property 'stories' does not exist on type 'ProjectDashboardDto'.
+hooks/queries/useDashboardQueries.ts(19,27): error TS18047: 'lastPage.data' is possibly 'null'.
+hooks/queries/useDashboardQueries.ts(44,82): error TS2554: Expected 0 arguments, but got 2.
+hooks/queries/useDashboardQueries.ts(46,67): error TS18047: 'page.data' is possibly 'null'.
+hooks/queries/useDashboardQueries.ts(46,77): error TS2339: Property 'projects' does not exist on type 'ConnectionDashboardDto'.
+hooks/queries/useDashboardQueries.ts(47,28): error TS18047: 'lastPage.data' is possibly 'null'.

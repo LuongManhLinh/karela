@@ -1,10 +1,10 @@
 from app.taxonomy.services import TaxonomyService
 from app.connection.jira.services import JiraService
-from app.analysis.agents.schemas import UserStoryMinimal
+from app.analysis.agents.schemas import StoryMinimal
 from common.database import get_db
 
-conn_id = "sudo"
-project_key = "TEST"
+conn_id = "515b536d-ab6f-4c9c-9e8e-caf2147d0aed"
+project_key = "VBS"
 
 service = TaxonomyService(db=next(get_db()))
 jira_service = JiraService(db=next(get_db()))
@@ -24,12 +24,17 @@ stories = jira_service.fetch_stories(connection_id=conn_id, project_key=project_
 #     project_context=system_context,
 # )
 
+story_to_tags, tag_to_stories = service.get_project_stories_tags(
+    connection_id=conn_id, project_key=project_key
+)
+print("STORY TO TAGS")
+# print in sorted story key order
 for story in stories:
-    print(f"{story.key} - {story.summary}")
-    tags = service.get_story_tags(
-        connection_id=conn_id,
-        project_key=project_key,
-        story_key=story.key,
-    )
-    print(f"Tags: {tags}")
+    print(f"{story.key}: {story.summary}")
+    print(f"Tags: {story_to_tags.get(story.key, set())}")
     print("---")
+
+print("\nTAG TO STORIES")
+# print in sorted tag name order
+for tag in sorted(tag_to_stories.keys()):
+    print(f"{tag}: {tag_to_stories[tag]}")

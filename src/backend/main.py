@@ -12,7 +12,7 @@ processes = []
 for queue_type in queue_types:
     print(f"Starting worker for queue: {queue_type}")
     for _ in range(ServerConfig.WORKER_PER_QUEUE):
-        p = subprocess.Popen(["rq", "worker", f"karela_{queue_type}"])
+        p = subprocess.Popen(["rq", "worker", f"{queue_type}"])
         processes.append(p)
         time.sleep(0.1)  # Stagger worker startups
 

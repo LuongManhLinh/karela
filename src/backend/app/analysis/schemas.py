@@ -11,6 +11,7 @@ class AnalysisSummary(SessionSummary):
     generating_proposals: Optional[bool] = False
     num_defects: Optional[int] = None
     num_proposals: Optional[int] = None
+    error: Optional[str] = None
 
     model_config = ConfigDict(
         extra="ignore",

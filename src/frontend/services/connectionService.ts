@@ -6,10 +6,14 @@ import {
   ConnectionSyncStatusDto,
   ProjectDashboardDto,
   ProjectDto,
-  ProjectDtoSync,
+  ProjectSyncDto,
   StoryDashboardDto,
   StoryDto,
   StorySummary,
+  SyncProject,
+  SyncProjectsRequests,
+  ProjectInfo,
+  StoryInfo,
 } from "@/types/connection";
 
 export const connectionService = {
@@ -65,6 +69,18 @@ export const connectionService = {
     return response.data;
   },
 
+  getDashboardStories: async (
+    projectKey: string,
+    skip: number = 0,
+    limit: number = 10,
+  ): Promise<BasicResponse<StoryInfo[]>> => {
+    const response = await apiClient.get<BasicResponse<StoryInfo[]>>(
+      `/connections/projects/${projectKey}/dashboard/stories`,
+      { params: { skip, limit } },
+    );
+    return response.data;
+  },
+
   getStoryDashboardInfo: async (
     projectKey: string,
     storyKey: string,
@@ -83,21 +99,48 @@ export const connectionService = {
     );
     return response.data;
   },
-  getProjectsSyncStatus: async (): Promise<BasicResponse<ProjectDtoSync[]>> => {
-    const response = await apiClient.get<BasicResponse<ProjectDtoSync[]>>(
+
+  getDashboardProjects: async (
+    skip: number = 0,
+    limit: number = 5,
+  ): Promise<BasicResponse<ProjectInfo[]>> => {
+    const response = await apiClient.get<BasicResponse<ProjectInfo[]>>(
+      `/connections/dashboard/projects`,
+      { params: { skip, limit } },
+    );
+    return response.data;
+  },
+  getProjectsSyncStatus: async (): Promise<BasicResponse<ProjectSyncDto[]>> => {
+    const response = await apiClient.get<BasicResponse<ProjectSyncDto[]>>(
       `/connections/projects/sync-status`,
     );
     return response.data;
   },
-  syncProjects: async (
-    projectKeys: string[],
-    runAnalysisAfterSync: boolean,
-  ): Promise<BasicResponse> => {
+  syncProjects: async (projects: SyncProject[]): Promise<BasicResponse> => {
     const response = await apiClient.post<BasicResponse>(
       `/connections/projects/sync`,
       {
-        project_keys: projectKeys,
-        run_analysis_after_sync: runAnalysisAfterSync,
+        projects,
+      } as SyncProjectsRequests,
+    );
+    return response.data;
+  },
+  getProjectDescription: async (
+    projectKey: string,
+  ): Promise<BasicResponse<string>> => {
+    const response = await apiClient.get<BasicResponse<string>>(
+      `/connections/projects/${projectKey}/description`,
+    );
+    return response.data;
+  },
+  updateProjectDescription: async (
+    projectKey: string,
+    description: string,
+  ): Promise<BasicResponse> => {
+    const response = await apiClient.put<BasicResponse>(
+      `/connections/projects/${projectKey}/description`,
+      {
+        description,
       },
     );
     return response.data;

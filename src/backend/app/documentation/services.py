@@ -16,7 +16,7 @@ from .schemas import (
     UpdateFileDocumentationRequest,
 )
 from .vectorstore import DocumentationVectorStore
-from .tasks import process_document_task
+from .tasks import process_document_task, process_bulk_docs_task
 from uuid import uuid4
 
 
@@ -28,7 +28,6 @@ def _text_doc_to_dto(doc: TextDocumentation) -> TextDocumentationDto:
         name=doc.name,
         description=doc.description,
         content=doc.content,
-        headers=doc.headers,
         created_at=doc.created_at,
         updated_at=doc.updated_at,
     )
@@ -42,7 +41,6 @@ def _file_doc_to_dto(doc: FileDocumentation) -> FileDocumentationDto:
         name=doc.name,
         url=doc.url,
         description=doc.description,
-        headers=doc.headers,
         created_at=doc.created_at,
         updated_at=doc.updated_at,
     )
@@ -54,6 +52,27 @@ class DocumentationService:
         self.vectorstore = DocumentationVectorStore()
 
     # ── Text Documentation ──────────────────────────────────────────
+
+    def count_docs_for_project(self, connection_id: str, project_key: str) -> int:
+        text_doc_count = (
+            self.db.query(TextDocumentation)
+            .filter(
+                TextDocumentation.connection_id == connection_id,
+                TextDocumentation.project_key == project_key,
+            )
+            .count()
+        )
+
+        file_doc_count = (
+            self.db.query(FileDocumentation)
+            .filter(
+                FileDocumentation.connection_id == connection_id,
+                FileDocumentation.project_key == project_key,
+            )
+            .count()
+        )
+
+        return text_doc_count + file_doc_count
 
     def list_text_docs(
         self, connection_id: str, project_key: str
@@ -107,9 +126,7 @@ class DocumentationService:
         self.db.refresh(doc)
 
         if request.content:
-            process_document_task(
-                connection_id=connection_id, doc_id=doc.id, type="text"
-            )
+            process_document_task.delay(doc_id=doc.id, type="text")
 
         return _text_doc_to_dto(doc)
 
@@ -136,9 +153,7 @@ class DocumentationService:
         self.db.refresh(doc)
 
         if request.content is not None and request.content != doc.content:
-            process_document_task(
-                connection_id=doc.connection_id, doc_id=doc.id, type="text"
-            )
+            process_document_task.delay(doc_id=doc.id, type="text")
 
         return _text_doc_to_dto(doc)
 
@@ -213,9 +228,108 @@ class DocumentationService:
         self.db.commit()
         self.db.refresh(doc)
 
-        process_document_task(doc_id=doc.id, type="file")
+        process_document_task.delay(doc_id=doc.id, type="file")
 
         return _file_doc_to_dto(doc)
+
+    # ── Bulk Documentation ──────────────────────────────────────────
+
+    def bulk_upload_docs(
+        self,
+        connection_id: str,
+        project_key: str,
+        text_docs: list[dict],
+        files: list[UploadFile],
+        file_docs_meta: dict,
+    ) -> dict:
+        """
+        text_docs: [{"name": str, "content": str, "description": str|None}]
+        files: list[UploadFile]
+        file_docs_meta: mapping of filename to description dict {"filename.txt": "desc"}
+        """
+        created_text_docs = []
+        created_file_docs = []
+        doc_tasks = []
+
+        # 1. Process Text Docs
+        if text_docs:
+            text_doc_count = (
+                self.db.query(TextDocumentation)
+                .filter(
+                    TextDocumentation.connection_id == connection_id,
+                    TextDocumentation.project_key == project_key,
+                )
+                .count()
+            )
+
+            for idx, t_doc in enumerate(text_docs):
+                doc = TextDocumentation(
+                    id=uuid_generator(),
+                    key=f"DOC-T-{text_doc_count + idx + 1}",
+                    connection_id=connection_id,
+                    project_key=project_key,
+                    name=t_doc.get("name", "").strip(),
+                    description=(
+                        t_doc.get("description", "").strip()
+                        if t_doc.get("description")
+                        else None
+                    ),
+                    content=t_doc.get("content", ""),
+                )
+                self.db.add(doc)
+                created_text_docs.append(doc)
+
+                if doc.content:
+                    doc_tasks.append({"doc_id": doc.id, "type": "text"})
+
+        # 2. Process File Docs
+        if files:
+            file_doc_count = (
+                self.db.query(FileDocumentation)
+                .filter(
+                    FileDocumentation.connection_id == connection_id,
+                    FileDocumentation.project_key == project_key,
+                )
+                .count()
+            )
+
+            for idx, file in enumerate(files):
+                prefix = f"documentation/{connection_id}/{project_key}"
+                file_info = upload_file(file, prefix)
+
+                description = file_docs_meta.get(file.filename)
+
+                doc = FileDocumentation(
+                    id=uuid_generator(),
+                    key=f"DOC-F-{file_doc_count + idx + 1}",
+                    connection_id=connection_id,
+                    project_key=project_key,
+                    name=file_info["filename"],
+                    url=file_info["url"],
+                    description=description.strip() if description else None,
+                )
+                self.db.add(doc)
+                created_file_docs.append(doc)
+                doc_tasks.append({"doc_id": doc.id, "type": "file"})
+
+        # Commit all docs
+        self.db.commit()
+
+        # Refresh for DTOs
+        for doc in created_text_docs:
+            self.db.refresh(doc)
+        for doc in created_file_docs:
+            self.db.refresh(doc)
+
+        # Trigger background processing
+        print(f"Dispatching background tasks for {len(doc_tasks)} documents")
+        if doc_tasks:
+            process_bulk_docs_task.delay(doc_tasks=doc_tasks)
+
+        return {
+            "text_docs": [_text_doc_to_dto(d) for d in created_text_docs],
+            "file_docs": [_file_doc_to_dto(d) for d in created_file_docs],
+        }
 
     def update_file_doc(
         self, doc_id: str, request: UpdateFileDocumentationRequest
@@ -297,7 +411,7 @@ class DocumentationService:
                     "key": doc.key,
                     "name": doc.name,
                     "description": doc.description,
-                    "headers": doc.headers,
+                    "token_count": doc.token_count,
                 }
             )
 
@@ -307,7 +421,7 @@ class DocumentationService:
                     "key": doc.key,
                     "name": doc.name,
                     "description": doc.description,
-                    "headers": doc.headers,
+                    "token_count": doc.token_count,
                 }
             )
         return docs

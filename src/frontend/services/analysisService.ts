@@ -118,4 +118,10 @@ export const analysisService = {
     );
     return response.data;
   },
+  deleteAnalysis: async (analysisId: string): Promise<BasicResponse> => {
+    const response = await apiClient.delete<BasicResponse>(
+      `/analyses/${analysisId}`,
+    );
+    return response.data;
+  },
 };

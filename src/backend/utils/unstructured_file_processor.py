@@ -11,7 +11,7 @@ import base64
 import zlib
 import json
 from common.configs import UnstructuredConfig
-
+import io
 
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
@@ -119,7 +119,7 @@ def _process_unstructured(
         )
     elif file_binary:
         elements = partition(
-            file=file_binary,
+            file=io.BytesIO(file_binary),
             languages=languages,
         )
     else:
@@ -166,7 +166,7 @@ def _build_chunks_obj_with_header_metadata(chunks: list[Element]):
             if e.category == "Title":
                 parent_id = e.metadata.parent_id
                 local_header_ids.append(e_id)
-                if parent_id:
+                if parent_id and parent_id in header_level:
                     id_to_parent[e_id] = parent_id
                     header = header_level[parent_id] + 1
                     header_level[e_id] = header

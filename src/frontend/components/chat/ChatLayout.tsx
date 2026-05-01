@@ -17,14 +17,21 @@ import { useWebSocketContext } from "@/providers/WebSocketProvider";
 import {
   Box,
   Chip,
-  Divider,
   List,
   ListItem,
   ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
   Skeleton,
   Typography,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 import { scrollBarSx } from "@/constants/scrollBarSx";
+import { Delete, MoreHoriz, Warning } from "@mui/icons-material";
+import DeleteWarningDialog from "./DeleteWarningDialog";
 
 interface ChatLayoutProps {
   children?: React.ReactNode;
@@ -45,6 +52,48 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   const [selectedSessionKey, setSelectedSessionKey] = useState<string | null>(
     idOrKey || null,
   );
+
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const menuOpen = Boolean(menuAnchorEl);
+  const [chatToDelete, setChatToDelete] = useState<string | null>(null);
+  const [deleteWarningOpen, setDeleteWarningOpen] = useState(false);
+
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLElement>,
+    key: string,
+  ) => {
+    event.stopPropagation();
+    setChatToDelete(key);
+    setMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+  };
+
+  const handleDeleteClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    handleMenuClose();
+    setDeleteWarningOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (chatToDelete) {
+      try {
+        await chatService.deleteChatSession(chatToDelete);
+        await refetchSessions();
+      } catch (error) {
+        console.error("Failed to delete chat:", error);
+      }
+    }
+    setDeleteWarningOpen(false);
+    setChatToDelete(null);
+  };
+
+  const handleCloseDeleteWarning = () => {
+    setDeleteWarningOpen(false);
+    setChatToDelete(null);
+  };
 
   const { setHeaderProjectKey, setHeaderStoryKey } = useWorkspaceStore();
 
@@ -194,26 +243,55 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
                   onClick={() => handleSelectSession(session.key)}
                   sx={{
                     borderRadius: 1.5,
-                    border: "1px solid",
-                    borderColor: isSelected ? "primary.main" : "divider",
+                    bgcolor: "surfaceContainerHighest",
                     alignItems: "flex-start",
                   }}
                 >
                   <Box sx={{ width: "100%" }}>
-                    {isLoadingTitle ? (
-                      <Skeleton variant="text" width="70%" />
-                    ) : (
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          fontWeight: 600,
-                          lineHeight: 1.3,
-                        }}
-                        noWrap
-                      >
-                        {session.title || t("untitled")}
-                      </Typography>
-                    )}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      {isLoadingTitle ? (
+                        <Skeleton variant="text" width="70%" />
+                      ) : (
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 600,
+                            lineHeight: 1.3,
+                            mr: 1,
+                          }}
+                          noWrap
+                        >
+                          {session.title || t("untitled")}
+                        </Typography>
+                      )}
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        {(session as any).error && (
+                          <Tooltip
+                            title={(session as any).error}
+                            placement="top"
+                          >
+                            <Warning
+                              fontSize="small"
+                              color="warning"
+                              sx={{ mr: 0.5 }}
+                            />
+                          </Tooltip>
+                        )}
+                        <IconButton
+                          size="small"
+                          onClick={(e) => handleMenuOpen(e, session.key)}
+                          sx={{ p: 0.25 }}
+                        >
+                          <MoreHoriz fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </Box>
                     <Typography
                       variant="caption"
                       color="text.secondary"
@@ -274,6 +352,32 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
       showStoryCheckbox={false}
     >
       {children}
+      <Menu
+        anchorEl={menuAnchorEl}
+        open={menuOpen}
+        onClose={handleMenuClose}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <MenuItem onClick={handleDeleteClick}>
+          <ListItemIcon>
+            <Delete fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>{t("delete")}</ListItemText>
+        </MenuItem>
+      </Menu>
+      <DeleteWarningDialog
+        open={deleteWarningOpen}
+        onClose={handleCloseDeleteWarning}
+        onConfirm={handleConfirmDelete}
+      />
     </PageLayout>
   );
 };

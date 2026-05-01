@@ -24,3 +24,4 @@ class AnalysisState(TypedDict):
 class AnalysisContext(LlmContext):
     extra_instruction: Optional[str] = None
     existing_defects: list[DefectByLlm] = None
+    project_description: Optional[str] = None

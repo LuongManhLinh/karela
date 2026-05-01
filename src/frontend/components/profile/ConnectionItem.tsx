@@ -55,14 +55,19 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
 
   useEffect(() => {
     const handleMessage = (data: any) => {
-      if (data.id === connection.id) {
-        setLocalStatus(data.sync_status);
-        setLocalMessage(data.sync_message);
-        setLocalError(data.sync_error);
-        queryClient.invalidateQueries({
-          queryKey: ["connection", "syncStatus", connection.id],
-        });
-      }
+      console.log("At ConnectionItem, received WebSocket message:", data);
+      setLocalStatus(data.sync_status);
+      setLocalMessage(data.sync_message);
+      setLocalError(data.sync_error);
+      queryClient.invalidateQueries({
+        queryKey: ["connection", "projects"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["connection", "syncProjects"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["connection", "syncStatus"],
+      });
     };
 
     subscribe(`connection:${connection.id}`, handleMessage);
@@ -83,6 +88,7 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
     }
 
     if (syncStatus === "not_started") {
+      console.warn("Sync status is 'not_started', treating as not synced");
       return (
         <Typography variant="body2" color="text.secondary" noWrap>
           {t("notSynced")}

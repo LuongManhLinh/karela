@@ -125,7 +125,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
           sx={{
             p: 1.5,
             borderRadius: 2,
-            bgcolor: "surfaceContainer",
+            bgcolor: "surfaceContainerHighest",
             color: "onSurface",
             maxWidth: "75%",
           }}

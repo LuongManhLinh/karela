@@ -1,7 +1,13 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func, select, distinct, and_, case, literal
 
-from .schemas import ConnectionDashboardDto, ProjectDashboardDto, StoryDashboardDto
+from .schemas import (
+    ConnectionDashboardDto,
+    ProjectDashboardDto,
+    StoryDashboardDto,
+    ProjectInfo,
+    StoryInfo,
+)
 from .jira.models import Connection, Project, Story, GherkinAC
 from .jira.schemas import StorySummary, ProjectDto
 from app.analysis.models import Analysis, Defect, DefectStoryKey
@@ -94,9 +100,7 @@ class DashboardService:
             ),
         ).one()
 
-        # --- Build reusable subqueries for story categorization ---
-
-        # Story keys that have defects in this project's analyses
+        # Calculate readiness score efficiently
         defect_story_keys_subq = (
             select(distinct(DefectStoryKey.story_key))
             .join(Defect)
@@ -109,74 +113,23 @@ class DashboardService:
             .subquery()
         )
 
-        # Story keys that have proposals (via proposal_contents)
-        proposal_story_keys_subq = (
-            select(distinct(ProposalContent.story_key))
-            .join(Proposal)
-            .where(
-                Proposal.connection_id == connection_id,
-                Proposal.project_key == project_key,
-                ProposalContent.story_key.isnot(None),
-            )
-            .correlate(None)
-            .subquery()
-        )
-
-        # Story IDs that have acceptance criteria
         ac_story_ids_subq = (
             select(distinct(GherkinAC.story_id)).correlate(None).subquery()
         )
 
-        # --- Fetch all project stories once, with boolean flags ---
-        has_analysis = Story.key.in_(select(defect_story_keys_subq))
-        has_proposal = Story.key.in_(select(proposal_story_keys_subq))
-        has_ac = Story.id.in_(select(ac_story_ids_subq))
-        has_defect = Story.key.in_(select(defect_story_keys_subq))
-
-        stories_with_flags = (
-            self.db.query(
-                Story,
-                case((has_analysis, literal(True)), else_=literal(False)).label(
-                    "has_analysis"
-                ),
-                case((has_proposal, literal(True)), else_=literal(False)).label(
-                    "has_proposal"
-                ),
-                case((has_ac, literal(True)), else_=literal(False)).label("has_ac"),
-                case((has_defect, literal(True)), else_=literal(False)).label(
-                    "has_defect"
-                ),
+        num_ready_stories = (
+            self.db.query(func.count(Story.id))
+            .filter(
+                Story.project_id == project.id,
+                Story.id.in_(select(ac_story_ids_subq)),
+                ~Story.key.in_(select(defect_story_keys_subq)),
             )
-            .filter(Story.project_id == project.id)
-            .all()
+            .scalar()
         )
-
-        stories_with_analyses = []
-        stories_with_proposals = []
-        stories_with_ac = []
-        ready_stories = []
-
-        for (
-            story,
-            flag_analysis,
-            flag_proposal,
-            flag_ac,
-            flag_defect,
-        ) in stories_with_flags:
-            if flag_analysis:
-                stories_with_analyses.append(story)
-            if flag_proposal:
-                stories_with_proposals.append(story)
-            if flag_ac:
-                stories_with_ac.append(story)
-                # Ready = has AC and no defects
-                if not flag_defect:
-                    ready_stories.append(story)
-
+        
         readiness_score = (
-            len(ready_stories) / num_stories * 100 if num_stories > 0 else 0.0
+            (num_ready_stories / num_stories * 100) if num_stories > 0 else 0.0
         )
-        print(f"Readiness score: {readiness_score}")
 
         return ProjectDashboardDto(
             num_stories=num_stories,
@@ -184,12 +137,96 @@ class DashboardService:
             num_chats=num_chats,
             num_proposals=num_proposals,
             num_acs=num_ac,
-            stories_with_analyses=_to_story_summaries(stories_with_analyses),
-            stories_with_proposals=_to_story_summaries(stories_with_proposals),
-            stories_with_acs=_to_story_summaries(stories_with_ac),
-            ready_stories=_to_story_summaries(ready_stories),
             readiness_score=readiness_score,
         )
+
+    def get_paginated_stories(
+        self, connection_id: str, project_key: str, skip: int = 0, limit: int = 10
+    ) -> list[StoryInfo]:
+        # Check project exists
+        project = (
+            self.db.query(Project)
+            .join(Connection)
+            .filter(
+                Connection.id == connection_id,
+                Project.key == project_key,
+            )
+            .first()
+        )
+
+        if not project:
+            raise ValueError("Project not found")
+
+        # Fetch paginated stories
+        stories = (
+            self.db.query(Story)
+            .filter(Story.project_id == project.id)
+            .order_by(Story.key)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+
+        story_infos = []
+        for s in stories:
+            s_num_analyses, s_num_proposals, s_num_ac, s_has_defect = self.db.query(
+                (
+                    select(func.count(distinct(Analysis.id)))
+                    .join(Defect)
+                    .join(DefectStoryKey)
+                    .where(
+                        Analysis.connection_id == connection_id,
+                        Analysis.project_key == project_key,
+                        DefectStoryKey.story_key == s.key,
+                    )
+                    .correlate(None)
+                    .scalar_subquery()
+                ),
+                (
+                    select(func.count(distinct(Proposal.id)))
+                    .join(ProposalContent)
+                    .where(
+                        Proposal.connection_id == connection_id,
+                        Proposal.project_key == project_key,
+                        ProposalContent.story_key == s.key,
+                    )
+                    .correlate(None)
+                    .scalar_subquery()
+                ),
+                (
+                    select(func.count(GherkinAC.id))
+                    .where(GherkinAC.story_id == s.id)
+                    .correlate(None)
+                    .scalar_subquery()
+                ),
+                (
+                    select(func.count(Defect.id) > 0)
+                    .join(DefectStoryKey)
+                    .join(Analysis)
+                    .where(
+                        Analysis.connection_id == connection_id,
+                        Analysis.project_key == project_key,
+                        DefectStoryKey.story_key == s.key,
+                    )
+                    .correlate(None)
+                    .scalar_subquery()
+                ),
+            ).one()
+
+            is_ready = s_num_ac > 0 and not s_has_defect
+
+            story_infos.append(
+                StoryInfo(
+                    id=s.id,
+                    key=s.key,
+                    analysis_count=s_num_analyses,
+                    proposal_count=s_num_proposals,
+                    ac_count=s_num_ac,
+                    is_ready=is_ready,
+                )
+            )
+
+        return story_infos
 
     def get_story_dashboard_info(
         self, connection_id: str, project_key: str, story_key: str
@@ -305,103 +342,88 @@ class DashboardService:
             ),
         ).one()
 
-        # --- Build reusable subqueries for project categorization ---
-
-        # Project IDs that have analyses (via defects -> defect_story_keys -> stories)
-        analysis_project_ids_subq = (
-            select(distinct(Project.id))
-            .join(Story)
-            .join(DefectStoryKey, Story.key == DefectStoryKey.story_key)
-            .join(Defect)
-            .join(Analysis)
-            .where(Analysis.connection_id == connection.id)
-            .correlate(None)
-            .subquery()
-        )
-
-        # Project keys that have chat sessions
-        chat_project_keys_subq = (
-            select(distinct(ChatSession.project_key))
-            .where(
-                ChatSession.connection_id == connection.id,
-                ChatSession.project_key.isnot(None),
-            )
-            .correlate(None)
-            .subquery()
-        )
-
-        # Project keys that have proposals
-        proposal_project_keys_subq = (
-            select(distinct(Proposal.project_key))
-            .where(
-                Proposal.connection_id == connection.id,
-                Proposal.project_key.isnot(None),
-            )
-            .correlate(None)
-            .subquery()
-        )
-
-        # Project IDs that have acceptance criteria
-        ac_project_ids_subq = (
-            select(distinct(Project.id))
-            .join(Story)
-            .join(GherkinAC, Story.id == GherkinAC.story_id)
-            .where(Project.connection_id == connection.id)
-            .correlate(None)
-            .subquery()
-        )
-
-        # --- Fetch all connection projects once, with boolean flags ---
-        has_analysis = Project.id.in_(select(analysis_project_ids_subq))
-        has_chat = Project.key.in_(select(chat_project_keys_subq))
-        has_proposal = Project.key.in_(select(proposal_project_keys_subq))
-        has_ac = Project.id.in_(select(ac_project_ids_subq))
-
-        projects_with_flags = (
-            self.db.query(
-                Project,
-                case((has_analysis, literal(True)), else_=literal(False)).label(
-                    "has_analysis"
-                ),
-                case((has_chat, literal(True)), else_=literal(False)).label("has_chat"),
-                case((has_proposal, literal(True)), else_=literal(False)).label(
-                    "has_proposal"
-                ),
-                case((has_ac, literal(True)), else_=literal(False)).label("has_ac"),
-            )
-            .filter(Project.connection_id == connection.id)
-            .all()
-        )
-
-        projects_with_analyses = []
-        projects_with_chats = []
-        projects_with_proposals = []
-        projects_with_ac = []
-
-        for (
-            proj,
-            flag_analysis,
-            flag_chat,
-            flag_proposal,
-            flag_ac,
-        ) in projects_with_flags:
-            if flag_analysis:
-                projects_with_analyses.append(proj)
-            if flag_chat:
-                projects_with_chats.append(proj)
-            if flag_proposal:
-                projects_with_proposals.append(proj)
-            if flag_ac:
-                projects_with_ac.append(proj)
-
         return ConnectionDashboardDto(
             num_projects=num_projects,
             num_analyses=num_analyses,
             num_chats=num_chats,
             num_proposals=num_proposals,
             num_acs=num_ac,
-            projects_with_analyses=_to_project_dtos(projects_with_analyses),
-            projects_with_chats=_to_project_dtos(projects_with_chats),
-            projects_with_proposals=_to_project_dtos(projects_with_proposals),
-            projects_with_acs=_to_project_dtos(projects_with_ac),
         )
+
+    def get_paginated_projects(
+        self, connection_id: str, skip: int = 0, limit: int = 5
+    ) -> list[ProjectInfo]:
+        # Verify the connection exists
+        connection = (
+            self.db.query(Connection)
+            .filter(
+                Connection.id == connection_id,
+            )
+            .first()
+        )
+
+        if not connection:
+            raise ValueError("Connection not found")
+
+        # Fetch paginated projects
+        projects = (
+            self.db.query(Project)
+            .filter(Project.connection_id == connection.id)
+            .order_by(Project.name)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+
+        project_infos = []
+        for p in projects:
+            p_num_analyses, p_num_chats, p_num_proposals, p_num_ac = self.db.query(
+                (
+                    select(func.count(Analysis.id))
+                    .where(
+                        Analysis.connection_id == connection.id,
+                        Analysis.project_key == p.key,
+                    )
+                    .correlate(None)
+                    .scalar_subquery()
+                ),
+                (
+                    select(func.count(ChatSession.id))
+                    .where(
+                        ChatSession.connection_id == connection.id,
+                        ChatSession.project_key == p.key,
+                    )
+                    .correlate(None)
+                    .scalar_subquery()
+                ),
+                (
+                    select(func.count(Proposal.id))
+                    .where(
+                        Proposal.connection_id == connection.id,
+                        Proposal.project_key == p.key,
+                    )
+                    .correlate(None)
+                    .scalar_subquery()
+                ),
+                (
+                    select(func.count(GherkinAC.id))
+                    .join(Story)
+                    .where(Story.project_id == p.id)
+                    .correlate(None)
+                    .scalar_subquery()
+                ),
+            ).one()
+
+            project_infos.append(
+                ProjectInfo(
+                    id=p.id,
+                    key=p.key,
+                    name=p.name,
+                    analysis_count=p_num_analyses,
+                    chat_count=p_num_chats,
+                    proposal_count=p_num_proposals,
+                    ac_count=p_num_ac,
+                )
+            )
+
+        return project_infos

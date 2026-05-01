@@ -5,11 +5,10 @@ Actual implementations will be provided by the respective service layers.
 """
 
 from langchain.tools import tool, ToolRuntime
+from sqlalchemy.orm import Session
 
-
-# =============================================================================
-# Context Gatherer Tools
-# =============================================================================
+from app.connection.jira.models import Project
+from common.agents.schemas import LlmContext
 
 
 @tool
@@ -176,7 +175,7 @@ def GraphRAG_GlobalSearch(
 # Tool Groups for Agent Configuration
 # =============================================================================
 
-context_gatherer_tools = [DocumentationVectorSearch]
+context_gatherer_tools = []
 
 relational_search_tools = [GraphRAG_LocalSearch, Neo4j_GetCommunityStories]
 

@@ -1,7 +1,8 @@
 from typing import Literal, Optional
 from pydantic import BaseModel, Field
 
-from app.analysis.agents.schemas import UserStoryMinimal, DefectByLlm
+from app.analysis.agents.schemas import DefectByLlm
+from common.schemas import StoryMinimal
 
 
 class ProposalContent(BaseModel):
@@ -38,7 +39,7 @@ class Proposal(BaseModel):
 class ProposalInput(BaseModel):
     """Schema for the input to the proposal generator."""
 
-    user_stories: list[UserStoryMinimal] = Field(
+    user_stories: list[StoryMinimal] = Field(
         description="List of User Stories relevant to the given defects",
     )
     defects: list[DefectByLlm] = Field(
@@ -76,7 +77,7 @@ class ProposalReview(BaseModel):
 class ImpactAnalyzerInput(BaseModel):
     """Schema for the input to the impact analyzer."""
 
-    user_stories: list[UserStoryMinimal] = Field(
+    user_stories: list[StoryMinimal] = Field(
         description="List of original User Stories.",
     )
     defects: list[DefectByLlm] = Field(
@@ -98,7 +99,7 @@ class ImpactAnalyzerOutput(BaseModel):
 class RewriterInput(BaseModel):
     """Schema for the input to the proposal rewriter."""
 
-    user_stories: list[UserStoryMinimal] = Field(
+    user_stories: list[StoryMinimal] = Field(
         description="List of original User Stories.",
     )
     defects: list[DefectByLlm] = Field(
@@ -134,7 +135,7 @@ class ProposalReview(BaseModel):
 class ImpactAnalyzerInput(BaseModel):
     """Schema for the input to the impact analyzer."""
 
-    user_stories: list[UserStoryMinimal] = Field(
+    user_stories: list[StoryMinimal] = Field(
         description="List of original User Stories.",
     )
     defects: list[DefectByLlm] = Field(
@@ -156,7 +157,7 @@ class ImpactAnalyzerOutput(BaseModel):
 class RewriterInput(BaseModel):
     """Schema for the input to the proposal rewriter."""
 
-    user_stories: list[UserStoryMinimal] = Field(
+    user_stories: list[StoryMinimal] = Field(
         description="List of original User Stories.",
     )
     defects: list[DefectByLlm] = Field(

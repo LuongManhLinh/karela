@@ -79,6 +79,7 @@ class Project(Base):
     id_ = Column(String(64), nullable=False, index=True, default=uuid_generator)
     key = Column(String(32), nullable=False, index=True)
     name = Column(String(128), nullable=False)
+    description = Column(Text, nullable=True)
 
     avatar_url = Column(String(256), nullable=True)
 

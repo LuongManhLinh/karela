@@ -23,11 +23,13 @@ from ..schemas import (
     Issue,
     CreateStoryRequest,
     WebhookCallbackPayload,
+    SyncProjectsRequest,
 )
 from ..tasks import setup_connection, sync_projects
 
 from app.documentation.services import DocumentationService
-from app.xgraphrag.increment import GraphRAGUpdater
+
+# from app.xgraphrag.increment import GraphRAGUpdater
 from common.database import uuid_generator
 
 
@@ -87,15 +89,14 @@ class JiraService(JiraBaseService):
         self.db.commit()
 
         if new:
-            setup_connection(connection_id=connection.id)
+            setup_connection.delay(connection_id=connection.id)
 
         return generate_jwt(connection_id=connection.id)
 
     def sync_projects(
         self,
         connection_id: str,
-        project_keys: list[str],
-        run_analysis_after_sync: bool = False,
+        request: SyncProjectsRequest,
     ):
         """Sync selected projects: fetch stories from Jira and save to local DB and vector store"""
         connection = (
@@ -104,10 +105,9 @@ class JiraService(JiraBaseService):
         if not connection:
             raise ValueError("Connection not found")
 
-        sync_projects(
+        sync_projects.delay(
             connection_id=connection_id,
-            project_keys=project_keys,
-            run_analysis_after_sync=run_analysis_after_sync,
+            request=request,
         )
 
     def __get_connection_and_project(self, connection_id: str, project_key: str):
@@ -644,12 +644,12 @@ class JiraService(JiraBaseService):
 
             self.db.commit()
 
-            graphrag_updater = GraphRAGUpdater(
-                connection_id=connection.id,
-                project_key=project.key,
-            )
+            # graphrag_updater = GraphRAGUpdater(
+            #     connection_id=connection.id,
+            #     project_key=project.key,
+            # )
 
-            graphrag_updater.add_stories(stories=to_vector)
+            # graphrag_updater.add_stories(stories=to_vector)
 
             self.vector_store.add_stories(
                 connection_id=connection.id,
@@ -718,12 +718,18 @@ class JiraService(JiraBaseService):
 
             self.db.commit()
 
-            graphrag_updater = GraphRAGUpdater(
+            # graphrag_updater = GraphRAGUpdater(
+            #     connection_id=connection.id,
+            #     project_key=project.key,
+            # )
+
+            # graphrag_updater.update_stories(stories=to_vector)
+
+            self.taxonomy_service.update_buckets(
                 connection_id=connection.id,
                 project_key=project.key,
+                stories=to_vector,
             )
-
-            graphrag_updater.update_stories(stories=to_vector)
 
             self.vector_store.update_stories(
                 connection_id=connection.id,
@@ -776,12 +782,12 @@ class JiraService(JiraBaseService):
                 story_ids.append(story.id)
             self.db.commit()
 
-            graphrag_updater = GraphRAGUpdater(
-                connection_id=connection.id,
-                project_key=project.key,
-            )
+            # graphrag_updater = GraphRAGUpdater(
+            #     connection_id=connection.id,
+            #     project_key=project.key,
+            # )
 
-            graphrag_updater.delete_stories(story_keys=story_keys)
+            # graphrag_updater.delete_stories(story_keys=story_keys)
 
             self.vector_store.remove_stories(
                 connection_id=connection.id,
@@ -1033,4 +1039,36 @@ class JiraService(JiraBaseService):
             raise ValueError("AC not found")
 
         self.db.delete(ac)
+        self.db.commit()
+
+    def get_project_description(self, connection_id: str, project_key: str) -> str:
+        """Fetch project description from Jira"""
+        project = (
+            self.db.query(Project)
+            .filter(
+                Project.connection_id == connection_id,
+                Project.key == project_key,
+            )
+            .first()
+        )
+        if not project:
+            raise ValueError("Project not found")
+        return project.description
+
+    def update_project_description(
+        self, connection_id: str, project_key: str, description: str
+    ):
+        """Update project description in Jira and local DB"""
+        project = (
+            self.db.query(Project)
+            .filter(
+                Project.connection_id == connection_id,
+                Project.key == project_key,
+            )
+            .first()
+        )
+        if not project:
+            raise ValueError("Project not found")
+
+        project.description = description
         self.db.commit()

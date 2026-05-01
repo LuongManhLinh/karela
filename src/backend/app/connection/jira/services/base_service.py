@@ -8,6 +8,7 @@ from ..schemas import (
 )
 
 from ..vectorstore import JiraVectorStore
+from app.taxonomy.services import TaxonomyService
 
 
 AC_ISSUE_TYPE_NAME = "Gherkin Test"
@@ -19,6 +20,7 @@ class JiraBaseService:
     def __init__(self, db: Session):
         self.db = db
         self.vector_store = JiraVectorStore()
+        self.taxonomy_service = TaxonomyService(db=db)
 
     def __refresh_access_token(self, connection: Connection):
         refresh_token = decrypt_token(

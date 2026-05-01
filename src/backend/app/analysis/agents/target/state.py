@@ -1,6 +1,6 @@
 """State and Context definitions for the TARGETED analysis workflow."""
 
-from ..schemas import UserStoryMinimal
+from ..schemas import StoryMinimal
 from ..shared_state import AnalysisState, AnalysisContext
 
 
@@ -12,10 +12,10 @@ class TargetedState(AnalysisState):
     """
 
     # The user story being analyzed
-    target_story: UserStoryMinimal
+    target_story: StoryMinimal
 
     # Related stories found via GraphRAG (populated by Relational Graph Search)
-    related_stories: list[UserStoryMinimal] | str
+    related_stories: list[StoryMinimal] | str
 
 
 class TargetedContext(AnalysisContext):

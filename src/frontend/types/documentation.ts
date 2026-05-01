@@ -5,7 +5,6 @@ export interface TextDocumentationDto {
   name: string;
   description?: string;
   content?: string;
-  headers?: any[];
   created_at: string;
   updated_at: string;
 }
@@ -28,7 +27,6 @@ export interface FileDocumentationDto {
   name: string;
   url: string;
   description?: string;
-  headers?: any[];
   created_at: string;
   updated_at: string;
 }

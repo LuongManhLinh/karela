@@ -1,13 +1,11 @@
-import tiktoken
+from concurrent.futures import ThreadPoolExecutor
+import os
 
+# Create executor with default settings
+with ThreadPoolExecutor() as executor:
+    print(f"Default threads on this machine: {executor._max_workers}")
 
-def count_tokens(text):
-    encoding = tiktoken.get_encoding("o200k_base")
-    tokens = encoding.encode(text)
-    return len(tokens)
-
-
-with open("data/500_us.json", "r") as f:
-    data = f.read()
-token_count = count_tokens(data)
-print(f"Token count: {token_count}")
+# Verifying manually with the formula
+cpu_count = os.cpu_count() or 1
+calculated_default = min(32, cpu_count + 4)
+print(f"Calculated default: {calculated_default}")

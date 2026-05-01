@@ -139,3 +139,24 @@ export const useDeleteFileDocMutation = (projectKey: string) => {
     },
   });
 };
+
+export const useBulkUploadDocsMutation = (projectKey: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      textDocs,
+      fileDocs,
+    }: {
+      textDocs: { name: string; content: string; description?: string }[];
+      fileDocs: { file: File; description?: string }[];
+    }) => documentationService.bulkUploadDocs(projectKey, textDocs, fileDocs),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: TEXT_DOC_KEYS.byProject(projectKey),
+      });
+      queryClient.invalidateQueries({
+        queryKey: FILE_DOC_KEYS.byProject(projectKey),
+      });
+    },
+  });
+};

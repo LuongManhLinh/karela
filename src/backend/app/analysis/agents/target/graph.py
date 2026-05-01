@@ -18,11 +18,9 @@ Pipeline:
 
 from langgraph.graph import StateGraph, START, END
 from langgraph.runtime import Runtime
-import re
-import json
 
 from .state import TargetedState, TargetedContext
-from ..schemas import UserStoryMinimal, RelatedStory
+from ..schemas import StoryMinimal
 from ..nodes import (
     build_context_gatherer_agent,
     build_self_defect_agent,
@@ -37,7 +35,6 @@ from ..nodes import (
     run_dependency_matrix_analyzer,
 )
 
-from ..utils import get_last_langchain_message
 
 from app.taxonomy.query import get_story_tags, get_stories_by_tags
 from app.connection.jira.services import JiraService
@@ -55,12 +52,13 @@ def build_targeted_graph():
     def context_gatherer_node(
         state: TargetedState, runtime: Runtime[TargetedContext]
     ) -> dict:
-        project_context = run_context_gatherer(
+        print("\n| TARGETED Graph -> [context_gatherer]")
+        pj_context = run_context_gatherer(
             agent=context_agent,
             context=runtime.context,
-            target_story=state.get("target_story"),
+            project_desc=runtime.context.project_description,
         )
-        return {"project_context": project_context}
+        return {"project_context": pj_context}
 
     def relational_graph_search_node(
         state: TargetedState, runtime: Runtime[TargetedContext]
@@ -91,7 +89,7 @@ def build_targeted_graph():
 
         service = JiraService(context.db)
         related_stories = [
-            UserStoryMinimal(
+            StoryMinimal(
                 key=s.key,
                 summary=s.summary,
                 description=s.description,
@@ -119,14 +117,13 @@ def build_targeted_graph():
 
     def pairwise_defect_analyzer_node(state: TargetedState) -> dict:
         target = state["target_story"]
-        related = state.get("related_stories", [])
+        related_stories = state.get("related_stories", [])
         project_context = state.get("project_context", "")
 
         defects = run_pairwise_defect_analyzer(
             agent=pairwise_agent,
-            stories=related,
+            buckets=[(target, related_stories)],
             project_context=project_context,
-            target_story=target,
         )
         return {"raw_defects": defects}
 

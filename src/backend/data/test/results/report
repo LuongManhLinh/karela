@@ -1,0 +1,224 @@
+# BÁO CÁO BÀI TẬP LỚN
+
+# Môn học: Xử lý ảnh
+
+# Chủ đề: Adaptive Two-Pass Median FIlter To Remove Impulse Noise
+
+Họ và tên: Lương Mạnh Linh
+
+Mã sinh viên: 22021215
+
+# I - Giới thiệu
+
+● Nhiễu xung (Impulse Noise) là một loại nhiễu hay gặp trong ảnh, xuất hiện do:
+
+○ Cảm biến hoặc mạch điện trên thiết bị thu   
+○ Truyền và nén dữ liệu   
+○ Tác động từ môi trường
+
+● Một phương pháp hiệu quả để loại bỏ impulse noise là sử dụng Median Filter. Tuy nhiên, sử dụng Median Filter có một số hạn chế như:
+
+○ Dễ thay đổi pixel không bị nhiễu   
+○ Tạo các vệt xê dịch   
+○ Là quá trình không thể đảo ngược và thông tin hữu ích không thể phục hồi, nhất là khi lọc nhiều lần thì lượng mất mát thông tin lại càng cao
+
+Xiaoyin Xu và Eric L. Miller đã giới thiệu trong bài báo “Adaptive two-pass median fi lter to remove impulse noise” về việc sử dụng bộ lọc Adaptive Two-Pass Median Filter (A2PMF) để loại bỏ impulse noise.
+
+● Ý tưởng của phương pháp trên là sử dụng hai lần median fi lter với một bước thích ứng trước lần lọc thứ hai. Bước thích ứng này được thiết kế để đưa các pixels không phải nhiễu nhưng bị lần lọc đầu
+
+tiên làm thay đổi, về giá trị ban đầu và sẽ không bị ảnh hưởng bởi lần lọc thứ hai.
+
+# II - Thuật toán
+
+# 1. Nhiễu
+
+● Phân bố đều trên ảnh, mỗi pixel đều có xác suất xuất hiện nhiễu là p.   
+Biên độ nhiễu thỏa mãn phân phối Gaussian (phân phối chuẩn) với giá trị trung bình và độ lệch chuẩn chưa biết.
+
+# 2. Tóm tắt thuật toán
+
+Cho hình ảnh bị nhiễu là X
+
+● Bước 1: Sử dụng Median Filter để lọc X, thu được ảnh Y. Xác định sự sai khác giữa X và Y để thu được ma trận chỉ mục lỗi (Error Index Matrix) E1   
+Bước 2: Duyệt qua từng cột trên ảnh Y, dựa vào E1 tính toán giá trị trung bình số nhiễu theo cột và tỉ lệ nhiễu trên cột và sửa đổi một số các pixels nhất định về giá trị cũ, thu được Ỹ. Xác định sự sai khác giữa Y và Ỹ để thu được E2   
+Bước 3: Dựa trên E2, xác định pixel sẽ được lọc bằng median fi lter trên Ỹ hay sẽ được để là giá trị của ảnh nhiễu ban đầu X
+
+# 3. Thuật toán
+
+3.1. Bước 1
+
+● Y = median_fi lter(X, W1)   
+● $\mathsf E 1 = \Omega ( \mathsf X - \mathsf Y )$
+
+$\pmb { \Omega } ( \pmb { \mathrm { x } } )$
+
+● Trả về 1 nếu $\textsf { x } \neq 0$   
+● Trả về 0 nếu ${ \sf x } = 0$
+
+Do đó, ma trận E1 sẽ gồm các giá trị 1 và 0 đại diện cho vị trí đã bị sửa đổi do lọc và vị trí chưa bị thay đổi.
+
+# 3.2. Bước 2
+
+● $\tilde { \textsf { Y } } = \Psi ( \textsf { Y } , \mathsf { E } 1 )$   
+● $\mathsf E \pmb { 2 } = \pmb { \Omega } ( \pmb { \mathsf { Y } } - \tilde { \pmb { \mathsf { Y } } } )$
+
+Ψ được gọi là “Bộ xử lý thích ứng” (Adaptive Processor) và được triển khai như sau:
+
+● Chọn giá trị $\mathtt { a } > 0$ và giá trị b, đặt ${ \boldsymbol { \Pi } } = \mathsf { a c x }$   
+● Duyệt từ $n = 1$ đến N (N là số cột của ảnh), nếu $\lambda ( { \mathfrak { n } } ) - \Lambda > 1$ η:
+
+○ Đặt $\mathbf e = \mathsf { \pmb { X } } ( : , \mathsf n ) - \mathsf { \pmb { Y } } ( : , \mathsf n )$ (Giá trị cột thứ n trên X trừ đi giá trị cột thứ n trên Y)   
+$\bigcirc$ Đặt $\mathsf { K } =$ round( λ(n) - Λ + bσλ )  
+○ $\pmb { \nu } = \pmb { \theta } ( \pmb { \varrho } , \pmb { \kappa } )$   
+○ Duyệt mỗi m trong v: $\langle \tilde { \mathbf { Y } } ( \mathbf { m } , \mathbf { n } ) = \mathbf { X } ( \mathbf { m } , \mathbf { n } )$
+
+● Λ, λ(n), σλ và Ө như sau:
+
+○ Λ là giá trị trung bình của độ nhiễu theo cột:
+
+$$
+\Lambda = \frac {\sum_ {m = 1} ^ {M} \sum_ {n = 1} ^ {N} E 1 (m , n)}{N}
+$$
+
+○ λ(n) là tỉ lệ bị nhiễu trên cột n:
+
+$$
+\lambda (n) = \frac {\sum_ {m = 1} ^ {M} E 1 (m , n)}{M}, n = 1, \dots , n
+$$
+
+○ σλ là độ lệch chuẩn của λ(n)
+
+○ $\pmb \Theta ( \pmb { \nu } , { \bf \kappa } )$ với $k = 1$ , …, N: trả về vị trí của k phần tử bé nhất đầu tiên của v
+
+# 3.3. Bước 3
+
+Z(m, n) =
+
+$\bigcirc$ median_fi lter(Ỹ, W2) nếu E2(m, n) = 0   
+○ $\mathbf { \boldsymbol { x } } ( \mathbf { \boldsymbol { m } } , \bar { \mathbf { \boldsymbol { n } } } ) \mathsf { n f a t } \mathbf { \boldsymbol { E 2 } } ( \mathbf { \boldsymbol { m } } , \bar { \mathbf { \boldsymbol { n } } } ) = 1$
+
+● Z là kết quả cuối cùng thu được từ thuật toán
+
+# 4. Phân tích và sửa đổi thuật toán
+
+# 4.1. Tính giá trị λ(n) và Λ
+
+● λ(n) tính tỉ lệ của nhiễu trên cột, tức là luôn $< = 1$ , trong khi $\wedge$ lại tính trung bình số lượng pixels nhiễu trên cột nên có thể lớn hơn 1 rất nhiều, bởi số lượng pixels ở mỗi cột có thể rất lớn.   
+● Do đó điều kiện λ(n) - Λ > η gần như là luôn sai và bước thực hiện thay thế ở bên trong Ψ sẽ không được thực hiện
+
+○ => Y và Ỹ sẽ gần như giống nhau vì Ỹ có giá trị khởi tạo là Y   
+○ => E2 gần như chứa toàn giá trị 0   
+○ ${ \bf \Phi } = > \dot { \bf O }$ bước 3, luôn thực hiện median fi lter   
+○ $\mathbf { \vec { \tau } } \mathbf { \vec { \tau } } \mathbf { \vec { \tau } } = \mathbf { \vec { \tau } } \mathbf { \hat { \vec { \tau } } } \mathbf { \vec { \tau } } \mathbf { \vec { \tau } } \mathbf { \vec { \tau } } \mathbf { \vec { \tau } } = \mathbf { \vec { \tau } } \mathbf { \vec { \tau } } \mathbf { \vec { \tau } } \mathbf { \vec { \tau } } \mathbf { \vec { \tau } } \mathbf { \vec { \tau } } \mathbf { \vec { \tau } } \mathbf { \vec { \tau } } \mathbf { \vec { \tau } } \mathbf { \vec { \tau } } \mathbf { \vec { \tau } } \mathbf { \vec { \tau } } \mathbf { \vec { \tau } } \mathbf { \vec { \tau } } \mathbf { \vec { \tau } } \mathbf { \vec { \tau } } \mathbf { \vec \tau }$ quá trình là hai lần lọc bằng median fi lter và không có adaptive
+
+● Ở bước tính K trong Ψ: K = round( λ(n) - Λ + bσλ ), vì K là tính số lượng pixels cần được thay thế, nên λ(n) cũng cần phải được thay thế tương ứng thành số lượng, chứ không phải là tỉ lệ. Do đó, λ(n) cần được sửa lại như sau:
+
+$$
+\lambda (n) = \sum_ {m = 1} ^ {M} E (m, n), n = 1, \dots , n
+$$
+
+# 4.2. Tính giá trị v trong Ψ
+
+● Nếu tính e như thuật toán cung cấp: e = X(:, n) - Y(:, n), v sẽ lấy index của các giá trị $\mathbf { \sigma } \mathbf { \otimes } \mathbf { < } \mathbf { 0 }$ , đặc biệt khi $\mathsf { X } ( : , \mathsf { n } )$ là tiêu đen và Y(:, n) là đã được sửa $= >$ Lặp lại tiêu đen trên Ỹ   
+● Nếu sửa lại e = abs(e): v sẽ có hầu hết là index của các giá trị e ${ \bf \Omega } = 0$ , tức là ở những điểm mà $\mathsf { X } ( : , \mathsf { n } ) = \mathsf { Y } ( : , \mathsf { n } )$ $\Rightarrow { \tilde { \mathsf { \mathsf { Y } } } }$ sẽ lại giống Y   
+● Nếu sửa e = abs(e) và $\pmb { \nu }$ lấy index của $\mathbf { e } > \mathbf { 0 }$ : v có thể chứa index của noise vì noise có giá trị khác nhau và trong một cửa sổ toàn noise, median fi lter có thể lấy đúng giá trị noise khác => Ỹ sẽ bị sửa lại thành pixel bị noise   
+● Cách tính v có thể được sửa thành như sau:
+
+○ Thêm hai tham số có thể điều chỉnh pepper_threshold và salt_threshold   
+○ e = abs( X(:, n), Y(:, n) )   
+○ v sẽ lấy index mà ở đó:
+
+■ e > 0   
+■ X và Y có giá trị nằm trong pepper_threshold, salt_threshold
+
+# 5. Cài đặt bằng Python
+
+Ví dụ sau về việc cài đặt A2PMF theo Grayscale
+
+```txt
+@staticmethod   
+def adaptive_two_pass_median_filter( image, w1, w2, a=1, b=1, pepper_threshold=20, salt_threshold=235 ): # Step 1 # Because the image is RGB, we need to convert it to grayscale 
+```
+
+X_grayscale $=$ FilterGrayscale.rgb_to_grayscale(image) # Apply median filter to the grayscale image Y $=$ FilterGrayscale.median_filter(image, w1) # Calculate the error index matrix by grayscale between X and Y Y_grayscale $=$ FilterGrayscale.rgb_to_grayscale(Y) E1 $=$ FilterUtilities.omega(X_grayscale - Y_grayscale)   
+# Step 2 Y_tilde $=$ FilterGrayscale._psi( image, Y, X_grayscale, Y_grayscale, E1, a, b, pepper_threshold, salt_threshold )   
+# Calculate the error index matrix by grayscale between Y and Y_tilde Y_tilde_grayscale $=$ FilterGrayscale.rgb_to_grayscale(Y_tilde) E2 $=$ FilterUtilities.omega(Y_grayscale - Y_tilde_grayscale)   
+# Step 3 Z $=$ np.copy(image) indices $=$ np.argmax(E2 $= = 0$ # Pad Y_tilde_grayscale to use in the find median step Y_tilde_grayscale.padded $\equiv$ np_pad( Y_tilde_grayscale, pad_width $\equiv$ w2 // 2, mode='edge')   
+# Find the median value when E2 is zero for idx in indices: i,j $=$ idx[0], idx[1] rowidx,colidx $=$ FilterGrayscale._get_median_position( Y_tilde_grayscale.padded, w2, (i,j) ) Z[i,j] $=$ Y_tilde[rowidx,colidx] return Z
+
+Ngoài ra còn có các fi le trong source code:
+
+● fi lter.py: gồm FilterGrayscale và FilterRGB cài đặt thuật toán đã sửa đổi, lọc theo Grayscale hoặc lọc theo RGB
+
+● noise.py: các hàm tạo ảnh noise   
+● mse_mae.py: hàm tính toán MSE và MAE giữa hai ảnh   
+● main_plotter.py: hàm trình bày kết quả lọc   
+● main_mesurement.py: hàm trình bày kết quả tính toán MSE và MAE khi tỉ lệ nhiễu tăng lên   
+● results.ipynb: các kết quả đã chạy sẵn cho main_plotter và main_measurement
+
+# III - Kết quả thử nghiệm
+
+Nếu sử dụng thuật toán ban đầu, kết quả sẽ y hệt như việc sử dụng 2 lần median fi lter. Do đó, kết quả thử nghiệm sử dụng thuật toán Adaptive Two-Pass Median Filter đã được sửa đổi λ(n) và cách tính v.
+
+# 1. Kết quả về mặt thị giác
+
+● Ảnh gốc: Lena, kích thước 256x256
+
+![](images/6e1eedeee9d664de62fe2e06a3814a4a111a20124aec84e80d7c240991597de2.jpg)
+
+● Ảnh đã thêm $30 \%$ nhiễu với
+
+○ Tiêu đen: xác suất $1 5 \%$ giá trị trung bình 10, độ lệch chuẩn 10   
+○ Muối trắng: xác suất $1 5 \%$ , giá trị trung bình 245, độ lệch chuẩn 10
+
+![](images/81899fc1cef6ff5faf8d8e11e552e02b97a508988dcfbdbf77bbd34a61454000.jpg)
+
+● Kết quả lọc như sau
+
+○ Ảnh 1: Lọc theo Grayscale, sử dụng median fi lter 1 lần với cửa sổ 3x3   
+○ Ảnh 2: Lọc theo Grayscale, sử dụng median fi lter 2 lần với cửa sổ 3x3 ở cả hai lần   
+○ Ảnh 3: Lọc theo Grayscale, sử dụng Adaptive Two-Pass Median Filter với cửa sổ W1 và W2 đều là 3x3   
+○ Ảnh 4: Lọc theo từng giá trị trên kênh màu RGB, sử dụng Adaptive Two-Pass Median Filter với cửa sổ W1 và W2 đều là 3x3
+
+![](images/385571918be22da8f186abfc2a457f2348dbafe399cd9c705a2ae6fc6478288c.jpg)  
+Ảnh 1
+
+![](images/af835d289cbe448a7aecb45944c0e5a735f9a067cf2c67d4b0987a8294cbeed3.jpg)  
+Ảnh 2
+
+![](images/587bf8ee4522d62a5d4080b1ad869e9b446c1cda541a98ae23cdf7795ba352de.jpg)
+
+![](images/1be4a81532e2d59530b1a325a96c6639fa4e9a380eabfe31251b26f38d72eefd.jpg)
+
+Ảnh 3
+
+Ảnh 4
+
+● Kết quả cho thấy, Ảnh 2, Ảnh 3 và Ảnh 4 gần như giống nhau, có sự khác biệt không đáng kể và thị giác người có thể nói là không phân biệt được.   
+● Do đó, thuật toán đã được sửa đổi chưa có cải thiện về mặt thị giác.
+
+# 2. Kết quả về mặt định lượng
+
+Thông qua việc tính toán Mean Squared Error (MSE) và Mean Absolute Error giữa hình ảnh được lọc và hình ảnh gốc, ta có thông tin để đo đạc rằng hình ảnh được lọc có tốt hay không. MSE và MAE càng bé chứng tỏ hình ảnh được lọc càng tốt.
+
+$$
+M S E = \frac {| | Z - S | |}{M N} \quad M A E = \frac {| Z - S |}{M N}
+$$
+
+Biểu đồ dưới đây trình bày MSE và MAE của Median Filter, dùng Median Filter 2 lần và dùng A2PMF theo Grayscale. Lí do A2PMF theo RGB không được trình bày là vì MSE và MAE quá lớn do thay đổi độc lập cả 3 kênh màu.
+
+![](images/1ebb215d323273fad01800e2e92b8c44e47bd139171347aa1e5ad976b8bd4b05.jpg)
+
+![](images/06efc8dad797f539c74d4d86fbf1ec97e5233b57715c27d8447f8b7683e5ff7b.jpg)
+
+Biểu đồ cho thấy rằng tuy việc cải thiện về thị giác là chưa rõ ràng, A2PMF vẫn có hiệu quả nhất định khi MSE và MAE luôn thấp hơn việc sử dụng 1 hoặc 2 lần Median Filter. Chứng tỏ việc sửa đổi thuật toán vẫn đem lại ý nghĩa nhất định trong việc cải thiện chất lượng hình ảnh.
+
+# 3. Kết quả về mặt hiệu năng
+
+● Tốc độ chạy của A2PMF tương đương với tốc độ của việc lọc hai lần bằng median fi lter, sự khác biệt là không đáng kể ngay cả khi kích thước của hình ảnh thay đổi
+
+# IV - Kết luận
+
+● Thuật toán được mô tả trong bài báo còn có điểm bất hợp lý và cần phải sửa đổi lại để thực hiện chính xác hơn ở bước “adaptive”   
+Thuật toán được sửa đổi vẫn chưa có hiệu quả rõ ràng về mặt thị giác, nhưng vẫn có những cải thiện nhất định khi các chỉ số MSE và MAE đã giảm so với lọc thông thường   
+Nhìn chung, sau quá trình thử nghiệm, thuật toán chưa đem lại hiệu quả như mong đợi về việc loại bỏ impulse noise và cần phải cải tiến thêm để có thể mang lại hiệu năng tốt hơn

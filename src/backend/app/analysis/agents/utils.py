@@ -1,10 +1,10 @@
 import json
 
-from .schemas import DefectByLlm, UserStoryMinimal
+from .schemas import DefectByLlm, StoryMinimal
 import re
 
 
-def format_stories(stories: list[UserStoryMinimal]) -> str:
+def format_stories(stories: list[StoryMinimal]) -> str:
     """Format a list of stories into a readable text block for prompt injection."""
     if not stories:
         return "No stories provided."
@@ -82,3 +82,18 @@ def parse_last_message(response, Clazz):
         return Clazz(**data)
     except:
         return None
+
+
+def get_response_as_schema(response, Clazz):
+    output = None
+    try:
+        output = response["structured_response"]
+    except Exception as e:
+        print(f"| ERROR parsing {Clazz.__name__}: {e}")
+
+    if not output:
+        print(f"| Try to parse last message")
+        output = parse_last_message(response, Clazz=Clazz)
+    if not output:
+        print(f"| Failed to parse response into {Clazz.__name__}")
+    return output

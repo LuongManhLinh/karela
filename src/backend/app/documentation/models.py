@@ -1,5 +1,6 @@
 from sqlalchemy import (
     Column,
+    Integer,
     String,
     ForeignKey,
     Text,
@@ -25,7 +26,7 @@ class TextDocumentation(Base):
     name = Column(String(256), nullable=False)
     description = Column(Text, nullable=True)
     content = Column(Text, nullable=True)
-    headers = Column(JSON, nullable=True)
+    token_count = Column(Integer, nullable=True)
 
     created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
     updated_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
@@ -50,7 +51,7 @@ class FileDocumentation(Base):
     name = Column(String(256), nullable=False)
     url = Column(String(512), nullable=False)
     description = Column(Text, nullable=True)
-    headers = Column(JSON, nullable=True)
+    token_count = Column(Integer, nullable=True, default=0)
 
     created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
     updated_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)

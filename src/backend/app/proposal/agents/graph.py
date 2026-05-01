@@ -23,7 +23,8 @@ from .schemas import (
     ProposalReview,
     RewriterInput,
 )
-from app.analysis.agents.schemas import UserStoryMinimal, DefectByLlm
+from app.analysis.agents.schemas import DefectByLlm
+from common.schemas import StoryMinimal
 from common.agents.schemas import LlmContext
 from common.configs import LlmConfig
 from app.documentation.llm_tools import doc_tools
@@ -117,7 +118,7 @@ class State:
 class Context(LlmContext):
     """Context shared across all nodes."""
 
-    user_stories: list[UserStoryMinimal]
+    user_stories: list[StoryMinimal]
     defects: list[DefectByLlm]
     initial_messages: Optional[list[BaseMessage]] = None
     extra_instruction: Optional[str] = None
@@ -294,7 +295,7 @@ _graph = build_graph()
 
 def generate_proposals(
     mode: Literal["SIMPLE", "COMPLEX"],
-    user_stories: list[UserStoryMinimal],
+    user_stories: list[StoryMinimal],
     defects: list[DefectByLlm],
     db: Session,
     connection_id: str,

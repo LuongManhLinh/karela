@@ -43,4 +43,9 @@ export const chatService = {
     );
     return response.data;
   },
+
+  deleteChatSession: async (sessionId: string): Promise<BasicResponse<void>> => {
+    const response = await apiClient.delete<BasicResponse<void>>(`/chat/${sessionId}`);
+    return response.data;
+  }
 };

@@ -1,5 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field, ConfigDict
+from common.schemas import StoryMinimal
 
 
 class DefectByLlm(BaseModel):
@@ -21,17 +22,7 @@ class DefectByLlm(BaseModel):
     )
 
 
-class UserStoryMinimal(BaseModel):
-    key: Optional[str] = None
-    summary: Optional[str] = None
-    description: Optional[str] = None
-
-    model_config = ConfigDict(
-        extra="ignore",
-    )
-
-
-class RelatedStory(UserStoryMinimal):
+class RelatedStory(StoryMinimal):
     """Represents a user story that is related to the target story, as identified by the Relational Graph Search."""
 
     reason: Optional[str] = Field(
@@ -44,10 +35,10 @@ class RelatedStory(UserStoryMinimal):
     )
 
 
-class UserStoryTag(UserStoryMinimal):
+class StoryTag(StoryMinimal):
     tags: Optional[list[str]] = None
 
 
 class BucketGroup(BaseModel):
-    target_story: UserStoryMinimal
-    related_stories: List[UserStoryMinimal]
+    target_story: StoryMinimal
+    related_stories: List[StoryMinimal]

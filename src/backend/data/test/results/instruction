@@ -1,0 +1,354 @@
+![](images/43b1e5225010136dfef972308d070384d4e902debc9527fe2757d0aa01dbb8ed.jpg)
+
+# 260124-text-image-to-text-h2h
+
+Project Guidelines
+
+<table><tr><td colspan="3">Change Log</td></tr><tr><td>Date</td><td>Priority</td><td>Change Description</td></tr><tr><td>Feb 16, 2026</td><td>--</td><td>Guidelines Created</td></tr><tr><td>Mar 10, 2026</td><td>High Priority</td><td>Do&#x27;s and Don&#x27;ts Added</td></tr></table>
+
+<table><tr><td>Table of Contents</td></tr></table>
+
+Change Log 1
+
+Important Reminders 2
+
+Task Overview 2
+
+DO’s & DON’Ts 2
+
+Project Workflow 3
+
+Detailed General Guidelines 3
+
+Step 1: Review the Prompt, Image, and Responses 3
+
+1.1 Read the User Prompt Carefully 3   
+1.2 Examine the Image Provided 3   
+1.3 Review Both Responses 4
+
+Step 2: Select a Prompt Category 4   
+2.1 Choose a Category for the Provided Prompt 4
+
+Step 3: Rate Each Response on Key Dimensions 4
+
+3.1 Evaluate Factuality 4   
+3.2 Evaluate Instruction Following 4   
+3.3 Evaluate Helpfulness 4   
+3.4 Evaluate Style & Format 4
+
+Step 4: Choose the Better Response 4   
+4.1 Synthesize your Findings 4
+
+Step 5: Submit Task 5
+
+5.1 Send your Data to the System 5   
+5.2 Tips for Annotators 5
+
+Appendix 5 Appendix Section 1: Dimensions & Examples 5
+
+A1: Factuality 5   
+A2: Instruction Following 6   
+A3: Helpfulness 7   
+A4: Style & Format 7
+
+# Don’t do this:
+
+⛔ ChatGPT or other AI tools are NOT PERMITTED to write prompts, evaluate responses, or write justifications.   
+⛔ Using AI tools will result in a flag on your account for removal from the project and can lead to removal from the platform.
+
+# Important Reminders
+
+→ All tasks for this project take place on multimango.com. Make sure you’re logged in on this platform to complete tasks   
+→ Login to Hubstaff with your Outlier Primary Email Address   
+→ Login to multimango.com with your wfe000@outlier.ai email address   
+Hubstaff workflow and guide link   
+Aether FAQ’s   
+Task Type Guideline Bank
+
+![](images/1e4ff26b900d472106d65396d78eda21a8d9c87db51711d9c8a3a8cc2aca7771.jpg)
+
+# Task Overview
+
+The goal of this task is to compare text+image-to-text (vision) models side-by-side and evaluate them on factuality, instruction following, helpfulness, style, and overall preference. Your goal is to judge which response would be more acceptable to the prompt instructions about the image displayed.
+
+First, you will review the prompt and image and try to understand what the prompt is asking for. Then, you will choose a prompt category that best suits the prompt and image. Choose 'Other' if none apply. Later, you will rate each response on 5 dimensions using the 3-point scale (Major Issue / Minor Issue / No Issue). Finally, you will compare the two responses. Decide which one handles the prompt more effectively, or select tie/I don't know if needed.
+
+![](images/9f468e70dc38aeaa08c1fccb4acb9e683eaf69666a632fe069e1d9d97a925809.jpg)
+
+# DO’s & DON’Ts
+
+# QUICK START!
+
+These DOs and DON’Ts serve as a quick-start guide to our project’s goals, helping you avoid common errors and provide the highest quality possible for your submissions!
+
+# Do
+
+➔ Do use the image as the Source of Truth. Verify the claims against the provided image to identify hallucinations or inaccuracies.   
+Do read the text prompt to understand its intent and establish a “mental checklist” of requirements.   
+➔ Do prioritize Factuality, Instruction Following, and Helpfulness over Style & Format.   
+➔ Do choose the category that best describes what the prompt is asking for (e.g., Captioning, Homework, OCR, etc.). Select “Other” if none apply.
+
+# Don’t
+
+➔ Don’t guess on ambiguous tasks. If the prompt, image, or responses are unclear or impossible to judge, do not force a winner. Instead, select "I don't know" and use the refresh button to get a new prompt.   
+➔ Don't focus only on visual appeal. While Style & Format contributes to clarity and professionalism, it should not be the main factor in your evaluation.
+
+![](images/cc4d6dcae20aed22f3d0aa876573bbaada70fcda405a6e89f78cdb13153029a3.jpg)
+
+# Project Workflow
+
+<table><tr><td>Step</td><td>Title</td></tr><tr><td>Step 1</td><td>Review the Prompt, Image, and Responses</td></tr><tr><td>Step 2</td><td>Select a Prompt Category</td></tr><tr><td>Step 3</td><td>Rate Each Response on Key Dimensions</td></tr><tr><td>Step 4</td><td>Choose the Better Response</td></tr><tr><td>Step 5</td><td>Submit Task</td></tr></table>
+
+![](images/47f057c9882395d4e0accf24dd381c5b9dbac46a6aaffa7d69c3ecb1b5a33698.jpg)
+
+# Detailed General Guidelines
+
+![](images/33c30225fde1ecef5e0b789c73f09300a989ebf7b54d3d33bd47f0c721bdc887.jpg)
+
+# Step 1: Review the Prompt, Image, and Responses
+
+01
+
+# 1.1 Read the User Prompt Carefully
+
+➔ Before evaluating responses, you must thoroughly read and deconstruct the text prompt to understand its intent.
+
+This ensures your evaluation is objective and based strictly on the user’s request.
+
+Prompt #437189548
+
+![](images/361e83d53dee82f4146d34d069752de5b7b9306f90efe918643cbdef10dcbc5c.jpg)
+
+According to these pictures write the corrct step for each picture given
+
+02
+
+# 1.2 Examine the Image Provided
+
+Review the image-prompt pair to understand what the ideal response should look like in terms of factuality, instruction following, helpfulness, and format.
+
+03
+
+# 1.3 Review Both Responses
+
+Read both Response A and Response B and do a preliminary evaluation of their adherence to the prompt according to the four dimensions previously mentioned.
+
+![](images/342febc825877f2839ae96d61c3c83fe0085c8eea4fb1a58d56487a0ba1cbf75.jpg)
+
+# Step 2: Select a Prompt Category
+
+01
+
+# 2.1 Choose a Category for the Provided Prompt
+
+➔ Choose the category that best describes what the prompt is asking for (e.g., Captioning, Homework, OCR, etc.). Select “Other” if none apply.
+
+![](images/b1adfa1d408d59457d25e67bd1acbe10ac6b143cc983e40d108ff68e283827ad.jpg)
+
+# Step 3: Rate Each Response on Key Dimensions
+
+01
+
+# 3.1 Evaluate Factuality
+
+nail Determine which model was more accurate and truthful based on the image-prompt pair.
+
+02
+
+# 3.2 Evaluate Instruction Following
+
+➔ Determine which model better adhered to the user’s specific text prompt.
+
+Visual Quality
+
+Image A
+
+Image B
+
+Tie
+
+03
+
+# 3.3 Evaluate Helpfulness
+
+➔ Determine which model response was more useful and relevant.
+
+04
+
+# 3.4 Evaluate Style & Format
+
+➔ Determine which model response was better presented and easier to read.
+
+![](images/09894f6347d6c5b50b611679dc23c79a8fdd6c39ce4885544cdc48050d0e1b82.jpg)
+
+# Step 4: Choose the Better Response
+
+01
+
+# 4.1 Synthesize your Findings
+
+After rating all dimensions, indicate which response is better overall, or select “Tie” or “I don’t know” if appropriate.
+
+# Select the winner:
+
+Consider all dimensions holistically when making your selection.   
+Choose the option that best reflects your judgment.   
+➔ Prioritize Factuality, Instruction Following, and Helpfulness over Style & Format.
+
+??Note
+
+Use “Tie” if both answers are equally strong (or weak), and choose “I don't know” when the prompt, image, or responses are unclear or impossible to judge.
+
+![](images/287d8c8d090858aed97ec58f9669e878c03527145958a3f1e5c3cebfa333bfef.jpg)
+
+# Step 5: Submit Task
+
+<table><tr><td rowspan="2">01</td><td>5.1 Send your Data to the System</td></tr><tr><td>→ Before submitting the task, scroll up quickly.→ Ensure your Overall Choice aligns with your ratings, preferring the response that:→ Accurately references details visible in the image.→ Follows the prompt instructions and stays on topic.→ Provides clear, correct, and complete information.→ Is concise without unnecessary vocabulary or repetition.→ Click the “Submit Evaluation” button located at the bottom of the interface.</td></tr><tr><td rowspan="3">02</td><td>5.2 Tips for Annotators</td></tr><tr><td>→ Always examine the image carefully before reading the responses.→ Pay attention to whether the responses accurately describe what is visible in the image.→ Check facts using the image as your primary source of truth.→ Ensure the response matches the requested format.→ Consider the user&#x27;s intent and needs when judging Helpfulness.</td></tr><tr><td>NoteIf you&#x27;re not sure how to evaluate a comparison, use the refresh button to get a new prompt.</td></tr></table>
+
+![](images/168e7f47244396f933f1d83293141bd86a7062b2d1f39e37192e8c5d414152bf.jpg)
+
+# Appendix
+
+<table><tr><td colspan="2">Appendix Section 1: Dimensions &amp; Examples</td></tr><tr><td rowspan="6">01</td><td>A1: Factuality</td></tr><tr><td>Factuality measures whether the response is accurate, truthful, and based on verifiable information from the image. A factually correct response should not contain any false or misleading statements about what is shown in the image.</td></tr><tr><td>How to Rate</td></tr><tr><td>Major Issues</td></tr><tr><td>→ The response contains one or more significant factual errors about the image.
+→ The main claim is false or misleading based on what is visible.
+→ The response hallucinates details not present in the image.</td></tr><tr><td>Minor Issues</td></tr></table>
+
+➔ The response is mostly accurate but contains small inaccuracies or omissions.   
+➔ Minor details are incorrect, but the main point is still valid.   
+➔ The error does not significantly affect the overall usefulness of the response.
+
+# No Issues
+
+$\Rightarrow$ The response is fully accurate and truthful based on the image.   
+➔ All facts are correct and verifiable from what is shown.   
+➔ No misleading or false information is present.
+
+# Examples
+
+# Good Example
+
+➔ Image: A red car parked on a street.   
+$\Rightarrow$ Prompt: What color is the car?   
+$\Rightarrow$ Response: The car is red.   
+$\Rightarrow$ ➔ Why it's good: The response accurately describes what is visible in the image.
+
+# Bad Example
+
+➔ Image: A red car parked on a street.   
+➔ Prompt: What color is the car?   
+➔ Response: The car is blue with racing stripes.   
+6 Why it's bad: The response contains false information not visible in the image.
+
+02
+
+# A2: Instruction Following
+
+Instruction Following assesses whether the response adheres to the instructions or requirements specified in the prompt. The response should address all parts of the prompt and respect any constraints (e.g., format, length, style).
+
+# How to Rate
+
+# Major Issues
+
+➔ The response ignores or contradicts the main instructions in the prompt.   
+➔ Key requirements (format, number of items, style) are not followed.   
+➔ The answer is off-topic or does not address the prompt at all.
+
+# Minor Issues
+
+➔ The response mostly follows instructions but misses minor details (e.g., slight formatting errors, missing one small requirement).   
+➔ The answer is generally on-topic but not perfectly aligned with all instructions.
+
+# No Issues
+
+↓ The response fully adheres to all instructions and requirements.   
+➔ Format, style, and content match the prompt exactly.   
+➔ All requested elements are present.
+
+# Examples
+
+# Good Example
+
+➔ Prompt: List three objects visible in this image.   
+$\Rightarrow$ Response: 1. A wooden table 2. A coffee cup 3. A laptop computer   
+➔ Why it's good: The response lists exactly three objects as requested.
+
+# Bad Example
+
+➔ Prompt: List three objects visible in this image.   
+➔ Response: This image shows a modern office setup with various items.
+
+➔ Why it's bad: The response does not list any specific objects, ignoring the core instruction.
+
+# 03
+
+# A3: Helpfulness
+
+Helpfulness evaluates whether the response provides useful, relevant, and actionable information that addresses the user's needs. A helpful response should be clear, complete, and easy to understand.
+
+# How to Rate
+
+# Major Issues
+
+➔ The response is unhelpful, irrelevant, or confusing.   
+➔ It does not address the user's needs or intent.   
+➔ The answer is incomplete or lacks actionable information.
+
+# Minor Issues
+
+➔ The response is generally helpful but could be improved (e.g., lacks detail, is somewhat vague, or misses a minor point).   
+➔ The answer is useful but not optimal.
+
+# No Issues
+
+➔ The response is clear, relevant, and fully addresses the user's needs.   
+➔ It provides actionable, complete, and easy-to-understand information.   
+➔ No improvements are necessary.
+
+# Examples
+
+# Good Example
+
+$\Rightarrow$ Image: A complex math equation on a whiteboard   
+$\Rightarrow$ ➔ Prompt: Solve this equation step by step   
+➔ Response: Step 1: Isolate the variable... Step 2: Apply the quadratic formula... Step 3: The solution is $\textsf { X } = 5$   
+➔ Why it's good: The response provides a clear, step-by-step solution that addresses the user's request.
+
+# Bad Example
+
+➔ Image: A complex math equation on a whiteboard   
+➔ Prompt: Solve this equation step by step   
+➔ Response: This is a quadratic equation. You can solve it using math.   
+➔ Why it's bad: The response is vague and does not actually solve the equation or provide steps.
+
+# A4: Style & Format
+
+Style and Format measures whether the response is presented in a clear, readable, and professional manner, and whether it follows any specific formatting or stylistic instructions given in the prompt (e.g., bullet points, numbered lists, tone, language level).
+
+# How to Rate
+
+# Major Issues
+
+➔ The response is poorly formatted, making it hard to read or understand (e.g., large blocks of text, missing required structure).   
+➔ The style is inappropriate for the prompt (e.g., overly casual for a formal request, or vice versa).
+
+➔ Required formatting (such as bullet points, headings, or code blocks) is completely ignored.   
+➔ The response contains distracting errors in grammar, spelling, or punctuation.
+
+# Minor Issues
+
+➔ The response generally follows the requested style and format but has small lapses (e.g., inconsistent use of bullets, minor grammar or spelling mistakes).   
+➔ The style is mostly appropriate but could be improved (e.g., slightly too formal/informal, minor tone mismatch).   
+Formatting is present but not optimal (e.g., headings missing, spacing could be better).
+
+# No Issues
+
+$\Rightarrow$ ➔ The response is well-formatted, easy to read, and matches the requested style and format exactly.   
+$\Rightarrow$ All stylistic and formatting instructions are followed perfectly.   
+$\Rightarrow$ Grammar, spelling, and punctuation are correct.   
+$\Rightarrow$ The tone and language level are appropriate for the prompt.
+
+# Important Note
+
+While Style & Format contributes to clarity and professionalism, it should not be the main factor in your evaluation.   
+Prioritize Factuality, Instruction Following, and Helpfulness, as these are essential for a high-quality response.   
+➔ Only consider Style & Format if it significantly impairs understanding or usability.

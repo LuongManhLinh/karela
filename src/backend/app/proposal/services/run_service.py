@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from typing import Literal
 
-from app.analysis.agents.schemas import UserStoryMinimal, DefectByLlm
+from app.analysis.agents.schemas import StoryMinimal, DefectByLlm
 from app.analysis.models import Defect
 from app.connection.jira.services import JiraService
 from app.proposal.schemas import CreateProposalRequest, ProposeStoryRequest
@@ -57,7 +57,7 @@ class ProposalRunService:
         )
 
         stories = [
-            UserStoryMinimal(
+            StoryMinimal(
                 key=story.key,
                 summary=story.summary,
                 description=story.description,

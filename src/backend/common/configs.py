@@ -24,7 +24,9 @@ class LlmConfig:
     LLM_DEFECT_TEMPERATURE = float(os.getenv("LLM_DEFECT_TEMPERATURE", "0"))
     LLM_CHAT_TEMPERATURE = float(os.getenv("LLM_CHAT_TEMPERATURE", "0.7"))
     LLM_DEFAULT_TEMPERATURE = float(os.getenv("LLM_DEFAULT_TEMPERATURE", "0.3"))
-    LLM_TAXONOMY_TEMPERATURE = float(os.getenv("LLM_TAXONOMY_TEMPERATURE", "0.1"))
+    LLM_TAXONOMY_TEMPERATURE = float(os.getenv("LLM_TAXONOMY_TEMPERATURE", "0.0"))
+    LLM_TAXONOMY_TOP_P = float(os.getenv("LLM_TAXONOMY_TOP_P", "0.1"))
+    LLM_DEFECT_TOP_P = float(os.getenv("LLM_DEFECT_TOP_P", "0.1"))
 
     GEMINI_API_KEYS = os.getenv("GEMINI_API_KEYS", "").split(",")
     GEMINI_DEFECT_MODEL = os.getenv("GEMINI_DEFECT_MODEL", "gemini-2.5-flash")
@@ -93,3 +95,7 @@ class Neo4jConfig:
     NEO4J_URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
     NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
     NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "password")
+
+
+class MineruConfig:
+    TOKEN = os.getenv("MINERU_TOKEN", "")

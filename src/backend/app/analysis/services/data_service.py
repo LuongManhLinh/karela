@@ -71,6 +71,7 @@ class AnalysisDataService:
                 generating_proposals=analysis.generating_proposals,
                 num_defects=num_defects,
                 num_proposals=num_proposals,
+                error=analysis.error_message,
             )
             for analysis, num_defects, num_proposals in analyses
         ]
@@ -245,3 +246,10 @@ class AnalysisDataService:
         )
 
         return {analysis.id: analysis.status.value for analysis in analyses}
+
+    def delete_analysis(self, analysis_id: str):
+        analysis = self.db.query(Analysis).filter(Analysis.id == analysis_id).first()
+        if not analysis:
+            raise ValueError("Analysis not found")
+        self.db.delete(analysis)
+        self.db.commit()

@@ -72,7 +72,7 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
   // Proposals
   const { data: proposalsData, isLoading: isProposalsLoading } =
     useSessionProposalsQuery(
-      selectedAnalysisDetail?.id,
+      selectedAnalysisDetail?.key,
       "ANALYSIS",
       projectFilterKey,
       storyFilterKey,

@@ -1,9 +1,14 @@
 "use client";
 
-import ConnectionDashboard from "./ConnectionDashboard";
+import AppLoading from "@/components/AppLoading";
+import { useEffect } from "react";
 
 const ConnectionIdPage = () => {
-  return <ConnectionDashboard />;
+  useEffect(() => {
+    window.location.href = "/app/dashboard";
+  }, []);
+
+  return <AppLoading />;
 };
 
 export default ConnectionIdPage;

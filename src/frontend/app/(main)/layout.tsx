@@ -4,7 +4,10 @@ import React, { useEffect, useState } from "react";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { ConnectionNotFound } from "@/components/errors/ConnectionNotFound";
 import AppLoading from "@/components/AppLoading";
-import { connectionService } from "@/services/connectionService";
+import {
+  useConnectionQuery,
+  useProjectDtosQuery,
+} from "@/hooks/queries/useConnectionQueries";
 
 export default function ConnectionLayout({
   children,
@@ -16,23 +19,30 @@ export default function ConnectionLayout({
     null,
   );
 
-  const initialize = async () => {
-    const connection = await connectionService.getConnectionDto();
-    if (connection.data) {
-      setConnection(connection.data);
-      const projects = await connectionService.getProjects();
-      if (projects.data) {
-        setProjects(projects.data);
-      }
-      setIsValidConnection(true);
-    } else {
-      setIsValidConnection(false);
-    }
-  };
+  const { data: connectionData, isLoading: isConnectionLoading } =
+    useConnectionQuery();
+  const { data: projectsData, isLoading: isProjectsLoading } =
+    useProjectDtosQuery();
+
+  const connection = connectionData?.data;
+  const projects = projectsData?.data || [];
 
   useEffect(() => {
-    initialize();
-  }, []);
+    if (!isConnectionLoading) {
+      if (connection) {
+        setConnection(connection);
+        setIsValidConnection(true);
+      } else {
+        setIsValidConnection(false);
+      }
+    }
+  }, [isConnectionLoading, connection, setConnection]);
+
+  useEffect(() => {
+    if (!isProjectsLoading) {
+      setProjects(projects);
+    }
+  }, [isProjectsLoading, projects, setProjects]);
 
   if (isValidConnection === null) {
     return <AppLoading />;

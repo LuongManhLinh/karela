@@ -1,9 +1,17 @@
 "use client";
 
-import ProjectDashboard from "./ProjectDashboard";
+import AppLoading from "@/components/AppLoading";
+import { useParams } from "next/navigation";
+import { useEffect } from "react";
 
 const ProjectIdPage = () => {
-  return <ProjectDashboard />;
+  const params = useParams();
+  const projectKey = params.projectKey as string;
+  useEffect(() => {
+    window.location.href = `/app/projects/${projectKey}/dashboard`;
+  }, []);
+
+  return <AppLoading />;
 };
 
 export default ProjectIdPage;

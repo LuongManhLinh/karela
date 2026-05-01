@@ -5,7 +5,7 @@ from langchain_google_genai.chat_models import ChatGoogleGenerativeAI
 from langchain_core.messages import BaseMessage
 from pydantic import BaseModel
 import random
-from typing import Iterator, List, Dict, Literal, Callable, Optional
+from typing import Iterator, Literal, Callable, Optional
 
 from utils.json_processor import schema_without_titles
 
@@ -42,13 +42,14 @@ class GenimiDynamicAgent:
             "application/json", "text/plain", "text/x.enum"
         ] = "text/plain",
         response_schema: Optional[BaseModel] = None,
-        tools: List = None,
-        middleware: List = None,
+        tools: list = None,
+        middleware: list = None,
         max_retries: int = 3,
         initial_delay: float = 1.0,
         max_delay: float = 60.0,
         backoff_factor: float = 2.0,
         retry_on: tuple = (Exception,),
+        top_p: float = 1.0,
     ):
         """
         Initialize GenimiDynamicAgent with ModelRetryMiddleware.
@@ -57,10 +58,10 @@ class GenimiDynamicAgent:
             system_prompt: Static string or dynamic prompt middleware function
             model_name: Gemini model name
             temperature: Model temperature
-            api_keys: List of API keys for rotation
+            api_keys: list of API keys for rotation
             response_mime_type: Response format
             response_schema: Pydantic schema for structured output
-            tools: List of tools for the agent
+            tools: list of tools for the agent
             middleware: Additional middleware functions
             max_retries: Maximum retry attempts (default: 3)
             initial_delay: Initial delay before first retry in seconds (default: 1.0)
@@ -84,6 +85,7 @@ class GenimiDynamicAgent:
                 schema_without_titles(response_schema) if response_schema else None
             ),
             max_retries=0,  # Disable model-level retries, use middleware instead
+            top_p=top_p,
         )
 
         # Setup middleware
@@ -118,7 +120,7 @@ class GenimiDynamicAgent:
 
         self.response_schema = response_schema
 
-    def invoke(self, messages: list[BaseMessage] | list[Dict], *args, **kwargs):
+    def invoke(self, messages: list[BaseMessage] | list[dict], *args, **kwargs):
         """
         Invoke the agent with automatic retry and API key rotation.
 
@@ -131,7 +133,7 @@ class GenimiDynamicAgent:
         return self.agent.invoke({"messages": messages}, *args, **kwargs)
 
     def stream(
-        self, messages: list[BaseMessage] | list[Dict], *args, **kwargs
+        self, messages: list[BaseMessage] | list[dict], *args, **kwargs
     ) -> Iterator:
         """
         Stream agent responses with automatic retry.
@@ -146,3 +148,19 @@ class GenimiDynamicAgent:
 
         for chunk in stream_gen:
             yield chunk
+
+    def batch(
+        self, messages_list: list[list[BaseMessage] | list[dict]], *args, **kwargs
+    ):
+        """
+        Batch process multiple sets of messages with automatic retry.
+
+        Args:
+            messages_list: list of message sets
+
+        Returns:
+            list of agent responses
+        """
+        return self.agent.batch(
+            [{"messages": msgs} for msgs in messages_list], *args, **kwargs
+        )

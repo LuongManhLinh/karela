@@ -160,8 +160,9 @@ const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
                   onClick={() => handleSelectStory(story.key)}
                   sx={{
                     borderRadius: 1.5,
-                    border: "1px solid",
-                    borderColor: isSelected ? "primary.main" : "divider",
+                    // border: "1px solid",
+                    // borderColor: "divider",
+                    bgcolor: "surfaceContainerHighest",
                     alignItems: "flex-start",
                   }}
                 >

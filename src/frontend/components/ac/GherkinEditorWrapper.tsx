@@ -19,8 +19,8 @@ import {
 } from "@mui/material";
 import { Info as InfoIcon, Try as TryIcon } from "@mui/icons-material";
 import { useTranslations } from "next-intl";
-import { defineGherkinMode } from "@/utils/ace-gherkin-mode";
-import { defineCustomThemes } from "@/utils/ace-themes";
+import { defineGherkinMode } from "@/utils/aceGherkinMode";
+import { defineCustomThemes } from "@/utils/aceThemes";
 import {
   getGherkinEditorTheme,
   setGherkinEditorTheme,

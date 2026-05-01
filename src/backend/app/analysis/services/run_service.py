@@ -1,5 +1,6 @@
-from app.analysis.agents.schemas import DefectByLlm, UserStoryMinimal
+from app.analysis.agents.schemas import DefectByLlm, StoryMinimal
 from app.analysis.services.data_service import AnalysisDataService
+from app.connection.jira.models import Project
 from app.proposal.services.run_service import ProposalRunService
 
 from app.documentation.services import DocumentationService
@@ -163,6 +164,7 @@ class AnalysisRunService:
                     analysis_id=analysis_id,
                 )
             )
+        self.db.commit()
 
     def _convert_graphrag_defects(
         self,
@@ -214,6 +216,7 @@ class AnalysisRunService:
                 idx += 1
 
     def run_analysis(self, analysis_id: str):
+        start = time.perf_counter()
         analysis = self._get_analysis_or_raise(analysis_id)
         targeted = analysis.type == AnalysisType.TARGETED
         target_key = analysis.story_key if targeted else None
@@ -221,22 +224,12 @@ class AnalysisRunService:
         try:
             self._start_analysis(analysis)
 
-            stories = self._fetch_stories(analysis=analysis)
-
             if targeted:
-                normalized_stories = []
-                target = None
-                for i in stories:
-                    wi = UserStoryMinimal(
-                        key=i.key,
-                        summary=i.summary,
-                        description=i.description or "",
-                    )
-
-                    if wi.key == target_key:
-                        target = wi
-                    else:
-                        normalized_stories.append(wi)
+                target = self.jira_service.fetch_stories(
+                    connection_id=analysis.connection_id,
+                    project_key=analysis.project_key,
+                    story_keys=[target_key],
+                )
 
                 if not target:
                     self._finish_analysis(
@@ -245,23 +238,27 @@ class AnalysisRunService:
                         error_msg=f"Target user story {target_key} not found",
                     )
                     return
-            else:
-                normalized_stories = [
-                    UserStoryMinimal(
-                        key=i.key,
-                        summary=i.summary,
-                        description=i.description or "",
-                    )
-                    for i in stories
-                ]
+                target = target[0]
+                target = StoryMinimal(
+                    key=target.key,
+                    summary=target.summary,
+                    description=target.description,
+                )
+            project_description = (
+                self.db.query(Project.description)
+                .filter(
+                    Project.connection_id == analysis.connection_id,
+                    Project.key == analysis.project_key,
+                )
+                .scalar()
+            )
+
+            print(
+                f"Project description fetched: {bool(project_description)} characters"
+            )
 
             preference = self.pref_service.get_analysis_preference(
                 connection_id=analysis.connection_id, project_key=analysis.project_key
-            )
-
-            initial_messages = self.doc_service.simulate_list_docs_messages(
-                connection_id=analysis.connection_id,
-                project_key=analysis.project_key,
             )
 
             query = (
@@ -293,33 +290,29 @@ class AnalysisRunService:
                 for d in query.all()
             ]
 
-            start = time.perf_counter()
-
             if targeted:
                 defects = run_user_stories_analysis_target(
                     connection_id=analysis.connection_id,
                     project_key=analysis.project_key,
-                    db=self.db,
                     target_user_story=target,
-                    user_stories=normalized_stories,
                     existing_defects=existing_defects,
                     extra_instruction=(
                         preference.extra_instruction if preference else None
                     ),
-                    initial_messages=initial_messages,
+                    project_description=project_description,
                 )
                 log_message = "Target story analysis completed in:"
             else:
                 defects = run_user_stories_analysis_all(
                     connection_id=analysis.connection_id,
                     project_key=analysis.project_key,
-                    db=self.db,
-                    user_stories=normalized_stories,
                     existing_defects=existing_defects,
                     extra_instruction=(
                         preference.extra_instruction if preference else None
                     ),
-                    initial_messages=initial_messages,
+                    project_description=project_description,
+                    self_concurrent_batches=5,
+                    pairwise_concurrent_batches=5,
                 )
                 log_message = "User stories analysis completed in:"
 

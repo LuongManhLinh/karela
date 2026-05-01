@@ -1,6 +1,6 @@
 """State and Context definitions for the ALL analysis workflow."""
 
-from ..schemas import BucketGroup, UserStoryMinimal
+from ..schemas import BucketGroup, StoryMinimal
 from ..shared_state import AnalysisState, AnalysisContext
 
 
@@ -11,7 +11,7 @@ class AllState(AnalysisState):
     communities to chunk the workload for pairwise analysis.
     """
 
-    all_stories: list[UserStoryMinimal]
+    all_stories: list[StoryMinimal]
     bucket_groups: list[BucketGroup]
 
 

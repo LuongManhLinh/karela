@@ -9,6 +9,43 @@ import type {
 } from "@/types/documentation";
 
 export const documentationService = {
+  // ── Bulk Documentation ──────────────────────────────────────
+
+  bulkUploadDocs: async (
+    projectKey: string,
+    textDocs: { name: string; content: string; description?: string }[],
+    fileDocs: { file: File; description?: string }[],
+  ): Promise<
+    BasicResponse<{
+      text_docs: TextDocumentationDto[];
+      file_docs: FileDocumentationDto[];
+    }>
+  > => {
+    const formData = new FormData();
+
+    formData.append("text_docs_json", JSON.stringify(textDocs));
+
+    const fileDocsMeta: Record<string, string> = {};
+    fileDocs.forEach(({ file, description }) => {
+      formData.append("files", file);
+      if (description && description.trim()) {
+        fileDocsMeta[file.name] = description.trim();
+      }
+    });
+
+    formData.append("file_docs_meta_json", JSON.stringify(fileDocsMeta));
+
+    const response = await apiClient.post<
+      BasicResponse<{
+        text_docs: TextDocumentationDto[];
+        file_docs: FileDocumentationDto[];
+      }>
+    >(`/documentation/projects/${projectKey}/bulk-docs`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+  },
+
   // ── Text Documentation ──────────────────────────────────────
 
   listTextDocs: async (

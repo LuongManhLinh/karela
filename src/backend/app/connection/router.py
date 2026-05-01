@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 import traceback
 
-from app.connection.jira.schemas import SyncProjectsRequests
+from app.connection.jira.schemas import SyncProjectsRequest
+from app.connection.schemas import UpdateProjectDescriptionRequest
 from common.schemas import BasicResponse
 from app.service_factory import (
     get_jira_service,
@@ -140,6 +141,28 @@ async def get_project_dashboard_info(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
+@router.get("/projects/{project_key}/dashboard/stories")
+async def get_project_dashboard_stories(
+    project_key: str,
+    skip: int = 0,
+    limit: int = 10,
+    service: DashboardService = Depends(get_dashboard_service),
+    jwt_payload=Depends(get_jwt_payload),
+):
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+    try:
+        stories = service.get_paginated_stories(
+            connection_id=conn_id,
+            project_key=project_key,
+            skip=skip,
+            limit=limit,
+        )
+        return BasicResponse(data=stories)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
 
 @router.get("/projects/{project_key}/stories/{story_key}/dashboard")
 async def get_story_dashboard_info(
@@ -179,6 +202,26 @@ async def get_connection_dashboard_info(
         traceback.print_exc()
         raise HTTPException(status_code=404, detail=str(e))
 
+@router.get("/dashboard/projects")
+async def get_connection_dashboard_projects(
+    skip: int = 0,
+    limit: int = 5,
+    service: DashboardService = Depends(get_dashboard_service),
+    jwt_payload=Depends(get_jwt_payload),
+):
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+    try:
+        projects = service.get_paginated_projects(
+            connection_id=conn_id,
+            skip=skip,
+            limit=limit,
+        )
+        return BasicResponse(data=projects)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
 
 @router.get("/projects/sync-status")
 def get_projects_sync_status(
@@ -200,7 +243,7 @@ def get_projects_sync_status(
 
 @router.post("/projects/sync")
 def sync_projects(
-    request: SyncProjectsRequests,
+    request: SyncProjectsRequest,
     service: JiraService = Depends(get_jira_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
@@ -210,9 +253,48 @@ def sync_projects(
     try:
         service.sync_projects(
             connection_id=conn_id,
-            project_keys=request.project_keys,
-            run_analysis_after_sync=request.run_analysis_after_sync,
+            request=request,
         )
         return BasicResponse(detail="Projects sync initiated successfully")
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.get("/projects/{project_key}/description")
+def get_project_description(
+    project_key: str,
+    service: JiraService = Depends(get_jira_service),
+    jwt_payload=Depends(get_jwt_payload),
+):
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+    try:
+        description = service.get_project_description(
+            connection_id=conn_id,
+            project_key=project_key,
+        )
+        return BasicResponse(data=description)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.put("/projects/{project_key}/description")
+def update_project_description(
+    project_key: str,
+    request: UpdateProjectDescriptionRequest,
+    service: JiraService = Depends(get_jira_service),
+    jwt_payload=Depends(get_jwt_payload),
+):
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+    try:
+        service.update_project_description(
+            connection_id=conn_id,
+            project_key=project_key,
+            description=request.description,
+        )
+        return BasicResponse(detail="Project description updated successfully")
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

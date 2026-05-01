@@ -3,7 +3,7 @@ import pageindex.utils as utils
 import json
 
 client = PageIndexClient(
-    api_key="AIzaSyDR4b5TA0xm4cXulB4Fo_tizbs_ioukyis",
+    api_key="",
     model="gemini/gemini-2.5-flash",
     retrieve_model="gemini/gemini-2.5-flash",
     workspace=".workspace",

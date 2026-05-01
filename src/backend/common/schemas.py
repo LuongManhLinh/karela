@@ -34,3 +34,13 @@ class SessionSummary(BaseModel):
     model_config = ConfigDict(
         extra="ignore",
     )
+
+
+class StoryMinimal(BaseModel):
+    key: str
+    summary: Optional[str] = None
+    description: Optional[str] = None
+
+    model_config = ConfigDict(
+        extra="ignore",
+    )

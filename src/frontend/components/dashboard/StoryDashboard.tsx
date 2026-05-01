@@ -9,7 +9,7 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { SessionStartForm } from "@/components/SessionStartForm";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { StatsGrid } from "@/components/dashboard/StatsGrid";
-import { useStoryDashboardQuery } from "@/hooks/queries/useDashboardQueries";
+import { useStoryDashboardQuery } from "@/hooks/queries/useConnectionQueries";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { useTranslations } from "next-intl";
 import type {

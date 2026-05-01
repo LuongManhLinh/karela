@@ -1,0 +1,538 @@
+# ĐẠI HỌC QUỐC GIA HÀ NỘI TRƯỜNG ĐẠI HỌC CÔNG NGHỆ
+
+![](images/f361ca02d2131aa400f627f720b3f213244421349d01dd4ec6b59d11db0a46cb.jpg)
+
+# BÁO CÁO HỌC PHẦN DỰ ÁN CÔNG NGHỆ Ngành: Công nghệ thông tin
+
+# ỨNG DỤNG MÔ HÌNH NGÔN NGỮ LỚN ĐỂ NÂNG CAO CHẤT LƯỢNG TRONG KỸ NGHỆ YÊU CẦU
+
+Người thực hiện: Lương Mạnh Linh
+
+Mã sinh viên: 22021215
+
+Lớp: QH-2022-I/CQ-I-IT1
+
+Giảng viên hướng dẫn: Th.S Trần Mạnh Cường
+
+HÀ NỘI - 2025
+
+# TÓM TẮT
+
+Trong quy trình phát triển phần mềm hiện đại theo mô hình Agile/Scrum, chất lượng của quy trình Kỹ nghệ yêu cầu (Requirement Engineering) và tài liệu yêu cầu (User Story) ảnh hưởng trực tiếp đến thành công của dự án. Tuy nhiên, việc duy trì một Backlog sạch sẽ, không mâu thuẫn và đầy đủ thông tin là thách thức lớn, đặc biệt khi quy mô dự án mở rộng. Báo cáo này đề xuất giải pháp ứng dụng Mô hình ngôn ngữ lớn (Large Language Models - LLM) để xây dựng các hệ thống Agent thông minh tích hợp vào phần mềm quản lý dự án Jira. Hệ thống có khả năng phát hiện các lỗi ngữ nghĩa trong các User Story và sinh đề xuất chỉnh sửa. Một Chatbot được xây dựng nhằm hỗ trợ người dùng trong việc tìm hiểu về dự án và giải quyết các lỗi tồn đọng. Kết quả nghiên cứu bước đầu đưa ra một kiến trúc khả thi giúp giảm thiểu nợ kỹ thuật và hỗ trợ Business Analyst nâng cao hiệu suất làm việc.
+
+Từ khóa: Kỹ nghệ yêu cầu (Requirement Engineering), Large Language Models (LLM), Agile, Scrum, User Story.
+
+# MỤC LỤC
+
+Tóm tắt . .
+
+Mục lục . . .
+
+Danh mục hình ảnh . .
+
+Danh mục bảng . . . vi
+
+Bảng thuật ngữ
+
+Chương 1. Mở đầu . . . . 4
+
+1.1. Đặt vấn đề 4   
+1.2. Mục tiêu nghiên cứu . 5   
+1.3. Phạm vi nghiên cứu . 5   
+1.4. Cấu trúc của báo cáo 6
+
+# Chương 2. Cơ sở lý thuyết . .
+
+2.1. Kỹ nghệ yêu cầu trong mô hình Scrum .   
+2.2. Mô hình ngôn ngữ lớn 8
+
+2.2.1. Kiến trúc Transformer . . . .   
+2.2.2. Các kỹ thuật tối ưu cho tác vụ NLP 8
+
+2.3. Các nghiên cứu liên quan 9
+
+2.3.1. Tình hình nghiên cứu về LLM trong Kỹ nghệ yêu cầu . . . . . . . . . 9   
+2.3.2. Các nghiên cứu tiêu biểu 9   
+2.3.3. Phân tích khoảng trống nghiên cứu (Gap Analysis) . . . . . . . . . . 10
+
+# Chương 3. Thiết kế giải pháp . . . . 11
+
+3.1. Tổng quan . . . 11   
+3.2. Mô hình hóa dữ liệu yêu cầu .   
+3.3. Chiến lược Prompt Engineering . . . 12
+
+3.4. Quy trình Phân tích yêu cầu . 12   
+3.5. Quy trình Sinh đề xuất . 14   
+3.6. Thiết kế Chatbot hỗ trợ . . . 14
+
+3.6.1. Quản lý ngữ cảnh hội thoại . 14   
+3.6.2. Cách Chatbot tương tác với môi trường . . . . . . 15
+
+# Chương 4. Xây dựng hệ thống . . . . 16
+
+4.1. Kiến trúc hệ thống . . . 16   
+4.2. Công nghệ sử dụng . . . 16   
+4.3. Các modules chức năng 16
+
+4.3.1. Module tích hợp Jira . . . . 16   
+4.3.2. Module Phân tích yêu cầu 17   
+4.3.3. Module Sinh đề xuất . 18   
+4.3.4. Module Chatbot . 18
+
+4.4. Giao diện hệ thống . 18
+
+# Chương 5. Kiểm thử và Đánh giá . . . . 21
+
+5.1. Môi trường kiểm thử . 21   
+5.2. Đánh giá chức năng phân tích yêu cầu 22
+
+5.2.1. Phương pháp đánh giá . 22   
+5.2.2. Kết quả Dự án 1: Hệ thống Quản lý Thư viện (LMS) . . . . . . . . 22   
+5.2.3. Kết quả Dự án 2: Hệ thống Đặt xe (VBS) . . . . . . . 23   
+5.2.4. Tổng hợp kết quả hai dự án . . . 23   
+5.2.5. Kết quả theo loại lỗi . . . . 24
+
+5.3. Đánh giá Khả năng sinh đề xuất . 24
+
+5.3.1. Phương pháp đánh giá . 24
+
+5.3.2. Kết quả sinh đề xuất cho Dự án LMS . . . . 24   
+5.3.3. Kết quả sinh đề xuất cho Dự án VBS . . . . 25   
+5.3.4. Đánh giá chất lượng nội dung đề xuất . . . . 26   
+5.3.5. Nhận xét tổng quan về chức năng sinh đề xuất . . . . . . . . . . . 26
+
+5.4. Đánh giá chức năng Chatbot . 27
+
+5.4.1. Giới hạn của việc kiểm thử 27   
+5.4.2. Kịch bản kiểm thử . . . . 27   
+5.4.3. Kết quả chi tiết . . . . 27   
+5.4.4. Nhận xét về Chatbot . 28
+
+5.5. Đánh giá trên dự án thật 29   
+5.6. Nhận xét chung . 29
+
+# Chương 6. Kết luận . . . 30
+
+6.1. Kết quả đạt được . . 30   
+6.2. Hạn chế 30   
+6.3. Các định hướng phát triển 30
+
+# Tài liệu tham khảo . 32
+
+# DANH MỤC HÌNH ẢNH
+
+Hình 3.1 Luồng xử lý Phân tích yêu cầu . 13   
+Hình 3.2 Luồng xử lý Sinh đề xuất . 13   
+Hình 4.1 Sơ đồ kiến trúc công nghệ (Tech Stack) . . . . 17   
+Hình 4.2 Giao diện Phân tích yêu cầu 19   
+Hình 4.3 Giao diện các đề xuất . 19   
+Hình 4.4 Giao diện Chatbot . 20   
+Hình 4.5 Giao diện thêm tài liệu cho dự án . . 20
+
+# DANH MỤC BẢNG
+
+Bảng 5.1 Kết quả phát hiện lỗi trên dự án LMS 22   
+Bảng 5.2 Kết quả phát hiện lỗi trên dự án VBS 23   
+Bảng 5.3 So sánh hiệu quả giữa phương pháp phân tích 1 lần và 2 lần . . . . . 23   
+Bảng 5.4 Hiệu quả phát hiện theo từng loại lỗi 24   
+Bảng 5.5 Thống kê đề xuất sinh ra cho dự án LMS 24   
+Bảng 5.6 Thống kê đề xuất sinh ra cho dự án VBS 25   
+Bảng 5.7 Đánh giá chất lượng nội dung đề xuất . 26   
+Bảng 5.8 Tổng hợp kết quả kiểm thử Chatbot . 27
+
+BẢNG THUẬT NGỮ   
+
+<table><tr><td>Thuận ngǔ</td><td>Đinh nghoa</td></tr><tr><td>AC</td><td>Acceptance Criteria - Tiếu chí cháp khác, cóc dièu kîếnde xác khác User Story hoàn thân</td></tr><tr><td>Agent</td><td>Tái khác tuý dông, môt thânphàn phàn mèm cókha nùng thúc hiếntác vú doç lâp</td></tr><tr><td>Agile</td><td>Phúoczpháp pháp triến phàn mèm linh hoàt, tâp trung vào suy thích úmg và phàn hòi nhanh</td></tr><tr><td>AI</td><td>Artificial Intelligence - Trí tuếnhân táo</td></tr><tr><td>Ambiguity</td><td>Sú mo hò - lõi xày ra khi yếu cùu có thế hieiú theo nhiếu cachu khúc nhau</td></tr><tr><td>API</td><td>Application Programming Interface - Giao diếnh láp trinh úng dung</td></tr><tr><td>BA</td><td>Business Analyst - Chuyên viến phân tích nghiếp vú</td></tr><tr><td>Backlog</td><td>Danh sácch:cóng viếc can thúc hiếntrongh duý an Scrum</td></tr><tr><td>BDD</td><td>Behavior Driven Development - Phát triếnh huáng,hanh vi</td></tr><tr><td>Chain-of-Thought</td><td>Kū chuát prompting huáng,dān LLM suy luân ting buóc</td></tr><tr><td>Chatbot</td><td>Chuíng trinh may tún h mù phóc cuóc hòi thói vovi nguòi dung</td></tr><tr><td>Conflict</td><td>Mân tuân - lõi xày ra khi yếu cùu máu thuan vói yếu cùu dã có</td></tr><tr><td>Context</td><td>Ngú,cǎnh - thùng tin duếc cung cap cho LLM nésin*càu试点工作</td></tr><tr><td>Defect</td><td>Lõi tôn tαι giūa cac User Story trong duý an</td></tr><tr><td>DSL</td><td>Domain-Specific Language - Ngôn ngú chuyên biế t'é giai quyét ván dè choMZt lnh vúc cu tê</td></tr><tr><td>Duplication</td><td>Trùng l平板 - lõi xày ra khi nhieu User Story mô tà cung môt chúc näng</td></tr><tr><td>Few-shot</td><td>Ký chuát prompting cung capmít vài ví du maú cho LLM</td></tr><tr><td>F1-Score</td><td>Chi sô dânh giá két hop giūa Precision và Recall</td></tr><tr><td>Gherkin</td><td>Ngôn ngū先进技术 à kich bàn kiém theo cái truc GIVEN-WHEN-THEN</td></tr><tr><td>GPT</td><td>Generative Pre-trained Transformer - Kiên truc mô先进技术 ngôn先进技术 OpenAI</td></tr><tr><td>Hallucination</td><td>Âo gliac - hiên tuǒng LLM sinh ra thóc tin sai lêch nhùng có vê hop lý</td></tr><tr><td>Human-in-the-loop</td><td>Phuǒng pháp duy tri sú giam sát cúa con ngòi trong quy trinh tuý dòng</td></tr><tr><td>Incompleteness</td><td>Thiéu day dù - lõi xày ra khi yèu cái thiéu thóc tin;càn thiet</td></tr><tr><td>INVEST</td><td>Independent, Negotiable, Valuable, Estimable, Small, Testable - Tiếu chuân khác先进技术 User Story</td></tr><tr><td>Jira</td><td>Cộng cu quàn lý dú an先进技术 cúa Atlassian</td></tr><tr><td>Knowledge Graph</td><td>Dó thí tri thúc - capu truc luú trú thóc tin duǒi dāng,các thúc theç và quan he</td></tr><tr><td>LLM</td><td>Large Language Model - Mô先进技术 ngôn lón</td></tr><tr><td>LLM4RE</td><td>LLM for Requirements Engineering - Linh vúç úng dung LLM先进技术 ký先进技术 yèu cùu</td></tr><tr><td>NLP</td><td>Natural Language Processing - Xú lý先进技术先进技术 nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua nlua n Lua</td></tr><tr><td>Out of Scope</td><td>Ngoài先进技术 vi - lõi xày ra khi yèu cái先进技术 quá先进技术 vi先进技术 an</td></tr><tr><td>PO</td><td>Product Owner - Chú sân先进技术 Trong Scrum</td></tr><tr><td>Precision</td><td>Dó chinh xác - tý lê doán doán先进技术 doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doán doía doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doín doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún do;n doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún do concussion doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún do multin doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doís doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doús doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doás doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún do;z doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doż doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź doún doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;n doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do{x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do)x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;x doź do;%do;</td></tr><tr><td>Prompt</td><td>Cộng lẻ khác vào duế g購買GNU det huếng dān sinh két khác</td></tr><tr><td>Prompt Engineering</td><td>Ký chuân tiên né cê cê cê先进技术 não vào det此時 uú dàu raca与此LLM</td></tr><tr><td>RAG</td><td>Retrieval Augmented Generation - Ký chuân khác h矿物质 LLM vovie co sô tri thóc bê n ngoài</td></tr><tr><td>RE</td><td>Requirements Engineering - Ký giá yếu*cau</td></tr><tr><td>Recall</td><td>Dô bao phù - tý Lê doán dung trong sô cac trươngghocphuc suy duong</td></tr><tr><td>Scrum</td><td>Khung lam viếc Agile phô bien trong phát triên phàn mèm</td></tr><tr><td>SDLC</td><td>Software Development Life Cycle - Vòng khác phát triênphàn mèm</td></tr><tr><td>SLM</td><td>Small Language Model - Mô先进技术 ngôn ngú nhô</td></tr><tr><td>Sprint</td><td>Chu ký phát triên ngân trong Scrum, truong kéoicens 2-4 tuàn</td></tr><tr><td>Stakeholder</td><td>Các:bên lien quan có quan tân dēn duý an phàn mèm</td></tr><tr><td>Transformer</td><td>Kiên truc mùng neural là nèn tàng)cua cac LLM hiênicensi</td></tr><tr><td>User Story</td><td>Càu chuyên ng物联网 -don ví mô tã yếu cùu trongAgile/Scrum</td></tr><tr><td>Zero-shot</td><td>Ký chuânprompting khói tung cap ví du maú choLLM</td></tr></table>
+
+# Chương 1
+
+# Mở đầu
+
+# 1.1. Đặt vấn đề
+
+Kỹ nghệ yêu cầu (Requirement Engineering - RE) đóng vai trò nền tảng trong sự thành công của bất kỳ dự án phần mềm nào. Một bộ yêu cầu chính xác, đầy đủ và nhất quán là tiền đề để đội ngũ phát triển xây dựng sản phẩm đúng với sự mong đợi của khách hàng. Các nghiên cứu đã chỉ ra rằng lỗi phát sinh trong giai đoạn phân tích yêu cầu nếu không được phát hiện sớm sẽ tốn kém gấp nhiều lần để khắc phục ở các giai đoạn sau của vòng đời phát triển phần mềm (SDLC) [1]. Theo khảo sát của Zadenoori và cộng sự, trong số các nhiệm vụ của kỹ nghệ yêu cầu, việc phát hiện lỗi (Defect Detection) chỉ chiếm khoảng 4% số lượng nghiên cứu hiện có [2], cho thấy đây vẫn là một lĩnh vực cần được quan tâm nhiều hơn.
+
+Trong các quy trình phát triển phần mềm hiện nay, mô hình Agile/Scrum được sử dụng rộng rãi nhờ tính linh hoạt và khả năng thích ứng nhanh. Yêu cầu thường được viết dưới dạng User Story - câu chuyện người dùng ngắn gọn theo cấu trúc Connextra, được lưu trữ trong Backlog của dự án. Tuy nhiên, do User Story thường được viết bằng ngôn ngữ tự nhiên và thiếu các ràng buộc hình thức chặt chẽ, chúng dễ bị mơ hồ, thiếu thông tin hoặc gây hiểu nhầm giữa các bên liên quan [3]. Oftebro và cộng sự đã chỉ ra rằng khi dự án mở rộng, backlog ngày càng lớn dẫn đến khó khăn trong việc quản lý, dễ xảy ra xung đột (conflict) hoặc trùng lặp (duplication), tạo thành nợ kỹ thuật ngay từ khâu yêu cầu [4].
+
+Sự bùng nổ của các Mô hình ngôn ngữ lớn (Large Language Models - LLM) như GPT-4, Gemini hay Claude đã mở ra những hướng đi mới trong việc xử lý ngôn ngữ tự nhiên. LLM đã chứng minh được khả năng vượt trội trong việc hiểu, tóm tắt và sinh văn bản. Trên cơ sở đó, việc ứng dụng LLM cho Kỹ nghệ yêu cầu (LLM for Requirement Engineering - LLM4RE) đã được nghiên cứu từ những ngày đầu tiên của kỷ nguyên LLM. LLM có thể đóng vai trò như một tác nhân (agent) hỗ trợ con người, từ thu thập yêu cầu (Elicitation) đến đặc
+
+tả (Specification), phân tích (Analysis) và kiểm định (Validation) [5]. Đến nay, LLM đã và đang định hình lại lĩnh vực Kỹ nghệ yêu cầu, cho thấy đây một hướng nghiên cứu có triển vọng [2]. Cụ thể hơn với mô hình Agile/Scrum, việc ứng dụng LLM để tự động hóa việc kiểm tra chất lượng User Story, phát hiện lỗi logic sẽ giúp mang lại những giá trị thực tiễn cao cho Scrum Team và stakeholder [6].
+
+Mặc dù tiềm năng là rất lớn, việc áp dụng LLM vào các dự án thực tế vẫn gặp nhiều rào cản. Một số thách thức chính có thể kể đến bao gồm chất lượng dữ liệu, ngữ cảnh chuyên biệt của từng dự án, khả năng giải thích của mô hình, và độ nhạy cảm với prompt [7]. Bên cạnh đó, các công cụ hiện tại thường rời rạc, đòi hỏi người sử dụng phải thao tác thủ công trên nhiều giao diện khác nhau. Nhu cầu cấp thiết đặt ra là cần một hệ thống tích hợp sâu vào quy trình làm việc (như Jira), hoạt động như một trợ lý thực sự, có khả năng đọc hiểu ngữ cảnh dự án và đưa ra các cảnh báo kịp thời cho đội ngũ phát triển [8,9].
+
+# 1.2. Mục tiêu nghiên cứu
+
+Dự án này nghiên cứu và xây dựng hệ thống AI Agent có khả năng tự động hóa quy trình kiểm tra chất lượng yêu cầu trong mô hình Scrum. Cụ thể, hệ thống sẽ tự động đọc và hiểu các User Story từ hệ thống quản lý dự án (Jira), phát hiện các vấn đề chất lượng như sự mơ hồ, xung đột logic giữa các tính năng, cũng như gợi ý nội dung chỉnh sửa cụ thể cho từng User Story.
+
+Hệ thống cũng bao gồm một Chatbot hỗ trợ các thành viên trong Scrum Team (Product Owner, Business Analyst, Developer) truy vấn thông tin về nghiệp vụ dự án một cách tự nhiên.
+
+# 1.3. Phạm vi nghiên cứu
+
+Đối tượng nghiên cứu của dự án này bao gồm quy trình phát triển phần mềm theo mô hình Scrum, các văn bản yêu cầu phần mềm dưới dạng User Story và Acceptance Criteria tiếng Anh/tiếng Việt, các mô hình ngôn ngữ lớn (LLM) và kỹ thuật Prompt Engineering.
+
+Nghiên cứu được thực hiện xoay quanh hệ thống quản lý dự án Jira Software, sử dụng công nghệ lõi bao gồm các thư viện Python như LangChain, LangGraph và các LLM API như OpenAI API hay Gemini API.
+
+# 1.4. Cấu trúc của báo cáo
+
+Phần còn lại của báo cáo được trình bày như sau: Chương 2 trình bày các kiến thức nền tảng về Kỹ nghệ yêu cầu, User Story, và công nghệ LLM, đồng thời tổng quan các nghiên cứu liên quan. Chương 3 mô tả chi tiết quy trình xử lý dữ liệu, luồng hoạt động trong hệ thống Agent và chiến lược Prompt Engineering. Chương 4 nói rõ hơn về kết quả xây dựng ứng dụng và cung cấp một vài hình ảnh giao diện của hệ thống. Chương 5 trình bày các kịch bản kiểm chứng và kết quả kiểm thử các chức năng chính. Cuối cùng Chương 6 tóm tắt lại các đóng góp của đề tài và định hướng nghiên cứu trong tương lai.
+
+# Chương 2
+
+# Cơ sở lý thuyết
+
+# 2.1. Kỹ nghệ yêu cầu trong mô hình Scrum
+
+Trong mô hình phát triển phần mềm Agile và Scrum, User Story là đơn vị cơ bản để mô tả yêu cầu từ góc nhìn của người dùng cuối. Một User Story điển hình tuân theo cấu trúc Connextra: “As a <role>, I want <feature>, so that <benefit>” [6]. Mỗi User Story thường đi kèm với các Tiêu chí chấp nhận (Acceptance Criteria - AC), có thể được viết dưới dạng văn bản tự nhiên, nhưng nên tuân theo định dạng Gherkin với cấu trúc GIVEN-WHEN-THEN để hỗ trợ kiểm thử tự động [10].
+
+Để đảm bảo chất lượng, một User Story cần thỏa mãn tiêu chuẩn INVEST do Bill Wake đề xuất [11], bao gồm các yếu tố sau. Independent (Độc lập) đòi hỏi hạn chế phụ thuộc vào các story khác. Negotiable (Có thể thương lượng) có nghĩa là chủ đề để thảo luận chứ không phải mệnh lệnh cố định. Valuable (Có giá trị) đảm bảo mang lại giá trị cụ thể cho khách hàng. Estimable (Có thể ước lượng) đảm bảo đủ rõ ràng để đội ngũ phát triển ước lượng công sức. Small (Nhỏ) yêu cầu đủ nhỏ để hoàn thành trong một Sprint. Testable (Có thể kiểm thử) yêu cầu có tiêu chí chấp nhận rõ ràng để xác nhận hoàn thành.
+
+Tuy nhiên, việc viết User Story tuân thủ tiêu chuẩn INVEST là không dễ dàng. Nghiên cứu của Mahbub và cộng sự [12] đã phân loại ba nhóm lỗi chính trong phân tích yêu cầu: sự mơ hồ (Ambiguity), không nhất quán (Inconsistency) và thiếu đầy đủ (Incompleteness). Cụ thể, lỗi Ambiguity xảy ra khi yêu cầu có thể hiểu theo nhiều cách khác nhau dẫn đến sai lệch khi lập trình. Lỗi Inconsistency (hoặc Conflict) tồn tại nếu như yêu cầu mới mâu thuẫn với các yêu cầu đã có hoặc logic nghiệp vụ chung của hệ thống [4]. Lỗi Incompleteness thường xuất hiện trong Acceptance Criteria khi thiếu các trường hợp biên (edge cases) hoặc tiêu chí phi chức năng (Non-functional requirements) [3]. Bên cạnh đó, ta còn có lỗi Duplication xảy ra khi có nhiều User Story mô tả cùng một chức năng. Nhờ
+
+khả năng xử lý ngôn ngữ tự nhiên xuất sắc, LLM có thể hỗ trợ đáng kể trong việc phát hiện các lỗi này, mặc dù LLM chỉ nên được coi là công cụ hỗ trợ chứ không thể thay thế hoàn toàn chuyên gia con người [13].
+
+# 2.2. Mô hình ngôn ngữ lớn
+
+# 2.2.1. Kiến trúc Transformer
+
+Sự phát triển của NLP hiện đại dựa trên kiến trúc Transformer, với cơ chế cốt lõi là Attention. Cơ chế này cho phép mô hình tập trung vào các phần quan trọng của câu văn và hiểu được mối quan hệ ngữ nghĩa giữa các từ ngữ ở khoảng cách xa, điều mà các mô hình RNN/LSTM khó để làm được. Các LLM như GPT được huấn luyện trên lượng dữ liệu văn bản khổng lồ, cho phép chúng không chỉ hiểu ngôn ngữ mà còn nắm bắt được tri thức về nhiều lĩnh vực, bao gồm cả lập trình và quản lý dự án [2].
+
+# 2.2.2. Các kỹ thuật tối ưu cho tác vụ NLP
+
+Để áp dụng LLM hiệu quả vào bài toán cụ thể, hai kỹ thuật phổ biến được sử dụng. Thứ nhất là Prompt Engineering, kỹ thuật thiết kế câu lệnh đầu vào để hướng dẫn mô hình trả về kết quả mong muốn. Vogelsang và Fischbach [14] đã đề xuất một hướng dẫn có hệ thống cho việc sử dụng LLM trong việc xử lý các yêu cầu phần mềm, nhấn mạnh tầm quan trọng của việc thử nghiệm nhiều prompt khác nhau. Các phương pháp như Few-shot prompting hay Chain-of-Thought đã chứng minh hiệu quả cao trong các tác vụ suy luận phức tạp [15]. Zero-shot prompting cũng được sử dụng rất rộng rãi trong LLM4RE, tuy nhiên Few-shot prompting thường cho kết quả tốt hơn Zero-shot trong các tác vụ phân loại dữ liệu yêu cầu [16].
+
+Thứ hai là RAG (Retrieval Augmented Generation), kỹ thuật kết hợp LLM với một cơ sở dữ liệu tri thức bên ngoài. Khi người dùng đặt câu hỏi, hệ thống sẽ tìm kiếm (retrieve) các tài liệu liên quan và cung cấp chúng làm ngữ cảnh (context) cho LLM để sinh câu trả lời chính xác, tránh hiện tượng ảo giác (hallucination). Nhiều kỹ thuật RAG được ra đời dành riêng cho kỹ nghệ yêu cầu [17] , sử dụng cả văn bản (T-RAG) và hình ảnh giao diện (V-RAG) để sinh Acceptance Criteria chính xác hơn .
+
+# 2.3. Các nghiên cứu liên quan
+
+# 2.3.1. Tình hình nghiên cứu về LLM trong Kỹ nghệ yêu cầu
+
+Gần đây, lĩnh vực LLM4RE đang thu hút sự quan tâm lớn từ cộng đồng nghiên cứu. Theo khảo sát [2], phân bổ nghiên cứu theo tác vụ cho thấy Elicitation và Validation mỗi loại chiếm khoảng 20%, tiếp theo là các tác vụ kỹ nghệ phần mềm khác chiếm 15%, Modelling 12%, Classification 11%, Tracing 7%, Documentation 5%, trong khi Defect Detection chỉ chiếm 4%. Điều này cho thấy việc phát hiện lỗi trong yêu cầu vẫn là một lĩnh vực còn ít được khai thác.
+
+Trong giai đoạn 2020-2024, LLM được ứng dụng chủ yếu trong các giai đoạn Elicitation/Analysis và Modeling/Specification, với đầu vào đa dạng từ ngôn ngữ tự nhiên, tài liệu đặc tả, mã nguồn đến hình ảnh [18]. Đầu ra của các hệ thống này bao gồm yêu cầu, User Stories, biểu đồ UML, mã nguồn và kịch bản kiểm thử. Tác vụ như Elicitation có thể sử dụng LLM như một chatbot để phỏng vấn stakeholder và gợi ý ý tưởng [5]. LLM cũng được dùng để tự động chuyển đổi từ ghi chú thô sang User Story hoặc sinh Test Case từ yêu cầu [19]. Pha Analysis và Validation, tập trung vào việc phát hiện lỗi và phân loại yêu cầu chức năng/ phi chức năng [7].
+
+# 2.3.2. Các nghiên cứu tiêu biểu
+
+Nghiên cứu của Schwedt và Ströder đề xuất phương pháp CrUISE-AC sử dụng tri thức đám đông (Crowd Knowledge) kết hợp với LLM để cải thiện User Story và sinh Acceptance Criteria tự động [6]. Jakranpally và Karthik giới thiệu khái niệm Prompt-Driven RE với quy trình 4 giai đoạn: Thu thập dữ liệu, Suy luận LLM, Xác thực ký hiệu (Symbolic Validation), và Cập nhật đồ thị tri thức (Knowledge Graph [8]. Nghiên cứu này đạt được cải thiện 31% độ chính xác của backlog và giảm 42% công sức chỉnh sửa thủ công.
+
+Zhang và cộng sự đề xuất hệ thống multi-agent với hai tác nhân: Agent PO (Product Owner) tập trung vào tầm nhìn sản phẩm và giá trị kinh doanh, trong khi Agent RE đảm bảo tuân thủ tiêu chuẩn ISO/IEC/IEEE 29148-2011 [11]. Nghiên cứu của Karpurapu và cộng sự tập trung vào việc tự động hóa sinh kịch bản kiểm thử BDD (Behavior Driven Development) từ User Story [10], giúp thu hẹp khoảng cách giữa yêu cầu và kiểm thử. Ferreira và cộng sự đã phát triển
+
+công cụ AutoUAT sinh kịch bản Gherkin từ User Story với 95% được đánh giá là hữu ích, và TestFlow sinh test script Cypress với 92% hữu ích [19].
+
+Về khía cạnh phát hiện lỗi, Mahbub và cộng sự đã thử nghiệm khả năng của GPT-4 trong việc phát hiện sự mơ hồ, không nhất quán và thiếu đầy đủ [12]. Hymel và Johnson đã so sánh hiệu suất của LLM với chuyên gia con người [20], cho thấy mặc dù LLM có tiềm năng lớn nhưng vẫn cần sự giám sát của con người để đảm bảo độ chính xác.
+
+# 2.3.3. Phân tích khoảng trống nghiên cứu (Gap Analysis)
+
+Mặc dù số lượng nghiên cứu tăng nhanh, nhưng vẫn còn những hạn chế tồn tại. Về sự tích hợp quy trình, Oftebro và cộng sự chỉ ra rằng hầu hết các nghiên cứu chỉ dừng lại ở mức thử nghiệm trên các tập dữ liệu tĩnh, chưa có nhiều công cụ tích hợp trực tiếp vào quy trình làm việc thực tế [4]. Mặc dù nghiên cứu của Jakranpally đã tích hợp với Jira và Neo4j [8], nhưng chỉ tập trung vào việc trích xuất User Story mà chưa đề cập đến phát hiện lỗi giữa các yêu cầu.
+
+Về vấn đề ngữ cảnh dự án, Norheim và cộng sự nhấn mạnh rằng các mô hình thường xử lý từng yêu cầu riêng lẻ mà thiếu cái nhìn tổng quan về toàn bộ dự án, dẫn đến việc bỏ sót các xung đột ngầm giữa các module [7]. Thêm vào đó, việc thiếu kiến thức chuyên ngành (domain knowledge) khiến LLM gặp khó khăn trong việc hiểu các tiêu chuẩn kỹ thuật cụ thể và các ràng buộc đặc thù của từng doanh nghiệp.
+
+Về độ tin cậy và ảo giác, LLM được cảnh báo rằng vẫn có xu hướng tự tin đưa ra thông tin sai lệch, và việc thiếu cơ chế giải thích (explainability) và kiểm chứng (verification) khiến việc áp dụng vào môi trường doanh nghiệp còn e dè [13] . Do đó, LLM nên được kết với các phương pháp khác như rule-based, ontology hay formal methods để kiểm tra tính đúng đắn và nhất quán, đồng thời luôn duy trì Human-in-the-loop trong quy trình [7].
+
+Đề tài này hướng tới việc lấp đầy một phần các khoảng trống trên bằng cách xây dựng một hệ thống Agent tích hợp với Jira, tập trung sâu vào bài toán phát hiện xung đột giữa các User Story cùng việc tự động sinh đề xuất sửa đổi.
+
+# Chương 3
+
+# Thiết kế giải pháp
+
+# 3.1. Tổng quan
+
+Để giải quyết các vấn đề đã nêu, hệ thống được tích hợp chặt chẽ với nền tảng quản lý dự án Jira, sử dụng Jira REST API để đọc và ghi các nội dung Backlog trực tiếp lên Jira Cloud.
+
+Bên cạnh đó, tầng AI Agent là thành phần quan trọng nhất trong hệ thống, sử dụng API từ các mô hình ngôn ngữ lớn như GPT, Gemini hay Claude. Đây là nơi sẽ phân tích các yêu cầu (cụ thể là User Story) để tìm kiếm các lỗi tiềm ẩn, sinh đề xuất chỉnh sửa và hội thoại với người dùng.
+
+# 3.2. Mô hình hóa dữ liệu yêu cầu
+
+Dữ liệu thô từ Jira (Issue JSON) chứa nhiều thông tin nhiễu. Bước đầu tiên là trích xuất và chuẩn hóa dữ liệu sang định dạng mà LLM có thể hiểu quả nhất. Dữ liệu Issue bao gồm hai trường quan trọng là Summary và Description. Trong đó, Description sử dụng Atlassian Document Format - một định dạng chuyên biệt, chứa dữ liệu JSON phức tạp và cần phải được chuyển sang định dạng thân thiện hơn với LLM như Markdown hay HTML. Bên cạnh đó, các nhãn liên quan (Epic, Component, Priority) cũng có thể được sử dụng để hỗ trợ định vị phạm vi chức năng.
+
+Thông thường, các dự án Scrum sẽ có các tài liệu như Tầm nhìn sản phẩm (Product Vision), Phạm vi sản phẩm (Product Scope), Lộ trình sản phẩm (Product Roadmap) hay Thuật ngữ dự án (Glossary). Nếu như được cung cấp các tài liệu này, chất lượng của các giải pháp bên dưới sẽ được cải thiện đáng kể vì các tài liệu này cung cấp nội dung cụ thể và một cái nhìn trực quan về dự án đang triển khai.
+
+# 3.3. Chiến lược Prompt Engineering
+
+Chất lượng đầu ra của hệ thống phụ thuộc lớn vào kỹ thuật Prompt Engineering. Norheim và cộng sự chỉ ra rằng prompt sensitivity là một thách thức quan trọng [7], do đó việc thiết kế prompt cẩn thận là điều cần thiết. Theo hướng dẫn của Vogelsang và Fischbach [14], ta có thể áp dụng chiến lược Multistage Prompting bao gồm các bước sau.
+
+Thứ nhất là Role Definition (Định vai) để thiết lập vai trò và bối cảnh cho LLM. Ví dụ: “Bạn là một chuyên gia Kỹ nghệ yêu cầu (Senior BA) cho các đội nhóm Agile Scrum. Nhiệm vụ của bạn là phân tích các User Story để tìm ra các lỗi giữa chúng”.
+
+Thứ hai là việc giải thích rõ ràng nhiệm vụ của LLM, ví dụ như nêu ý nghĩa của tác vụ hiện tại, giải thích định nghĩa các loại lỗi và mô tả luồng thực hiện công việc.
+
+Thứ ba là yêu cầu LLM sinh kết quả theo một format nhất định, ví dụ như JSON, từ đó sẽ dễ dàng hơn trong phân tích và trích xuất kết quả.
+
+Thứ tư là Few-shot Learning (Học qua ví dụ), cung cấp cho mô hình các cặp Input - Output để mô hình có thể trả về kết quả đúng với kỳ vọng. Few-shot prompting đã được chứng minh là mang lại kết quả tốt hơn Zero-shot trong các tác vụ phân loại yêu cầu [16].
+
+Ngoài ra, Prompt sẽ được viết bằng Markdown thay vì văn bản thường vì các LLM hiện đại được huấn luyện với lượng dữ liệu Markdown cực lớn từ các Github Repositories.
+
+# 3.4. Quy trình Phân tích yêu cầu
+
+Quy trình Phân tích yêu cầu được thực thi để tìm ra các lỗi bên trong các User Story, cung cấp giải thích, độ tin cậy và cách để khắc phục các lỗi đó. Quy trình tập trung vào hai nhóm lỗi: Lỗi giữa các User Story (CONFLICT, DUPLICATION) và lỗi ở từng User Story(AMBIGUITY và OUT OF SCOPE). Mô hình được tổ chức thành một đồ thị gồm các node là các Agent có chức năng khác nhau, được thể hiện ở Hình 3.1.
+
+Đầu tiên, Node Defect Adapter sẽ phân loại các defects đã tồn tại để sử dụng chúng ở hai nodes sau nhằm tăng độ chính xác của quá trình phân tích. Node
+
+![](images/3903ceda025c0626b32284b6f8cd8ae19f313795e1cfde351abb785f218ff6a0.jpg)  
+Hình 3.1 — Luồng xử lý Phân tích yêu cầu
+
+![](images/f2ce59d8cf7175b625e9f94a4601369fbd92b40817f7115fedf238982b8b612a.jpg)  
+Hình 3.2 — Luồng xử lý Sinh đề xuất
+
+Cross Checker kiểm tra từng cặp User Story để phát hiện các lỗi CONFLICT, DUPLICATION. Node Single Checker kiểm tra từng User Story một cách độc lập để phát hiện các lỗi AMBIGUITY, OUT OF SCOPE. Đồng thời cả hai node Cross Checker và Singler Checker đều cung cấp các thông tin để giải thích cho lỗi đã phát hiện, bao gồm lý do, độ tin cậy và gợi ý sửa. Node Defect Validator sẽ đánh giá chất lượng các defects đã được phát hiện, từ đó đưa ra phản hồi cụ thể. Node Defect Filter lọc bỏ những defects có mức độ tin cậy thấp, không ảnh hưởng thực sự đến dự án hay không đáng để sửa, giảm hiện tượng “False Positive”. Node Defect Signer là nơi gọi các Callback được truyền vào để xử lý cuối trước khi trả về kết quả.
+
+# 3.5. Quy trình Sinh đề xuất
+
+Khi các defects đã được tìm thấy, ta có thể sử dụng quy trình Sinh đề xuất để tạo ra các đề xuất sửa đổi có thể ghi trực tiếp lên Jira Cloud. Quy trình này hoạt động dựa gợi ý sửa của từng defect. Các đề xuất bao gồm CREATE (Tạo Story mới), UPDATE (Chỉnh sửa Story), DELETE (Xóa Story). Để có thể khắc phục được một defect, thông thường ta cần phải kết hợp nhiều đề xuất khác nhau vì một defect có thể ảnh hưởng tới nhiều User Story.
+
+Hình 3.2 thể hiện luồng hoạt động của Quy trình Sinh đề xuất. Node Proposal Drafter sẽ dựa trên phần giải thích và gợi ý sửa từ các defects để sinh ra các đề xuất đầu tiên, đồng thời cũng phải đưa ra lời giải thích cho đề xuất được tạo. Node Impact Analyzer đánh giá các đề xuất trên đã logic và tuân thủ cấu trúc chưa, nội dung có chính xác không, nếu được áp dụng thì có gây ra lỗi một cách đệ quy hay không, từ đó đưa ra các quyết định như Chấp nhận (Approve), Viết lại (Rewrite) hoặc Bỏ (Reject). Nếu được chấp nhận, quy trình sẽ kết thúc. Nếu không, Node Impact Analyzer sẽ đưa ra các phản hồi (Feedback) cho quyết định này, đồng thời chuyển đến node Proposal Rewriter để viết lại các đề xuất một cách chính xác hơn. Số lần viết lại cũng được giới hạn để tránh việc lặp vô hạn giữa Impact Analyzer và Proposal Rewriter.
+
+# 3.6. Thiết kế Chatbot hỗ trợ
+
+# 3.6.1. Quản lý ngữ cảnh hội thoại
+
+Để Chatbot có thể hội thoại tự nhiên, hệ thống cần duy trì lịch sử chat (Memory). Lượng dữ liệu trong Context có thể lớn vì đôi khi cần có dữ liệu thô từ các User Story hay các tài liệu của dự án. Do đó, hệ thống sử dụng phương pháp “Cửa sổ Tóm tắt và Bộ đệm” (Summary $+$ Buffer Window) để quản lý Context của LLM. Cụ thể, các đoạn hội thoại cũ thay vì bị lược bỏ hoàn toàn thì sẽ được tóm tắt lại các nội dung chính, đồng thời các các đoạn chat gần sẽ được sử dụng trực tiếp. Có nhiều chiến lược quy định đâu là hội thoại cũ, đâu là hội thoại mới, phổ biến là thông qua số lượng token hoặc số lượng phản hồi. Trong nghiên cứu này, chiến lược số lần phản hồi được sử dụng, quy định 10 tin nhắn gần nhất sẽ được sử dụng trực tiếp và các tin nhắn cũ hơn sẽ được tóm tắt.
+
+# 3.6.2. Cách Chatbot tương tác với môi trường
+
+LLM đóng vai trò như một Agent, được trang bị một bộ công cụ chuyên biệt (tools) để mở rộng khả năng tương tác với hệ thống thay vì chỉ xử lý văn bản đơn thuần. Thông qua cơ chế Reasoning and Acting (ReAct), Agent có khả năng tự lựa chọn công cụ phù hợp từ danh sách được cung cấp và thực hiện các hành động cụ thể để giải quyết tác vụ phức tạp. Các công cụ này được thiết kế như những năng lực cốt lõi của Agent, bao gồm truy xuất dữ liệu và thực thi nghiệp vụ.
+
+Nhóm công cụ truy xuất cho phép Agent thực hiện truy vấn các Stories dựa trên từ khóa, trích xuất dữ liệu chi tiết của một Story hoặc các lỗi liên quan.
+
+Nhóm công cụ thực thi nghiệp vụ cho phép Agent chủ động chạy phân tích yêu cầu, hỗ trợ quy trình sinh đề xuất, cũng như trực tiếp thực hiện các tác vụ quản trị như tạo mới và cập nhật Story.
+
+Việc tích hợp các công cụ này vào vòng lặp thực thi của Agent giúp hệ thống không chỉ dừng lại ở mức phản hồi thông tin mà còn có khả năng xử lý quy trình nghiệp vụ một cách tự động và nhất quán.
+
+# Chương 4
+
+# Xây dựng hệ thống
+
+# 4.1. Kiến trúc hệ thống
+
+Hệ thống được xây dựng trên mô hình Client-Server. Frontend (Client) cung cấp giao diện để người dùng truy cập các chức năng của hệ thống. Backend (Server) là nơi xử lý logic nghiệp vụ, kết nối với LLM và cơ sở dữ liệu. Backend được tách modules để đảm bảo khả năng mở rộng và bảo trì, trong đó có bốn modules quan trọng bao gồm Module tích hợp Jira, Module Phân tích yêu cầu, Module Sinh đề xuất và Module Chatbot.
+
+# 4.2. Công nghệ sử dụng
+
+Kiến trúc công nghệ sử dụng trong dự án được mô tả ở Hình 4.1. Frontend sử dụng Next.js (React) để xây dựng giao diện một cách nhanh chóng và mượt mà, là nơi gọi đến các API của Backend để sử dụng các dịch vụ trong hệ thống. Backend được lập trình bằng Python với framework FastAPI được lựa chọn nhờ hiệu năng cao và khả năng hỗ trợ tốt các thư viện AI/NLP (như LangChain). Backend là nơi kết nối đến Jira REST API và được tích hợp API của Gemini và OpenAI, tuy nhiên Gemini là model chính được sử dụng trong việc nghiên cứu. Cở sở dữ liệu sử dụng là MySQL. Redis cũng được sử dụng để chạy các tác vụ yêu cầu thời gian xử lý lâu như phân tích yêu cầu, giải quyết vấn đề latency.
+
+# 4.3. Các modules chức năng
+
+# 4.3.1. Module tích hợp Jira
+
+Module này là cầu nối quan trọng, giúp hệ thống có thể đọc và ghi dữ liệu đến Jira Cloud. Module có thể đọc được tất cả các Issues (bao gồm các User Story) từ backlog của dự án. Mỗi Issue bao gồm các trường quan trọng như Summary, Description (sử dụng Atlassian Document Format) và module này hỗ trợ chuyển
+
+![](images/c1cea6c0ded3794f00681a484bcc8d1b9fec835744fc5d7a0715d0fbbd255860.jpg)  
+Hình 4.1 — Sơ đồ kiến trúc công nghệ (Tech Stack)
+
+đổi Description sang các dạng dữ liệu thân thiện hơn với LLM như Markdown hay HTML. Đối với việc ghi dữ liệu, module có thể thực hiện được tất cả loại ghi, bao gồm Tạo, Sửa và Xóa Issue. Tuy nhiên, việc ghi lên Jira Cloud có thể bị giới hạn hoặc chặn lại nếu như dự án trên Jira được cài đặt để tránh việc bị sửa đổi từ phần mềm bên ngoài.
+
+# 4.3.2. Module Phân tích yêu cầu
+
+Đây là thành phần quan trọng nhất trong hệ thống, là nơi phân tích các User Story để tìm ra các lỗi (defects). Module thực hiện các tác vụ Analysis và Validation được đề cập trong khảo sát của Zadenoori và cộng sự [2], bao gồm việc phát hiện xung đột, trùng lặp và sự mơ hồ giữa các yêu cầu. Module chạy các hệ thống Agent khác nhau phụ thuộc vào các loại phân tích cụ thể. Loại phân tích thứ nhất là phân tích toàn bộ User Story trong một dự án, sẽ chạy lâu hơn do phải duyệt qua toàn bộ nội dung của dự án đó. Loại phân tích thứ hai là phân tích một User Story cụ thể, sẽ chạy nhanh hơn vì chỉ có một User
+
+Story được tập trung để xử lý. Bên cạnh đó, module cũng có chức năng lưu trữ và truy vấn dữ liệu về các phiên phân tích cũng như các lỗi đã được phát hiện.
+
+# 4.3.3. Module Sinh đề xuất
+
+Module này có vai trò tất yếu để tạo ra các đề xuất chỉnh sửa thực tế, không chỉ giải quyết các lỗi (đã được phát hiện tại module phân tích yêu cầu) mà còn phải phù hợp với các tài liệu phần mềm của dự án. Module sẽ quản lý trạng thái của các đề xuất đã được tạo ra, cho phép người dùng chỉnh sửa lại để phù hợp hơn với những dự án cụ thể. Khi một đề xuất được chấp nhận, trước khi dữ liệu mới được ghi lên Jira, dữ liệu hiện tại của các User Story có liên quan sẽ được trích xuất và lưu trữ thành các phiên bản (version). Điều này giúp cho việc chỉnh sửa yêu cầu bớt “nguy hiểm” hơn khi các yêu cầu cũ có thể khôi phục lại được.
+
+# 4.3.4. Module Chatbot
+
+Module được xây dựng theo kiến trúc của một hệ thống chatbot thông thường. Chatbot được cung cấp một số công cụ hữu ích để có thể thực thi công việc, ví dụ như công cụ truy vấn User Story hay công cụ tìm kiếm các lỗi của một User Story cụ thể. Tuy nhiên, module này đang trong thời gian phát triển nên chưa hoàn thiện toàn bộ các chức năng nên có đối với một chatbot hỗ trợ kỹ nghệ yêu cầu.
+
+# 4.4. Giao diện hệ thống
+
+Để minh họa rõ hơn các chức năng chính của hệ thống cũng như cách người dùng tương tác, phần dưới đây trình bày một số giao diện cho các chức năng chính của hệ thống. Hình 4.2 là giao diện để chạy phân tích và hiển thị các lỗi của phiên chạy phân tích được chọn. Hình 4.3 hiển thị các đề xuất được sinh ra từ các lỗi được phát hiện tại một phiên phân tích, người dùng có thể chấp nhận hoặc từ chối những đề xuất này. Hình 4.4 thể hiện các nội dung cơ bản khi người dùng sử dụng Chatbot. Cuối cùng, Hình 4.5 hiển thị nơi mà người dùng có thể thêm một số tài liệu cụ thể cho dự án Jira, ví dụ như Product Vision, Product Scope, với mục tiêu là cải thiện chất lượng cho các chức năng của hệ thống.
+
+![](images/1a2409874c18bc1177b5c352eddeb9a3b67bf81b50401394d03b1605e3dccb4d.jpg)  
+Hình 4.2 — Giao diện Phân tích yêu cầu
+
+![](images/8b6debf6dfa90098bdaa72ef6ce474cf12e77e1bbd05e69dbde6a130de6e1bea.jpg)  
+Hình 4.3 — Giao diện các đề xuất
+
+![](images/dbaf086926de5c9f73b3cca897b1b7dc31ad3bedf5a7d60c0610ff1459ee7ed4.jpg)  
+Hình 4.4 — Giao diện Chatbot
+
+![](images/5f19eb241f36199261ea4d721062e941dce54d27572ab84de2e33923a4d95152.jpg)  
+Hình 4.5 — Giao diện thêm tài liệu cho dự án
+
+# Chương 5
+
+# Kiểm thử và Đánh giá
+
+# 5.1. Môi trường kiểm thử
+
+Do khó khăn trong việc tiếp cận dữ liệu thật của doanh nghiệp vì lý do bảo mật, đồng thời các dữ liệu được tìm thấy trên Internet thường có độ nhiễu cao và không thể hiện được rõ ràng là một dự án Scrum, nghiên cứu này sử dụng phương pháp giả lập dữ liệu.
+
+Dự án thứ nhất giả định Hệ thống Quản lý Thư viện (Library Management System - LMS) gồm 20 User Story. Giữa các User Story, có 8 lỗi cụ thể đã được chèn sẵn vào từ trước, bao gồm 2 lỗi Conflict (LMS-18/LMS-19 về giới hạn mượn sách, LMS-29/LMS-30 về chính sách lưu trữ dữ liệu), 2 lỗi Duplication (LMS-22/ LMS-23 về thông báo quá hạn, LMS-32/LMS-33 về chỉnh sửa sách), 2 lỗi Out of Scope (LMS-26 về đăng nhập sinh trắc học, LMS-28 về thanh toán Stripe), và 2 lỗi Ambiguity (LMS-24 về cải thiện UI, LMS-31 về bảo mật dữ liệu).
+
+Dự án thứ hai về một Hệ thống đặt xe (Vehicle Booking System - VBS) gồm 40 User Story. Giữa các User Story, có 12 lỗi được chèn sẵn, bao gồm 3 lỗi Conflict (VBS-48/VBS-49 về chính sách hủy, VBS-78/VBS-79 về giá sân bay, VBS-54/VBS-55 về chat), 3 lỗi Duplication (VBS-57/VBS-58 về đánh giá, VBS-54/VBS-55 về chat, VBS-62/VBS-83 về thanh toán), 3 lỗi Out of Scope (VBS-59 về đặt vé xe buýt, VBS-64 về bảo hiểm, VBS-73 về chuyến bay quốc tế), và 3 lỗi Ambiguity (VBS-60 về tốc độ app, VBS-68 về logic hệ thống, VBS-82 về chất lượng trải nghiệm).
+
+Cả hai dự án đều được viết bằng tiếng Anh, được tạo ra trên Jira và có kèm các tài liệu như Product Vision, Product Scope và Glossary.
+
+Mô hình ngôn ngữ lớn được sử dụng là Gemini 2.0 Flash, với temperature là 0 cho Chức năng phát hiện lỗi và 0.5 cho Chatbot.
+
+# 5.2. Đánh giá chức năng phân tích yêu cầu
+
+# 5.2.1. Phương pháp đánh giá
+
+Để đánh giá hiệu quả của chức năng phát hiện lỗi, nghiên cứu sử dụng ba lần chạy phân tích độc lập cho mỗi dự án. Trong đó, lần chạy thứ nhất (ANA-1) và thứ hai (ANA-2) là kết quả của việc phân tích một lần duy nhất, còn lần chạy thứ ba (ANA-3) là kết quả của phân tích hai lần liên tiếp, trong đó lần thứ hai sử dụng kết quả từ lần đầu làm ngữ cảnh bổ sung.
+
+Các chỉ số đánh giá được sử dụng bao gồm True Positive (TP) là số lỗi được phát hiện đúng, False Positive (FP) là số lỗi được báo cáo nhưng không tồn tại trong danh sách lỗi gốc, và False Negative (FN) là số lỗi tồn tại nhưng không được phát hiện. Từ đó, tính toán Precision (độ chính xác), Recall (độ bao phủ) và F1-Score.
+
+# 5.2.2. Kết quả Dự án 1: Hệ thống Quản lý Thư viện (LMS)
+
+Bảng 5.1 — Kết quả phát hiện lỗi trên dự án LMS   
+
+<table><tr><td>Lân chay</td><td>TP</td><td>FP</td><td>FN</td><td>Precision</td><td>Recall</td><td>F1</td></tr><tr><td>LMS-ANA-1</td><td>7</td><td>1</td><td>1</td><td>87.5%</td><td>87.5%</td><td>87.5%</td></tr><tr><td>LMS-ANA-2</td><td>7</td><td>1</td><td>1</td><td>87.5%</td><td>87.5%</td><td>87.5%</td></tr><tr><td>LMS-ANA-3</td><td>8</td><td>7</td><td>0</td><td>53.3%</td><td>100%</td><td>69.6%</td></tr></table>
+
+Phân tích chi tiết cho thấy cả ba lần chạy đều phát hiện chính xác toàn bộ 2 lỗi Conflict, 2 lỗi Duplication và 2 lỗi Out of Scope. Lần chạy ANA-1 và ANA-2 bỏ sót lỗi Ambiguity LMS-24 (Improve UI Vibe) nhưng phát hiện được LMS-31 (Secure Data Handling). Đặc biệt, cả hai lần này đều báo cáo thêm một lỗi Ambiguity cho LMS-23, đây được tính là False Positive vì LMS-23 đã được phân loại là Duplication với LMS-22.
+
+Lần chạy ANA-3 với phương pháp phân tích hai lần đã phát hiện được tất cả 8 lỗi, đạt Recall 100%. Tuy nhiên, phương pháp này tạo ra nhiều phát hiện trùng lặp (cùng một cặp xung đột được báo cáo nhiều lần) và một số nhầm lẫn giữa các loại lỗi, dẫn đến Precision giảm xuống còn 53.3%.
+
+# 5.2.3. Kết quả Dự án 2: Hệ thống Đặt xe (VBS)
+
+Bảng 5.2 — Kết quả phát hiện lỗi trên dự án VBS   
+
+<table><tr><td>Lân ch贱</td><td>TP</td><td>FP</td><td>FN</td><td>Precision</td><td>Recall</td><td>F1</td></tr><tr><td>VBS-ANA-1</td><td>9</td><td>1</td><td>3</td><td>90.0%</td><td>75.0%</td><td>81.8%</td></tr><tr><td>VBS-ANA-2</td><td>9</td><td>1</td><td>3</td><td>90.0%</td><td>75.0%</td><td>81.8%</td></tr><tr><td>VBS-ANA-3</td><td>10</td><td>5</td><td>2</td><td>66.7%</td><td>83.3%</td><td>74.1%</td></tr></table>
+
+Phân tích chi tiết cho thấy cả ba lần chạy đều phát hiện chính xác 2 lỗi Conflict chính (VBS-48/VBS-49 và VBS-78/VBS-79), 2 lỗi Duplication (VBS-54/VBS-55 và VBS-57/VBS-58), và toàn bộ 3 lỗi Out of Scope. Các lần chạy đều phát hiện được 3 lỗi Ambiguity nhưng với mức độ chính xác khác nhau. Cũng như trên, ở lần chạy thứ ba LLM “phát hiện” ra các lỗi mà con người chưa gán nhãn trước và các lỗi này cũng được tính là False Positive.
+
+Lỗi Duplication VBS-62/VBS-83 (về quản lý phương thức thanh toán) không được phát hiện ở cả ba lần chạy. Điều này cho thấy hạn chế của hệ thống trong việc nhận diện các lỗi trùng lặp có mức độ trừu tượng cao, khi hai story cùng thao tác trên cùng một thực thể nhưng sử dụng ngôn ngữ khác biệt đáng kể. Lý do vì LLM đôi khi gặp khó khăn trong việc nhận diện các mối quan hệ ngữ nghĩa phức tạp giữa các yêu cầu [20] .
+
+# 5.2.4. Tổng hợp kết quả hai dự án
+
+Bảng 5.3 — So sánh hiệu quả giữa phương pháp phân tích 1 lần và 2 lần   
+
+<table><tr><td>Chí sǒ</td><td>Trung binh ANA-1/2</td><td>ANA-3 (2 làn)</td></tr><tr><td>Precision</td><td>82.9%</td><td>71.7%</td></tr><tr><td>Recall</td><td>80.2%</td><td>87.5%</td></tr><tr><td>F1-Score</td><td>81.1%</td><td>75.7%</td></tr></table>
+
+Kết quả cho thấy phương pháp phân tích một lần cho Precision cao hơn $( 8 2 . 9 \%$ so với 71.7%), phù hợp khi cần giảm thiểu False Positive. Ngược lại, phương pháp phân tích hai lần cho Recall cao hơn ( $( 8 7 . 5 \%$ so với $8 0 . 2 \%$ ), phù hợp khi cần đảm bảo không bỏ sót lỗi quan trọng, tuy nhiên vẫn cần lưu ý vì vấn đề chi phí và các lỗi không quan trọng.
+
+# 5.2.5. Kết quả theo loại lỗi
+
+Bảng 5.4 — Hiệu quả phát hiện theo từng loại lỗi   
+
+<table><tr><td>Loài lẻ</td><td>Tộng sô</td><td>Phát giá trung binh</td><td>T喙</td></tr><tr><td>Conflict</td><td>5</td><td>5</td><td>100%</td></tr><tr><td>Duplication</td><td>5</td><td>4</td><td>80%</td></tr><tr><td>Out of Scope</td><td>5</td><td>5</td><td>100%</td></tr><tr><td>Ambiguity</td><td>5</td><td>4.3</td><td>86%</td></tr></table>
+
+Hệ thống đạt hiệu quả cao nhất với lỗi Conflict và Out of Scope (100%), do các lỗi này thường có đặc điểm rõ ràng và dễ nhận diện thông qua so sánh văn bản. Lỗi Duplication có tỷ lệ phát hiện 80%, với các trường hợp bỏ sót thường liên quan đến sự khác biệt lớn về ngôn ngữ diễn đạt. Lỗi Ambiguity đạt 86%, cho thấy khả năng tốt trong việc nhận diện các yêu cầu mơ hồ và thiếu tiêu chí kiểm thử cụ thể.
+
+# 5.3. Đánh giá Khả năng sinh đề xuất
+
+# 5.3.1. Phương pháp đánh giá
+
+Chức năng sinh đề xuất được đánh giá dựa trên ba lần sinh độc lập tương ứng với ba lần phát hiện lỗi. Mỗi đề xuất được phân loại theo loại hành động (CREATE, UPDATE hoặc DELETE) và được đánh giá về tính phù hợp, khả năng giải quyết lỗi gốc, và chất lượng nội dung được sinh ra.
+
+# 5.3.2. Kết quả sinh đề xuất cho Dự án LMS
+
+Bảng 5.5 — Thống kê đề xuất sinh ra cho dự án LMS   
+
+<table><tr><td>Lân chay</td><td>Số dê xuát</td><td>UPDATE</td><td>DELETE</td><td>T喙的话语</td></tr><tr><td>LMS-ANA-1</td><td>8</td><td>6</td><td>4</td><td>100%</td></tr><tr><td>LMS-ANA-2</td><td>8</td><td>6</td><td>4</td><td>100%</td></tr><tr><td>LMS-ANA-3</td><td>9</td><td>6</td><td>4</td><td>100%</td></tr></table>
+
+Không có đề xuất CREATE nào được sinh ra. Phân tích chi tiết các đề xuất cho thấy hệ thống xử lý tốt các loại lỗi khác nhau. Với lỗi Conflict LMS-18/ LMS-19 về giới hạn mượn sách, hệ thống đề xuất cập nhật LMS-18 thành giới
+
+hạn mặc định 5 cuốn cho người dùng thường và LMS-19 thành giới hạn 10 cuốn dành riêng cho VIP. Với lỗi Conflict LMS-29/LMS-30 về lưu trữ dữ liệu, hệ thống đề xuất giải pháp ẩn danh hóa dữ liệu, vừa bảo vệ quyền riêng tư vừa giữ lại dữ liệu cho phân tích.
+
+Với lỗi Duplication, hệ thống nhất quán đề xuất gộp hai story thành một và xóa story dư thừa. Ví dụ, LMS-22 và LMS-23 được gộp thành một story duy nhất về thông báo sách quá hạn với thời gian gửi cụ thể là 6:00 AM hoặc 12:01 AM hàng ngày.
+
+Với lỗi Out of Scope, hệ thống đề xuất xóa các story LMS-26 và LMS-28 với giải thích rõ ràng về việc các tính năng này nằm ngoài phạm vi MVP theo tài liệu Product Scope.
+
+Với lỗi Ambiguity, hệ thống đề xuất cập nhật nội dung story với các tiêu chí cụ thể và đo lường được. Ví dụ, LMS-31 về bảo mật được cập nhật thành yêu cầu cụ thể về mã hóa AES-256 và TLS 1.3.
+
+# 5.3.3. Kết quả sinh đề xuất cho Dự án VBS
+
+Bảng 5.6 — Thống kê đề xuất sinh ra cho dự án VBS   
+
+<table><tr><td>Lân chay</td><td>Số dê xuát</td><td>UPDATE</td><td>DELETE</td><td>T喙的话语</td></tr><tr><td>VBS-ANA-1</td><td>9</td><td>4</td><td>8</td><td>100%</td></tr><tr><td>VBS-ANA-2</td><td>10</td><td>7</td><td>6</td><td>90%</td></tr><tr><td>VBS-ANA-3</td><td>10</td><td>5</td><td>7</td><td>100%</td></tr></table>
+
+Tương tự như dự án LMS, không có đề xuất CREATE nào được sinh ra. Các đề xuất cho dự án VBS thể hiện khả năng xử lý các tình huống phức tạp hơn. Với lỗi Conflict VBS-48/VBS-49 về chính sách hủy, hệ thống đề xuất gộp hai story thành một với chính sách rõ ràng: miễn phí hủy trong 5 phút đầu hoặc trước khi tài xế nhận, tính phí $5 sau khi tài xế đã nhận. Với lỗi Conflict VBS-78/VBS-79 về giá sân bay, hệ thống chọn mô hình tính giá theo khoảng cách và xóa story giá cố định.
+
+Với lỗi Ambiguity VBS-60 về tốc độ ứng dụng, hệ thống đề xuất thay thế các từ mơ hồ như “very fast” và “instantly” bằng các chỉ số cụ thể: tải trang dưới 2 giây, API response dưới 500ms. Với VBS-68 về “System Logic: Do the Right
+
+Thing”, một số lần chạy đề xuất xóa hoàn toàn do story quá mơ hồ, trong khi các lần khác đề xuất thay thế bằng yêu cầu cụ thể về xử lý lỗi (error handling).
+
+# 5.3.4. Đánh giá chất lượng nội dung đề xuất
+
+Bảng 5.7 — Đánh giá chất lượng nội dung đề xuất   
+
+<table><tr><td>Tiéu chí</td><td>Dánh giá</td></tr><tr><td>Tuân thú*càu truc User Story</td><td>Tát cã dé xuát UPDATEDEXU tuân theo dinh dang “As a... I want... So that...”</td></tr><tr><td>Bao gôm Acceptance Criteria</td><td>100% dé xuát UPDATE có Acceptance Criteria vói dinh dang Gherkin</td></tr><tr><td>Giaci thich lý do</td><td>Mõi dé xuátDEXU kèm explanation giǎi thích tãi sao thuc hiên thay doi</td></tr><tr><td>Nhát quán giūa*cac lan chay</td><td>Các guài pháp dé xuát nhan vè huáng tiếp can dù chi tiét có the khác</td></tr><tr><td>Tân khà thi</td><td>Các dé xuátDEXU có the ap dung truc tiếp mà khùng can chinh suà them</td></tr></table>
+
+# 5.3.5. Nhận xét tổng quan về chức năng sinh đề xuất
+
+Hệ thống thể hiện khả năng sinh đề xuất chất lượng cao với tỷ lệ phù hợp trung bình đạt 98.3%. Các đề xuất không chỉ giải quyết được lỗi gốc mà còn tuân thủ các tiêu chuẩn viết User Story như INVEST. Điểm mạnh nổi bật là khả năng đưa ra giải pháp sáng tạo cho các lỗi Conflict, thay vì chỉ đơn giản xóa một trong hai story, hệ thống thường đề xuất cách hòa giải để giữ lại giá trị của cả hai yêu cầu.
+
+Tuy nhiên, một hạn chế được quan sát là sự không nhất quán về chi tiết giữa các lần chạy. Ví dụ, thời gian gửi email thông báo sách quá hạn được đề xuất là 6:00 AM trong một số lần và 12:01 AM trong các lần khác. Điều này cho thấy cần có cơ chế Human-in-the-loop để người dùng xác nhận hoặc tùy chỉnh các giá trị cụ thể trước khi áp dụng đề xuất.
+
+# 5.4. Đánh giá chức năng Chatbot
+
+# 5.4.1. Giới hạn của việc kiểm thử
+
+Chức năng Chatbot hiện đang trong giai đoạn phát triển và chưa hoàn thiện đầy đủ. Do đó, việc kiểm thử chỉ tập trung vào các kịch bản sử dụng phổ biến và thực tế nhất, không đi sâu vào tất cả các trường hợp biên (edge cases). Mô hình ngôn ngữ được sử dụng trong nghiên cứu này là Gemini 2.0 Flash, một mô hình nhẹ trong họ Gemini, phù hợp cho mục đích thử nghiệm nhưng có thể không đạt hiệu suất tối ưu so với các mô hình lớn hơn. Tất cả các kịch bản kiểm thử được thực hiện trên dự án VBS (Vehicle Booking System).
+
+# 5.4.2. Kịch bản kiểm thử
+
+Việc kiểm thử được chia thành 5 nhóm kịch bản chính, bao gồm truy vấn Backlog, chạy phân tích lỗi, hỏi về các lỗi đã phát hiện, sinh đề xuất sửa lỗi, và tạo hoặc cập nhật User Story.
+
+# 5.4.3. Kết quả chi tiết
+
+Bảng 5.8 — Tổng hợp kết quả kiểm thử Chatbot   
+
+<table><tr><td>Nhém kích bàn</td><td>Số test</td><td>Passed</td><td>Tý lê</td></tr><tr><td>Truy vân Backlog</td><td>2</td><td>1.5</td><td>75%</td></tr><tr><td>Ch贱 phân tích lõi</td><td>2</td><td>2</td><td>100%</td></tr><tr><td>Hói vè lõi</td><td>2</td><td>1</td><td>50%</td></tr><tr><td>Sinh dè xuát</td><td>1</td><td>1</td><td>100%</td></tr><tr><td>Táo/Cáp khác Story</td><td>1</td><td>0.5</td><td>50%</td></tr></table>
+
+Với nhóm kịch bản truy vấn Backlog, khi người dùng hỏi “Which stories are about rental?”, hệ thống gọi đúng function search_stories_by_keywords với tham số “rental” và trả về 3 story liên quan (VBS-51, VBS-70, VBS-77). Tuy nhiên, kết quả chỉ bao gồm mã và tiêu đề story, không có tóm tắt nội dung. Khi sử dụng prompt cụ thể hơn như “Tell me details of stories about rental”, hệ thống hoạt động đúng như mong đợi. Điều này cho thấy cần thiết kế lại system prompt cẩn thận để đạt kết quả tốt nhất. Với kịch bản hỏi về một story cụ thể như “What is story VBS-51 about?”, hệ thống hoạt động hoàn hảo, gọi đúng function get_story_details và trả về đầy đủ thông tin.
+
+Với nhóm kịch bản chạy phân tích lỗi, cả hai kịch bản đều passed. Khi người dùng yêu cầu “Run defect check on the current story”, hệ thống sử dụng đúng story key trong context hiện tại để gọi function run_defect_analysis và phản hồi với mã phân tích được tạo. Tương tự, khi chỉ định story cụ thể như “Run defect check on the story with key VBS-55”, hệ thống cũng hoạt động chính xác.
+
+Với nhóm kịch bản hỏi về lỗi, kết quả không đồng nhất. Khi hỏi “Is there any defect here?” trong context của một story, hệ thống đã gọi thừa function run_defect_analysis trước khi gọi get_defects_for_story, gây lãng phí một lượt gọi API. Nguyên nhân là do mô hình hiểu nhầm prompt “Is there any defect” thành yêu cầu chạy phân tích lỗi mới. Ngược lại, khi sử dụng prompt rõ ràng hơn như “Does story VBS-55 have some defects?”, hệ thống hoạt động chính xác.
+
+Với nhóm kịch bản sinh đề xuất, hệ thống hỗ trợ người dùng thông qua các câu hỏi làm rõ (clarifying questions) trước khi sinh đề xuất. Quy trình hoạt động đúng như thiết kế, tuy nhiên một hạn chế được ghi nhận là mô hình có xu hướng đặt quá nhiều câu hỏi cùng lúc, khiến người dùng khó trả lời. Cải tiến đề xuất là thay đổi sang phương thức hỏi từng câu một, tạo nhiều lượt trao đổi ngắn giữa người dùng và hệ thống.
+
+Với nhóm kịch bản tạo và cập nhật Story, kết quả không ổn định. Trong một số trường hợp, hệ thống yêu cầu xác nhận từ người dùng trước khi thực hiện, điều này trái với thiết kế mong muốn là thực thi ngay lập tức. Trong các trường hợp khác, hệ thống hỏi thêm thông tin từ người dùng, đây là hành vi có thể chấp nhận được khi thông tin đầu vào chưa đủ.
+
+# 5.4.4. Nhận xét về Chatbot
+
+Chatbot thể hiện khả năng hiểu ngữ cảnh và gọi đúng các function trong phần lớn các kịch bản. Điểm mạnh nổi bật là khả năng duy trì context của cuộc hội thoại và liên kết thông tin giữa các lượt trao đổi. Tuy nhiên, một số hạn chế cần cải thiện bao gồm độ nhạy của system prompt, xu hướng đặt quá nhiều câu hỏi cùng lúc, và hành vi không nhất quán trong việc yêu cầu xác nhận. Các hạn chế này có thể được khắc phục thông qua việc thử nghiệm nhiều prompt khác nhau để tìm ra cách diễn đạt hiệu quả nhất và cải thiện logic điều khiển luồng hội thoại.
+
+# 5.5. Đánh giá trên dự án thật
+
+Các chức năng của hệ thống cần được đánh giá trên một dự án thực tế để chứng minh mức độ hữu ích đối với Scrum Team. Tuy nhiên, vì hệ thống đang được phát triển và vì giới hạn về nhiều mặt nên việc kiểm thử thực tế chưa được diễn ra. Việc đánh giá trên dự án thật sẽ giúp xác định các yếu tố quan trọng như mức độ chấp nhận của người dùng, tác động đến năng suất làm việc của Business Analyst, và khả năng tích hợp vào quy trình Scrum hiện có.
+
+# 5.6. Nhận xét chung
+
+Hệ thống đạt hiệu quả cao trong việc phát hiện lỗi với F1-Score trung bình 81.1% khi sử dụng phương pháp phân tích một lần. Khả năng phát hiện lỗi Conflict và Out of Scope đạt $1 0 0 \%$ , cho thấy sự phù hợp của LLM trong việc so sánh và đối chiếu các yêu cầu với tài liệu dự án. Chức năng sinh đề xuất thể hiện chất lượng cao với tỷ lệ phù hợp $9 8 . 3 \%$ , các đề xuất tuân thủ đúng cấu trúc User Story và có Acceptance Criteria rõ ràng theo định dạng Gherkin.
+
+Ở mặt khác, hệ thống gặp khó khăn với các lỗi Duplication có ngôn ngữ diễn đạt khác biệt đáng kể. Phương pháp phân tích hai lần tuy cải thiện Recall nhưng làm giảm Precision do tạo ra nhiều phát hiện trùng lặp. Chatbot chưa ổn định trong một số kịch bản và cần cải thiện về mặt trải nghiệm người dùng. Từ những hạn chế kể trên, hệ thống còn có nhiều điểm cần được cải tiến để hoạt động chính xác hơn và có thể tin tưởng sử dụng trong các dự án thực tế.
+
+# Chương 6
+
+# Kết luận
+
+# 6.1. Kết quả đạt được
+
+Dự án đã hoàn thành tương đối các mục tiêu đề ra ban đầu. Thứ nhất, báo cáo dự án tổng hợp cơ sở lý thuyết vững chắc về ứng dụng LLM trong Kỹ nghệ yêu cầu, dựa trên các khảo sát có hệ thống về những nghiên cứu thực tế. Thứ hai, dự án đề xuất kiến trúc hệ thống tích hợp Jira, sử dụng mô hình Client-Server, đáp ứng nhu cầu tích hợp LLM vào workflow hiện có. Thứ ba, dự án thiết kế chi tiết quy trình phát hiện lỗi giữa các User Story và sinh đề xuất chỉnh sửa sử dụng các kỹ thuật Prompt Engineering đa bước. Thứ tư, dự án xây dựng Chatbot hỗ trợ dự án dựa trên kịch bản thực tế, với vai trò như một “Queryable Agent”.
+
+# 6.2. Hạn chế
+
+Dự án vẫn còn một số hạn chế. Thứ nhất, hệ thống được phát triển và kiểm thử dựa trên các dự án nhỏ và có thể thiếu tính thực tế. Đối với các dự án có Backlog lớn và phức tạp, hệ thống có thể hoạt động chưa tối ưu vì hiện tại chưa có cơ chế truy vấn theo ngữ nghĩa. Thứ hai, dự án mới dừng lại ở mức thiết kế những hệ thống Agent đơn giản, có thể hoạt động được nhưng chất lượng đầu ra vẫn chưa cao. Thứ ba, khả năng xử lý của LLM đôi khi vẫn gặp hiện tượng ảo giác (hallucination) đối với các nghiệp vụ đặc thù nếu dữ liệu ngữ cảnh không đủ tốt. Cuối cùng, chi phí sử dụng API của các mô hình như GPT-4, Gemini còn cao, ảnh hưởng đến khả năng mở rộng của dự án.
+
+# 6.3. Các định hướng phát triển
+
+Dự án đề xuất một số định hướng phát triển dựa trên các khuyến nghị từ cộng đồng nghiên cứu. Thứ nhất và quan trọng nhất là phải nhúng dữ liệu các User Story thành các Vector để tăng tốc độ và độ chính xác cho cả tác vụ phân tích yêu cầu và chatbot. Thứ hai là kết hợp kết hợp LLM với các phương pháp
+
+khác như rule-based, ontology hay formal methods. Trong đó, các User Story cần chuyển sang một dạng Domain-Specific Language (DSL), ngoài Connextra và Gherkin, phân tách các yếu tố như chủ thể, hành động, điều kiện hay kết quả nhận được. Mục đích của DSL ở đây là thêm một bước phân tích User Story trước khi đưa cho LLM quyết định. Thứ ba, các mô hình ngôn ngữ nhỏ (Small Language Model - SLM) có thể được ứng dụng vào một số pha trong quy trình để cải thiện hiệu suất hệ thống và giảm phụ thuộc vào LLM. Thứ tư là sử dụng một bộ dữ liệu về các dự án thực tế để làm tham chiếu cho các hệ thống Agent. Cuối cùng là đánh giá người dùng, thực hiện khảo sát A/B testing với nhóm Business Analyst để đo lường chính xác mức độ cải thiện năng suất, đồng thời duy trì Human-in-the-loop trong suốt quy trình.
+
+# Tài liệu tham khảo
+
+[1] Umar MA, Lano K. Advances in automated support for requirements engineering: a systematic literature review. Requirements Engineering 2023.   
+[2] Zadenoori MA, Dąbrowski J, Alhoshan W, Zhao L, Ferrari A. Large Language Models (LLMs) for Requirements Engineering (RE): A Systematic Literature Review. arXiv preprint arXiv:250911446 2025.   
+[3] Various Authors. The impact of using a Domain Language for an Agile Requirement Management 2024.   
+[4] Oftebro KL, Nguyen-Duc A. GenAI-Enabled Backlog Grooming in Agile Software Projects: An Empirical Study. arXiv preprint arXiv:250710753 2025.   
+[5] Arora C, Grundy J, Abdelrazek M. Advancing Requirements Engineering through Generative AI: Assessing the Role of LLMs. arXiv preprint arXiv:231013976 2023.   
+[6] Schwedt S, Ströder T. From Bugs to Benefits: Improving User Stories by Leveraging Crowd Knowledge with CrUISE-AC. arXiv preprint arXiv:250115181 2025.   
+[7] Norheim JJ, Rebentisch E, Xiao D, Draeger L, Kerbrat A, Weck OL de. Challenges in applying large language models to requirements engineering tasks. Design Science 2024.   
+[8] Jakranpally K. Prompt-Driven Requirements Engineering: Large-Language-Model Agents for Continuous Backlog Refinement 2025.   
+[9] Automation Panda. Is BDD dying? 2025. https://automationpanda.com/ 2025/03/06/is-bdd-dying/.   
+[10] Karpurapu S, Myneni S, Nettur U, Gajja LS, Burke D, Stiehm T. Comprehensive Evaluation and Insights Into the Use of Large Language Models in the Automation of Behavior-Driven Development Acceptance Test Formulation. IEEE Access 2024.
+
+[11] Zhang Z, Rayhan M, Herda T, Goisauf M. LLM-based agents for automating the enhancement of user story quality: An early report. arXiv preprint arXiv:240309442 2024.   
+[12] Mahbub T, Dghaym D, Shankarnarayanan A, Syed T, Shapsough S, Zualkernan I. Can GPT-4 Aid in Detecting Ambiguities, Inconsistencies, and Incompleteness in Requirements Analysis? A Comprehensive Case Study 2024.   
+[13] Lubos S, Felfernig A, Tran TNT, Garber D, El Mansi M, Erdeniz SP, và c.s. Leveraging LLMs for the Quality Assurance of Software Requirements. arXiv preprint arXiv:240810886 2024.   
+[14] Vogelsang A, Fischbach J. Using Large Language Models for Natural Language Processing Tasks in Requirements Engineering: A Systematic Guideline. arXiv preprint arXiv:240213823 2024.   
+[15] Ma Q, Peng W, Yang C, Shen H, Koedinger K, Wu T. What Should We Engineer in Prompts? Training Humans in Requirement-Driven LLM Use. arXiv preprint arXiv:240908775 2024.   
+[16] Shah STU, Hussein M, Barcomb A, Moshirpour M. From Inductive to Deductive: LLMs-Based Qualitative Data Analysis in Requirements Engineering. arXiv preprint arXiv:250419384 2025.   
+[17] Wang F, Arora C, Liu Y, Huang K, Tantithamthavorn C, Aleti A, và c.s. Multi-Modal Requirements Data-based Acceptance Criteria Generation using LLMs. arXiv preprint arXiv:250806888 2025.   
+[18] Hemmat A, Sharbaf M, Kolahdouz-Rahimi S, Lano K, Tehrani SY. Research directions for using LLM in software requirement engineering: a systematic review. Frontiers in Computer Science 2025.   
+[19] Ferreira M, Viegas L, Faria JP, Lima B. Acceptance Test Generation with Large Language Models: An Industrial Case Study. arXiv preprint arXiv:250407244 2025.   
+[20] Hymel C, Johnson H. Analysis of LLMs vs Human Experts in Requirements Engineering. arXiv preprint arXiv:250119297 2025.

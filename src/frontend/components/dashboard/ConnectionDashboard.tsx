@@ -1,21 +1,21 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { Box, Paper, Typography, Grid } from "@mui/material";
+import { Box, Paper, Typography, Grid, Button, Chip, Stack } from "@mui/material";
 import {
   Analytics,
   Assistant,
   EmojiObjects,
   Code,
   Folder,
+  KeyboardArrowDown,
 } from "@mui/icons-material";
 import { useParams, useRouter } from "next/navigation";
 
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { StatsGrid } from "@/components/dashboard/StatsGrid";
-import { ProjectListSection } from "@/components/dashboard/ProjectListSection";
-import { useConnectionDashboardQuery } from "@/hooks/queries/useDashboardQueries";
+import { useConnectionDashboardQuery, useDashboardProjectsInfiniteQuery } from "@/hooks/queries/useConnectionQueries";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import type { ProjectDto } from "@/types/connection";
 import { useTranslations } from "next-intl";
@@ -31,9 +31,23 @@ const ConnectionDashboard: React.FC = () => {
 
   const { connection, setSelectedProject } = useWorkspaceStore();
 
-  const { data: dashboardData, isLoading } = useConnectionDashboardQuery();
+  const { data: dashboardData, isLoading: isDashboardLoading } = useConnectionDashboardQuery();
+  const dashboard = dashboardData?.data;
 
-  const dashboard = useMemo(() => dashboardData?.data || null, [dashboardData]);
+  const {
+    data: projectsData,
+    isLoading: isProjectsLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useDashboardProjectsInfiniteQuery(5, dashboard?.num_projects || 0);
+
+  const projects = useMemo(() => {
+    if (!projectsData) return [];
+    return projectsData.pages.flatMap((page) => page.data || []);
+  }, [projectsData]);
+
+  const isLoading = isDashboardLoading || (isProjectsLoading && !projects.length);
 
   const handleProjectClick = async (project: ProjectDto) => {
     setSelectedProject(project);
@@ -124,46 +138,69 @@ const ConnectionDashboard: React.FC = () => {
             }}
           >
             <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-              {t("projectsByActivity")}
+              {t("projects")}
             </Typography>
             <Grid container spacing={2}>
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <ProjectListSection
-                  title={t("withAnalyses")}
-                  projects={dashboard.projects_with_analyses}
-                  emptyText={t("noProjectsWithAnalyses")}
-                  onProjectClick={handleProjectClick}
-                  maxHeight={250}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <ProjectListSection
-                  title={t("withChats")}
-                  projects={dashboard.projects_with_chats}
-                  emptyText={t("noProjectsWithChats")}
-                  onProjectClick={handleProjectClick}
-                  maxHeight={250}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <ProjectListSection
-                  title={t("withProposals")}
-                  projects={dashboard.projects_with_proposals}
-                  emptyText={t("noProjectsWithProposals")}
-                  onProjectClick={handleProjectClick}
-                  maxHeight={250}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <ProjectListSection
-                  title={t("withAcs")}
-                  projects={dashboard.projects_with_acs}
-                  emptyText={t("noProjectsWithAcs")}
-                  onProjectClick={handleProjectClick}
-                  maxHeight={250}
-                />
-              </Grid>
+              {projects.map((project) => project && (
+                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={project.id}>
+                  <Paper
+                    elevation={1}
+                    sx={{
+                      p: 2,
+                      borderRadius: 1,
+                      cursor: "pointer",
+                      "&:hover": { bgcolor: "action.hover" },
+                    }}
+                    onClick={() => handleProjectClick(project as any)}
+                  >
+                    <Typography variant="subtitle1" fontWeight={600} noWrap>
+                      {project.name || project.key}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      {project.key}
+                    </Typography>
+                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
+                      <Chip
+                        icon={<Analytics fontSize="small" />}
+                        label={project.analysis_count}
+                        size="small"
+                        color={project.analysis_count > 0 ? "primary" : "default"}
+                      />
+                      <Chip
+                        icon={<Assistant fontSize="small" />}
+                        label={project.chat_count}
+                        size="small"
+                        color={project.chat_count > 0 ? "secondary" : "default"}
+                      />
+                      <Chip
+                        icon={<EmojiObjects fontSize="small" />}
+                        label={project.proposal_count}
+                        size="small"
+                        color={project.proposal_count > 0 ? "warning" : "default"}
+                      />
+                      <Chip
+                        icon={<Code fontSize="small" />}
+                        label={project.ac_count}
+                        size="small"
+                        color={project.ac_count > 0 ? "success" : "default"}
+                      />
+                    </Stack>
+                  </Paper>
+                </Grid>
+              ))}
             </Grid>
+            {hasNextPage && (
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                  endIcon={<KeyboardArrowDown />}
+                >
+                  {isFetchingNextPage ? t("loadingMore", { defaultValue: "Loading..." }) : t("more", { defaultValue: "More" })}
+                </Button>
+              </Box>
+            )}
           </Paper>
         </Box>
       ) : connection ? (
