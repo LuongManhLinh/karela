@@ -15,7 +15,7 @@ class TargetedState(AnalysisState):
     target_story: StoryMinimal
 
     # Related stories found via GraphRAG (populated by Relational Graph Search)
-    related_stories: list[StoryMinimal] | str
+    related_stories: list[StoryMinimal]
 
 
 class TargetedContext(AnalysisContext):

@@ -87,14 +87,12 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
   const { mutateAsync: rerunAnalysis, isPending: isRerunning } =
     useRerunAnalysisMutation();
   const { mutateAsync: markSolved } = useMarkDefectSolvedMutation();
-  const { mutateAsync: generateProposals, isPending: isGeneratingMutation } =
-    useGenerateProposalsMutation();
+  const { mutateAsync: generateProposals } = useGenerateProposalsMutation();
   const { mutateAsync: actOnProposal } = useActOnProposalMutation();
   const { mutateAsync: actOnProposalContent } =
     useActOnProposalContentMutation();
 
-  const isGenerating =
-    isGeneratingMutation || selectedAnalysisDetail?.generating_proposals;
+  const isGenerating = analysisDetailData?.data?.generating_proposals || false;
 
   const { notify } = useNotificationContext();
 
@@ -149,15 +147,6 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
         queryClient.invalidateQueries({
           queryKey: ["analysis", "details", idOrKey],
         });
-        // Also invalidate summaries to keep sidebar in sync
-        queryClient.invalidateQueries({ queryKey: ["analysis", "summaries"] });
-
-        if (data.proposal_ids) {
-          // If proposal IDs are included, invalidate proposals query as well
-          queryClient.invalidateQueries({
-            queryKey: ["proposals", "session", analysisId],
-          });
-        }
       }
     };
 
@@ -414,11 +403,16 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
     defectKey: string,
     useSwitchAndScroll: boolean,
   ) => {
+    if (analysisProposals.length === 0) {
+      notify(t("noProposalsGenerated"), { severity: "info" });
+      return;
+    }
     const matchingProposals = analysisProposals.filter((proposal) =>
       proposal.target_defect_keys?.includes(defectKey),
     );
 
     if (matchingProposals.length === 0) {
+      notify(t("noLinkedProposals"), { severity: "info" });
       return;
     }
 
@@ -516,8 +510,7 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
             gap: 2,
             overflowY: "auto", // Changed to overflowY for clarity
             minHeight: 0,
-            pr: 1, // Optional: Add padding for scrollbar space
-            pb: 1,
+            p: 2,
           }}
         >
           {selectedAnalysis.defects.map((defect) => (

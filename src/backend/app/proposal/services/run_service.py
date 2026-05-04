@@ -8,8 +8,9 @@ from app.proposal.schemas import CreateProposalRequest, ProposeStoryRequest
 from app.documentation.services import DocumentationService
 from app.preference.services import PreferenceService
 
-from ..agents.graph import generate_proposals
+from ..agents.graph import run_proposal_generation
 from .data_service import ProposalService
+from ..models import ProposalGenerationHistory, ProposalStoryCheck
 
 
 class ProposalRunService:
@@ -88,7 +89,10 @@ class ProposalRunService:
 
         user_stories, defects, preference, defect_key_id_map = inputs
 
-        proposals = generate_proposals(
+        proposals = run_proposal_generation(
+            connection_id=connection_id,
+            project_key=project_key,
+            db=self.db,
             mode=preference.gen_proposal_mode if preference else "SIMPLE",
             defects=defects,
             user_stories=user_stories,
@@ -119,11 +123,12 @@ class ProposalRunService:
                         for s in p.contents
                     ],
                     target_defect_ids=[
-                        defect_key_id_map[k] for k in p.target_defect_ids or []
+                        defect_key_id_map[k.upper()] for k in p.target_defect_ids or []
                     ],
                 )
                 for p in proposals
-            ]
+            ],
+            deep=preference.gen_proposal_mode == "DEEP" if preference else False,
         )
 
         return keys

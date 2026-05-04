@@ -3,7 +3,6 @@
 from typing import Optional, Literal
 from pydantic import BaseModel, Field, ConfigDict
 
-
 # =============================================================================
 # Self-Defect Analyzer Response
 # =============================================================================
@@ -84,8 +83,24 @@ class PairwiseDefectResponse(BaseModel):
     """Response schema for the Pairwise Defect Analyzer agent."""
 
     defects: list[PairwiseDefectItem] = Field(
-        default_factory=list,
         description="List of pairwise defects found. Empty if no defects detected.",
+    )
+
+    model_config = ConfigDict(extra="ignore")
+
+
+class PairwiseDefectGroup(BaseModel):
+    bucket_id: int = Field(
+        description="Bucket identifier copied from the input markdown block",
+    )
+    defects: list[PairwiseDefectItem] = Field(
+        description="List of pairwise defects found for this bucket",
+    )
+
+
+class PairwiseDefectGroupsResponse(BaseModel):
+    results: list[PairwiseDefectGroup] = Field(
+        description="Per-bucket pairwise analysis results. One result object per bucket.",
     )
 
     model_config = ConfigDict(extra="ignore")

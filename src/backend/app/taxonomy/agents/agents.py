@@ -4,15 +4,18 @@ from llm.dynamic_agent import GenimiDynamicAgent
 from common.configs import LlmConfig
 
 from ..schemas import (
+    TaxonomySeedResponse,
     TaxonomyUpdateResponse,
     TaxonomyCategorizationResponse,
     TaxonomyValidationResponse,
+    SeedValidationResponse,
 )
 from .prompts import (
     SEED_SYSTEM_PROMPT,
     EXTENSION_SYSTEM_PROMPT,
     CATEGORIZER_SYSTEM_PROMPT,
     VALIDATOR_SYSTEM_PROMPT,
+    SEED_VALIDATOR_SYSTEM_PROMPT,
 )
 
 
@@ -30,10 +33,10 @@ def _build_agent(system_prompt: str, response_schema: type) -> GenimiDynamicAgen
 
 
 def build_seed_agent() -> GenimiDynamicAgent:
-    """Agent for generating initial taxonomy from the first batch (Pass 1)."""
+    """Agent for generating initial taxonomy from the first batch (Pass 0)."""
     return _build_agent(
         system_prompt=SEED_SYSTEM_PROMPT,
-        response_schema=TaxonomyUpdateResponse,
+        response_schema=TaxonomySeedResponse,
     )
 
 
@@ -58,4 +61,12 @@ def build_validator_agent() -> GenimiDynamicAgent:
     return _build_agent(
         system_prompt=VALIDATOR_SYSTEM_PROMPT,
         response_schema=TaxonomyValidationResponse,
+    )
+
+
+def build_seed_validator_agent() -> GenimiDynamicAgent:
+    """Agent for validating the initial seed taxonomy."""
+    return _build_agent(
+        system_prompt=SEED_VALIDATOR_SYSTEM_PROMPT,
+        response_schema=SeedValidationResponse,
     )

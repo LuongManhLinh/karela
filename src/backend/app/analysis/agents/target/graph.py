@@ -1,21 +1,3 @@
-"""TARGETED workflow LangGraph definition.
-
-Pipeline:
-    START
-      ├─→ context_gatherer (Node A)         ─┐
-      └─→ relational_graph_search (Node B)  ─┤ [Parallel]
-                                             ▼
-                                  [Wait for A & B]
-      ├─→ self_defect_analyzer (Node C)     ─┐
-      ├─→ pairwise_defect_analyzer (Node D)  ┤ [Parallel]
-      └─→ dependency_matrix (Node C2)       ─┘
-                                             ▼
-                                  [Wait for C, D & C2]
-                        defect_validator (Node E)
-                                             ▼
-                                            END
-"""
-
 from langgraph.graph import StateGraph, START, END
 from langgraph.runtime import Runtime
 
@@ -37,7 +19,6 @@ from ..nodes import (
 
 
 from app.taxonomy.query import get_story_tags, get_stories_by_tags
-from app.connection.jira.services import JiraService
 
 
 def build_targeted_graph():
@@ -57,12 +38,15 @@ def build_targeted_graph():
             agent=context_agent,
             context=runtime.context,
             project_desc=runtime.context.project_description,
+            target_stories=[state["target_story"]],
         )
         return {"project_context": pj_context}
 
     def relational_graph_search_node(
         state: TargetedState, runtime: Runtime[TargetedContext]
     ) -> dict:
+        from app.connection.jira.services import JiraService
+
         target = state["target_story"]
         print(
             f"\n{'='*80}\n| Relational Graph Search Node\n"
@@ -88,6 +72,7 @@ def build_targeted_graph():
         related_keys = list(set(related_keys) - {target.key})
 
         service = JiraService(context.db)
+
         related_stories = [
             StoryMinimal(
                 key=s.key,
@@ -176,19 +161,16 @@ def build_targeted_graph():
     graph.add_node("dependency_matrix", dependency_matrix_node)
     graph.add_node("defect_validator", defect_validator_node)
     graph.add_node("defect_filter", defect_filter_node)
-    # Phase 1: Parallel — Context + Relational Search
-    graph.add_edge(START, "context_gatherer")
-    graph.add_edge(START, "relational_graph_search")
 
-    # Phase 2: Parallel — Self-Defect + Pairwise (after Phase 1 completes)
+    # Don't process context_gatherer and bucket_mapper in parallel because of sqlalchemy session concurrency issues.
+    # Instead, run bucket_mapper first to gather all stories/tags,
+    # then context_gatherer to get project context while batch analyzers run.
+    graph.add_edge(START, "relational_graph_search")
+    graph.add_edge("relational_graph_search", "context_gatherer")
     graph.add_edge("context_gatherer", "self_defect_analyzer")
     graph.add_edge("context_gatherer", "pairwise_defect_analyzer")
-    graph.add_edge("relational_graph_search", "self_defect_analyzer")
-    graph.add_edge("relational_graph_search", "pairwise_defect_analyzer")
     graph.add_edge("context_gatherer", "dependency_matrix")
-    graph.add_edge("relational_graph_search", "dependency_matrix")
 
-    # Phase 3: Sequential — Validator (after Phase 2 completes)
     graph.add_edge("self_defect_analyzer", "defect_validator")
     graph.add_edge("pairwise_defect_analyzer", "defect_validator")
     graph.add_edge("dependency_matrix", "defect_validator")

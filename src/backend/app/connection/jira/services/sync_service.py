@@ -4,6 +4,8 @@ from app.connection.jira.services.base_service import (
     AC_ISSUE_TYPE_DESCRIPTION,
     AC_ISSUE_TYPE_LEVEL,
     AC_ISSUE_TYPE_NAME,
+    AI_TRANSACTION_ID_FIELD_DESCRIPTION,
+    AI_TRANSACTION_ID_FIELD_NAME,
 )
 from common.database import uuid_generator
 from utils.markdown_adf_bridge.markdown_adf_bridge import adf_to_md
@@ -39,7 +41,6 @@ class JiraSyncService(JiraBaseService):
             connection.sync_message = message
         if error:
             connection.sync_error = error
-        self.db.commit()
         try:
             payload = {}
             if status:
@@ -53,6 +54,7 @@ class JiraSyncService(JiraBaseService):
             )
         except Exception as e:
             print(f"Failed to publish connection update: {e}")
+        self.db.commit()
 
     def setup_new_connection(self, connection_id: str):
         print("Setting up new connection with ID:", connection_id)
@@ -66,11 +68,14 @@ class JiraSyncService(JiraBaseService):
             issue_type_id = self._create_ac_issue_type(connection)
             self._update_issue_type_for_connection(connection, issue_type_id)
             self._register_webhooks(connection)
+            field_id = self.create_custom_ai_transaction_id_field(connection)
+            connection.ai_transaction_id_field_id = field_id
             self._publish_status(
                 connection,
                 status=SyncStatus.SETUP_DONE,
                 message="Connection setup completed",
             )
+
         except Exception as e:
             print(f"Error setting up connection: {e}")
             self._publish_status(
@@ -78,6 +83,7 @@ class JiraSyncService(JiraBaseService):
                 status=SyncStatus.SETUP_FAILED,
                 message=f"Connection setup failed: {e}",
             )
+        self.db.commit()
 
     def sync_projects(
         self,
@@ -239,7 +245,7 @@ class JiraSyncService(JiraBaseService):
                         connection_id=connection.id,
                         project_key=project.key,
                         stories=story_dtos,
-                        project_context=project.description or "",
+                        project_description=project.description or "",
                     )
 
                     self.vector_store.add_stories(
@@ -248,10 +254,10 @@ class JiraSyncService(JiraBaseService):
                         stories=story_dtos,
                     )
 
-            self.db.commit()
             self._publish_status(
                 connection, status=SyncStatus.DONE, message="Sync completed"
             )
+            self.db.commit()
 
         except Exception as e:
             self.db.rollback()
@@ -262,6 +268,7 @@ class JiraSyncService(JiraBaseService):
                 status=SyncStatus.FAILED,
                 error=SyncError.DATA_SYNC_ERROR,
             )
+            self.db.commit()
             raise
 
     def _get_valid_access_token(self, connection: Connection) -> str:
@@ -357,4 +364,45 @@ class JiraSyncService(JiraBaseService):
                     error=SyncError.ISSUE_TYPE_ERROR,
                 )
                 self.db.commit()
+                raise
+
+    def create_custom_ai_transaction_id_field(self, connection: Connection):
+        """Create custom field for AI transaction ID if it doesn't exist"""
+        self._publish_status(
+            connection,
+            message=f"Creating custom field for {AI_TRANSACTION_ID_FIELD_NAME}...",
+        )
+        try:
+            field_id = self._exec_refreshing_access_token(
+                connection=connection,
+                func=JiraClient.create_custom_field,
+                cloud_id=connection.id,
+                name=AI_TRANSACTION_ID_FIELD_NAME,
+                description=AI_TRANSACTION_ID_FIELD_DESCRIPTION,
+            )
+            return field_id
+        except Exception as e:
+            if "409" in str(e):
+                field_id = self._exec_refreshing_access_token(
+                    connection=connection,
+                    func=JiraClient.get_custom_field_by_name,
+                    cloud_id=connection.id,
+                    name=AI_TRANSACTION_ID_FIELD_NAME,
+                )
+                if field_id is None:
+                    self._publish_status(
+                        connection,
+                        message=f"Failed to retrieve existing {AI_TRANSACTION_ID_FIELD_NAME} custom field ID",
+                    )
+                    raise ValueError(
+                        f"Failed to retrieve existing {AI_TRANSACTION_ID_FIELD_NAME} custom field ID"
+                    )
+
+                return field_id
+            else:
+                self._publish_status(
+                    connection,
+                    message=f"Error creating {AI_TRANSACTION_ID_FIELD_NAME} custom field: {e}",
+                    error=SyncError.CUSTOM_FIELD_ERROR,
+                )
                 raise

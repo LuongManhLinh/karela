@@ -1,6 +1,7 @@
 from typing import Optional
 import json
 from sqlalchemy.orm import Session
+from sqlalchemy import func, select
 from fastapi import UploadFile
 from langchain.messages import AIMessage, ToolMessage
 
@@ -253,14 +254,15 @@ class DocumentationService:
 
         # 1. Process Text Docs
         if text_docs:
-            text_doc_count = (
-                self.db.query(TextDocumentation)
-                .filter(
-                    TextDocumentation.connection_id == connection_id,
-                    TextDocumentation.project_key == project_key,
-                )
-                .count()
+            stmt = select(func.max(TextDocumentation.key)).filter(
+                TextDocumentation.connection_id == connection_id,
+                TextDocumentation.project_key == project_key,
             )
+            text_doc_count = self.db.execute(stmt).scalar_one_or_none()
+            if text_doc_count is None:
+                text_doc_count = 0
+            else:
+                text_doc_count = int(text_doc_count.split("-")[-1])
 
             for idx, t_doc in enumerate(text_docs):
                 doc = TextDocumentation(
@@ -284,14 +286,15 @@ class DocumentationService:
 
         # 2. Process File Docs
         if files:
-            file_doc_count = (
-                self.db.query(FileDocumentation)
-                .filter(
-                    FileDocumentation.connection_id == connection_id,
-                    FileDocumentation.project_key == project_key,
-                )
-                .count()
+            stmt = select(func.max(FileDocumentation.key)).filter(
+                FileDocumentation.connection_id == connection_id,
+                FileDocumentation.project_key == project_key,
             )
+            file_doc_count = self.db.execute(stmt).scalar_one_or_none()
+            if file_doc_count is None:
+                file_doc_count = 0
+            else:
+                file_doc_count = int(file_doc_count.split("-")[-1])
 
             for idx, file in enumerate(files):
                 prefix = f"documentation/{connection_id}/{project_key}"

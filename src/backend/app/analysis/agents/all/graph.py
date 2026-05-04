@@ -1,27 +1,6 @@
-"""ALL (batch) workflow LangGraph definition.
-
-Pipeline:
-    START
-      ├─→ context_gatherer (Node A)              ─┐
-      └─→ bucket_mapper (Node B)                  ┤ [Parallel]
-                                                   ▼
-                                        [Wait for A & B]
-      ├─→ batch_self_defect_analyzer (Node C)     ─┐
-      ├─→ pairwise_defect_analyzer (Node D)        ┤ [Parallel]
-      └─→ dependency_matrix (Node C2)              ┘
-                                                   ▼
-                                        [Wait for C, D & C2]
-                          defect_validator (Node E)
-                                                   ▼
-                                                  END
-"""
-
-from concurrent.futures import ThreadPoolExecutor, as_completed
-
-from langchain_core.messages import HumanMessage
 from langgraph.graph import StateGraph, START, END
 from langgraph.runtime import Runtime
-
+from typing import Literal
 from .state import AllState, AllContext
 from ..schemas import BucketGroup, StoryMinimal, StoryTag
 from ..nodes import (
@@ -39,7 +18,6 @@ from ..nodes import (
 )
 
 from app.taxonomy.query import get_project_stories_tags
-from app.connection.jira.services import JiraService
 
 
 def build_all_graph():
@@ -52,20 +30,23 @@ def build_all_graph():
     validator_agent = build_validator_agent()
     dependency_matrix_agent = build_dependency_matrix_agent()
 
-    def context_gatherer_node(state: AllState, runtime: Runtime[AllContext]) -> dict:
-        """Gather project context if not already provided."""
-        print("\n| ALL Graph -> [context_gatherer]")
-        pj_context = run_context_gatherer(
-            agent=context_agent,
-            context=runtime.context,
-            project_desc=runtime.context.project_description,
-        )
-        return {"project_context": pj_context}
+    def initial_route_node(
+        state: AllState,
+    ) -> Literal["bucket_mapper", "context_gatherer"]:
+        if (
+            state.get("info_provided", False)
+            and state.get("all_stories", [])
+            and state.get("bucket_groups", [])
+        ):
+            return "context_gatherer"
+        return "bucket_mapper"
 
     def bucket_mapper_node(state: AllState, runtime: Runtime[AllContext]) -> dict:
-        print(f"\n{'='*80}\n| Bucket Mapper Node — Starting\n{'='*80}")
+        print(f"\n{'='*80}\n| Bucket Mapper Node - Starting\n{'='*80}")
+        from app.connection.jira.services import JiraService
 
         context = runtime.context
+
         jira_service = JiraService(context.db)
         story_dtos = jira_service.fetch_stories(
             connection_id=context.connection_id,
@@ -131,23 +112,39 @@ def build_all_graph():
                         related_stories=related_stories,
                     )
                 )
-        print(
-            f"| Bucket Mapper Node — Completed with {len(all_stories)} stories and {len(bucket_groups)} bucket groups\n{'='*80}"
-        )
+
         # print bucket for debugging
         for i, group in enumerate(bucket_groups):
             print(f"Bucket Group {i+1}")
             print(f"Target Story: {group.target_story.key}")
             print(f"Related Stories: {[s.key for s in group.related_stories]}")
             print("---")
+        print(
+            f"| Bucket Mapper Node - Completed with {len(all_stories)} stories and {len(bucket_groups)} bucket groups\n{'='*80}"
+        )
         return {
             "all_stories": all_stories,
             "bucket_groups": bucket_groups,
         }
 
+    def context_gatherer_node(state: AllState, runtime: Runtime[AllContext]) -> dict:
+        """Gather project context if not already provided."""
+        print("\n| ALL Graph -> [context_gatherer]")
+        all_stories = state.get("all_stories", [])
+        info_provided = state.get("info_provided", False)
+
+        pj_context = run_context_gatherer(
+            agent=context_agent,
+            context=runtime.context,
+            project_desc=runtime.context.project_description,
+            target_stories=all_stories if info_provided else None,
+        )
+        return {"project_context": pj_context}
+
     def batch_self_defect_analyzer_node(
         state: AllState, runtime: Runtime[AllContext]
     ) -> dict:
+        print(f"\n{'='*80}\n| Batch Self-Defect Analyzer Node - Starting\n{'='*80}")
         all_stories = state.get("all_stories", [])
         project_context = state.get("project_context", "")
         batch_size = runtime.context.self_batch_size
@@ -167,11 +164,12 @@ def build_all_graph():
     def pairwise_defect_analyzer_node(
         state: AllState, runtime: Runtime[AllContext]
     ) -> dict:
+        print(f"\n{'='*80}\n| Pairwise Defect Analyzer Node - Starting\n{'='*80}")
         bucket_groups = state.get("bucket_groups", [])
         project_context = state.get("project_context", "")
 
         print(
-            f"\n{'='*80}\n| Intra-Community Pairwise Analyzer\n"
+            f"\n{'='*80}\n| Pairwise Defect Analyzer\n"
             f"| Total bucket groups: {len(bucket_groups)}\n{'='*80}"
         )
         buckets = [
@@ -185,6 +183,7 @@ def build_all_graph():
         return {"raw_defects": defects}
 
     def defect_validator_node(state: AllState) -> dict:
+        print(f"\n{'='*80}\n| Defect Validator Node - Starting\n{'='*80}")
         raw_defects = state.get("raw_defects", [])
         all_stories = state.get("all_stories", [])
 
@@ -193,9 +192,13 @@ def build_all_graph():
             raw_defects=raw_defects,
             stories=all_stories,
         )
+        print(
+            f"| Defect Validator Node - Completed with {len(final)} final defects\n{'='*80}"
+        )
         return {"final_defects": final}
 
     def defect_filter_node(state: AllState, runtime: Runtime[AllContext]) -> dict:
+        print(f"\n{'='*80}\n| Defect Filter Node - Starting\n{'='*80}")
         final_defects = state.get("final_defects", [])
         existing_defects = runtime.context.existing_defects
 
@@ -233,24 +236,16 @@ def build_all_graph():
     graph.add_node("defect_validator", defect_validator_node)
     graph.add_node("defect_filter", defect_filter_node)
 
-    # Phase 1: Parallel — Context Gatherer + Bucket Mapper
-    graph.add_edge(START, "context_gatherer")
-    graph.add_edge(START, "bucket_mapper")
-
-    # End now for debugging
-    # graph.add_edge("bucket_mapper", END)
-    # graph.add_edge("context_gatherer", END)
-
-    # Phase 2: Parallel — Self-Defect + Pairwise + Inter-Community
-    # All three depend on both Phase 1 nodes completing
+    # Don't process context_gatherer and bucket_mapper in parallel because of sqlalchemy session concurrency issues.
+    # Instead, run bucket_mapper first to gather all stories/tags,
+    # then context_gatherer to get project context while batch analyzers run.
+    # graph.add_edge(START, "bucket_mapper")
+    graph.add_conditional_edges(START, initial_route_node)
+    graph.add_edge("bucket_mapper", "context_gatherer")
     graph.add_edge("context_gatherer", "batch_self_defect_analyzer")
     graph.add_edge("context_gatherer", "pairwise_defect_analyzer")
-    graph.add_edge("bucket_mapper", "batch_self_defect_analyzer")
-    graph.add_edge("bucket_mapper", "pairwise_defect_analyzer")
     graph.add_edge("context_gatherer", "dependency_matrix")
-    graph.add_edge("bucket_mapper", "dependency_matrix")
 
-    # Phase 3: Sequential — Validator (after all Phase 2 nodes complete)
     graph.add_edge("batch_self_defect_analyzer", "defect_validator")
     graph.add_edge("pairwise_defect_analyzer", "defect_validator")
     graph.add_edge("dependency_matrix", "defect_validator")

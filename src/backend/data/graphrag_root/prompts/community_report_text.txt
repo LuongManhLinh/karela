@@ -49,11 +49,11 @@ Limit the total report length to {max_report_length} words.
 SOURCES
 id, text
 1, Text: From: compliance.office@enron.com To: management.team@enron.com Cc: legal.team@enron.com, risk@enron.com Date: Wed, 12 Jul 2000 08:30:00 -0600 (CST) Subject: Quick Update on Compliance & Risk Efforts
-2, Quick update on what's been cooking in Compliance and Risk Management. Risk Management is stepping up — They've been tightening up on our financial risk assessments and mitigation strategies since early this year.
+2, Quick update on what's been cooking in Compliance and Risk Management. Risk Management is stepping up - They've been tightening up on our financial risk assessments and mitigation strategies since early this year.
 3, Their efforts are key to keeping us on solid ground financially and in compliance with the latest market regulations as of mid-2000. It's crucial for our strategic planning and helps us stay ahead.
-5, Legal's keeping us in check — The Legal Compliance team is on top of ensuring all our operations are up to scratch with legal standards. They're especially focused on improving our corporate governance and contract management as of the second quarter of 2000. This is critical for keeping our operations smooth and legally sound.
-9, Working together — Risk Management and Legal Compliance have been syncing up better than ever since the start of Q2 2000. They're making sure our strategies are not just effective but also fully compliant. This coordination is essential for our integrated governance approach.
-10, Your thoughts? — How do these updates impact your area? Got ideas on how we can do better? Give your department heads a shout.
+5, Legal's keeping us in check - The Legal Compliance team is on top of ensuring all our operations are up to scratch with legal standards. They're especially focused on improving our corporate governance and contract management as of the second quarter of 2000. This is critical for keeping our operations smooth and legally sound.
+9, Working together - Risk Management and Legal Compliance have been syncing up better than ever since the start of Q2 2000. They're making sure our strategies are not just effective but also fully compliant. This coordination is essential for our integrated governance approach.
+10, Your thoughts? - How do these updates impact your area? Got ideas on how we can do better? Give your department heads a shout.
 11, Thanks for staying engaged. Let's keep pushing for better and smarter ways to work. Cheers, Jane Doe
 
 Output:

@@ -2,7 +2,7 @@ PAIRWISE_DEFECT_DEFINITIONS = """Paired Story Defects (Evaluating Story A vs. St
 
 **1. DUPLICATION (Feature or Rule Overlap)**
 * **Definition:** Both stories implement the exact same technical action on the same target system or resource. Developing both would result in building the exact same code twice.
-* **Verification Question:** *If the development team completes Story A, would Story B's effort be completely wasted — i.e., there is nothing new to build?*
+* **Verification Question:** *If the development team completes Story A, would Story B's effort be completely wasted - i.e., there is nothing new to build?*
 * **False Positive Check (SHARED DOMAIN IS NOT DUPLICATION):**
     - Just because two stories touch the same topic (e.g., "payments", "favorites", "driver status") does NOT mean they are duplicates. If they do different things within that topic, they are distinct.
     - Example: VBS-401 (Process Stripe payment) and VBS-601 (Save credit card to profile) are NOT duplicates. One processes a transaction, the other manages a stored entity.
@@ -14,7 +14,7 @@ PAIRWISE_DEFECT_DEFINITIONS = """Paired Story Defects (Evaluating Story A vs. St
 
 **2. CONFLICT (Logic or NFR Clash)**
 * **Definition:** The stories introduce mutually exclusive logic, contradictory business rules, or opposing Non-Functional Requirements on the **exact same specific topic**.
-* **Verification Question:** *Do Story A and Story B make directly contradictory claims about the SAME specific rule, behavior, or constraint — such that implementing both exactly as written is logically impossible?*
+* **Verification Question:** *Do Story A and Story B make directly contradictory claims about the SAME specific rule, behavior, or constraint - such that implementing both exactly as written is logically impossible?*
 * **Examples of TRUE conflicts:**
     - Story A: "No cancellation fees before trip starts" vs. Story B: "Charge $5 fee after 2 minutes" → Both define cancellation fee policy with opposite rules.
     - Story A: "Allow text messaging" vs. Story B: "Forbid all text messaging" → Mutually exclusive on the same communication channel.
@@ -40,22 +40,21 @@ SELF_DEFECT_DEFINITIONS = """Single Story Defects (Evaluating a Story in Isolati
 * **Definition:** The story fails to provide clear, tangible value to the user or business. It describes a purely technical internal chore without explaining WHY it matters or WHAT measurable benefit it delivers.
 * **Verification Question:** *Does this story fail to explain WHO it is for and exactly WHAT tangible benefit it delivers to the business or end-user?*
 * **Key Signals of NOT_VALUABLE:**
-    - Pure technical chores with vague outcomes: "optimize database," "refactor legacy code," "run profiling" without specifying measurable improvement targets. A story that says "so that the system runs better" or "ensure it is modern and follows best practices" is NOT stating a measurable benefit — it IS NOT_VALUABLE.
-    - Stories that actively harm the user experience (e.g., forced intrusive ads, removing useful features) — these destroy value rather than create it.
+    - Pure technical chores with vague outcomes: "optimize database," "refactor legacy code," "run profiling" without specifying measurable improvement targets. A story that says "so that the system runs better" or "ensure it is modern and follows best practices" is NOT stating a measurable benefit - it IS NOT_VALUABLE.
+    - Stories that actively harm the user experience (e.g., forced intrusive ads, removing useful features) - these destroy value rather than create it.
 * **False Positive Check:** Technical enablers ARE valuable ONLY IF they explicitly state a specific, measurable improvement target (e.g., "reduce query latency by 50%", "support 10K concurrent users"). Vague goals like "runs better", "follows best practices", or "is modern" are NOT measurable and do NOT make a story valuable.
 
 
 **3. NOT_ESTIMABLE (High Ambiguity or Technical Risk)**
 * **Definition:** The story is too vague, lacks clear Acceptance Criteria, or involves an architecture impact so broad that the team cannot confidently estimate the effort required to implement it.
 * **Verification Question:** *Does the story lack the necessary technical clarity, or are the success conditions so undefined that estimating the effort is just a wild guess?*
-* **False Positive Check:** A story is estimable if the core action and constraints are clear, even if exact implementation details (like exact code syntax) are left to the developers. A story that overlaps with others or has a vague title but has clear description is NOT automatically NOT_ESTIMABLE — check the description for clarity.
+* **False Positive Check:** A story is estimable if the core action and constraints are clear, even if exact implementation details (like exact code syntax) are left to the developers. A story that overlaps with others or has a vague title but has clear description is NOT automatically NOT_ESTIMABLE - check the description for clarity.
 
 **4. NOT_SMALL (Epic Disguised as a Story)**
 * **Definition:** The scope of the story is too broad to be completed within a single sprint (3-4 days of work). It implements multiple distinct user goals or encompasses a massive multi-step workflow.
 * **Verification Question:** *Could this story easily be split into two or more smaller, self-contained user stories that still deliver value independently?*
 * **False Positive Check:** A "Vertical Slice" is NOT an Epic. A story that touches the UI, API, and Database for a *single feature* (e.g., "User Login") is perfectly SMALL. Only flag stories that combine multiple distinct features (e.g., "Build the Shopping Cart AND the Checkout Gateway").
 """
-
 
 
 SELF_DEFECT_DEFINITIONS_V2 = """## SELF_DEFECT_DEFINITIONS (Single Story Defects)
@@ -83,3 +82,35 @@ SELF_DEFECT_DEFINITIONS_V2 = """## SELF_DEFECT_DEFINITIONS (Single Story Defects
 **6. NOT_TESTABLE (Ambiguous Acceptance Criteria)**
 * **Definition:** The story lacks clear, binary Acceptance Criteria (AC). It uses subjective language (e.g., "fast," "user-friendly," "better performance") that cannot be verified by a Quality Assurance (QA) engineer. Without measurable boundaries, the "Definition of Done" is impossible to reach.
 * **Verification Question:** *Is there a clear, objective way to prove this story is finished, or is the success criteria based on subjective opinion?*"""
+
+
+# ---------------------------------------------------------------------------
+# Pipeline Proposal Defect Definitions
+# ---------------------------------------------------------------------------
+
+SPLITTER_DEFECTS = """**1. NOT_SMALL (Epic Disguised as a Story)**
+* **Definition:** The scope of the story is too broad to be completed within a single sprint. It implements multiple distinct user goals or encompasses a massive multi-step workflow.
+* **Resolution Strategy:** Decompose the story into smaller, independent vertical slices. Each slice must deliver end-to-end value.
+
+**2. NOT_INDEPENDENT (Dependency Bottleneck)**
+* **Definition:** The story is heavily coupled with other stories. It either blocks too many items, is blocked by too many items, or exists within a circular dependency.
+* **Resolution Strategy:** Restructure the story or its dependencies to remove the bottleneck, often by splitting out the tightly coupled parts into a separate interface or API story.
+"""
+
+REFINER_DEFECTS = """**1. NOT_VALUABLE (Missing Business Outcome)**
+* **Definition:** The story fails to provide clear, tangible value to the user or business. It describes a purely technical internal chore without explaining WHY it matters or WHAT measurable benefit it delivers.
+* **Resolution Strategy:** Enrich the story with a clear "In order to [benefit]" statement and measurable targets (e.g., "reduce query latency by 50%"). Do not change the core intent.
+
+**2. NOT_ESTIMABLE (High Ambiguity or Technical Risk)**
+* **Definition:** The story is too vague, lacks clear Acceptance Criteria, or involves an architecture impact so broad that the team cannot confidently estimate the effort required to implement it.
+* **Resolution Strategy:** Clarify the constraints and add strict Gherkin format (Given/When/Then) acceptance criteria. Make it binary pass/fail.
+"""
+
+RESOLVER_DEFECTS = """**1. CONFLICT (Logic or NFR Clash)**
+* **Definition:** The stories introduce mutually exclusive logic, contradictory business rules, or opposing Non-Functional Requirements on the exact same specific topic.
+* **Resolution Strategy:** Identify the contradiction and UPDATE the story whose rule is less aligned with the overall project goals. Preserve the other. Never delete both.
+
+**2. DUPLICATION (Feature or Rule Overlap)**
+* **Definition:** Both stories implement the exact same technical action on the same target system or resource.
+* **Resolution Strategy:** If both stories have unique value, UPDATE the stronger story to absorb the other's scope, then DELETE the weaker one. If one is strictly a subset, DELETE the subset.
+"""

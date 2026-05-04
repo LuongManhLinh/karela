@@ -11,6 +11,7 @@ class AllState(AnalysisState):
     communities to chunk the workload for pairwise analysis.
     """
 
+    info_provided: bool = False
     all_stories: list[StoryMinimal]
     bucket_groups: list[BucketGroup]
 
@@ -19,3 +20,4 @@ class AllContext(AnalysisContext):
     self_batch_size: int = 20
     self_concurrent_batches: int | None = None
     pairwise_concurrent_batches: int | None = None
+    group_pairwise_batches: bool | None = True

@@ -88,11 +88,20 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
     }
 
     if (syncStatus === "not_started") {
-      console.warn("Sync status is 'not_started', treating as not synced");
       return (
-        <Typography variant="body2" color="text.secondary" noWrap>
-          {t("notSynced")}
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            color: theme.palette.text.secondary,
+          }}
+        >
+          <CircularProgress size={16} color="inherit" sx={{ flexShrink: 0 }} />
+          <Typography variant="body2" color="text.secondary" noWrap>
+            {t("pendingSync")}
+          </Typography>
+        </Box>
       );
     }
 
@@ -101,33 +110,39 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
         <Box
           sx={{
             display: "flex",
-            justifyContent: "space-between",
             alignItems: "center",
             gap: 1,
             color: theme.palette.error.main,
-            width: "100%", // changed from maxWidth to width to fill available space
+
+            flexShrink: 1,
+            minWidth: 0,
+            overflow: "hidden",
           }}
-          title={syncMessage}
         >
           <Typography
             variant="body2"
-            noWrap
             sx={{
               fontWeight: 500,
-              // These two lines are critical for the text itself to truncate
-              minWidth: 0,
+
               flexGrow: 1,
-              display: "block", // Ensures noWrap behaves correctly
+              flexShrink: 1,
+              minWidth: 0,
+
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
             }}
+            title={syncMessage}
           >
             {syncMessage || t("error")}
           </Typography>
+
           <Tooltip title={getSupportMessageForSyncError(syncError)} arrow>
             <InfoIcon
               fontSize="small"
               sx={{
                 opacity: 0.7,
-                flexShrink: 0, // Prevents icon from getting squashed
+                flexShrink: 0,
               }}
             />
           </Tooltip>
@@ -197,7 +212,8 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
         alignItems: "center",
         gap: 2,
         borderRadius: 1,
-        bgcolor: "inherit",
+        width: "100%",
+        overflow: "hidden",
       }}
     >
       {connection.avatar_url && (
@@ -209,12 +225,12 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
             width: 40,
             height: 40,
             borderRadius: 1,
-            flexShrink: 0, // Prevent avatar from squashing
+            flexShrink: 0,
           }}
         />
       )}
 
-      <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+      <Box sx={{ mr: "auto" }}>
         <Typography variant="body1" fontWeight="medium" noWrap>
           {connection.name || t("defaultName")}
         </Typography>
@@ -228,10 +244,10 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
             component={Link}
             sx={{
               cursor: "pointer",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
             }}
             onClick={() => {
-              // Open the url in a new window
-              console.log("Opening URL:", connection.url);
               window.open(connection.url, "_blank", "noopener,noreferrer");
             }}
           >
@@ -239,7 +255,8 @@ export const ConnectionItem: React.FC<ConnectionItemProps> = ({
           </Typography>
         )}
       </Box>
-      <Box sx={{ mt: 0.5 }}>{getStatusContent()}</Box>
+
+      {getStatusContent()}
     </Paper>
   );
 };

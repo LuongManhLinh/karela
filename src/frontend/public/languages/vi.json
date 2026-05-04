@@ -247,7 +247,8 @@
         "failedToUpdateProposal": "Cập nhật đề xuất thất bại",
         "failedToUpdateProposalContent": "Cập nhật nội dung đề xuất thất bại",
         "failedToRerunAnalysis": "Phân tích lại thất bại"
-      }
+      },
+      "noLinkedProposals": "Không có đề xuất nào liên kết với lỗi này."
     },
     "AnalysisLayout": {
       "failedToStartAnalysis": "Bắt đầu phân tích thất bại",
@@ -286,9 +287,10 @@
       "UNKNOWN": "Không xác định",
       "CONFLICT": "Xung đột",
       "DUPLICATION": "Trùng lặp",
-      "OUT_OF_SCOPE": "Ngoài phạm vi",
-      "IRRELEVANCE": "Không liên quan",
-      "AMBIGUITY": "Mơ hồ",
+      "NOT_INDEPENDENT": "Not Independent",
+      "NOT_VALUABLE": "Not Valuable",
+      "NOT_ESTIMABLE": "Not Estimable",
+      "NOT_SMALL": "Not Small",
       "type": "Loại",
       "proposalLinkHint": "Nhấn: xem trong hộp thoại. Ctrl+Nhấn: chuyển tab và cuộn tới đề xuất.",
       "markSolvedTooltip": "Đánh dấu lỗi này là đã giải quyết. Lỗi đã giải quyết sẽ không xuất hiện trong các phân tích trong tương lai và sẽ không được sử dụng để tạo đề xuất."
@@ -446,7 +448,8 @@
       "syncing": "Đang đồng bộ...",
       "defaultName": "Kết nối Jira",
       "notSynced": "Chưa đồng bộ",
-      "setupDone": "Thiết lập xong. Hãy chọn các dự án để đồng bộ hóa."
+      "setupDone": "Thiết lập xong. Hãy chọn các dự án để đồng bộ hóa.",
+      "pendingSync": "Đang chờ đồng bộ"
     },
     "ProfilePage": {
       "title": "Hồ sơ",

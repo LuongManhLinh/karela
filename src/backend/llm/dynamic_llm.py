@@ -115,6 +115,7 @@ class DynamicGeminiModel(ChatGoogleGenerativeAI):
 
     def _on_retry(self, e, errors_to_retry):
         if True:
+            print(f"Retrying due to exception: {str(e)}, type: {type(e)}")
             self._rotate_api_key()
             return True
         print("Not retrying for exception:", str(e), " type:", type(e))

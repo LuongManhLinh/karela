@@ -12,7 +12,6 @@ from .schemas import (
     JiraCloudInfoResponse,
 )
 
-
 API_BASE = "https://api.atlassian.com/ex/jira/{cloud_id}/rest/api/3"
 
 
@@ -87,30 +86,27 @@ class JiraClient:
         return [issue["key"] for issue in created_issues]
 
     @staticmethod
-    def create_issues(cloud_id: str, access_token: str, payload: CreateIssuesRequest):
+    def create_issues(cloud_id: str, access_token: str, issue_updates: list[dict]):
         created_issue_keys: list[str] = []
-        issue_updates = payload.issueUpdates
 
         for start in range(0, len(issue_updates), 20):
             print(
                 f"Creating issues {start} to {min(start + 20, len(issue_updates))}..."
             )
             batch = issue_updates[start : start + 20]
-            batch_payload = CreateIssuesRequest(issueUpdates=batch)
+            batch_payload = {"issueUpdates": batch}
             created_issue_keys.extend(
-                JiraClient._create_issues(
-                    cloud_id, access_token, batch_payload.model_dump()
-                )
+                JiraClient._create_issues(cloud_id, access_token, batch_payload)
             )
 
         return created_issue_keys
 
     @staticmethod
-    def create_issue(cloud_id: str, access_token: str, payload: IssueUpdate):
+    def create_issue(cloud_id: str, access_token: str, payload: dict):
         url = API_BASE.format(cloud_id=cloud_id) + "/issue"
         headers = _get_auth_header(access_token)
         headers["Content-Type"] = "application/json"
-        resp = requests.post(url, json=payload.model_dump(), headers=headers)
+        resp = requests.post(url, json=payload, headers=headers)
         # Log the response for debugging
         resp.raise_for_status()
 
@@ -124,7 +120,8 @@ class JiraClient:
         fields: list[str],
         max_results: int | None = None,
         expand_rendered_fields: bool = False,
-    ) -> SearchResponse:
+        get_raw_response: bool = False,
+    ) -> SearchResponse | dict:
         url = API_BASE.format(cloud_id=cloud_id) + "/search/jql"
         params = {
             "jql": jql,
@@ -147,6 +144,8 @@ class JiraClient:
                 f"Jira search failed: {resp.status_code} {resp.reason} {detail}"
             )
 
+        if get_raw_response:
+            return resp.json()
         return SearchResponse(**resp.json())
 
     @staticmethod
@@ -154,8 +153,7 @@ class JiraClient:
         cloud_id: str,
         access_token: str,
         issue_key: str,
-        summary: Optional[str] = None,
-        description: Optional[any] = None,
+        payload: dict,
     ):
         """Update issue summary and/or description
 
@@ -168,12 +166,6 @@ class JiraClient:
         """
         url = API_BASE.format(cloud_id=cloud_id) + f"/issue/{issue_key}"
         headers = _get_auth_header(access_token)
-        fields = {}
-        if summary is not None:
-            fields["summary"] = summary
-        if description is not None:
-            fields["description"] = description
-        payload = {"fields": fields}
         resp = requests.put(url, json=payload, headers=headers)
         resp.raise_for_status()
 
@@ -656,3 +648,61 @@ class JiraClient:
         }
         resp = requests.put(api_url, headers=headers, json=payload)
         resp.raise_for_status()
+
+    @staticmethod
+    def create_custom_field(
+        cloud_id: str,
+        access_token: str,
+        name: str,
+        description: Optional[str] = None,
+        type: str = "com.atlassian.jira.plugin.system.customfieldtypes:readonlyfield",
+    ) -> str:
+        """Create a custom field in Jira
+
+        Args:
+            cloud_id (str): Jira cloud ID
+            access_token (str): OAuth2 access token
+            name (str): Name of the custom field
+            description (Optional[str], optional): Description of the custom field. Defaults to None.
+            type (str, optional): Type of the custom field. Defaults to "com.atlassian.jira.plugin.system.customfieldtypes:textfield".
+
+        Returns:
+            str: ID of the created custom field
+        """
+        url = API_BASE.format(cloud_id=cloud_id) + "/field"
+        headers = _get_auth_header(access_token)
+        headers["Content-Type"] = "application/json"
+        payload = {
+            "name": name,
+            "description": description,
+            "type": type,
+        }
+        resp = requests.post(url, json=payload, headers=headers)
+        resp.raise_for_status()
+        return resp.json()["id"]
+
+    @staticmethod
+    def get_custom_field_by_name(
+        cloud_id: str,
+        access_token: str,
+        name: str,
+    ) -> Optional[dict]:
+        """Get custom field by name
+
+        Args:
+            cloud_id (str): Jira cloud ID
+            access_token (str): OAuth2 access token
+            name (str): Name of the custom field
+
+        Returns:
+            Optional[dict]: Custom field dictionary if found, else None
+        """
+        url = API_BASE.format(cloud_id=cloud_id) + "/field"
+        headers = _get_auth_header(access_token)
+        resp = requests.get(url, headers=headers)
+        resp.raise_for_status()
+        fields = resp.json()
+        for field in fields:
+            if field["name"].lower() == name.lower():
+                return field["id"]
+        return None

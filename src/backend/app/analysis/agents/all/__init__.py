@@ -4,7 +4,9 @@ Scans all user stories in the project for self-defects and uses
 GraphRAG community detection to chunk pairwise analysis efficiently.
 """
 
-from ..schemas import DefectByLlm
+from common.schemas import StoryMinimal
+
+from ..schemas import BucketGroup, DefectByLlm
 from .state import AllState, AllContext
 from .graph import build_all_graph
 from sqlalchemy.orm import Session
@@ -17,6 +19,9 @@ _graph = build_all_graph()
 def run_analysis(
     connection_id: str,
     project_key: str,
+    info_provided: bool = False,
+    all_stories: list[StoryMinimal] = None,
+    bucket_groups: list[BucketGroup] = None,
     db: Session | None = None,
     extra_instruction: str = None,
     existing_defects: list[DefectByLlm] = None,
@@ -24,13 +29,14 @@ def run_analysis(
     self_concurrent_batches: int | None = None,
     pairwise_concurrent_batches: int | None = None,
     project_description: str | None = None,
+    group_pairwise_batches: bool | None = True,
 ) -> list[DefectByLlm]:
     """Run the ALL (batch) defect detection workflow on all project stories.
 
     This workflow:
     1. Gathers project context in parallel with mapping all GraphRAG communities.
     2. Runs batch self-defect analysis on all stories, intra-community pairwise
-       analysis on each community, and inter-community global search — all in parallel.
+       analysis on each community, and inter-community global search - all in parallel.
     3. Validates and filters all detected defects to remove false positives.
 
     Args:
@@ -41,11 +47,19 @@ def run_analysis(
     Returns:
         A list of validated DefectByLlm objects representing confirmed defects.
     """
+    if info_provided and (not all_stories or not bucket_groups):
+        raise ValueError(
+            "If info_provided is True, all_stories and bucket_groups must be provided."
+        )
+
     initial_state: AllState = {
         "project_context": "",
         "communities": [],
         "raw_defects": [],
         "final_defects": [],
+        "all_stories": all_stories or [],
+        "bucket_groups": bucket_groups or [],
+        "info_provided": info_provided,
     }
 
     context = AllContext(
@@ -58,6 +72,7 @@ def run_analysis(
         self_concurrent_batches=self_concurrent_batches,
         pairwise_concurrent_batches=pairwise_concurrent_batches,
         project_description=project_description,
+        group_pairwise_batches=group_pairwise_batches,
     )
 
     final_state = _graph.invoke(initial_state, context=context)

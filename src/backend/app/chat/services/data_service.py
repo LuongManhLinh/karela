@@ -30,13 +30,17 @@ class ChatDataService:
         connection_id: str,
         project_key: str,
     ):
-        stmt = select(func.count(ChatSession.id)).filter(
+        stmt = select(func.max(ChatSession.key)).filter(
             ChatSession.connection_id == connection_id,
             ChatSession.project_key == project_key,
         )
-        chat_session_count = self.db.execute(stmt).scalar_one()
+        highest_key = self.db.execute(stmt).scalar_one_or_none()
+        if highest_key is None:
+            highest_key = 0
+        else:
+            highest_key = int(highest_key.split("-")[-1])
         chat_session = ChatSession(
-            key=f"{project_key}-CHAT-{chat_session_count + 1}",
+            key=f"{project_key}-CHAT-{highest_key + 1}",
             connection_id=connection_id,
             project_key=project_key,
         )
@@ -185,9 +189,7 @@ class ChatDataService:
 
     def delete_chat_session(self, session_id: str):
         session = (
-            self.db.query(ChatSession)
-            .filter(ChatSession.id == session_id)
-            .first()
+            self.db.query(ChatSession).filter(ChatSession.id == session_id).first()
         )
         if not session:
             raise ValueError(f"Chat session {session_id} not found")

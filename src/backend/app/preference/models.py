@@ -16,6 +16,7 @@ from common.database import Base, uuid_generator, utcnow
 class GenProposalMode(Enum):
     SIMPLE = "SIMPLE"
     COMPLEX = "COMPLEX"
+    DEEP = "DEEP"
 
 
 class GenLanguage(Enum):

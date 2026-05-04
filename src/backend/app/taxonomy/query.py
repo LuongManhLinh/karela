@@ -3,7 +3,7 @@
 from sqlalchemy.orm import Session
 
 from .models import Bucket, BucketItem
-from .schemas import TaxonomyResponse
+from .schemas import NewBucket, StoryCategorization
 from common.database import uuid_generator
 
 
@@ -73,72 +73,59 @@ def upsert_buckets_and_items(
     db: Session,
     connection_id: str,
     project_key: str,
-    response: TaxonomyResponse,
+    all_bucket: list[NewBucket],
+    categorizations: list[StoryCategorization],
 ):
     """Persist a TaxonomyResponse: create new buckets, update descriptions, insert items."""
 
-    tag_to_bucket = {
-        bucket.tag: bucket for bucket in get_all_buckets(db, connection_id, project_key)
-    }
+    rows = (
+        db.query(BucketItem, Bucket)
+        .join(Bucket, BucketItem.bucket_id == Bucket.id)
+        .filter(
+            Bucket.connection_id == connection_id,
+            Bucket.project_key == project_key,
+        )
+        .all()
+    )
 
-    for nb in response.new_buckets:
-        bucket = tag_to_bucket.get(nb.name)
-        if bucket:
-            bucket.description = f"{bucket.description}\n\n[Update] {nb.description}"
+    tag_to_bucket = {}
+    key_to_tags = {}
+    for item, bucket in rows:
+        tag_to_bucket[bucket.tag] = bucket
+        key_to_tags.setdefault(item.story_key, set()).add(bucket.tag)
+
+    # Upsert buckets
+    for bucket in all_bucket:
+        existing = tag_to_bucket.get(bucket.name)
+        if existing:
+            if existing.description != bucket.description:
+                existing.description = bucket.description
+                db.add(existing)
         else:
-            bucket = Bucket(
+            new_bucket = Bucket(
                 id=uuid_generator(),
                 connection_id=connection_id,
                 project_key=project_key,
-                tag=nb.name,
-                description=nb.description,
+                tag=bucket.name,
+                description=bucket.description,
             )
-            db.add(bucket)
-            tag_to_bucket[nb.name] = bucket
+            db.add(new_bucket)
+            tag_to_bucket[bucket.name] = new_bucket  # Add to dict for item upsert
 
-    # 2. Apply description updates
-    for bu in response.bucket_updates:
-        bucket = tag_to_bucket.get(bu.name)
-        if bucket:
-            bucket.description = bu.updated_description
-        else:
-            bucket = Bucket(
-                id=uuid_generator(),
-                connection_id=connection_id,
-                project_key=project_key,
-                tag=bu.name,
-                description=bu.updated_description,
-            )
-            db.add(bucket)
-            tag_to_bucket[bu.name] = bucket
-
-    # 4. Insert bucket items
-    for cat in response.categorizations:
-        seen_tags: set[str] = set()
-        for tag_name in cat.tags:
-            if tag_name in seen_tags:
-                continue
-            seen_tags.add(tag_name)
-
-            bucket = tag_to_bucket.get(tag_name)
+    for cat in categorizations:
+        for tag in cat.tags:
+            bucket = tag_to_bucket.get(tag)
             if not bucket:
-                # LLM referenced a tag it didn't create — auto-create it
-                bucket = Bucket(
+                continue  # Skip tags that weren't created/updated (shouldn't happen)
+            existing_tags: set = key_to_tags.get(cat.key, set())
+            if tag not in existing_tags:
+                item = BucketItem(
                     id=uuid_generator(),
-                    connection_id=connection_id,
-                    project_key=project_key,
-                    tag=tag_name,
-                    description="",
+                    bucket_id=bucket.id,
+                    story_key=cat.key,
                 )
-                db.add(bucket)
-                db.flush()
-                tag_to_bucket[tag_name] = bucket
-
-            item = BucketItem(
-                bucket_id=bucket.id,
-                story_key=cat.key,
-            )
-            db.add(item)
+                db.add(item)
+                existing_tags.add(tag)  # Update the set to prevent duplicates
 
     db.commit()
 
@@ -171,3 +158,23 @@ def get_project_stories_tags(
         story_to_tags.setdefault(story_key, set()).add(tag)
         tag_to_stories.setdefault(tag, set()).add(story_key)
     return story_to_tags, tag_to_stories
+
+
+def delete_buckets_by_story_keys(
+    db: Session, connection_id: str, project_key: str, story_keys: list[str]
+) -> None:
+    """Delete buckets associated with any of the given story keys."""
+    items = (
+        db.query(BucketItem)
+        .join(Bucket, BucketItem.bucket_id == Bucket.id)
+        .filter(
+            Bucket.connection_id == connection_id,
+            Bucket.project_key == project_key,
+            BucketItem.story_key.in_(story_keys),
+        )
+        .all()
+    )
+
+    for item in items:
+        db.delete(item.bucket)  # This will cascade and delete the item as well
+    db.commit()

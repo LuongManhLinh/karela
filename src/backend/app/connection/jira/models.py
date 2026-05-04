@@ -21,6 +21,7 @@ class SyncError(Enum):
     WEBHOOK_ERROR = "webhook_error"
     ISSUE_TYPE_ERROR = "issue_type_error"
     ISSUE_TYPE_SCHEME_ERROR = "issue_type_scheme_error"
+    CUSTOM_FIELD_ERROR = "custom_field_error"
     UNKNOWN_ERROR = "unknown_error"
 
 
@@ -48,6 +49,8 @@ class Connection(Base):
     url = Column(String(256), nullable=True)
     scopes = Column(Text, nullable=True)
     avatar_url = Column(String(256), nullable=True)
+
+    ai_transaction_id_field_id = Column(String(64), nullable=True)
 
     created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
     updated_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)

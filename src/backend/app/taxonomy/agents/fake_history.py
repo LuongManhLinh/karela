@@ -7,7 +7,7 @@ from langchain_core.messages import HumanMessage, AIMessage
 # Pass 1: Generate Taxonomy Updates (Seed)
 # =============================================================================
 
-_UPDATE_SEED_EXAMPLE_USER = """\
+_SEED_EXAMPLE_USER = """\
 ## Project Context
 E-commerce platform for selling electronics. Supports credit card and PayPal payments.
 
@@ -35,7 +35,7 @@ Description: Automated email with tracking link.
 Analyze these stories and generate the initial Master Taxonomy buckets. Provide your chain-of-thought in `reasoning` first.
 """
 
-_UPDATE_SEED_EXAMPLE_ASSISTANT = json.dumps(
+_SEED_EXAMPLE_ASSISTANT = json.dumps(
     {
         "reasoning": "We have stories about payments, product search, security/encryption, admin reporting, and notifications. We can map these to 5 distinct buckets to cover the functional and non-functional requirements.",
         "new_buckets": [
@@ -60,21 +60,20 @@ _UPDATE_SEED_EXAMPLE_ASSISTANT = json.dumps(
                 "description": "Stories about email, SMS, push notifications, and user communication.",
             },
         ],
-        "bucket_updates": [],
     },
     indent=2,
 )
 
-UPDATE_TAXONOMY_SEED_FEW_SHOT = [
-    HumanMessage(content=_UPDATE_SEED_EXAMPLE_USER),
-    AIMessage(content=_UPDATE_SEED_EXAMPLE_ASSISTANT),
+SEED_FEW_SHOT = [
+    HumanMessage(content=_SEED_EXAMPLE_USER),
+    AIMessage(content=_SEED_EXAMPLE_ASSISTANT),
 ]
 
 # =============================================================================
 # Pass 1: Generate Taxonomy Updates (Extension)
 # =============================================================================
 
-_UPDATE_EXTENSION_EXAMPLE_USER = """\
+_EXTENSION_EXAMPLE_USER = """\
 ## Project Context
 E-commerce platform for selling electronics.
 
@@ -100,7 +99,7 @@ Description: WCAG 2.1 AA compliance for all customer-facing pages.
 Evaluate if the existing taxonomy covers these stories. Propose new buckets or description updates only when necessary. Provide your chain-of-thought in `reasoning` first.
 """
 
-_UPDATE_EXTENSION_EXAMPLE_ASSISTANT = json.dumps(
+_EXTENSION_EXAMPLE_ASSISTANT = json.dumps(
     {
         "reasoning": "EC-10 introduces Apple Pay, which fits into Payment but broadens its scope. EC-11 is about load times, needing a 'Performance' bucket. EC-12 is about screen readers, needing an 'Accessibility' bucket.",
         "new_buckets": [
@@ -125,9 +124,9 @@ _UPDATE_EXTENSION_EXAMPLE_ASSISTANT = json.dumps(
 )
 
 
-UPDATE_TAXONOMY_EXTENSION_FEW_SHOT = [
-    HumanMessage(content=_UPDATE_EXTENSION_EXAMPLE_USER),
-    AIMessage(content=_UPDATE_EXTENSION_EXAMPLE_ASSISTANT),
+EXTENSION_FEW_SHOT = [
+    HumanMessage(content=_EXTENSION_EXAMPLE_USER),
+    AIMessage(content=_EXTENSION_EXAMPLE_ASSISTANT),
 ]
 
 # =============================================================================
@@ -250,4 +249,58 @@ _VALIDATE_EXAMPLE_ASSISTANT = json.dumps(
 VALIDATE_TAXONOMY_FEW_SHOT = [
     HumanMessage(content=_VALIDATE_EXAMPLE_USER),
     AIMessage(content=_VALIDATE_EXAMPLE_ASSISTANT),
+]
+
+# =============================================================================
+# Seed Validation: Review Initial Taxonomy
+# =============================================================================
+
+_SEED_VALIDATE_EXAMPLE_USER = """\
+## Proposed Initial Taxonomy
+- **Payment**: Stories related to payment processing, billing, and financial transactions.
+- **Product Catalog**: Stories about product listing, search, categorization, and inventory display.
+- **Security**: Stories addressing authentication, authorization, encryption, and compliance.
+- **Notification**: Stories about email, SMS, push notifications, and user communication.
+- **Reporting**: Stories related to analytics dashboards, reports, and business intelligence.
+- **Email Alerts**: Stories about sending automated email alerts to users.
+
+## Stories Used for Generation
+(stories omitted for brevity)
+
+Review the proposed initial taxonomy. Decide whether it is VALID, INVALID, or ADJUSTED.
+"""
+
+_SEED_VALIDATE_EXAMPLE_ASSISTANT = json.dumps(
+    {
+        "reasoning": "The taxonomy has 6 buckets. 'Notification' and 'Email Alerts' are near-duplicates - email alerts are a subset of notifications. Merging them into a single 'Notification' bucket with a broader description.",
+        "status": "ADJUSTED",
+        "adjusted_new_buckets": [
+            {
+                "name": "Payment",
+                "description": "Stories related to payment processing, billing, and financial transactions.",
+            },
+            {
+                "name": "Product Catalog",
+                "description": "Stories about product listing, search, categorization, and inventory display.",
+            },
+            {
+                "name": "Security",
+                "description": "Stories addressing authentication, authorization, encryption, and compliance.",
+            },
+            {
+                "name": "Notification",
+                "description": "Stories about email alerts, SMS, push notifications, and automated user communication.",
+            },
+            {
+                "name": "Reporting",
+                "description": "Stories related to analytics dashboards, reports, and business intelligence.",
+            },
+        ],
+    },
+    indent=2,
+)
+
+SEED_VALIDATE_FEW_SHOT = [
+    HumanMessage(content=_SEED_VALIDATE_EXAMPLE_USER),
+    AIMessage(content=_SEED_VALIDATE_EXAMPLE_ASSISTANT),
 ]

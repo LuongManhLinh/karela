@@ -1,10 +1,11 @@
-"""Taxonomy bucketing service — orchestrates LLM-driven story categorization."""
+"""Taxonomy bucketing service - orchestrates LLM-driven story categorization."""
 
 from sqlalchemy.orm import Session
 
 from common.schemas import StoryMinimal
+from typing import Literal
 
-from .schemas import TaxonomyResponse, NewBucket, BucketUpdate, StoryCategorization
+from .schemas import NewBucket, StoryCategorization
 from .agents.graph import run_taxonomy_graph
 from .query import (
     get_story_tags as _get_story_tags,
@@ -13,6 +14,7 @@ from .query import (
     upsert_buckets_and_items,
     drop_all_buckets,
     get_project_stories_tags,
+    delete_buckets_by_story_keys,
 )
 
 
@@ -29,7 +31,7 @@ class TaxonomyService:
         connection_id: str,
         project_key: str,
         stories: list[StoryMinimal],
-        project_context: str = "",
+        project_description: str = "",
         seed_strategy: str = "hybrid",
         seed_size: int = 50,
         extension_batch_size: int = 20,
@@ -43,10 +45,10 @@ class TaxonomyService:
 
         drop_all_buckets(self.db, connection_id, project_key)
 
-        final_state = run_taxonomy_graph(
+        buckets, categorizations = run_taxonomy_graph(
             user_stories=stories,
             current_taxonomy=[],
-            project_description=project_context,
+            project_description=project_description,
             connection_id=connection_id,
             project_key=project_key,
             is_update=False,
@@ -55,14 +57,14 @@ class TaxonomyService:
             extension_batch_size=extension_batch_size,
         )
 
-        self._persist_state(connection_id, project_key, final_state)
+        self._persist_state(connection_id, project_key, buckets, categorizations)
 
     def update_buckets(
         self,
         connection_id: str,
         project_key: str,
         stories: list[StoryMinimal],
-        project_context: str = "",
+        project_description: str = "",
         extension_batch_size: int = 20,
     ) -> None:
         """Incremental update: concurrent extension batches via graph.
@@ -74,20 +76,26 @@ class TaxonomyService:
 
         db_buckets = get_all_buckets(self.db, connection_id, project_key)
         current_taxonomy = [
-            {"name": b.tag, "description": b.description or ""} for b in db_buckets
+            NewBucket(name=b.tag, description=b.description or "") for b in db_buckets
         ]
 
-        final_state = run_taxonomy_graph(
+        all_bucket, categorizations = run_taxonomy_graph(
             user_stories=stories,
             current_taxonomy=current_taxonomy,
-            project_description=project_context,
+            project_description=project_description,
             connection_id=connection_id,
             project_key=project_key,
             is_update=True,
             extension_batch_size=extension_batch_size,
         )
 
-        self._persist_state(connection_id, project_key, final_state)
+        self._persist_state(connection_id, project_key, all_bucket, categorizations)
+
+    def delete_buckets_by_story_keys(
+        self, connection_id: str, project_key: str, story_keys: list[str]
+    ) -> None:
+        """Delete buckets associated with any of the given story keys."""
+        delete_buckets_by_story_keys(self.db, connection_id, project_key, story_keys)
 
     def get_story_tags(
         self, connection_id: str, project_key: str, story_key: str
@@ -116,38 +124,10 @@ class TaxonomyService:
         self,
         connection_id: str,
         project_key: str,
-        final_state: dict,
+        all_bucket: list[NewBucket],
+        categorizations: list[StoryCategorization],
     ):
         """Persist graph results: taxonomy updates + categorizations."""
-        draft = final_state.get("draft_taxonomy_updates", {})
-        extension_results = final_state.get("extension_results", [])
-
-        # Collect all new_buckets and bucket_updates
-        all_new_buckets = [NewBucket(**b) for b in draft.get("new_buckets", [])]
-        all_bucket_updates = [BucketUpdate(**b) for b in draft.get("bucket_updates", [])]
-
-        for result in extension_results:
-            if result:
-                all_new_buckets.extend([NewBucket(**b) for b in result.get("new_buckets", [])])
-                all_bucket_updates.extend([BucketUpdate(**b) for b in result.get("bucket_updates", [])])
-
-        # Collect categorizations
-        raw_cats = final_state.get("categorizations", [])
-        categorizations = [
-            StoryCategorization(**c) if isinstance(c, dict) else c
-            for c in raw_cats
-        ]
-
-        output = TaxonomyResponse(
-            categorizations=categorizations,
-            new_buckets=all_new_buckets,
-            bucket_updates=all_bucket_updates,
-        )
-
-        upsert_buckets_and_items(self.db, connection_id, project_key, output)
-
-        print(
-            f"| Taxonomy persisted — {len(output.new_buckets)} new buckets, "
-            f"{len(output.bucket_updates)} updates, "
-            f"{len(output.categorizations)} categorizations"
+        upsert_buckets_and_items(
+            self.db, connection_id, project_key, all_bucket, categorizations
         )

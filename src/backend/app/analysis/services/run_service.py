@@ -50,6 +50,7 @@ class AnalysisRunService:
         self,
         analysis_id: str,
         status: str,
+        type: Literal["ANALYSIS", "PROPOSAL"] = "ANALYSIS",
         proposal_ids: list[str] = None,
         **kwargs,
     ):
@@ -60,6 +61,7 @@ class AnalysisRunService:
                     {
                         "id": analysis_id,
                         "status": status,
+                        "type": type,
                         "proposal_ids": proposal_ids,
                         **kwargs,
                     }
@@ -128,9 +130,9 @@ class AnalysisRunService:
             project_key=analysis.project_key,
         )
 
-    def _count_defects(self, connection_id: str, project_key: str) -> int:
+    def _get_highest_defect_key(self, connection_id: str, project_key: str) -> int:
         stmt = (
-            select(func.count(Defect.id))
+            select(func.max(Defect.key))
             .join(Analysis)
             .filter(
                 Analysis.connection_id == connection_id,
@@ -138,7 +140,10 @@ class AnalysisRunService:
             )
         )
 
-        return self.db.execute(stmt).scalar_one()
+        highest_key = self.db.execute(stmt).scalar_one_or_none()
+        if highest_key is None:
+            return 0
+        return int(highest_key.split("-")[-1])
 
     def _convert_llm_defects(
         self,
@@ -147,12 +152,12 @@ class AnalysisRunService:
         connection_id: str,
         project_key: str,
     ) -> list[Defect]:
-        count = self._count_defects(connection_id, project_key)
+        highest = self._get_highest_defect_key(connection_id, project_key)
 
         for idx, defect in enumerate(defects):
             self.db.add(
                 Defect(
-                    key=f"{project_key}-DEF-{count + idx + 1}",
+                    key=f"{project_key}-DEF-{highest + idx + 1}",
                     type=DefectType(defect.type.upper()),
                     severity=DefectSeverity(defect.severity.upper()),
                     explanation=defect.explanation,
@@ -175,7 +180,7 @@ class AnalysisRunService:
         project_key: str,
     ):
         """Convert graphrag SingleDefectResponse and PairwiseDefectResponse into Defect ORM objects."""
-        count = self._count_defects(connection_id, project_key)
+        count = self._get_highest_defect_key(connection_id, project_key)
         idx = 0
 
         # Convert self (single-story) defects
@@ -352,6 +357,7 @@ class AnalysisRunService:
         proposal_service = ProposalRunService(db=self.db)
 
         try:
+            print(f"Generating proposals for analysis {analysis_id}...")
             proposal_ids = proposal_service.generate_proposals(
                 session_id=analysis_id,
                 source="ANALYSIS",
@@ -362,7 +368,8 @@ class AnalysisRunService:
 
             self._publish_update(
                 analysis_id,
-                "PROPOSAL_DONE",
+                status="PROPOSALS_GENERATED",
+                type="PROPOSAL",
                 proposal_ids=proposal_ids,
             )
             self._publish_notification(

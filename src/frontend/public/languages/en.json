@@ -247,7 +247,8 @@
         "failedToUpdateProposal": "Failed to update proposal",
         "failedToUpdateProposalContent": "Failed to update proposal content",
         "failedToRerunAnalysis": "Failed to rerun analysis"
-      }
+      },
+      "noLinkedProposals": "No proposals linked to this defect."
     },
     "AnalysisLayout": {
       "failedToStartAnalysis": "Failed to start analysis",
@@ -286,9 +287,10 @@
       "UNKNOWN": "Unknown",
       "CONFLICT": "Conflict",
       "DUPLICATION": "Duplication",
-      "OUT_OF_SCOPE": "Out of Scope",
-      "AMBIGUITY": "Ambiguity",
-      "IRRELEVANCE": "Irrelevance",
+      "NOT_INDEPENDENT": "Not Independent",
+      "NOT_VALUABLE": "Not Valuable",
+      "NOT_ESTIMABLE": "Not Estimable",
+      "NOT_SMALL": "Not Small",
       "type": "Type",
       "proposalLinkHint": "Click: show in dialog. Ctrl+Click: switch tab and scroll to proposal.",
       "markSolvedTooltip": "Mark this defect as solved. Solved defects will be ignored in future analyses and proposal generations."
@@ -444,7 +446,8 @@
       "syncing": "Syncing...",
       "defaultName": "Jira Connection",
       "notSynced": "Not Synced",
-      "setupDone": "Setup Done. Please select projects to sync."
+      "setupDone": "Setup Done. Please select projects to sync.",
+      "pendingSync": "Pending Sync"
     },
     "ProfilePage": {
       "title": "Profile",

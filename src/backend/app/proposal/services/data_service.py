@@ -10,6 +10,7 @@ from ..models import (
     ProposalType,
     StoryVersion,
     ProposalSource,
+    ProposalStoryCheck,
 )
 from ..schemas import (
     CreateProposalRequest,
@@ -19,7 +20,7 @@ from ..schemas import (
     SessionsWithProposals,
 )
 from app.connection.jira.services import JiraService
-from app.connection.jira.schemas import CreateStoryRequest
+from app.connection.jira.schemas import CreateStoryRequest, UpdateStoryRequest
 from app.analysis.services.defect_service import DefectService
 from app.analysis.models import Analysis
 from app.chat.models import ChatSession
@@ -31,14 +32,13 @@ class ProposalService:
         self.db = db
         self.jira_service = JiraService(db=db)
 
-    def create_proposal(self, proposal_request: CreateProposalRequest):
-        """Creates a new proposal with its contents.
-
-        Args:
-            proposal_request (CreateProposalRequest): The proposal creation request.
-        Returns:
-            str: The key of the created proposal.
-        """
+    def _create_proposal(
+        self,
+        proposal_request: CreateProposalRequest,
+        proposal_count: int,
+        deep: bool = False,
+    ) -> str:
+        """Creates a new proposal with its contents."""
         contents = []
         for story in proposal_request.stories:
             content = ProposalContent(
@@ -52,13 +52,6 @@ class ProposalService:
 
         source = ProposalSource(proposal_request.source)
 
-        stmt = select(func.count(Proposal.id)).filter(
-            Proposal.connection_id == proposal_request.connection_id,
-            Proposal.project_key == proposal_request.project_key,
-        )
-
-        proposal_count = self.db.execute(stmt).scalar_one()
-
         key = f"{proposal_request.project_key}-PRS-{proposal_count + 1}"
         proposal = Proposal(
             key=key,
@@ -66,6 +59,7 @@ class ProposalService:
             source=source,
             project_key=proposal_request.project_key,
             contents=contents,
+            deep_checked=deep,
         )
 
         if proposal_request.target_defect_ids:
@@ -84,8 +78,29 @@ class ProposalService:
 
         return key
 
+    def create_proposal(self, proposal_request: CreateProposalRequest):
+        """Creates a new proposal with its contents.
+
+        Args:
+            proposal_request (CreateProposalRequest): The proposal creation request.
+        Returns:
+            str: The key of the created proposal.
+        """
+        stmt = select(func.max(Proposal.key)).filter(
+            Proposal.connection_id == proposal_request.connection_id,
+            Proposal.project_key == proposal_request.project_key,
+        )
+
+        proposal_count = self.db.execute(stmt).scalar_one_or_none()
+        if proposal_count is None:
+            proposal_count = 0
+        else:
+            proposal_count = int(proposal_count.split("-")[-1])
+
+        return self._create_proposal(proposal_request, proposal_count)
+
     def create_proposals(
-        self, proposal_requests: list[CreateProposalRequest]
+        self, proposal_requests: list[CreateProposalRequest], deep: bool = False
     ) -> list[str]:
         """Creates multiple proposals with their contents.
 
@@ -94,9 +109,21 @@ class ProposalService:
         Returns:
             list[str]: The list of keys of the created proposals.
         """
+        stmt = select(func.max(Proposal.key)).filter(
+            Proposal.connection_id == proposal_request.connection_id,
+            Proposal.project_key == proposal_request.project_key,
+        )
+
+        proposal_count = self.db.execute(stmt).scalar_one_or_none()
+        if proposal_count is None:
+            proposal_count = 0
+        else:
+            proposal_count = int(proposal_count.split("-")[-1])
+
         created_keys = []
         for proposal_request in proposal_requests:
-            proposal_key = self.create_proposal(proposal_request)
+            proposal_key = self._create_proposal(proposal_request, proposal_count, deep)
+            proposal_count += 1
             created_keys.append(proposal_key)
         return created_keys
 
@@ -105,10 +132,8 @@ class ProposalService:
         connection_id,
         project_key: str,
         contents: list[ProposalContent],
+        transaction_id: str | None = None,
     ):
-        num_created = 0
-        num_updated = 0
-        num_deleted = 0
         try:
             create_contents = []
             update_keys = []
@@ -157,8 +182,8 @@ class ProposalService:
                         connection_id=connection_id,
                         project_key=project_key,
                         story=new_story,
+                        transaction_id=transaction_id,
                     )
-                    num_created += 1
 
                     # Store the created story version
                     new_version = StoryVersion(
@@ -169,6 +194,13 @@ class ProposalService:
                         action=ProposalType.CREATE,
                     )
                     self.db.add(new_version)
+                    if transaction_id:
+                        story_check = ProposalStoryCheck(
+                            transaction_id=transaction_id,
+                            story_key=created_key,
+                            checked=False,
+                        )
+                        self.db.add(story_check)
 
             # Update existing issues
             if update_keys:
@@ -178,6 +210,8 @@ class ProposalService:
                     project_key=project_key,
                     story_keys=update_keys,
                 )
+
+                story_updates = []
 
                 for story_dto in existing_stories:
                     existing_version = version_lookup.get(story_dto.key)
@@ -195,14 +229,27 @@ class ProposalService:
                     self.db.add(new_version)
 
                     content = content_lookup.get(story_dto.key)
-                    self.jira_service.update_issue(
-                        connection_id=connection_id,
-                        project_key=project_key,
-                        issue_key=story_dto.key,
-                        summary=content.summary,
-                        description=content.description,
+                    story_updates.append(
+                        UpdateStoryRequest(
+                            key=story_dto.key,
+                            summary=content.summary,
+                            description=content.description,
+                        )
                     )
-                    num_updated += 1
+                self.jira_service.update_stories(
+                    connection_id=connection_id,
+                    project_key=project_key,
+                    story_updates=story_updates,
+                    transaction_id=transaction_id,
+                )
+                if transaction_id:
+                    for key in update_keys:
+                        story_check = ProposalStoryCheck(
+                            transaction_id=transaction_id,
+                            story_key=key,
+                            checked=False,
+                        )
+                        self.db.add(story_check)
 
             # Delete issues
             if delete_keys:
@@ -233,7 +280,6 @@ class ProposalService:
                         project_key=project_key,
                         issue_key=story_dto.key,
                     )
-                    num_deleted += 1
             for content in contents:
                 content.accepted = True
                 self.db.add(content)
@@ -241,8 +287,6 @@ class ProposalService:
         except Exception as e:
             self.db.rollback()
             raise e
-
-        return num_created, num_updated, num_deleted
 
     def accept_proposal(self, proposal_id: str):
         """Applies all the contents of the proposal to the platform.
@@ -274,6 +318,7 @@ class ProposalService:
             connection_id=connection_id,
             project_key=project_key,
             contents=proposal.contents,
+            transaction_id=proposal_id if proposal.deep_checked else None,
         )
 
         proposal.accepted = True
@@ -301,6 +346,7 @@ class ProposalService:
             connection_id=connection_id,
             project_key=project_key,
             contents=[content],
+            transaction_id=f"{proposal.id}_accept" if proposal.deep_checked else None,
         )
 
     def reject_proposal(self, proposal_id: str):
@@ -612,6 +658,7 @@ class ProposalService:
         connection_id,
         project_key: str,
         contents: list[ProposalContent],
+        transaction_id: str | None = None,
     ):
         try:
             for content in contents:
@@ -632,13 +679,28 @@ class ProposalService:
                                 issue_key=latest_version.key,
                                 summary=latest_version.summary,
                                 description=latest_version.description,
+                                transaction_id=transaction_id,
                             )
+                            if transaction_id:
+                                story_check = ProposalStoryCheck(
+                                    transaction_id=transaction_id,
+                                    story_key=latest_version.key,
+                                    checked=False,
+                                )
+                                self.db.add(story_check)
                         case ProposalType.CREATE:
                             self.jira_service.delete_issue(
                                 connection_id=connection_id,
                                 project_key=project_key,
                                 issue_key=latest_version.key,
                             )
+                            if transaction_id:
+                                story_check = ProposalStoryCheck(
+                                    transaction_id=transaction_id,
+                                    story_key=latest_version.key,
+                                    checked=False,
+                                )
+                                self.db.add(story_check)
                         case ProposalType.DELETE:
                             self.jira_service.create_stories(
                                 connection_id=connection_id,
@@ -649,6 +711,7 @@ class ProposalService:
                                         description=latest_version.description,
                                     )
                                 ],
+                                transaction_id=transaction_id,
                             )
                     self.db.delete(latest_version)
 
@@ -675,6 +738,7 @@ class ProposalService:
             connection_id=connection_id,
             project_key=proposal.project_key,
             contents=proposal.contents,
+            transaction_id=f"{proposal.id}_revert" if proposal.deep_checked else None,
         )
 
     def revert_applied_proposal_content(self, proposal_content_id: str):
@@ -702,6 +766,7 @@ class ProposalService:
             connection_id=connection_id,
             project_key=proposal.project_key,
             contents=[content],
+            transaction_id=f"{proposal.id}_revert" if proposal.deep_checked else None,
         )
 
     def edit_proposal_content(
@@ -735,3 +800,24 @@ class ProposalService:
 
         self.db.add(content)
         self.db.commit()
+
+    def is_story_checked_in_generation(
+        self, transaction_id: str, story_key: str
+    ) -> bool:
+        """Checks if a story is already checked in the proposal generation process."""
+        check = (
+            self.db.query(ProposalStoryCheck)
+            .filter(
+                ProposalStoryCheck.transaction_id == transaction_id,
+                ProposalStoryCheck.story_key == story_key,
+            )
+            .first()
+        )
+        if not check:
+            return False
+        checked = check.checked
+        if not checked:
+            check.checked = True
+            self.db.add(check)
+            self.db.commit()
+        return checked

@@ -3,7 +3,7 @@ from typing_extensions import TypedDict
 from common.schemas import StoryMinimal
 from common.agents.schemas import LlmContext
 
-from ..schemas import StoryCategorization
+from ..schemas import NewBucket, StoryCategorization, TaxonomyDraft
 
 
 class TaxonomyState(TypedDict):
@@ -15,26 +15,25 @@ class TaxonomyState(TypedDict):
     extension_batches: list[list[StoryMinimal]]
 
     # Taxonomy state
-    current_taxonomy: list[dict]
-    draft_taxonomy_updates: dict
-    final_taxonomy: list[dict]
+    current_taxonomy: list[NewBucket]
+    seed_results: list[NewBucket]
+    final_taxonomy: list[NewBucket]
 
     # Extension batch processing
-    extension_results: list[dict]  # per-batch draft results from agent.batch
-    failed_extension_indices: list[int]  # indices of batches needing reprocess
+    extension_results: list[TaxonomyDraft]
+    failed_extension_indices: list[int]
 
     # Categorizations
     categorizations: list[StoryCategorization]
 
     # Control flow
     errors: list[str]
+    extension_errors: dict[int, str]  # batch index -> error message
     iterations: int
     project_context: str
 
 
 class TaxonomyContext(LlmContext):
-    connection_id: str
-    project_key: str
     user_stories: list[StoryMinimal]
     project_description: Optional[str] = None
     is_update: bool = False

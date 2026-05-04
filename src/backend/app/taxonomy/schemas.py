@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Optional
 
 from pydantic import BaseModel, Field, ConfigDict
 
@@ -35,6 +35,28 @@ class BucketUpdate(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
 
+class TaxonomyDraft(BaseModel):
+    """A draft taxonomy update holding new buckets and description updates."""
+
+    new_buckets: list[NewBucket] = Field(default_factory=list)
+    bucket_updates: list[BucketUpdate] = Field(default_factory=list)
+
+    model_config = ConfigDict(extra="ignore")
+
+
+class TaxonomySeedResponse(BaseModel):
+    """Structured response schema for seeding the initial taxonomy."""
+
+    reasoning: str = Field(
+        description="Chain-of-thought reasoning explaining the proposed initial taxonomy."
+    )
+    new_buckets: list[NewBucket] = Field(
+        description="Initial buckets proposed to cover the provided user stories"
+    )
+
+    model_config = ConfigDict(extra="ignore")
+
+
 class TaxonomyUpdateResponse(BaseModel):
     """Structured response schema for Pass 1: Generating/Updating taxonomy."""
 
@@ -42,11 +64,9 @@ class TaxonomyUpdateResponse(BaseModel):
         description="Chain-of-thought reasoning explaining why new buckets or updates are needed."
     )
     new_buckets: list[NewBucket] = Field(
-        default_factory=list,
         description="New buckets proposed for stories that don't fit existing ones",
     )
     bucket_updates: list[BucketUpdate] = Field(
-        default_factory=list,
         description="Updates to existing bucket descriptions based on new insights",
     )
 
@@ -65,56 +85,39 @@ class TaxonomyCategorizationResponse(BaseModel):
 
     model_config = ConfigDict(extra="ignore")
 
-class TaxonomyValidationDecision(BaseModel):
+
+class TaxonomyValidationResponse(BaseModel):
     """Validation decision for a single extraction batch."""
 
-    batch_index: int = Field(description="Index of the batch this decision applies to (0-based)")
     status: Literal["VALID", "INVALID", "ADJUSTED"] = Field(
         description="VALID: keep as-is. INVALID: too many inappropriate tags, re-extract. ADJUSTED: apply corrections below."
     )
     reasoning: str = Field(description="Why this decision was made")
     adjusted_new_buckets: list[NewBucket] = Field(
-        default_factory=list,
         description="Corrected new_buckets (only when status is ADJUSTED)",
     )
     adjusted_bucket_updates: list[BucketUpdate] = Field(
-        default_factory=list,
         description="Corrected bucket_updates (only when status is ADJUSTED)",
     )
 
     model_config = ConfigDict(extra="ignore")
 
 
-class TaxonomyValidationResponse(BaseModel):
-    """Structured response from the taxonomy validator agent."""
+class SeedValidationResponse(BaseModel):
+    """Structured response from the seed taxonomy validator.
 
-    reasoning: str = Field(
-        description="Overall chain-of-thought reasoning about the proposed taxonomy changes."
-    )
-    decisions: list[TaxonomyValidationDecision] = Field(
-        description="Per-batch validation decisions"
-    )
-
-    model_config = ConfigDict(extra="ignore")
-
-
-class TaxonomyResponse(BaseModel):
-    """Structured response schema for the taxonomy agent.
-
-    Handles all three operations in a single response:
-    categorization, bucket creation, and bucket description updates.
+    Simplified: no batch_index (only one batch), no bucket_updates
+    (seeding creates from scratch - no existing buckets to update).
     """
 
-    categorizations: list[StoryCategorization] = Field(
-        description="Categorization of each input story into existing or new buckets"
+    reasoning: str = Field(
+        description="Chain-of-thought reasoning about the proposed initial taxonomy."
     )
-    new_buckets: list[NewBucket] = Field(
-        default_factory=list,
-        description="New buckets proposed for stories that don't fit existing ones",
+    status: Literal["VALID", "INVALID", "ADJUSTED"] = Field(
+        description="VALID: keep as-is. INVALID: fundamentally wrong, re-extract. ADJUSTED: apply corrected buckets below."
     )
-    bucket_updates: list[BucketUpdate] = Field(
-        default_factory=list,
-        description="Updates to existing bucket descriptions based on new insights",
+    adjusted_new_buckets: Optional[list[NewBucket]] = Field(
+        description="Corrected bucket list (only when status is ADJUSTED)",
     )
 
     model_config = ConfigDict(extra="ignore")

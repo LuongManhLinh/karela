@@ -249,15 +249,15 @@ class ACService:
             # Convert content to ADF format
             description = md_to_adf(f"```gherkin\n{ac.description}\n```")
 
-            issue_update = IssueUpdate(
-                fields={
+            issue_update = {
+                "fields": {
                     "project": {"key": project_key},
                     "parent": {"key": story_key},
                     "summary": ac.summary,
                     "description": description,
                     "issuetype": {"name": AC_ISSUE_TYPE_NAME},
                 }
-            )
+            }
 
             keys = self.jira_service.create_issues(connection_id, [issue_update])
             if keys:

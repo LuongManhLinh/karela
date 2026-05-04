@@ -564,8 +564,8 @@ export const DocumentationManager: React.FC<DocumentationManagerProps> = ({
                 name={doc.name}
                 icon={ui.icon}
                 description={doc.description}
-                onEdit={() => startEditFileDoc(doc)}
-                onRemove={() => requestDelete(doc.id, "file", doc.name)}
+                onEdit={() => startEditPendingFile(doc)}
+                onRemove={() => handleRemovePendingFile(doc.id)}
                 chipLabel={t("pendingLabel")}
                 chipColor={"warning"}
               />

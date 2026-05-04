@@ -83,14 +83,18 @@ class AnalysisDataService:
         analysis_type: Literal["TARGETED", "ALL"],
         story_key: Optional[str] = None,
     ):
-        stmt = select(func.count(Analysis.id)).filter(
+        stmt = select(func.max(Analysis.key)).filter(
             Analysis.connection_id == connection_id,
             Analysis.project_key == project_key,
         )
-        analysis_count = self.db.execute(stmt).scalar_one()
+        highest_key = self.db.execute(stmt).scalar_one_or_none()
         analysis_type = AnalysisType(analysis_type)
+        if highest_key is None:
+            new_key = f"{project_key}-ANA-1"
+        else:
+            new_key = f"{project_key}-ANA-{int(highest_key.split('-')[-1]) + 1}"
         analysis = Analysis(
-            key=f"{project_key}-ANA-{analysis_count + 1}",
+            key=new_key,
             project_key=project_key,
             type=analysis_type,
             status=AnalysisStatus.PENDING,
@@ -117,6 +121,9 @@ class AnalysisDataService:
         return None
 
     def set_generating_proposals(self, analysis_id: str, is_generating: bool):
+        print(
+            f"Setting generating_proposals={is_generating} for analysis_id={analysis_id}"
+        )
         analysis = self.db.query(Analysis).filter(Analysis.id == analysis_id).first()
         if analysis:
             analysis.generating_proposals = is_generating

@@ -43,7 +43,7 @@ class UpdatePreferenceRequest(BaseModel):
 
 class ProposalPreferenceDto(BaseModel):
     gen_proposal_guidelines: Optional[str] = None
-    gen_proposal_mode: Optional[Literal["COMPLEX", "SIMPLE"]] = None
+    gen_proposal_mode: Optional[Literal["COMPLEX", "SIMPLE", "DEEP"]] = None
     gen_language: Optional[str] = None
 
 

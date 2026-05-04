@@ -1,13 +1,27 @@
-from common.neo4j_app import delete_bucket_safe
-from app.xgraphrag.db.importer import import_from_graphrag_output
+from app.taxonomy.agents.state import TaxonomyContext
 
-conn_id = "sudo"
-proj_key = "ORG5"
+# context = TaxonomyContext(
+#     connection_id=connection_id,
+#     project_key=project_key,
+#     user_stories=user_stories,
+#     project_description=project_description,
+#     is_update=is_update,
+#     seed_strategy=seed_strategy,
+#     seed_size=seed_size,
+#     extension_batch_size=extension_batch_size,
+#     seed_hybrid_first_pct=seed_hybrid_first_pct,
+# )
 
-delete_bucket_safe(f"{conn_id}_{proj_key}")
-import_from_graphrag_output(connection_id=conn_id, project_key=proj_key)
+context = TaxonomyContext(
+    connection_id="515b536d-ab6f-4c9c-9e8e-caf2147d0aed",
+    project_key="VBS",
+    user_stories=[],
+    project_description="The Vehicle Booking System is designed to facilitate the booking of rides for passengers",
+    is_update=False,
+    seed_strategy="hybrid",
+    seed_size=50,
+    extension_batch_size=20,
+    seed_hybrid_first_pct=0.6,
+)
 
-proj_key = "ORG51"
-
-delete_bucket_safe(f"{conn_id}_{proj_key}")
-import_from_graphrag_output(connection_id=conn_id, project_key=proj_key)
+print(context.model_dump_json(indent=2))

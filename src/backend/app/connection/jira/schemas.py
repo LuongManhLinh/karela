@@ -238,7 +238,7 @@ class UpdateStoryRequest(BaseModel):
 
 class WebhookCallbackPayload(BaseModel):
     webhookEvent: str
-    issue: Issue
+    issue: dict
     changelog: Optional[dict[str, Any]] = None
 
     model_config = ConfigDict(

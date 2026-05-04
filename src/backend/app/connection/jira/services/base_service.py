@@ -10,10 +10,13 @@ from ..schemas import (
 from ..vectorstore import JiraVectorStore
 from app.taxonomy.services import TaxonomyService
 
-
 AC_ISSUE_TYPE_NAME = "Gherkin Test"
 AC_ISSUE_TYPE_DESCRIPTION = "Issue type for Gherkin acceptance criteria"
 AC_ISSUE_TYPE_LEVEL = "subtask"
+AI_TRANSACTION_ID_FIELD_NAME = "AI Transaction ID"
+AI_TRANSACTION_ID_FIELD_DESCRIPTION = (
+    "Transaction ID for AI generated proposal for this issue"
+)
 
 
 class JiraBaseService:
@@ -71,6 +74,7 @@ class JiraBaseService:
         fields: list[str],
         max_results: int | None = None,
         expand_rendered_fields: bool = False,
+        get_raw_response: bool = False,
     ):
         response = self._exec_refreshing_access_token(
             connection,
@@ -80,7 +84,10 @@ class JiraBaseService:
             fields=fields,
             max_results=max_results,
             expand_rendered_fields=expand_rendered_fields,
+            get_raw_response=get_raw_response,
         )
+        if get_raw_response:
+            return response["issues"]
         return response.issues
 
     def validate_connection(self, connection_id: str) -> bool:
@@ -98,6 +105,7 @@ class JiraBaseService:
         fields: list[str],
         max_results: int | None = None,
         expand_rendered_fields: bool = False,
+        get_raw_response: bool = False,
     ) -> list[Issue]:
         """Fetch issues from local cache or Jira based on JQL query
 
@@ -118,7 +126,12 @@ class JiraBaseService:
             raise ValueError("Connection not found")
 
         return self._fetch_issues(
-            connection, jql, fields, max_results, expand_rendered_fields
+            connection,
+            jql,
+            fields,
+            max_results,
+            expand_rendered_fields,
+            get_raw_response,
         )
 
     def _run_analysis_targeted(

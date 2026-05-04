@@ -166,7 +166,7 @@ class PageIndexClient:
 
     def _save_doc(self, doc_id: str):
         doc = self.documents[doc_id].copy()
-        # Strip text from structure nodes — redundant with pages (PDF only)
+        # Strip text from structure nodes - redundant with pages (PDF only)
         if doc.get("structure") and doc.get("type") == "pdf":
             doc["structure"] = remove_fields(doc["structure"], fields=["text"])
         path = self.workspace / f"{doc_id}.json"

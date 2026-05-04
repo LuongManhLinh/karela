@@ -15,6 +15,19 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 
+class ProposalStoryCheck(Base):
+    __tablename__ = "proposal_story_checks"
+
+    id = Column(String(64), primary_key=True, default=uuid_generator)
+    transaction_id = Column(
+        String(64),
+        nullable=False,
+        index=True,
+    )
+    story_key = Column(String(32), nullable=False, index=True)
+    checked = Column(Boolean, nullable=False, default=False)
+
+
 class ProposalSource(Enum):
     CHAT = "CHAT"
     ANALYSIS = "ANALYSIS"
@@ -43,6 +56,7 @@ class Proposal(Base):
         String(64),
         ForeignKey("connections.id", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
     chat_session_id = Column(
         String(64),
@@ -59,6 +73,8 @@ class Proposal(Base):
     )
 
     project_key = Column(String(32), nullable=False, index=True)
+
+    deep_checked = Column(Boolean, nullable=False, default=False)
 
     created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
 
@@ -150,3 +166,17 @@ class StoryVersion(Base):
     description = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
     action = Column(SqlEnum(ProposalType), nullable=False)
+
+
+class DeepCheckedStory(Base):
+    __tablename__ = "deep_checked_stories"
+
+    id = Column(String(64), primary_key=True, default=uuid_generator)
+    connection_id = Column(
+        String(64),
+        ForeignKey("connections.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    project_key = Column(String(32), nullable=False, index=True)
+    key = Column(String(32), nullable=False, index=True)

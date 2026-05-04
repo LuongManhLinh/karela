@@ -742,7 +742,7 @@ def create_node_mapping(tree):
 def print_tree(tree, indent=0):
     for node in tree:
         summary = node.get("summary") or node.get("prefix_summary", "")
-        summary_str = f"  —  {summary[:60]}..." if summary else ""
+        summary_str = f"  -  {summary[:60]}..." if summary else ""
         print(
             "  " * indent
             + f"[{node.get('node_id', '?')}] {node.get('title', '')}{summary_str}"

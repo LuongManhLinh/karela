@@ -145,17 +145,21 @@ class JiraService(JiraBaseService):
             sync_error=connection.sync_error.value if connection.sync_error else None,
         )
 
-    def _create_issues(self, connection: Connection, issues: list[IssueUpdate]):
-        payload = CreateIssuesRequest(issueUpdates=issues)
+    def _create_issues(self, connection: Connection, issues: list[IssueUpdate | dict]):
+        issue_updates = [
+            i.model_dump() if isinstance(i, IssueUpdate) else i for i in issues
+        ]
 
         return self._exec_refreshing_access_token(
             connection,
             JiraClient.create_issues,
             cloud_id=connection.id,
-            payload=payload,
+            issue_updates=issue_updates,
         )
 
-    def create_issues(self, connection_id: str, issues: list[IssueUpdate]) -> list[str]:
+    def create_issues(
+        self, connection_id: str, issues: list[IssueUpdate | dict]
+    ) -> list[str]:
         connection = (
             self.db.query(Connection).filter(Connection.id == connection_id).first()
         )
@@ -163,8 +167,40 @@ class JiraService(JiraBaseService):
             raise ValueError("Connection not found")
         return self._create_issues(connection, issues=issues)
 
+    def create_story(
+        self,
+        connection_id: str,
+        project_key: str,
+        story: CreateStoryRequest,
+        transaction_id: str = None,
+    ) -> str:
+        connection = (
+            self.db.query(Connection).filter(Connection.id == connection_id).first()
+        )
+        if not connection:
+            raise ValueError("Connection not found")
+
+        fields = {
+            "project": {"key": project_key},
+            "summary": story.summary,
+            "description": md_to_adf(story.description),
+            "issuetype": {"name": "Story"},
+        }
+        if transaction_id:
+            fields[connection.ai_transaction_id_field_id] = transaction_id
+        return self._exec_refreshing_access_token(
+            connection,
+            JiraClient.create_issue,
+            cloud_id=connection.id,
+            payload={"fields": fields},
+        )
+
     def create_stories(
-        self, connection_id: str, project_key: str, stories: list[CreateStoryRequest]
+        self,
+        connection_id: str,
+        project_key: str,
+        stories: list[CreateStoryRequest],
+        transaction_id: str = None,
     ):
         connection = (
             self.db.query(Connection).filter(Connection.id == connection_id).first()
@@ -173,48 +209,20 @@ class JiraService(JiraBaseService):
         if not connection:
             raise ValueError("Connection not found")
 
-        issues = [
-            IssueUpdate(
-                **{
-                    "fields": {
-                        "project": {"key": project_key},
-                        "summary": story.summary,
-                        "description": md_to_adf(story.description),
-                        "issuetype": {"name": "Story"},
-                    }
-                }
-            )
-            for story in stories
-        ]
+        issues = []
+        for story in stories:
+            fields = {
+                "project": {"key": project_key},
+                "summary": story.summary,
+                "description": md_to_adf(story.description),
+                "issuetype": {"name": "Story"},
+            }
+            if transaction_id:
+                fields[connection.ai_transaction_id_field_id] = transaction_id
+            payload = {"fields": fields}
+            issues.append(payload)
 
         return self._create_issues(connection=connection, issues=issues)
-
-    def create_story(
-        self, connection_id: str, project_key: str, story: CreateStoryRequest
-    ):
-        connection = (
-            self.db.query(Connection).filter(Connection.id == connection_id).first()
-        )
-
-        payload = IssueUpdate(
-            **{
-                "fields": {
-                    "project": {"key": project_key},
-                    "summary": story.summary,
-                    "description": md_to_adf(story.description),
-                    "issuetype": {"name": "Story"},
-                }
-            }
-        )
-
-        story_key = self._exec_refreshing_access_token(
-            connection,
-            JiraClient.create_issue,
-            cloud_id=connection.id,
-            payload=payload,
-        )
-
-        return story_key
 
     def fetch_stories(
         self,
@@ -223,6 +231,7 @@ class JiraService(JiraBaseService):
         story_keys: list[str] | None = None,
         max_results: int | None = None,
         local: bool = True,
+        get_raw_response: bool = False,
     ) -> list[StoryDto]:
         """Fetch stories from local cache or Jira based on project key and/or story keys"""
         if not project_key and len(story_keys or []) == 0:
@@ -273,7 +282,11 @@ class JiraService(JiraBaseService):
             fields=["summary", "description", "priority"],
             max_results=max_results,
             expand_rendered_fields=False,
+            get_raw_response=get_raw_response,
         )
+
+        if get_raw_response:
+            return issues
 
         return [
             StoryDto(
@@ -347,34 +360,12 @@ class JiraService(JiraBaseService):
         )
         return response
 
-    def update_issue(
-        self,
-        connection_id: str,
-        project_key: str,
-        issue_key: str,
-        summary: Optional[str] = None,
-        description: Optional[str] = None,
-    ):
-        connection = (
-            self.db.query(Connection).filter(Connection.id == connection_id).first()
-        )
-        if not connection:
-            raise ValueError("Connection not found")
-
-        self._exec_refreshing_access_token(
-            connection,
-            JiraClient.update_issue,
-            cloud_id=connection.id,
-            issue_key=issue_key,
-            summary=summary,
-            description=md_to_adf(description) if description else None,
-        )
-
     def update_stories(
         self,
         connection_id: str,
         project_key: str,
         story_updates: list[UpdateStoryRequest],
+        transaction_id: str = None,
     ):
         connection = (
             self.db.query(Connection).filter(Connection.id == connection_id).first()
@@ -383,18 +374,51 @@ class JiraService(JiraBaseService):
             raise ValueError("Connection not found")
 
         for story_update in story_updates:
+            fields = {}
+            if story_update.summary:
+                fields["summary"] = story_update.summary
+            if story_update.description:
+                fields["description"] = md_to_adf(story_update.description)
+            if transaction_id:
+                fields[connection.ai_transaction_id_field_id] = transaction_id
             self._exec_refreshing_access_token(
                 connection,
                 JiraClient.update_issue,
                 cloud_id=connection.id,
                 issue_key=story_update.key,
-                summary=story_update.summary,
-                description=(
-                    md_to_adf(story_update.description)
-                    if story_update.description
-                    else None
-                ),
+                payload={"fields": fields},
             )
+
+    def update_issue(
+        self,
+        connection_id: str,
+        project_key: str,
+        issue_key: str,
+        summary: Optional[str] = None,
+        description: Optional[str] = None,
+        transaction_id: str = None,
+    ):
+        connection = (
+            self.db.query(Connection).filter(Connection.id == connection_id).first()
+        )
+        if not connection:
+            raise ValueError("Connection not found")
+
+        fields = {}
+        if summary:
+            fields["summary"] = summary
+        if description:
+            fields["description"] = md_to_adf(description)
+        if transaction_id:
+            fields[connection.ai_transaction_id_field_id] = transaction_id
+
+        self._exec_refreshing_access_token(
+            connection,
+            JiraClient.update_issue,
+            cloud_id=connection.id,
+            issue_key=issue_key,
+            payload={"fields": fields},
+        )
 
     def delete_issue(self, connection_id: str, project_key: str, issue_key: str):
         connection = (
@@ -603,46 +627,47 @@ class JiraService(JiraBaseService):
             )
         return project_dtos
 
-    def _on_stories_create(
-        self, connection_id: str, project_key: str, story_keys: list[str]
-    ):
-        """Handle story creation: save to local DB and vector store"""
+    def _on_story_create(self, connection_id: str, payload: dict):
+        """Handle a story creation webhook from a single issue payload."""
+        issue = payload.get("issue", payload)
+        fields = issue.get("fields", {}) or {}
+        project_key = (fields.get("project") or {}).get("key")
+        if not project_key:
+            raise ValueError("Project key not found in webhook payload")
+
         connection, project = self.__get_connection_and_project(
             connection_id, project_key
         )
 
-        self.__on_stories_create(
-            connection=connection, project=project, story_keys=story_keys
-        )
+        self.__on_story_create(connection=connection, project=project, issue=issue)
 
-    def __on_stories_create(
-        self, connection: Connection, project: Project, story_keys: list[str]
-    ):
+    def __on_story_create(self, connection: Connection, project: Project, issue: dict):
         try:
-            stories = self.fetch_stories(
-                connection_id=connection.id,
-                project_key=project.key,
-                story_keys=story_keys,
-                local=False,
+            fields = issue.get("fields", {}) or {}
+            story = Story(
+                id=uuid_generator(),
+                id_=issue.get("id"),
+                key=issue.get("key"),
+                summary=fields.get("summary"),
+                description=(
+                    adf_to_md(fields.get("description"))
+                    if fields.get("description")
+                    else None
+                ),
+                project_id=project.id,
             )
+            self.db.add(story)
 
-            to_vector = []
+            self.db.commit()
 
-            for story in stories:
-                id = uuid_generator()
-                jira_story = Story(
-                    id=id,
-                    id_=story.id,
+            to_vector = [
+                StoryDto(
+                    id=story.id,
                     key=story.key,
                     summary=story.summary,
                     description=story.description,
-                    project_id=project.id,
                 )
-                self.db.add(jira_story)
-                story.id = id
-                to_vector.append(story)
-
-            self.db.commit()
+            ]
 
             # graphrag_updater = GraphRAGUpdater(
             #     connection_id=connection.id,
@@ -651,17 +676,35 @@ class JiraService(JiraBaseService):
 
             # graphrag_updater.add_stories(stories=to_vector)
 
+            self.taxonomy_service.update_buckets(
+                connection_id=connection.id,
+                project_key=project.key,
+                stories=to_vector,
+                project_description=project.description,
+            )
+
             self.vector_store.add_stories(
                 connection_id=connection.id,
                 project_key=project.key,
                 stories=to_vector,
             )
 
-            for story_key in story_keys:
+            from app.proposal.services import ProposalService
+
+            proposal_service = ProposalService(self.db)
+
+            transaction_field_id = connection.ai_transaction_id_field_id
+            transaction_id = (
+                fields.get(transaction_field_id) if transaction_field_id else None
+            )
+            if transaction_id and proposal_service.is_story_checked_in_generation(
+                transaction_id=transaction_id,
+                story_key=story.key,
+            ):
                 self._run_analysis_targeted(
                     connection_id=connection.id,
                     project_key=project.key,
-                    story_key=story_key,
+                    story_key=story.key,
                 )
 
         except Exception as e:
@@ -669,52 +712,52 @@ class JiraService(JiraBaseService):
             print(f"Error creating story: {e}")
             raise
 
-    def _on_stories_update(
-        self, connection_id: str, project_key: str, story_keys: list[str]
-    ):
-        """Handle story update: update local DB and vector store"""
+    def _on_story_update(self, connection_id: str, payload: dict):
+        """Handle a story update webhook from a single issue payload."""
+        issue = payload.get("issue", payload)
+        fields = issue.get("fields", {}) or {}
+        project_key = (fields.get("project") or {}).get("key")
+        if not project_key:
+            raise ValueError("Project key not found in webhook payload")
+
         connection, project = self.__get_connection_and_project(
             connection_id, project_key
         )
 
-        self.__on_stories_update(
-            connection=connection, project=project, story_keys=story_keys
-        )
+        self.__on_story_update(connection=connection, project=project, issue=issue)
 
-    def __on_stories_update(
-        self, connection: Connection, project: Project, story_keys: list[str]
-    ):
-        print("Updating stories:", story_keys)
+    def __on_story_update(self, connection: Connection, project: Project, issue: dict):
+        print("Updating story:", issue.get("key"))
         try:
-            stories = (
+            story = (
                 self.db.query(Story)
                 .join(Project)
                 .filter(
                     Project.connection_id == connection.id,
                     Project.key == project.key,
-                    Story.key.in_(story_keys),
+                    Story.key == issue.get("key"),
                 )
-                .all()
+                .first()
             )
-            if not stories:
+            if not story:
                 return
 
-            fetched_stories = self.fetch_stories(
-                connection_id=connection.id,
-                project_key=project.key,
-                story_keys=[story.key for story in stories],
-                local=False,
+            fields = issue.get("fields", {}) or {}
+            story.summary = fields.get("summary")
+            story.description = (
+                adf_to_md(fields.get("description"))
+                if fields.get("description")
+                else None
             )
-            fetched_stories_dict = {story.key: story for story in fetched_stories}
-            to_vector = []
-            for story in stories:
-                updated_story = fetched_stories_dict.get(story.key)
-                if updated_story:
-                    story.summary = updated_story.summary
-                    story.description = updated_story.description
 
-                    updated_story.id = story.id
-                    to_vector.append(updated_story)
+            to_vector = [
+                StoryDto(
+                    id=story.id,
+                    key=story.key,
+                    summary=story.summary,
+                    description=story.description,
+                )
+            ]
 
             self.db.commit()
 
@@ -729,6 +772,7 @@ class JiraService(JiraBaseService):
                 connection_id=connection.id,
                 project_key=project.key,
                 stories=to_vector,
+                project_description=project.description,
             )
 
             self.vector_store.update_stories(
@@ -737,11 +781,22 @@ class JiraService(JiraBaseService):
                 stories=to_vector,
             )
 
-            for story_key in story_keys:
+            from app.proposal.services import ProposalService
+
+            proposal_service = ProposalService(self.db)
+
+            transaction_field_id = connection.ai_transaction_id_field_id
+            transaction_id = (
+                fields.get(transaction_field_id) if transaction_field_id else None
+            )
+            if transaction_id and proposal_service.is_story_checked_in_generation(
+                transaction_id=transaction_id,
+                story_key=story.key,
+            ):
                 self._run_analysis_targeted(
                     connection_id=connection.id,
                     project_key=project.key,
-                    story_key=story_key,
+                    story_key=story.key,
                 )
 
         except Exception as e:
@@ -749,37 +804,39 @@ class JiraService(JiraBaseService):
             print(f"Error updating story: {e}")
             raise
 
-    def _on_stories_delete(
-        self, connection_id: str, project_key: str, story_keys: list[str]
-    ):
-        """Handle story deletion: remove from local DB and vector store"""
+    def _on_story_delete(self, connection_id: str, payload: dict):
+        """Handle a story deletion webhook from a single issue payload."""
+        issue = payload.get("issue", payload)
+        fields = issue.get("fields", {}) or {}
+        project_key = (fields.get("project") or {}).get("key")
+        if not project_key:
+            raise ValueError("Project key not found in webhook payload")
+
         connection, project = self.__get_connection_and_project(
             connection_id, project_key
         )
-        self.__on_stories_delete(
-            connection=connection, project=project, story_keys=story_keys
-        )
+        self.__on_story_delete(connection=connection, project=project, issue=issue)
 
-    def __on_stories_delete(
-        self, connection: Connection, project: Project, story_keys: list[str]
-    ):
-        print("Deleting stories:", story_keys)
+    def __on_story_delete(self, connection: Connection, project: Project, issue: dict):
+        story_key = issue.get("key")
+        print("Deleting story:", story_key)
         try:
             # Get the story from local DB
-            stories = (
+            story = (
                 self.db.query(Story)
                 .join(Project)
                 .filter(
                     Project.connection_id == connection.id,
                     Project.key == project.key,
-                    Story.key.in_(story_keys),
+                    Story.key == story_key,
                 )
-                .all()
+                .first()
             )
-            story_ids = []
-            for story in stories:
-                self.db.delete(story)
-                story_ids.append(story.id)
+            if not story:
+                return
+
+            story_ids = [story.id]
+            self.db.delete(story)
             self.db.commit()
 
             # graphrag_updater = GraphRAGUpdater(
@@ -788,6 +845,12 @@ class JiraService(JiraBaseService):
             # )
 
             # graphrag_updater.delete_stories(story_keys=story_keys)
+
+            self.taxonomy_service.delete_buckets_by_story_keys(
+                connection_id=connection.id,
+                project_key=project.key,
+                story_keys=[story_key],
+            )
 
             self.vector_store.remove_stories(
                 connection_id=connection.id,
@@ -860,26 +923,23 @@ class JiraService(JiraBaseService):
     ):
         """Handle incoming Jira webhook payloads"""
         try:
-            project_key = payload.issue.fields.project.key
-            if payload.issue.fields.issuetype.name == "Story":
+            issue = payload.issue
+            fields = issue.get("fields", {}) or {}
+            project_key = (fields.get("project") or {}).get("key")
+            issue_type_name = (fields.get("issuetype") or {}).get("name")
+            if issue_type_name == "Story":
                 match payload.webhookEvent:
                     case "jira:issue_created":
-                        self._on_stories_create(
-                            connection_id=connection_id,
-                            project_key=project_key,
-                            story_keys=[payload.issue.key],
+                        self._on_story_create(
+                            connection_id=connection_id, payload=payload.model_dump()
                         )
                     case "jira:issue_updated":
-                        self._on_stories_update(
-                            connection_id=connection_id,
-                            project_key=project_key,
-                            story_keys=[payload.issue.key],
+                        self._on_story_update(
+                            connection_id=connection_id, payload=payload.model_dump()
                         )
                     case "jira:issue_deleted":
-                        self._on_stories_delete(
-                            connection_id=connection_id,
-                            project_key=project_key,
-                            story_keys=[payload.issue.key],
+                        self._on_story_delete(
+                            connection_id=connection_id, payload=payload.model_dump()
                         )
             else:
                 match payload.webhookEvent:
@@ -887,13 +947,13 @@ class JiraService(JiraBaseService):
                         self._on_ac_create(
                             connection_id=connection_id,
                             project_key=project_key,
-                            story_key=payload.issue.fields.parent.key,
-                            ac_id_=payload.issue.id,
-                            ac_key=payload.issue.key,
-                            summary=payload.issue.fields.summary,
+                            story_key=(fields.get("parent") or {}).get("key"),
+                            ac_id_=issue.get("id"),
+                            ac_key=issue.get("key"),
+                            summary=fields.get("summary"),
                             description=(
-                                adf_to_md(payload.issue.fields.description)
-                                if payload.issue.fields.description
+                                adf_to_md(fields.get("description"))
+                                if fields.get("description")
                                 else None
                             ),
                         )
@@ -901,12 +961,12 @@ class JiraService(JiraBaseService):
                         self._on_ac_update(
                             connection_id=connection_id,
                             project_key=project_key,
-                            story_key=payload.issue.fields.parent.key,
-                            ac_key=payload.issue.key,
-                            summary=payload.issue.fields.summary,
+                            story_key=(fields.get("parent") or {}).get("key"),
+                            ac_key=issue.get("key"),
+                            summary=fields.get("summary"),
                             description=(
-                                adf_to_md(payload.issue.fields.description)
-                                if payload.issue.fields.description
+                                adf_to_md(fields.get("description"))
+                                if fields.get("description")
                                 else None
                             ),
                         )
@@ -914,8 +974,8 @@ class JiraService(JiraBaseService):
                         self._on_ac_delete(
                             connection_id=connection_id,
                             project_key=project_key,
-                            story_key=payload.issue.fields.parent.key,
-                            ac_key=payload.issue.key,
+                            story_key=(fields.get("parent") or {}).get("key"),
+                            ac_key=issue.get("key"),
                         )
         except Exception as e:
             print(f"Error handling webhook for connection {connection_id}: {e}")

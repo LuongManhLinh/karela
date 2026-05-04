@@ -1,7 +1,7 @@
 """Prompts for the Taxonomy Bucketing agents."""
 
 # =============================================================================
-# Pass 1: Generate Taxonomy Updates
+# Pass 0: Seed Initial Taxonomy
 # =============================================================================
 
 SEED_SYSTEM_PROMPT = """\
@@ -9,7 +9,7 @@ You are a **Senior Requirements Engineer and Business Analyst** specializing in 
 taxonomy design for large-scale Agile projects.
 
 ## YOUR MISSION
-Given a batch of User Stories, generate an initial **Master Taxonomy** — a set of Buckets \
+Given a batch of User Stories, generate an initial **Master Taxonomy** - a set of Buckets \
 (business domains or cross-cutting concerns).
 
 ## RULES
@@ -27,7 +27,7 @@ belong there (1-2 sentences).
 Respond with STRICTLY valid JSON matching the provided schema.
 """
 
-UPDATE_TAXONOMY_SEED_MESSAGE = """\
+SEED_MESSAGE = """\
 ## Project Context
 {project_context}
 
@@ -62,7 +62,7 @@ instead.
 Respond with STRICTLY valid JSON matching the provided schema.
 """
 
-UPDATE_TAXONOMY_EXTENSION_MESSAGE = """\
+EXTENSION_MESSAGE = """\
 ## Project Context
 {project_context}
 
@@ -101,7 +101,7 @@ AND the functional domain they apply to.
 Respond with STRICTLY valid JSON matching the provided schema.
 """
 
-CATEGORIZE_STORIES_MESSAGE = """\
+CATEGORIZER_MESSAGE = """\
 ## Final Master Taxonomy
 {taxonomy}
 
@@ -147,7 +147,10 @@ wrong and a re-run is needed. Prefer ADJUSTED for fixable issues.
 Respond with STRICTLY valid JSON matching the provided schema.
 """
 
-VALIDATE_TAXONOMY_MESSAGE = """\
+VALIDATOR_MESSAGE = """\
+## Project Context
+{project_context}
+
 ## Current Master Taxonomy
 {existing_taxonomy}
 
@@ -160,4 +163,44 @@ VALIDATE_TAXONOMY_MESSAGE = """\
 Review each batch's proposed taxonomy changes. For each batch, provide your decision \
 (VALID, INVALID, or ADJUSTED) with reasoning. Provide overall chain-of-thought in \
 `reasoning` first.
+"""
+
+# =============================================================================
+# Seed Validation: Review Initial Taxonomy
+# =============================================================================
+
+SEED_VALIDATOR_SYSTEM_PROMPT = """\
+You are a **Senior Taxonomy Reviewer** for large-scale Agile projects.
+
+## YOUR MISSION
+Review a proposed **initial taxonomy** generated from the first batch of User Stories. \
+Decide whether the proposed buckets are appropriate.
+
+## DECISION CRITERIA
+- **VALID**: The proposed buckets are well-scoped, non-redundant, have reasonable \
+granularity (5-15 buckets), and cover the stories well. Keep as-is.
+- **INVALID**: The taxonomy is fundamentally wrong - too many overly-granular buckets, \
+missing major domains, or nonsensical groupings. It must be re-generated from scratch.
+- **ADJUSTED**: The taxonomy is mostly correct but has minor issues (e.g., a redundant \
+bucket, a bucket that should be split or merged). You provide the corrected bucket list.
+
+## RULES
+1. **5-15 buckets.** Reject or adjust if outside this range.
+2. **No near-duplicates.** If two buckets cover the same concept, merge them (ADJUSTED).
+3. **Reasonable coverage.** Major story domains should have a bucket.
+4. **Be conservative with INVALID.** Prefer ADJUSTED for fixable issues.
+
+## OUTPUT FORMAT
+Respond with STRICTLY valid JSON matching the provided schema.
+"""
+
+SEED_VALIDATOR_MESSAGE = """\
+## Proposed Initial Taxonomy
+{proposed_taxonomy}
+
+## Stories Used for Generation
+{stories}
+
+Review the proposed initial taxonomy. Decide whether it is VALID, INVALID, or ADJUSTED. \
+Provide your chain-of-thought in `reasoning` first.
 """

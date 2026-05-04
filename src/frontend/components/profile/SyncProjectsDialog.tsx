@@ -154,6 +154,8 @@ const ProjectSyncItem: React.FC<ProjectSyncItemProps> = ({
 interface ProjectConfig {
   description: string;
   run_analysis_after_sync: boolean;
+  pendingTextDocs?: PendingTextDoc[];
+  pendingFileDocs?: PendingFileDoc[];
 }
 
 const ProjectConfigDialog = ({
@@ -162,24 +164,24 @@ const ProjectConfigDialog = ({
   initialConfig,
   onSave,
   onClose,
+  isSavingDocs,
 }: {
   open: boolean;
   projectKey: string;
   initialConfig?: ProjectConfig;
   onSave: (config: ProjectConfig) => void;
   onClose: () => void;
+  isSavingDocs?: boolean;
 }) => {
   const t = useTranslations("profile.SyncProjectsDialog");
-  const [context, setContext] = useState("");
+  const [description, setDescription] = useState("");
   const [runAnalysis, setRunAnalysis] = useState(false);
   const [pendingTextDocs, setPendingTextDocs] = useState<PendingTextDoc[]>([]);
   const [pendingFileDocs, setPendingFileDocs] = useState<PendingFileDoc[]>([]);
-  const { mutateAsync: bulkUploadDocs, isPending: isSavingDocs } =
-    useBulkUploadDocsMutation(projectKey);
 
   useEffect(() => {
     if (open) {
-      setContext(initialConfig?.description || "");
+      setDescription(initialConfig?.description || "");
       setRunAnalysis(initialConfig?.run_analysis_after_sync || false);
       setPendingTextDocs([]);
       setPendingFileDocs([]);
@@ -187,26 +189,12 @@ const ProjectConfigDialog = ({
   }, [open, initialConfig]);
 
   const handleSave = async () => {
-    if (pendingTextDocs.length > 0 || pendingFileDocs.length > 0) {
-      try {
-        await bulkUploadDocs({
-          textDocs: pendingTextDocs.map((d) => ({
-            name: d.name,
-            content: d.content,
-            description: d.description,
-          })),
-          fileDocs: pendingFileDocs.map((d) => ({
-            file: d.file,
-            description: d.description,
-          })),
-        });
-        setPendingTextDocs([]);
-        setPendingFileDocs([]);
-      } catch (e: any) {
-        return; // Error notified by mutation, prevent close
-      }
-    }
-    onSave({ description: context, run_analysis_after_sync: runAnalysis });
+    onSave({
+      description,
+      run_analysis_after_sync: runAnalysis,
+      pendingTextDocs,
+      pendingFileDocs,
+    });
   };
 
   return (
@@ -237,8 +225,8 @@ const ProjectConfigDialog = ({
           minRows={3}
           maxRows={8}
           label={t("projectDescription")}
-          value={context}
-          onChange={(e) => setContext(e.target.value)}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           placeholder={t("projectDescriptionPlaceholder")}
           sx={{
             ...scrollBarSx,
@@ -281,7 +269,7 @@ const ProjectConfigDialog = ({
         <Button
           onClick={handleSave}
           variant="contained"
-          disabled={!context.trim() || isSavingDocs}
+          disabled={!description.trim() || isSavingDocs}
           startIcon={isSavingDocs ? <CircularProgress size={16} /> : null}
         >
           {isSavingDocs ? t("save") + "..." : t("save")}
@@ -363,27 +351,24 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
 
     setIsValidating(true);
     try {
-      const missingDocs: string[] = [];
-      const keysToSync = Array.from(selectedKeys);
+      const keysMissingDocs: string[] = [];
 
-      await Promise.all(
-        keysToSync.map(async (key) => {
-          const [textDocsResp, fileDocsResp] = await Promise.all([
-            documentationService.listTextDocs(key),
-            documentationService.listFileDocs(key),
-          ]);
-
-          const hasTextDocs = textDocsResp.data && textDocsResp.data.length > 0;
-          const hasFileDocs = fileDocsResp.data && fileDocsResp.data.length > 0;
+      for (const key of selectedKeys) {
+        const config = configs[key];
+        if (config) {
+          const hasTextDocs =
+            config.pendingTextDocs && config.pendingTextDocs.length > 0;
+          const hasFileDocs =
+            config.pendingFileDocs && config.pendingFileDocs.length > 0;
 
           if (!hasTextDocs && !hasFileDocs) {
-            missingDocs.push(key);
+            keysMissingDocs.push(key);
           }
-        }),
-      );
+        }
+      }
 
-      if (missingDocs.length > 0) {
-        setProjectsMissingDocs(missingDocs);
+      if (keysMissingDocs.length > 0) {
+        setProjectsMissingDocs(keysMissingDocs);
         setConfirmSyncDialogOpen(true);
       } else {
         await executeSync();
@@ -401,14 +386,26 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
     setIsSyncing(true);
     setConfirmSyncDialogOpen(false);
     try {
-      const projectsToSync: SyncProject[] = Array.from(selectedKeys).map(
-        (key) => ({
-          key,
-          description: configs[key].description,
-          run_analysis_after_sync: configs[key].run_analysis_after_sync,
-        }),
-      );
       onClose();
+      const projectsToSync: SyncProject[] = [];
+      for (const key of selectedKeys) {
+        const config = configs[key];
+        if (config) {
+          projectsToSync.push({
+            key,
+            description: config.description,
+            run_analysis_after_sync: config.run_analysis_after_sync,
+          });
+
+          // First sync the project, then upload docs in bulK
+          const textDocs = config.pendingTextDocs || [];
+          const fileDocs = config.pendingFileDocs || [];
+          // If there are docs to upload, do it in bulk after syncing the project
+          if (textDocs.length > 0 || fileDocs.length > 0) {
+            await documentationService.bulkUploadDocs(key, textDocs, fileDocs);
+          }
+        }
+      }
       await connectionService.syncProjects(projectsToSync);
       queryClient.invalidateQueries({ queryKey: ["connections", "projects"] });
     } finally {
