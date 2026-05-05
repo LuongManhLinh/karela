@@ -200,7 +200,8 @@
     "generationLanguage": "Generation Language",
     "proposalModes": {
       "simple": "Simple",
-      "complex": "Complex"
+      "complex": "Complex",
+      "deep": "Deep"
     },
     "generationLanguages": {
       "storyBased": "Story Based",

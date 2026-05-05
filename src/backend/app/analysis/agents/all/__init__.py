@@ -26,10 +26,7 @@ def run_analysis(
     extra_instruction: str = None,
     existing_defects: list[DefectByLlm] = None,
     self_batch_size: int = 20,
-    self_concurrent_batches: int | None = None,
-    pairwise_concurrent_batches: int | None = None,
     project_description: str | None = None,
-    group_pairwise_batches: bool | None = True,
 ) -> list[DefectByLlm]:
     """Run the ALL (batch) defect detection workflow on all project stories.
 
@@ -69,10 +66,7 @@ def run_analysis(
         extra_instruction=extra_instruction,
         existing_defects=existing_defects or [],
         self_batch_size=self_batch_size,
-        self_concurrent_batches=self_concurrent_batches,
-        pairwise_concurrent_batches=pairwise_concurrent_batches,
         project_description=project_description,
-        group_pairwise_batches=group_pairwise_batches,
     )
 
     final_state = _graph.invoke(initial_state, context=context)

@@ -200,7 +200,8 @@
     "generationLanguage": "Ngôn ngữ tạo nội dung",
     "proposalModes": {
       "simple": "Đơn giản",
-      "complex": "Phức tạp"
+      "complex": "Phức tạp",
+      "deep": "Sâu"
     },
     "generationLanguages": {
       "storyBased": "Theo câu chuyện",

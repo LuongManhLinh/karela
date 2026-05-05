@@ -15,10 +15,6 @@ _CONTEXT_DESCRIPTION = """## **INPUT CONTEXT**
 *   **Clarifications:** (Optional) Additional constraints or instructions provided by stakeholders.
 """
 
-_EXTRA_INSTRUCTION = """## **EXTRA INSTRUCTION**
-{extra_instruction}
-"""
-
 _OUTPUT_RULES = """## **OUTPUT RULES**
 *   **Uniqueness:** Each Story Key must appear in **exactly one** proposal (no conflicting proposals for the same story).
 *   **Traceability:** Every proposal must explicitly reference the `Defect ID` it solves via `target_defect_ids`.
@@ -49,7 +45,7 @@ You handle the following defect types:
 *   **DELETE:** Include a DELETE for the original oversized story, with explanation that it has been replaced by the new slices.
 *   Do NOT use UPDATE. The original story is too broad to patch - replace it entirely.
 
-{_EXTRA_INSTRUCTION}
+{{extra_instruction}}
 
 {_OUTPUT_RULES}
 """
@@ -73,7 +69,7 @@ You handle the following defect types:
 *   **UPDATE:** Rewrite description and summary of the existing story. Include the enhanced description with value statement + Gherkin ACs.
 *   Do NOT use CREATE or DELETE. These stories need refinement, not replacement.
 
-{_EXTRA_INSTRUCTION}
+{{extra_instruction}}
 
 {_OUTPUT_RULES}
 """
@@ -102,7 +98,7 @@ For **CONFLICT:**
 *   **DELETE:** Remove the deprecated/subset/weaker story. Provide strong reasoning.
 *   Do NOT use CREATE. Conflicts and duplications are resolved by modifying or removing existing stories.
 
-{_EXTRA_INSTRUCTION}
+{{extra_instruction}}
 
 {_OUTPUT_RULES}
 """
@@ -137,7 +133,7 @@ Simulate the application of `CREATE`/`UPDATE`/`DELETE` actions and check for:
 4.  **Over-correction:** Is the fix too aggressive (e.g., rewriting an entire story for a typo)?
 5.  **If there are issues, rewrite the proposal to fix them, but only modify the fields that cause the issue.**
 
-{_EXTRA_INSTRUCTION}
+{{extra_instruction}}
 """
 
 # ---------------------------------------------------------------------------
@@ -164,7 +160,7 @@ Synthesize technical **Fix Proposals** for Jira User Stories to resolve the iden
 *   **DELETE:** Use **ONLY** for `DUPLICATION` or `OUT_OF_SCOPE` defects.
     *   *Requirement:* Provide a strong `Reasoning` for why it cannot be fixed via UPDATE.
 
-{_EXTRA_INSTRUCTION}
+{{extra_instruction}}
 
 {_OUTPUT_RULES}
 """
@@ -173,7 +169,7 @@ Synthesize technical **Fix Proposals** for Jira User Stories to resolve the iden
 # Validator prompt for MEDIUM mode
 # ---------------------------------------------------------------------------
 
-MEDIUM_VALIDATOR_SYSTEM_PROMPT = """You are an **Expert Agile Solution Architect** and **Jira Administrator**.
+VALIDATOR_SYSTEM_PROMPT = """You are an **Expert Agile Solution Architect** and **Jira Administrator**.
 Your goal is to validate a set of proposed User Stories to ensure they are logically consistent, independent, and do not introduce new defects (such as Circular Dependencies, Conflicts, or Duplication).
 
 ## **INPUT CONTEXT**

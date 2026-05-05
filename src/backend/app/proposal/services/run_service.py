@@ -1,16 +1,19 @@
 from sqlalchemy.orm import Session
 from typing import Literal
 
-from app.analysis.agents.schemas import StoryMinimal, DefectByLlm
+from app.analysis.agents.schemas import StoryMinimal
 from app.analysis.models import Defect
 from app.connection.jira.services import JiraService
-from app.proposal.schemas import CreateProposalRequest, ProposeStoryRequest
+from app.proposal.schemas import (
+    CreateProposalRequest,
+    DefectForProposal,
+    ProposeStoryRequest,
+)
 from app.documentation.services import DocumentationService
 from app.preference.services import PreferenceService
 
 from ..agents.graph import run_proposal_generation
 from .data_service import ProposalService
-from ..models import ProposalGenerationHistory, ProposalStoryCheck
 
 
 class ProposalRunService:
@@ -33,7 +36,8 @@ class ProposalRunService:
             keys = [w.story_key for w in d.story_keys]
             involved_story_keys.update(keys)
             defects.append(
-                DefectByLlm(
+                DefectForProposal(
+                    id=d.id,
                     type=d.type.value,
                     severity=d.severity.value,
                     explanation=d.explanation,

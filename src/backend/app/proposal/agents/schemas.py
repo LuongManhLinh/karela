@@ -14,6 +14,12 @@ class ProposalContent(BaseModel):
     story_key: Optional[str] = Field(
         description="The story key for UPDATE or DELETE actions. Null for CREATE actions.",
     )
+    original_story_key: Optional[str] = Field(
+        description=(
+            "The original story key that this proposal content derives from."
+            "Used only for CREATE actions, if the proposal is generated from an existing story (e.g., splitting)."
+        ),
+    )
     summary: Optional[str] = Field(
         description="A brief summary of the User Story. Only valid for CREATE or UPDATE actions.",
     )
@@ -53,3 +59,7 @@ class ProposalOutput(BaseModel):
     proposals: list[Proposal] = Field(
         description="List of generated proposals to solve all the defects.",
     )
+
+
+class ValidatorOutput(BaseModel):
+    defects: list[DefectByLlm] = Field(description="List of detected defects, if any.")

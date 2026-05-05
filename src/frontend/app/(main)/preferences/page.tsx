@@ -42,6 +42,7 @@ const MAX_TEXTFIELD_ROWS = 20;
 const PROPOSAL_MODES = [
   { value: "SIMPLE", labelKey: "proposalModes.simple" },
   { value: "COMPLEX", labelKey: "proposalModes.complex" },
+  { value: "DEEP", labelKey: "proposalModes.deep" },
 ];
 
 const GEN_LANGUAGES = [

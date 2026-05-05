@@ -2,6 +2,7 @@ from typing import List, Literal, Optional
 from pydantic import BaseModel, ConfigDict
 
 from common.schemas import SessionSummary
+from app.analysis.agents.schemas import DefectByLlm
 
 
 class ProposalContentDto(BaseModel):
@@ -71,3 +72,7 @@ class SessionsWithProposals(BaseModel):
 class ProposalContentEditRequest(BaseModel):
     summary: Optional[str] = None
     description: Optional[str] = None
+
+
+class DefectForProposal(DefectByLlm):
+    id: str

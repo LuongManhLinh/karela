@@ -316,8 +316,6 @@ class AnalysisRunService:
                         preference.extra_instruction if preference else None
                     ),
                     project_description=project_description,
-                    self_concurrent_batches=5,
-                    pairwise_concurrent_batches=5,
                 )
                 log_message = "User stories analysis completed in:"
 
