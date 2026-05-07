@@ -785,7 +785,7 @@ def _build_base_workflow() -> StateGraph:
     # Context gatherer runs before all drafters to provide global inter-story context
     workflow.add_edge("context_gatherer", "defect_router")
 
-    workflow.add_edge("context_gatherer", "resolver_drafter")
+    workflow.add_edge("defect_router", "resolver_drafter")
     workflow.add_edge("resolver_drafter", "splitter_drafter")
     workflow.add_edge("splitter_drafter", "refiner_drafter")
     workflow.add_edge("synthesis_node", END)

@@ -118,32 +118,32 @@ def index_user_stories(
     folder_path = f".workspace/{connection_id}/{project_key}"
     logger = Logger(connection_id=connection_id, project_key=project_key)
 
-    # if os.path.exists(folder_path):
-    #     print(
-    #         f"Folder {folder_path} already exists. Removing it for a clean indexing process."
-    #     )
-    #     shutil.rmtree(folder_path)
-    # os.makedirs(folder_path)
+    if os.path.exists(folder_path):
+        print(
+            f"Folder {folder_path} already exists. Removing it for a clean indexing process."
+        )
+        shutil.rmtree(folder_path)
+    os.makedirs(folder_path)
 
-    # # Copy data/graphrag_root to the new folder
-    # shutil.copytree("data/graphrag_root", folder_path, dirs_exist_ok=True)
+    # Copy data/graphrag_root to the new folder
+    shutil.copytree("data/graphrag_root", folder_path, dirs_exist_ok=True)
 
-    # os.makedirs(f"{folder_path}/input", exist_ok=True)
-    # os.makedirs(f"{folder_path}/logs", exist_ok=True)
+    os.makedirs(f"{folder_path}/input", exist_ok=True)
+    os.makedirs(f"{folder_path}/logs", exist_ok=True)
 
-    # logger.info(
-    #     f"Starting indexing process for project {project_key} with {len(user_stories)} user stories."
-    # )
+    logger.info(
+        f"Starting indexing process for project {project_key} with {len(user_stories)} user stories."
+    )
 
-    # # For each user story, create a json file inside folder_path/input
-    # _write_user_stories_to_files(user_stories, folder_path)
+    # For each user story, create a json file inside folder_path/input
+    _write_user_stories_to_files(user_stories, folder_path)
 
-    # if system_context:
-    #     logger.info("Updating prompts with system context...")
-    #     _update_prompts_with_system_context(folder_path, system_context)
+    if system_context:
+        logger.info("Updating prompts with system context...")
+        _update_prompts_with_system_context(folder_path, system_context)
 
-    # logger.info(f"Processing phase 1 indexing for {len(user_stories)} user stories...")
-    # _index_phase_1(folder_path)
+    logger.info(f"Processing phase 1 indexing for {len(user_stories)} user stories...")
+    _index_phase_1(folder_path)
 
     logger.info("Cleaning entities and relationships...")
     clean_entities_and_relationships(folder_path, logger)
