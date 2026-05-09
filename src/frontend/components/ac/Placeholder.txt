@@ -1,0 +1,219 @@
+<Dialog
+  open={proposalDialogOpen}
+  onClose={() => setProposalDialogOpen(false)}
+  maxWidth="lg"
+  fullWidth
+>
+  <DialogTitle>
+    {t("proposalDialogTitle", { defectKey: proposalDialogDefectKey })}
+  </DialogTitle>
+  <DialogContent dividers>
+    {dialogProposals.length === 0 ? (
+      <Typography color="text.secondary">
+        {t("noProposalsGenerated")}
+      </Typography>
+    ) : (
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {dialogProposals.map((proposal) => (
+          <ProposalCard
+            key={proposal.id}
+            proposal={proposal}
+            onProposalAction={handleProposalAction}
+            onProposalContentAction={handleProposalContentAction}
+            onProposalContentClick={handleProposalContentClick}
+            onTargetDefectClick={(defectKey, useSwitchAndScroll) =>
+              handleProposalDefectLinkClick(
+                proposal.key,
+                defectKey,
+                useSwitchAndScroll,
+              )
+            }
+          />
+        ))}
+      </Box>
+    )}
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setProposalDialogOpen(false)}>{t("close")}</Button>
+  </DialogActions>
+</Dialog>;
+
+{
+  /* Defect Dialog */
+}
+<Dialog
+  open={defectDialogOpen}
+  onClose={() => setDefectDialogOpen(false)}
+  maxWidth="md"
+  fullWidth
+>
+  <DialogTitle>
+    {t("defectDialogTitle", { proposalKey: defectDialogProposalKey })}
+  </DialogTitle>
+  <DialogContent dividers>
+    {dialogDefects.length === 0 ? (
+      <Typography color="text.secondary">{t("noDefectsFound")}</Typography>
+    ) : (
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {dialogDefects.map((defect) => (
+          <DefectCard
+            key={defect.id}
+            defect={defect}
+            onMarkSolved={handleMarkSolved}
+            onStoriesClick={handleDefectCardStoriesClick}
+            onProposalLinkClick={handleDefectProposalLinkClick}
+          />
+        ))}
+      </Box>
+    )}
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setDefectDialogOpen(false)}>{t("close")}</Button>
+  </DialogActions>
+</Dialog>;
+
+const defectTab = (selectedAnalysis: AnalysisDto) => (
+  <Box
+    sx={{
+      flex: 1,
+      display: "flex", // Added
+      flexDirection: "column", // Added
+      minHeight: 0, // Added: Forces constraint so child can scroll
+    }}
+  >
+    {selectedAnalysis.status === "IN_PROGRESS" ||
+    selectedAnalysis.status === "PENDING" ? (
+      <Stack gap={2} direction="column">
+        <Skeleton
+          variant="rectangular"
+          height={120}
+          sx={{ borderRadius: 2, flexShrink: 0 }}
+        />
+        <Skeleton
+          variant="rectangular"
+          height={120}
+          sx={{ borderRadius: 2, flexShrink: 0 }}
+        />
+        <Skeleton
+          variant="rectangular"
+          height={120}
+          sx={{ borderRadius: 2, flexShrink: 0 }}
+        />
+      </Stack>
+    ) : selectedAnalysis.defects.length === 0 ? (
+      <Typography color="text.secondary">{t("noDefectsFound")}</Typography>
+    ) : (
+      <Box
+        ref={defectsContainerRef}
+        sx={{
+          display: "flex",
+          flex: 1,
+          flexDirection: "column",
+          gap: 2,
+          overflowY: "auto", // Changed to overflowY for clarity
+          minHeight: 0,
+          p: 2,
+        }}
+      >
+        {selectedAnalysis.defects.map((defect) => (
+          <Box
+            key={defect.id}
+            ref={(el: HTMLDivElement) => {
+              defectRefs.current[defect.key] = el;
+            }}
+          >
+            <DefectCard
+              defect={defect}
+              onMarkSolved={handleMarkSolved}
+              onStoriesClick={handleDefectCardStoriesClick}
+              onProposalLinkClick={handleDefectProposalLinkClick}
+              highlight={defect.key === highlightedDefectKey}
+            />
+          </Box>
+        ))}
+      </Box>
+    )}
+  </Box>
+);
+
+const proposalTab = (
+  showLoading: boolean,
+  showNoGenerated: boolean,
+  containerRef: React.RefObject<HTMLDivElement | null>,
+  proposalRefs: Record<string, HTMLDivElement | null>,
+  proposals: ProposalDto[],
+  isGenerating: boolean,
+) => (
+  <Box
+    sx={{
+      flex: 1,
+      display: "flex",
+      flexDirection: "column",
+      minHeight: 0,
+    }}
+  >
+    {showLoading ? (
+      <LoadingSpinner />
+    ) : showNoGenerated ? (
+      <Typography color="text.secondary">
+        {t("noProposalsGenerated")}
+      </Typography>
+    ) : (
+      <Box
+        ref={containerRef}
+        sx={{
+          display: "flex",
+          flex: 1,
+          flexDirection: "column",
+          gap: 2,
+          overflowY: "auto", // Changed to overflowY
+          minHeight: 0,
+          p: 2,
+        }}
+      >
+        {proposals.map((proposal) => (
+          <Box
+            key={proposal.id}
+            ref={(el: HTMLDivElement) => {
+              proposalRefs[proposal.key] = el;
+            }}
+          >
+            <ProposalCard
+              proposal={proposal}
+              onProposalAction={handleProposalAction}
+              onProposalContentAction={handleProposalContentAction}
+              onProposalContentClick={handleProposalContentClick}
+              onTargetDefectClick={(defectKey, useSwitchAndScroll) =>
+                handleProposalDefectLinkClick(
+                  proposal.key,
+                  defectKey,
+                  useSwitchAndScroll,
+                )
+              }
+              highlight={proposal.key === highlightedProposalKey}
+            />
+          </Box>
+        ))}
+        {isGenerating && (
+          <>
+            <Skeleton
+              variant="rectangular"
+              height={120}
+              sx={{ borderRadius: 2, flexShrink: 0 }}
+            />
+            <Skeleton
+              variant="rectangular"
+              height={120}
+              sx={{ borderRadius: 2, flexShrink: 0 }}
+            />
+            <Skeleton
+              variant="rectangular"
+              height={120}
+              sx={{ borderRadius: 2, flexShrink: 0 }}
+            />
+          </>
+        )}
+      </Box>
+    )}
+  </Box>
+);

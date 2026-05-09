@@ -52,6 +52,8 @@ class Connection(Base):
 
     ai_transaction_id_field_id = Column(String(64), nullable=True)
 
+    ac_issue_type_id = Column(String(64), nullable=True)
+
     created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
     updated_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
 

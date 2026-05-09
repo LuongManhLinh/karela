@@ -1,7 +1,15 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { Box, Paper, Typography, Grid, Button, Chip, Stack } from "@mui/material";
+import {
+  Box,
+  Paper,
+  Typography,
+  Grid,
+  Button,
+  Chip,
+  Stack,
+} from "@mui/material";
 import {
   Analytics,
   Assistant,
@@ -15,10 +23,75 @@ import { useParams, useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { StatsGrid } from "@/components/dashboard/StatsGrid";
-import { useConnectionDashboardQuery, useDashboardProjectsInfiniteQuery } from "@/hooks/queries/useConnectionQueries";
+import {
+  useConnectionDashboardQuery,
+  useDashboardProjectsInfiniteQuery,
+} from "@/hooks/queries/useConnectionQueries";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
-import type { ProjectDto } from "@/types/connection";
+import type { ProjectDto, ProjectInfo } from "@/types/connection";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
+
+export const ProjectCard: React.FC<{ project: ProjectInfo; href: string }> = ({
+  project,
+  href,
+}) => {
+  return (
+    <Grid
+      size={{ xs: 12, sm: 6, md: 4 }}
+      component={Link}
+      href={href}
+      sx={{
+        textDecoration: "none",
+      }}
+    >
+      <Paper
+        elevation={1}
+        sx={{
+          p: 2,
+          borderRadius: 1,
+          cursor: "pointer",
+          "&:hover": {
+            boxShadow: 5,
+            transform: "translateY(-2px)",
+          },
+          transition: "all 0.2s ease-in-out",
+          bgcolor: "primaryContainer",
+          color: "onPrimaryContainer",
+        }}
+      >
+        <Typography variant="subtitle1" fontWeight={600} noWrap>
+          {project.name || project.key}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          {project.key}
+        </Typography>
+        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+          <Chip
+            icon={<Analytics fontSize="small" />}
+            label={project.analysis_count}
+            size="small"
+          />
+          <Chip
+            icon={<Assistant fontSize="small" />}
+            label={project.chat_count}
+            size="small"
+          />
+          <Chip
+            icon={<EmojiObjects fontSize="small" />}
+            label={project.proposal_count}
+            size="small"
+          />
+          <Chip
+            icon={<Code fontSize="small" />}
+            label={project.ac_count}
+            size="small"
+          />
+        </Stack>
+      </Paper>
+    </Grid>
+  );
+};
 
 const ConnectionDashboard: React.FC = () => {
   const params = useParams();
@@ -31,7 +104,8 @@ const ConnectionDashboard: React.FC = () => {
 
   const { connection, setSelectedProject } = useWorkspaceStore();
 
-  const { data: dashboardData, isLoading: isDashboardLoading } = useConnectionDashboardQuery();
+  const { data: dashboardData, isLoading: isDashboardLoading } =
+    useConnectionDashboardQuery();
   const dashboard = dashboardData?.data;
 
   const {
@@ -47,13 +121,18 @@ const ConnectionDashboard: React.FC = () => {
     return projectsData.pages.flatMap((page) => page.data || []);
   }, [projectsData]);
 
-  const isLoading = isDashboardLoading || (isProjectsLoading && !projects.length);
+  const isLoading =
+    isDashboardLoading || (isProjectsLoading && !projects.length);
 
   const handleProjectClick = async (project: ProjectDto) => {
     setSelectedProject(project);
     if (connection) {
       router.push(`${basePath}/projects/${project.key}`);
     }
+  };
+
+  const getHrefForProject = (project: ProjectDto) => {
+    return `${basePath}/projects/${project.key}`;
   };
 
   const handleNavigate = async (path: string) => {
@@ -66,31 +145,35 @@ const ConnectionDashboard: React.FC = () => {
           title: ts("projects"),
           value: dashboard.num_projects,
           icon: <Folder fontSize="large" />,
-          onClick: () => handleNavigate("projects"),
+          href: `${basePath}/projects`,
         },
         {
           title: ts("analyses"),
           value: dashboard.num_analyses,
           icon: <Analytics fontSize="large" />,
-          onClick: () => handleNavigate("analyses"),
+          // onClick: () => handleNavigate("analyses"),
+          href: `${basePath}/analyses`,
         },
         {
           title: ts("chats"),
           value: dashboard.num_chats,
           icon: <Assistant fontSize="large" />,
-          onClick: () => handleNavigate("chats"),
+          // onClick: () => handleNavigate("chats"),
+          href: `${basePath}/chats`,
         },
         {
           title: ts("proposals"),
           value: dashboard.num_proposals,
           icon: <EmojiObjects fontSize="large" />,
-          onClick: () => handleNavigate("proposals"),
+          // onClick: () => handleNavigate("proposals"),
+          href: `${basePath}/proposals`,
         },
         {
           title: ts("acs"),
           value: dashboard.num_acs,
           icon: <Code fontSize="large" />,
-          onClick: () => handleNavigate("acs"),
+          // onClick: () => handleNavigate("acs"),
+          href: `${basePath}/acs`,
         },
       ]
     : [];
@@ -141,52 +224,12 @@ const ConnectionDashboard: React.FC = () => {
               {t("projects")}
             </Typography>
             <Grid container spacing={2}>
-              {projects.map((project) => project && (
-                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={project.id}>
-                  <Paper
-                    elevation={1}
-                    sx={{
-                      p: 2,
-                      borderRadius: 1,
-                      cursor: "pointer",
-                      "&:hover": { bgcolor: "action.hover" },
-                    }}
-                    onClick={() => handleProjectClick(project as any)}
-                  >
-                    <Typography variant="subtitle1" fontWeight={600} noWrap>
-                      {project.name || project.key}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                      {project.key}
-                    </Typography>
-                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
-                      <Chip
-                        icon={<Analytics fontSize="small" />}
-                        label={project.analysis_count}
-                        size="small"
-                        color={project.analysis_count > 0 ? "primary" : "default"}
-                      />
-                      <Chip
-                        icon={<Assistant fontSize="small" />}
-                        label={project.chat_count}
-                        size="small"
-                        color={project.chat_count > 0 ? "secondary" : "default"}
-                      />
-                      <Chip
-                        icon={<EmojiObjects fontSize="small" />}
-                        label={project.proposal_count}
-                        size="small"
-                        color={project.proposal_count > 0 ? "warning" : "default"}
-                      />
-                      <Chip
-                        icon={<Code fontSize="small" />}
-                        label={project.ac_count}
-                        size="small"
-                        color={project.ac_count > 0 ? "success" : "default"}
-                      />
-                    </Stack>
-                  </Paper>
-                </Grid>
+              {projects.map((project) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  href={getHrefForProject(project)}
+                />
               ))}
             </Grid>
             {hasNextPage && (
@@ -197,7 +240,9 @@ const ConnectionDashboard: React.FC = () => {
                   disabled={isFetchingNextPage}
                   endIcon={<KeyboardArrowDown />}
                 >
-                  {isFetchingNextPage ? t("loadingMore", { defaultValue: "Loading..." }) : t("more", { defaultValue: "More" })}
+                  {isFetchingNextPage
+                    ? t("loadingMore", { defaultValue: "Loading..." })
+                    : t("more", { defaultValue: "More" })}
                 </Button>
               </Box>
             )}

@@ -10,7 +10,7 @@
     },
     "AcEditorLayout": {
       "noAcceptanceCriteriaFound": "Không tìm thấy Tiêu chí chấp nhận",
-      "forStory": "cho câu chuyện",
+      "forStory": "cho user story",
       "acceptanceCriteria": "Tiêu chí chấp nhận",
       "newGherkin": "Gherkin Mới",
       "createAcceptanceCriteria": "Tạo Tiêu chí chấp nhận",
@@ -20,7 +20,7 @@
     },
     "AcEditorPage": {
       "welcome": "Chào mừng bạn đến với Trình soạn thảo Gherkin",
-      "instruction": "Chọn một Câu chuyện và một Tiêu chí chấp nhận từ thanh bên để bắt đầu chỉnh sửa, hoặc tạo mới."
+      "instruction": "Chọn một User story và một Tiêu chí chấp nhận từ thanh bên để bắt đầu chỉnh sửa, hoặc tạo mới."
     },
     "GherkinEditorWrapper": {
       "save": "Lưu",
@@ -68,20 +68,20 @@
     "submit": "Gửi",
     "cancel": "Hủy",
     "notFound": "Không tìm thấy",
-    "filterWithStory": "Lọc theo câu chuyện"
+    "filterWithStory": "Lọc theo user story"
   },
   "SessionStartForm": {
     "selectConnection": "Chọn kết nối",
     "selectProject": "Chọn dự án",
-    "selectStory": "Chọn câu chuyện",
-    "noStory": "(Không có câu chuyện)",
+    "selectStory": "Chọn user story",
+    "noStory": "(Không có user story)",
     "projects": "Dự án",
-    "stories": "Câu chuyện"
+    "stories": "User story"
   },
   "SessionList": {
     "noSessions": "Không có phiên nào",
     "project": "Dự án",
-    "story": "Câu chuyện"
+    "story": "Story"
   },
   "DocumentationPage": {
     "title": "Tài liệu",
@@ -188,7 +188,7 @@
     "projectPreferences": "Cài đặt dự án",
     "lastUpdated": "Cập nhật lần cuối: {date}",
     "analysisGuidelines": "Hướng dẫn phân tích",
-    "analysisGuidelinesPlaceholder": "Cung cấp hướng dẫn cụ thể về cách LLM nên phân tích các câu chuyện trong dự án này...",
+    "analysisGuidelinesPlaceholder": "Cung cấp hướng dẫn cụ thể về cách LLM nên phân tích các user story trong dự án này...",
     "proposalGenerationGuidelines": "Hướng dẫn tạo đề xuất",
     "proposalGenerationGuidelinesPlaceholder": "Cung cấp hướng dẫn cụ thể về cách LLM nên tạo đề xuất...",
     "chatGuidelines": "Hướng dẫn trò chuyện",
@@ -204,7 +204,7 @@
       "deep": "Sâu"
     },
     "generationLanguages": {
-      "storyBased": "Theo câu chuyện",
+      "storyBased": "Theo user story",
       "english": "Tiếng Anh",
       "vietnamese": "Tiếng Việt"
     },
@@ -242,6 +242,10 @@
       "defectDialogTitle": "Các lỗi liên quan đến đề xuất {proposalKey}",
       "close": "Đóng",
       "errorOccurred": "Rất tiếc! Đã xảy ra lỗi. Vui lòng tải lại trang.",
+      "runAlertTitle": "Chạy phân tích",
+      "runAlertMessage": "Một phân tích tất cả đã tồn tại cho dự án này. Việc chạy lại có thể sẽ không tìm thấy lỗi mới nhưng vẫn sẽ tốn chi phí để chạy. Bạn có muốn tiếp tục không?",
+      "cancel": "Hủy",
+      "confirm": "Vẫn chạy",
       "errors": {
         "failedToUpdateDefect": "Cập nhật trạng thái lỗi thất bại",
         "failedToStartProposalGen": "Bắt đầu tạo đề xuất thất bại",
@@ -262,7 +266,7 @@
       "proposals": "Đề xuất",
       "type": "Loại",
       "status": "Trạng thái",
-      "TARGETED": "Một câu chuyện",
+      "TARGETED": "Một user story",
       "ALL": "Tất cả",
       "delete": "Xóa",
       "PENDING": "Đang chờ",
@@ -280,8 +284,8 @@
       "markSolved": "Đánh dấu đã giải quyết",
       "explanation": "Giải thích",
       "suggestedFix": "Đề xuất sửa lỗi",
-      "relatedStories": "Các câu chuyện liên quan",
-      "proposalLink": "Liên kết đề xuất",
+      "relatedStories": "Các user story liên quan",
+      "proposalLink": "Xem đề xuất",
       "HIGH": "Cao",
       "MEDIUM": "Trung bình",
       "LOW": "Thấp",
@@ -355,7 +359,7 @@
       "noProjects": "Không có dự án nào"
     },
     "StoryListSection": {
-      "noStories": "Không có câu chuyện nào",
+      "noStories": "Không có user story nào",
       "noSummary": "Không có tóm tắt"
     },
     "ConnectionDashboard": {
@@ -372,34 +376,38 @@
       "withAcs": "Có AC",
       "noProjectsWithAcs": "Không có dự án nào có AC",
       "unableToLoad": "Không thể tải dữ liệu bảng điều khiển",
-      "selectToView": "Vui lòng chọn kết nối để xem bảng điều khiển"
+      "selectToView": "Vui lòng chọn kết nối để xem bảng điều khiển",
+      "projects": "Dự án"
     },
     "ProjectDashboard": {
-      "title": "Bảng điều khiển Dự án",
+      "title": "Bảng điều khiển dự án",
       "selectProject": "Thông tin URL",
       "filter": "Lọc",
       "overview": "Tổng quan",
-      "storiesByActivity": "Câu chuyện theo hoạt động",
+      "storiesByActivity": "User story theo hoạt động",
       "withAnalyses": "Có Phân tích",
-      "noStoriesWithAnalyses": "Không có câu chuyện nào có phân tích",
+      "noStoriesWithAnalyses": "Không có user story nào có phân tích",
       "withChats": "Có Trò chuyện",
-      "noStoriesWithChats": "Không có câu chuyện nào có trò chuyện",
+      "noStoriesWithChats": "Không có user story nào có trò chuyện",
       "withProposals": "Có Đề xuất",
-      "noStoriesWithProposals": "Không có câu chuyện nào có đề xuất",
+      "noStoriesWithProposals": "Không có user story nào có đề xuất",
       "withAcs": "Có AC",
-      "noStoriesWithAcs": "Không có câu chuyện nào có AC",
-      "readyStories": "Câu chuyện sẵn sàng",
-      "noReadyStories": "Chưa có câu chuyện sẵn sàng",
+      "noStoriesWithAcs": "Không có user story nào có AC",
+      "readyStories": "User story sẵn sàng",
+      "noReadyStories": "Chưa có user story sẵn sàng",
       "readinessScore": "Điểm sẵn sàng",
       "unableToLoad": "Không thể tải dữ liệu bảng điều khiển",
-      "selectToView": "Vui lòng chọn kết nối và dự án để xem bảng điều khiển"
+      "selectToView": "Vui lòng chọn kết nối và dự án để xem bảng điều khiển",
+      "stories": "User story",
+      "more": "Thêm",
+      "loadingMore": "Đang tải thêm..."
     },
     "StoryDashboard": {
-      "title": "Bảng điều khiển Câu chuyện",
+      "title": "Bảng điều khiển story",
       "selectStory": "Thông tin URL",
       "filter": "Lọc",
       "overview": "Tổng quan",
-      "storyDetails": "Chi tiết câu chuyện",
+      "storyDetails": "Chi tiết user story",
       "key": "Mã",
       "summary": "Tóm tắt",
       "noSummary": "Không có tóm tắt",
@@ -409,7 +417,7 @@
     },
     "stats": {
       "projects": "Dự án",
-      "stories": "Câu chuyện",
+      "stories": "User story",
       "analyses": "Phân tích",
       "chats": "Trò chuyện",
       "proposals": "Đề xuất",
@@ -431,8 +439,8 @@
       "goBack": "Quay lại"
     },
     "StoryNotFound": {
-      "title": "Không tìm thấy câu chuyện",
-      "message": "Câu chuyện bạn đang tìm kiếm không tồn tại trong dự án này.",
+      "title": "Không tìm thấy user story",
+      "message": "User story bạn đang tìm kiếm không tồn tại trong dự án này.",
       "goBack": "Quay lại"
     },
     "ServiceUnavailable": {
@@ -491,7 +499,9 @@
       "documentation": "Tài liệu",
       "preferences": "Cài đặt dự án",
       "light": "Sáng",
-      "dark": "Tối"
+      "dark": "Tối",
+      "retrySync": "Thử đồng bộ lại",
+      "syncing": "Đang đồng bộ..."
     },
     "SyncProjectsDialog": {
       "title": "Đồng bộ dự án",
@@ -554,11 +564,11 @@
       "noChanges": "Không có thay đổi",
       "summary": "Tóm tắt",
       "description": "Mô tả",
-      "loadFailed": "Không thể tải câu chuyện hiện tại",
+      "loadFailed": "Không thể tải user story hiện tại",
       "type": {
-        "create": "Câu chuyện mới",
-        "update": "Cập nhật câu chuyện",
-        "delete": "Xóa câu chuyện",
+        "create": "User story mới",
+        "update": "Cập nhật user story",
+        "delete": "Xóa user story",
         "unknown": "Không xác định"
       },
       "title": "Thay đổi đề xuất",
@@ -566,9 +576,9 @@
       "compareView": "Xem so sánh",
       "showLineNumbers": "Hiển thị số dòng",
       "renderMarkdown": "Hiển thị mô tả dưới dạng Markdown",
-      "createMessage": "Đề xuất này tạo một câu chuyện mới với nội dung sau:",
-      "updateMessage": "So sánh câu chuyện hiện tại với các thay đổi đề xuất:",
-      "deleteMessage": "Đề xuất này sẽ xóa câu chuyện sau:",
+      "createMessage": "Đề xuất này tạo một user story mới với nội dung sau:",
+      "updateMessage": "So sánh user story hiện tại với các thay đổi đề xuất:",
+      "deleteMessage": "Đề xuất này sẽ xóa user story sau:",
       "explanation": "Giải thích",
       "noContent": "Chưa chọn nội dung"
     },
@@ -593,23 +603,23 @@
     }
   },
   "StoryDialog": {
-    "title": "Chi tiết câu chuyện",
+    "title": "Chi tiết user story",
     "summary": "Tóm tắt",
     "noSummary": "Không có tóm tắt",
     "description": "Mô tả",
     "noDescription": "Không có mô tả",
-    "noStoriesFound": "Không tìm thấy câu chuyện nào",
-    "failedToLoadStoryDetails": "Tải chi tiết câu chuyện thất bại",
+    "noStoriesFound": "Không tìm thấy user story nào",
+    "failedToLoadStoryDetails": "Tải chi tiết user story thất bại",
     "close": "Đóng"
   },
   "workspace": {
     "WorkspaceLayout": {
-      "headerText": "Không gian làm việc câu chuyện",
-      "stories": "Câu chuyện",
-      "noStoriesYet": "Chưa có câu chuyện nào trong dự án này"
+      "headerText": "Không gian làm việc user story",
+      "stories": "User story",
+      "noStoriesYet": "Chưa có user story nào trong dự án này"
     },
     "WorkspacePage": {
-      "selectStory": "Chọn một câu chuyện để xem không gian làm việc.",
+      "selectStory": "Chọn một user story để xem không gian làm việc.",
       "information": "Thông tin",
       "defects": "Lỗi",
       "proposals": "Đề xuất",
@@ -618,9 +628,9 @@
       "noSummary": "Không có tóm tắt",
       "description": "Mô tả",
       "noDescription": "Không có mô tả",
-      "noDefects": "Không tìm thấy lỗi nào cho câu chuyện này.",
-      "noProposals": "Không tìm thấy đề xuất nào cho câu chuyện này.",
-      "noACs": "Không tìm thấy tiêu chí chấp nhận nào cho câu chuyện này.",
+      "noDefects": "Không tìm thấy lỗi nào cho user story này.",
+      "noProposals": "Không tìm thấy đề xuất nào cho user story này.",
+      "noACs": "Không tìm thấy tiêu chí chấp nhận nào cho user story này.",
       "acEditorHint": "Để có trải nghiệm chỉnh sửa phong phú hơn với gợi ý AI, hãy truy cập",
       "acEditorLink": "Trình chỉnh sửa AC",
       "save": "Lưu",
@@ -656,10 +666,10 @@
   "UrlInformation": {
     "connection": "Kết nối",
     "project": "Dự án",
-    "story": "Câu chuyện",
+    "story": "User story",
     "noConnection": "Không có kết nối nào",
     "noProject": "Không có dự án nào",
-    "noStory": "Không có câu chuyện nào",
+    "noStory": "Không có user story nào",
     "clickToNavigateToDashboard": "Nhấn để điều hướng đến bảng điều khiển"
   }
 }

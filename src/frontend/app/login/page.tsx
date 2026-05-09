@@ -83,6 +83,7 @@ export default function LoginPage() {
           >
             {t("signIn")}
           </Typography>
+
           <Button
             fullWidth
             size="large"
@@ -90,6 +91,7 @@ export default function LoginPage() {
             onClick={handleLogin}
             sx={{
               bgcolor: "primaryContainer",
+              boxShadow: 2,
             }}
           >
             {t("signInWithJira")}

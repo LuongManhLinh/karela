@@ -54,7 +54,7 @@ const DefectCard: React.FC<DefectCardProps> = ({
       key={defect.id}
       elevation={4}
       sx={(theme) => ({
-        borderRadius: 3,
+        borderRadius: 2,
         flexShrink: 0,
         bgcolor: "background.paper",
         color: "onBackground",
@@ -65,7 +65,7 @@ const DefectCard: React.FC<DefectCardProps> = ({
         transition: "border-color 200ms ease, box-shadow 200ms ease",
       })}
     >
-      <CardContent sx={{ p: 3 }}>
+      <CardContent sx={{ px: 3, py: 2 }}>
         <Box
           sx={{
             display: "flex",

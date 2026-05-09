@@ -2,7 +2,11 @@
 
 import { Box, Typography, CircularProgress } from "@mui/material";
 import GherkinEditorWrapper from "@/components/ac/GherkinEditorWrapper";
-import { useACQuery, useStoryByACQuery } from "@/hooks/queries/useACQueries";
+import {
+  useACQuery,
+  useACRegenerateMutation,
+  useStoryByACQuery,
+} from "@/hooks/queries/useACQueries";
 import { useMemo, useState } from "react";
 import { acService } from "@/services/acService";
 import { scrollBarSx } from "@/constants/scrollBarSx";
@@ -38,6 +42,7 @@ const AcEditorItemPage: React.FC<AcEditorItemPageProps> = ({ idOrKey }) => {
 
   const [editorReadOnly, setEditorReadOnly] = useState(false);
   const [storyDialogOpen, setStoryDialogOpen] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
 
   const handleSave = async (val: string) => {
     if (currentAC) {
@@ -52,12 +57,14 @@ const AcEditorItemPage: React.FC<AcEditorItemPageProps> = ({ idOrKey }) => {
     if (currentAC) {
       try {
         setEditorReadOnly(true);
+        setRegenerating(true);
         await acService.regenerateAC(currentAC.id, gherkin, feedback);
         refetch();
       } catch (error) {
         throw error;
       } finally {
         setEditorReadOnly(false);
+        setRegenerating(false);
       }
     }
   };
@@ -123,6 +130,7 @@ const AcEditorItemPage: React.FC<AcEditorItemPageProps> = ({ idOrKey }) => {
           onSave={handleSave}
           onSendFeedback={handleSendFeedback}
           readOnly={editorReadOnly}
+          regenerating={regenerating}
         />
       </Box>
       <StoryDialog

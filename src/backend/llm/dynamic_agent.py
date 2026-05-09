@@ -10,19 +10,42 @@ from typing import Iterator, Literal, Callable, Optional
 from utils.json_processor import schema_without_titles
 
 
-class APIKeyRotationMiddleware:
+class RotationMiddleware:
     """Middleware to rotate API keys on retries."""
 
-    def __init__(self, api_keys: list[str], model: ChatGoogleGenerativeAI):
+    def __init__(
+        self,
+        api_keys: list[str],
+        on_api_key_rotate: callable[[str], None],
+        model_names: list[str],
+        on_model_rotate: callable[[str], None],
+    ):
         self.api_keys = api_keys
-        self.model = model
-        self._current_index = random.randint(0, len(api_keys) - 1)
+        self.on_api_key_rotate = on_api_key_rotate
+        # self.model = model
+        self._cur_api_idx = random.randint(0, len(api_keys) - 1)
+        self.model_names = model_names
+        self.on_model_rotate = on_model_rotate
+        self._cur_model_idx = 0
 
     def __call__(self, exception: Exception) -> str:
         """Rotate to next API key and return error message."""
-        self._current_index = (self._current_index + 1) % len(self.api_keys)
-        self.model.google_api_key = self.api_keys[self._current_index]
-        print(f"Rotated to API key index: {self._current_index}")
+        exception_str = str(exception)
+        if "429" in exception_str and self.api_keys:
+            self._cur_api_idx = (self._cur_api_idx + 1) % len(self.api_keys)
+            # self.model.google_api_key = self.api_keys[self._current_index]
+            print(
+                f"Rotated to API key index: {self._cur_api_idx}. Reason: {exception_str}"
+            )
+            self.on_api_key_rotate(self.api_keys[self._cur_api_idx])
+        elif self.model_names:
+            # We are using Gemini, most errors occur because of Service Exhaustion, so we rotate the model instead of the API key
+            self._cur_model_idx = (self._cur_model_idx + 1) % len(self.model_names)
+            print(
+                f"Rotated to model index: {self._cur_model_idx}. Reason: {exception_str}"
+            )
+            self.on_model_rotate(self.model_names[self._cur_model_idx])
+
         return f"Retrying with different API key after error: {str(exception)}"
 
 
@@ -50,6 +73,7 @@ class GenimiDynamicAgent:
         backoff_factor: float = 2.0,
         retry_on: tuple = (Exception,),
         top_p: float = 1.0,
+        alternative_model_names: list[str] = [],
     ):
         """
         Initialize GenimiDynamicAgent with ModelRetryMiddleware.
@@ -91,8 +115,23 @@ class GenimiDynamicAgent:
         # Setup middleware
         middleware_list = middleware or []
 
+        def on_api_key_rotate(new_key: str):
+            self.model.google_api_key = new_key
+
+        def on_model_rotate(new_model: str):
+            self.model.model = new_model
+
+        if model_name in alternative_model_names:
+            print(
+                f"Warning: Initial model {model_name} is in alternative_model_names list. Consider removing it to avoid immediate rotation on first failure."
+            )
         # Add API key rotation on failure
-        api_rotation = APIKeyRotationMiddleware(api_keys, self.model)
+        api_rotation = RotationMiddleware(
+            api_keys=api_keys,
+            on_api_key_rotate=on_api_key_rotate,
+            model_names=alternative_model_names,
+            on_model_rotate=on_model_rotate,
+        )
 
         # Add retry middleware with exponential backoff and API key rotation
         retry_middleware = ModelRetryMiddleware(

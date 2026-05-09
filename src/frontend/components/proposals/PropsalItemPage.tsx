@@ -16,7 +16,11 @@ import type {
 } from "@/types/proposal";
 import { downloadAsJson } from "@/utils/exportUtils";
 import { scrollBarSx } from "@/constants/scrollBarSx";
-import { useSessionProposalsQuery } from "@/hooks/queries/useProposalQueries";
+import {
+  useActOnProposalContentMutation,
+  useActOnProposalMutation,
+  useSessionProposalsQuery,
+} from "@/hooks/queries/useProposalQueries";
 
 export interface ProposalItemPageProps {
   projectFilterKey?: string;
@@ -41,6 +45,9 @@ const ProposalSessionItemPage: React.FC<ProposalItemPageProps> = ({
     );
 
   const proposals = useMemo(() => proposalsData?.data || [], [proposalsData]);
+  const { mutateAsync: actOnProposal } = useActOnProposalMutation();
+  const { mutateAsync: actOnProposalContent } =
+    useActOnProposalContentMutation();
 
   const { notify } = useNotificationContext();
 
@@ -49,7 +56,7 @@ const ProposalSessionItemPage: React.FC<ProposalItemPageProps> = ({
     flag: ProposalActionFlag,
   ) => {
     try {
-      await proposalService.actOnProposal(proposalId, flag);
+      await actOnProposal({ proposalId, flag });
     } catch (err: any) {
       const errorMessage = err.response?.data?.detail || t("updateFailed");
       notify(errorMessage, { severity: "error" });
@@ -63,7 +70,7 @@ const ProposalSessionItemPage: React.FC<ProposalItemPageProps> = ({
   ) => {
     if (!content.id) return;
     try {
-      await proposalService.actOnProposalContent(proposalId, content.id, flag);
+      await actOnProposalContent({ proposalId, contentId: content.id, flag });
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.detail || t("updateContentFailed");
@@ -124,6 +131,10 @@ const ProposalSessionItemPage: React.FC<ProposalItemPageProps> = ({
                   proposal={proposal}
                   onProposalAction={handleProposalAction}
                   onProposalContentAction={handleProposalContentAction}
+                  defaultExpanded={
+                    proposal.accepted === null ||
+                    proposal.accepted === undefined
+                  }
                 />
               ))}
             </Stack>

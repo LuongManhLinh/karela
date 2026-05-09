@@ -164,6 +164,7 @@ class JiraClient:
             summary (Optional[str], optional): New summary. Defaults to None.
             description (Optional[any], optional): New description. Defaults to None.
         """
+        print(f"JiraClient updating issue {issue_key}")
         url = API_BASE.format(cloud_id=cloud_id) + f"/issue/{issue_key}"
         headers = _get_auth_header(access_token)
         resp = requests.put(url, json=payload, headers=headers)
@@ -468,10 +469,8 @@ class JiraClient:
         resp.raise_for_status()
         return resp.json()["id"]
 
-    def add_issue_type_to_activated_schemes(
-        cloud_id: str,
-        access_token: str,
-        issue_type_id: str,
+    def add_issue_type_to_project(
+        cloud_id: str, access_token: str, issue_type_id: str, project_id: str
     ):
         """Add an existing issue type to a project
 
@@ -482,13 +481,14 @@ class JiraClient:
             issue_type_id (str): Issue type ID to add
         """
         # First, get the issue type scheme for the project
-        get_url = API_BASE.format(cloud_id=cloud_id) + f"/issuetypescheme"
+        get_url = API_BASE.format(cloud_id=cloud_id) + f"/issuetypescheme/project"
         headers = _get_auth_header(access_token)
         headers["Accept"] = "application/json"
 
         issue_type_scheme_resp = requests.get(
             get_url,
             headers=headers,
+            params={"projectId": project_id},
         )
         issue_type_scheme_resp.raise_for_status()
 
@@ -499,8 +499,10 @@ class JiraClient:
             )
 
         headers["Content-Type"] = "application/json"
+
         for scheme in all_schemes:
             # Add the issue type to the scheme
+            scheme = scheme["issueTypeScheme"]
             scheme_id = scheme["id"]
             print(
                 f"Adding issue type to scheme: {scheme.get('name', 'Unknown')} ({scheme_id})"
@@ -516,7 +518,11 @@ class JiraClient:
 
             if not add_resp.ok:
                 print(
-                    f"Failed to add issue type to scheme {scheme_id}: {add_resp.status_code} {add_resp.reason} {add_resp.text}  {json.dumps(payload)}"
+                    f"Failed to add issue type to scheme {scheme.get('name', 'Unknown')} ({scheme_id}): {add_resp.status_code} {add_resp.text}"
+                )
+            else:
+                print(
+                    f"Successfully added issue type to scheme {scheme.get('name', 'Unknown')} ({scheme_id})"
                 )
 
     def get_issue_type_by_name(

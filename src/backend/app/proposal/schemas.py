@@ -32,6 +32,7 @@ class ProposalSummary(BaseModel):
 
 
 class ProposalDto(ProposalSummary):
+    accepted: Optional[bool] = None  # None = pending, True = accepted, False = rejected
     source: Literal["CHAT", "ANALYSIS"]
     target_defect_keys: Optional[list[str]] = None
     contents: list[ProposalContentDto]

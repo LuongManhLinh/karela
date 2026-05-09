@@ -171,11 +171,13 @@ def context_gatherer_node(
     state.project_context = run_context_gatherer(
         agent=ctx_agent,
         context=context,
-        target_stories=state.user_stories,
+        target_stories=context.user_stories,
         project_desc=context.project_description,
     )
 
-    print(f"| Context Gatherer - Complete\n{'='*80}")
+    print(
+        f"| Context Gatherer - Complete with {len(state.project_context)} characters\n{'='*80}"
+    )
 
     taxonomy_service = TaxonomyService(db=context.db)
     story_to_tags, tag_to_stories = taxonomy_service.get_project_stories_tags(
@@ -199,7 +201,9 @@ def defect_router(
     state: ProposalState, runtime: Runtime[ProposalContext]
 ) -> ProposalState:
     """Categorize defects into the three resolution tracks."""
-    print(f"\n{'='*80}\n| Defect Router - Starting\n{'='*80}")
+    print(
+        f"\n{'='*80}\n| Defect Router - Starting iteration {state.validation_attempt}\n{'='*80}"
+    )
     context = runtime.context
 
     if state.validation_attempt == 0:
@@ -294,6 +298,7 @@ def resolver_drafter(
     )
 
     # Preparing for next node
+    print(f"| Updating working stories for next drafters...")
     old_to_new_keys: dict[str, set[str]] = {}
     delete_keys = set()
     for proposal in proposals:
@@ -393,15 +398,14 @@ def splitter_drafter(
         agent=splitter_agent,
         fake_history=SPLITTER_FAKE_HISTORY,
         defects=state.splitter_defects,
-        user_stories=_get_stories_for_defects(
-            state.splitter_defects, state.working_stories
-        ),
+        stories=_get_stories_for_defects(state.splitter_defects, state.working_stories),
         state=state,
         context=context,
         drafter_name="Splitter",
     )
 
     # Preparing for next node
+    print(f"| Updating working stories for next drafters...")
     old_to_new_keys: dict[str, set[str]] = {}
     delete_keys = set()
     for proposal in proposals:
@@ -479,12 +483,13 @@ def refiner_drafter(
         agent=refiner_agent,
         fake_history=REFINER_FAKE_HISTORY,
         defects=state.refiner_defects,
-        stories=_get_stories_for_defects(state.refiner_defects, state.refiner_stories),
+        stories=_get_stories_for_defects(state.refiner_defects, state.working_stories),
         state=state,
         context=context,
         drafter_name="Refiner",
     )
 
+    print(f"| Updating working stories for next drafters...")
     for proposal in proposals:
         for content in proposal.contents:
             if content.type == "CREATE":
@@ -678,6 +683,9 @@ def route_after_validation(state: ProposalState) -> list[str]:
             f"| Validation found {len(state.new_defects)} new defects. Retrying drafters. Attempt {state.validation_attempt}/{state.max_validation_attempts}"
         )
         return "retry"
+    print(
+        "| Validation passed with no new defects or max attempts reached. Proceeding to synthesis."
+    )
     return "synthesis"
 
 
@@ -764,7 +772,6 @@ def synthesis_node(
 
     state.proposals = final_proposals
     return state
-
 
 
 # ---------------------------------------------------------------------------
@@ -882,6 +889,7 @@ def run_proposal_generation(
     highest_id = int(max_key.split("-")[-1]) + 10
 
     if mode in ("COMPLEX", "DEEP"):
+        print(f"\n{'='*80}\n| {mode} Drafter - Starting\n{'='*80}")
         initial_state = ProposalState(
             highest_id=highest_id,
             max_validation_attempts=max_rewrite_attempts,
@@ -897,9 +905,16 @@ def run_proposal_generation(
             return []
     else:
         # Simple mode: one-shot generation without analysis/rewriting loop
+        print(f"\n{'='*80}\n| Simple Drafter - Starting\n{'='*80}")
+        project_desc_text = (
+            f"## PROJECT DESCRIPTION:\n{project_description}\n\n"
+            if project_description
+            else ""
+        )
         msg = (
             "Here is the input data for generating proposals:\n\n"
-            "## USER STORIES\n"
+            + project_desc_text
+            + "## USER STORIES\n"
             f"{format_stories(user_stories)}\n\n"
             "## DEFECTS\n"
             f"{_format_raw_defects(defects)}"

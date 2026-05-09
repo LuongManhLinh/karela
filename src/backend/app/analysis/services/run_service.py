@@ -21,6 +21,7 @@ from app.analysis.models import (
     DefectStoryKey,
 )
 from app.connection.jira.services import JiraService
+from app.connection.jira.models import Project
 
 from ..graphrag.agents import run_analysis_all, run_analysis_targeted
 from ..graphrag.schemas import SingleDefectResponse, PairwiseDefectResponse
@@ -46,12 +47,10 @@ class AnalysisRunService:
         self.redis_client = redis_client
         self.jira_service = JiraService(db=db)
 
-    def _publish_update(
+    def _publish_status(
         self,
         analysis_id: str,
         status: str,
-        type: Literal["ANALYSIS", "PROPOSAL"] = "ANALYSIS",
-        proposal_ids: list[str] = None,
         **kwargs,
     ):
         try:
@@ -61,8 +60,6 @@ class AnalysisRunService:
                     {
                         "id": analysis_id,
                         "status": status,
-                        "type": type,
-                        "proposal_ids": proposal_ids,
                         **kwargs,
                     }
                 ),
@@ -94,7 +91,7 @@ class AnalysisRunService:
         analysis.status = status
         self.db.add(analysis)
         self.db.commit()
-        self._publish_update(
+        self._publish_status(
             analysis.id, status.value if hasattr(status, "value") else status
         )
         self._publish_notification(
@@ -111,7 +108,7 @@ class AnalysisRunService:
         if error_msg:
             analysis.error_message = error_msg
         self.db.commit()
-        self._publish_update(
+        self._publish_status(
             analysis.id, status.value if hasattr(status, "value") else status
         )
         if status == AnalysisStatus.DONE:
@@ -351,28 +348,56 @@ class AnalysisRunService:
             list[str]: List of created proposal IDs.
         """
         analysis = self._get_analysis_or_raise(analysis_id)
+        self._publish_notification(
+            analysis.connection_id,
+            f"Generating proposals for analysis {analysis.key}...",
+            severity="info",
+        )
+        self._publish_status(
+            analysis_id,
+            status="GENERATING_PROPOSALS",
+        )
 
         proposal_service = ProposalRunService(db=self.db)
 
         try:
             print(f"Generating proposals for analysis {analysis_id}...")
-            proposal_ids = proposal_service.generate_proposals(
+            project_desc = (
+                self.db.query(Project.description)
+                .filter(
+                    Project.connection_id == analysis.connection_id,
+                    Project.key == analysis.project_key,
+                )
+                .scalar()
+            )
+            proposal_service.generate_proposals(
                 session_id=analysis_id,
                 source="ANALYSIS",
                 connection_id=analysis.connection_id,
                 project_key=analysis.project_key,
                 input_defects=analysis.defects,
+                project_description=project_desc,
             )
 
-            self._publish_update(
+            self._publish_status(
                 analysis_id,
                 status="PROPOSALS_GENERATED",
-                type="PROPOSAL",
-                proposal_ids=proposal_ids,
             )
             self._publish_notification(
                 analysis.connection_id,
                 f"Proposals for analysis {analysis.key} have been generated!",
+                severity="success",
+            )
+        except Exception as e:
+            traceback.print_exc()
+            self._publish_notification(
+                analysis.connection_id,
+                f"Failed to generate proposals for analysis {analysis.key}: {str(e)}. Please try again or adjust your proposal generation preferences.",
+                severity="error",
+            )
+            self._publish_status(
+                analysis_id,
+                status="PROPOSAL_GENERATION_FAILED",
             )
         finally:
             data_service = AnalysisDataService(db=self.db)

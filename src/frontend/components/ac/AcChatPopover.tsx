@@ -103,7 +103,9 @@ export const ACChatPopover: React.FC<ACChatPopoverProps> = ({
         onChange={(e) => setMessage(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
             handleSendMessage(message);
+            onClose();
           }
         }}
         disabled={disabled}

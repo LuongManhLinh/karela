@@ -58,14 +58,18 @@ interface ProposalCardProps {
   highlight?: boolean;
 }
 
-const statusChip = (value: boolean | null | undefined, t: any) => {
+const statusChip = (
+  value: boolean | null | undefined,
+  t: any,
+  size: "small" | "medium" = "small",
+) => {
   if (value === true) {
-    return <Chip label={t("status.accepted")} color="success" size="small" />;
+    return <Chip label={t("status.accepted")} color="success" size={size} />;
   }
   if (value === false) {
-    return <Chip label={t("status.rejected")} color="error" size="small" />;
+    return <Chip label={t("status.rejected")} color="error" size={size} />;
   }
-  return <Chip label={t("status.pending")} color="warning" size="small" />;
+  return <Chip label={t("status.pending")} color="warning" size={size} />;
 };
 
 const typeChipColor = (type: string) => {
@@ -113,6 +117,9 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
 
   const handleProposalAction = async (flag: ProposalActionFlag) => {
     if (!onProposalAction) return;
+    if (flag === 0) {
+      setExpanded(false);
+    }
     await runWithLoading(`proposal-${proposal.id}`, () =>
       onProposalAction(proposal.id, flag),
     );
@@ -157,21 +164,6 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
       cancelEditing();
     });
   };
-
-  const proposalAccepted = useMemo<boolean | null>(() => {
-    // Accepted if all the contents are accepted
-    let numAccepted = 0;
-    let numRejected = 0;
-    let numPending = 0;
-    proposal.contents.forEach((content) => {
-      if (content.accepted === true) numAccepted++;
-      else if (content.accepted === false) numRejected++;
-      else numPending++;
-    });
-    if (numAccepted === proposal.contents.length) return true;
-    if (numRejected === proposal.contents.length) return false;
-    return null;
-  }, [proposal]);
 
   const renderActionButtons = ({
     accepted = null,
@@ -266,7 +258,7 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
         border: highlight
           ? `2px solid ${theme.palette.primary.main}`
           : undefined,
-        boxShadow: highlight ? theme.shadows[4] : undefined,
+        boxShadow: highlight ? theme.shadows[5] : 4,
         transition: "border-color 200ms ease, box-shadow 200ms ease",
         animation: highlight
           ? "proposalFlicker 1.2s ease-in-out 0s 3"
@@ -290,18 +282,17 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
         "&.Mui-expanded": {
           margin: "0",
           borderRadius: 2,
-          // 2. IMPORTANT: Re-apply the Stack's margin (space={1} = 8px by default)
           marginTop: theme.spacing(1),
           marginBottom: theme.spacing(1),
+          opacity: proposal.accepted === false ? 0.75 : 1,
         },
         "&:not(.Mui-expanded)": {
           margin: "0",
           borderRadius: 2,
-          // 2. IMPORTANT: Re-apply the Stack's margin (space={1} = 8px by default)
           marginTop: theme.spacing(1),
           marginBottom: theme.spacing(1),
+          opacity: proposal.accepted === false ? 0.75 : 1,
         },
-        // The optional fix for the line/shadow:
         "&:before": {
           display: "none",
         },
@@ -340,9 +331,10 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
               size="medium"
               color="default"
             />
+            {statusChip(proposal.accepted, t, "medium")}
           </Box>
           {renderActionButtons({
-            accepted: proposalAccepted,
+            accepted: proposal.accepted,
             onAccept: () => handleProposalAction(1),
             onReject: () => handleProposalAction(0),
             onRevert: () => handleProposalAction(-1),
@@ -405,19 +397,10 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
           {proposal.contents.map((content, index) => (
             <Card
               key={content.id || `${proposal.id}-${index}`}
-              variant="outlined"
-              elevation={0}
-              // sx={{
-              //   cursor: "pointer",
-              //   transition: "all 0.2s ease-in-out",
-              //   "&:hover": {
-              //     boxShadow: 2,
-              //     borderColor: "primary.main",
-              //   },
-              // }}
-              // onClick={() =>
-              //   onProposalContentClick && onProposalContentClick(content)
-              // }
+              elevation={1}
+              sx={{
+                bgcolor: "surfaceContainerHighest",
+              }}
             >
               <CardContent>
                 <Stack
@@ -445,7 +428,7 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
                     {statusChip(content.accepted, t)}
                   </Box>
                   {renderActionButtons({
-                    accepted: content.accepted || null,
+                    accepted: content.accepted,
                     onAccept: content.id
                       ? () => handleContentAction(content, 1)
                       : undefined,

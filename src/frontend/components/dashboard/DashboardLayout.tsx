@@ -27,7 +27,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   return (
     <Layout
       appBarLeftContent={
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, py: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+
+            gap: 2,
+            py: 2,
+          }}
+        >
           <Typography variant="h5">{title}</Typography>
           {subtitle && (
             <Typography variant="h6" color="text.secondary">

@@ -37,6 +37,8 @@ import { MoreHoriz, Delete, Warning } from "@mui/icons-material";
 import { scrollBarSx } from "@/constants/scrollBarSx";
 import DeleteWarningDialog from "./DeleteWarningDialog";
 import { analysisService } from "@/services/analysisService";
+import { RunAlertDialog } from "./RunAlertDialog";
+import { RunAnalysisRequest } from "@/types/analysis";
 
 const getStatusColor = (status?: string): ChipProps["color"] => {
   switch (status) {
@@ -107,6 +109,11 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
   const menuOpen = Boolean(menuAnchorEl);
   const [idToDelete, setIdToDelete] = useState<string | null>(null);
   const [deleteWarningOpen, setDeleteWarningOpen] = useState(false);
+  const [runAlertOpen, setRunAlertOpen] = useState(false);
+  const [pendingRunData, setPendingRunData] = useState<{
+    projectKey: string;
+    data: RunAnalysisRequest;
+  } | null>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, id: string) => {
     event.stopPropagation();
@@ -201,13 +208,26 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
         targetStoryKey = story.key;
       }
 
-      await runAnalysis({
+      const runReq = {
         projectKey: project.key,
         data: {
           analysis_type: analysisType,
           target_story_key: targetStoryKey,
         },
-      });
+      };
+
+      if (analysisType === "ALL") {
+        const existingAllAnalysis = summaries.find(
+          (s) => s.type === "ALL" && s.project_key === project.key,
+        );
+        if (existingAllAnalysis) {
+          setPendingRunData(runReq);
+          setRunAlertOpen(true);
+          return;
+        }
+      }
+
+      await runAnalysis(runReq);
       await refetchSummaries();
     } catch (err: unknown) {
       const errorMessage =
@@ -216,6 +236,21 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
       console.error(errorMessage);
     }
     return null;
+  };
+
+  const handleConfirmRun = async () => {
+    if (!pendingRunData) return;
+    try {
+      await runAnalysis(pendingRunData);
+      await refetchSummaries();
+    } catch (err: unknown) {
+      const errorMessage =
+        (err as { response?: { data?: { detail?: string } } })?.response?.data
+          ?.detail || t("failedToStartAnalysis");
+      console.error(errorMessage);
+    }
+    setRunAlertOpen(false);
+    setPendingRunData(null);
   };
 
   const sessionsComponent = (
@@ -449,6 +484,11 @@ const AnalysisLayout: React.FC<AnalysisPageLayoutProps> = ({
         open={deleteWarningOpen}
         onClose={handleCloseDeleteWarning}
         onConfirm={handleConfirmDelete}
+      />
+      <RunAlertDialog
+        open={runAlertOpen}
+        onClose={() => setRunAlertOpen(false)}
+        onConfirm={handleConfirmRun}
       />
     </PageLayout>
   );

@@ -69,13 +69,13 @@ export interface StoryInfo {
   analysis_count: number;
   proposal_count: number;
   ac_count: number;
-  is_ready: boolean;
+  defect_count: number;
 }
 
 export interface ProjectDashboardDto extends DashboardDto {
   num_chats: number;
   num_stories: number;
-  readiness_score: number;
+  readiness_score?: number;
 }
 
 export interface StoryDashboardDto extends DashboardDto {}

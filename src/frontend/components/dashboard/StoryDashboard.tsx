@@ -1,48 +1,41 @@
 "use client";
 
-import React, { use, useMemo } from "react";
-import { Box, Paper, Typography, useTheme } from "@mui/material";
-import { Analytics, Assistant, EmojiObjects, Code } from "@mui/icons-material";
+import React, { useMemo, useState } from "react";
+import { Box, Paper, Stack, Switch, Typography } from "@mui/material";
+import { Analytics, EmojiObjects, Code } from "@mui/icons-material";
 import { useParams, useRouter } from "next/navigation";
 
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { SessionStartForm } from "@/components/SessionStartForm";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { StatsGrid } from "@/components/dashboard/StatsGrid";
 import { useStoryDashboardQuery } from "@/hooks/queries/useConnectionQueries";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { useTranslations } from "next-intl";
-import type {
-  ConnectionDto,
-  ProjectDto,
-  StorySummary,
-} from "@/types/connection";
 import { useStoryDetailsQuery } from "@/hooks/queries/useConnectionQueries";
+import { MarkdownMessage } from "../chat/MarkdownMessage";
 
 const StoryDashboard: React.FC = () => {
   const t = useTranslations("dashboard.StoryDashboard");
   const ts = useTranslations("dashboard.stats");
-  const theme = useTheme();
   const router = useRouter();
 
+const { stories } = useWorkspaceStore();
+
   const params = useParams();
-  const { projectKey, storyKey, basePath } = useMemo(() => {
+  const { projectKey, storyKey, selectedStory, basePath } = useMemo(() => {
+    const storyKey = params.storyKey as string;
+    const selectedStory = stories.find((s) => s.key === storyKey) || null;
     return {
       projectKey: params.projectKey as string,
-      storyKey: params.storyKey as string,
+      storyKey: storyKey,
+      selectedStory: selectedStory,
       basePath: `/app/projects/${params.projectKey}/stories/${params.storyKey}`,
     };
   }, [params]);
 
-  const {
-    connection,
-    selectedProject: selectedProject,
-    setSelectedProject: setSelectedProject,
-    selectedStory: selectedStory,
-    setSelectedStory: setSelectedStory,
-    projects,
-    stories,
-  } = useWorkspaceStore();
+  
+
+  const [renderMarkdown, setRenderMarkdown] = useState(true);
 
   const { data: dashboardData, isLoading } = useStoryDashboardQuery(
     projectKey,
@@ -57,27 +50,6 @@ const StoryDashboard: React.FC = () => {
     [storyDetailsData],
   );
 
-  const handleProjectChange = async (proj: ProjectDto | null) => {
-    setSelectedProject(proj);
-    setSelectedStory(null);
-  };
-
-  const handleStoryChange = async (story: StorySummary | null) => {
-    setSelectedStory(story);
-  };
-
-  const handleFilter = async () => {
-    if (selectedProject) {
-      if (selectedStory) {
-        router.push(
-          `/app/projects/${selectedProject.key}/stories/${selectedStory.key}`,
-        );
-      } else {
-        router.push(`/app/projects/${selectedProject.key}`);
-      }
-    }
-  };
-
   const handleNavigate = async (path: string) => {
     router.push(`${basePath}/${path}`);
   };
@@ -88,19 +60,22 @@ const StoryDashboard: React.FC = () => {
           title: ts("analyses"),
           value: dashboard.num_analyses,
           icon: <Analytics fontSize="large" />,
-          onClick: () => handleNavigate("analyses"),
+          // onClick: () => handleNavigate("analyses"),
+          href: `${basePath}/analyses`,
         },
         {
           title: ts("proposals"),
           value: dashboard.num_proposals,
           icon: <EmojiObjects fontSize="large" />,
-          onClick: () => handleNavigate("proposals"),
+          // onClick: () => handleNavigate("proposals"),
+          href: `${basePath}/proposals`,
         },
         {
           title: ts("acs"),
           value: dashboard.num_acs,
           icon: <Code fontSize="large" />,
-          onClick: () => handleNavigate("ac"),
+          // onClick: () => handleNavigate("acs"),
+          href: `${basePath}/acs`,
         },
       ]
     : [];
@@ -187,17 +162,48 @@ const StoryDashboard: React.FC = () => {
                     {storyDetails?.summary || t("noSummary")}
                   </Typography>
                 </Box>
-                <Box>
-                  <Typography
-                    variant="body2"
-                    fontWeight={600}
-                    color="text.secondary"
+                <Box sx={{ width: "100%" }}>
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    sx={{ mb: 1 }}
                   >
-                    {t("description")}:
-                  </Typography>
-                  <Typography variant="body1" color="text.primary">
-                    {storyDetails?.description || t("noDescription")}
-                  </Typography>
+                    <Typography
+                      variant="body2"
+                      fontWeight={600}
+                      color="text.secondary"
+                    >
+                      {t("description")}:
+                    </Typography>
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <Typography variant="body2" color="text.secondary">
+                        Markdown
+                      </Typography>
+                      <Switch
+                        checked={renderMarkdown}
+                        onChange={() => setRenderMarkdown((prev) => !prev)}
+                        color="primary"
+                        size="small"
+                      />
+                    </Stack>
+                  </Stack>
+
+                  {renderMarkdown ? (
+                    <MarkdownMessage
+                      content={storyDetails?.description || t("noDescription")}
+                    />
+                  ) : (
+                    <Typography
+                      variant="body1"
+                      color="text.primary"
+                      sx={{
+                        whiteSpace: "pre-line",
+                      }}
+                    >
+                      {storyDetails?.description || t("noDescription")}
+                    </Typography>
+                  )}
                 </Box>
               </Box>
             </Box>

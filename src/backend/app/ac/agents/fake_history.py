@@ -3,10 +3,11 @@ from langchain_core.messages import HumanMessage, AIMessage
 AC_GENERATOR_FAKE_HISTORY = [
     HumanMessage(
         content="""Here is the input for generating AC:
-{
-  "title": "Login",
-  "description": "As a user, I want to login so I can access the system."
-}"""
+**Story Summary:**
+User Login
+
+**Story Description:**
+As a user, I want to login so I can access the system securely."""
     ),
     AIMessage(
         content="""{
@@ -19,11 +20,17 @@ AC_GENERATOR_FAKE_HISTORY = [
 AC_REVIEWER_FAKE_HISTORY = [
     HumanMessage(
         content="""Please review this AC:
-{
-  "user_story_title": "Login",
-  "user_story_description": "As a user...",
-  "generated_ac": "Feature: Login\nScenario: Login\nGiven user is there\nThen user logs in"
-}"""
+**Story Summary:**
+User Login
+
+**Story Description:**
+As a user, I want to login so I can access the system securely.
+
+**Generated Acceptance Criteria:**
+Feature: Login
+Scenario: Login
+Given user is there
+Then user logs in"""
     ),
     AIMessage(
         content="""{
@@ -39,12 +46,20 @@ AC_REVIEWER_FAKE_HISTORY = [
 AC_REWRITER_FAKE_HISTORY = [
     HumanMessage(
         content="""Please rewrite the AC based on this feedback:
-{
-  "title": "Login",
-  "description": "...",
-  "current_ac": "Feature: Login\nScenario: Login\nGiven user is there\nThen user logs in",
-  "reviewer_feedback": "The Gherkin is too vague..."
-}"""
+**Story Summary:**
+User Login
+
+**Story Description:**
+As a user, I want to login so I can access the system securely.
+
+**Current Generated Acceptance Criteria:**
+Feature: Login
+Scenario: Login
+Given user is there
+Then user logs in
+
+**Reviewer Feedback:**
+The Gherkin is too vague. 'Given user is there' is not a valid step. 'Then user logs in' describes an action, not a result. Missing 'When' step."""
     ),
     AIMessage(
         content="""{

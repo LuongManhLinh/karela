@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Box,
   Paper,
@@ -27,11 +27,19 @@ import { useParams, useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { StatsGrid } from "@/components/dashboard/StatsGrid";
-import { useProjectDashboardQuery, useDashboardStoriesInfiniteQuery } from "@/hooks/queries/useConnectionQueries";
+import {
+  useProjectDashboardQuery,
+  useDashboardStoriesInfiniteQuery,
+} from "@/hooks/queries/useConnectionQueries";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { useTranslations } from "next-intl";
-import type { StorySummary } from "@/types/connection";
+import {
+  ProjectDto,
+  type StoryInfo,
+  type StorySummary,
+} from "@/types/connection";
 import { scrollBarSx } from "@/constants/scrollBarSx";
+import Link from "next/link";
 
 const getReadinessColor = (score: number) => {
   if (score >= 75) return "success";
@@ -39,27 +47,103 @@ const getReadinessColor = (score: number) => {
   return "error";
 };
 
+export const StoryCard: React.FC<{
+  story: StoryInfo;
+  href: string;
+}> = ({ story, href }) => {
+  return (
+    <Grid
+      size={{ xs: 12, sm: 6, md: 4 }}
+      key={story.id}
+      component={Link}
+      href={href}
+      sx={{ textDecoration: "none" }}
+    >
+      <Paper
+        elevation={1}
+        sx={{
+          p: 2,
+          borderRadius: 1,
+          cursor: "pointer",
+
+          "&:hover": {
+            boxShadow: 5,
+            transform: "translateY(-2px)",
+          },
+          bgcolor: "primaryContainer",
+          color: "onPrimaryContainer",
+          transition: "all 0.2s ease-in-out",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            mb: 1,
+          }}
+        >
+          <Typography
+            variant="subtitle1"
+            fontWeight={600}
+            noWrap
+            sx={{ flex: 1, mr: 1 }}
+          >
+            {story.key}
+          </Typography>
+        </Box>
+        <Stack
+          direction="row"
+          spacing={1}
+          flexWrap="wrap"
+          useFlexGap
+          sx={{ mt: 1 }}
+        >
+          <Chip
+            icon={<Analytics fontSize="small" />}
+            label={story.analysis_count}
+            size="small"
+          />
+          <Chip
+            icon={<Code fontSize="small" />}
+            label={story.defect_count}
+            size="small"
+          />
+          <Chip
+            icon={<EmojiObjects fontSize="small" />}
+            label={story.proposal_count}
+            size="small"
+          />
+          <Chip
+            icon={<Code fontSize="small" />}
+            label={story.ac_count}
+            size="small"
+          />
+        </Stack>
+      </Paper>
+    </Grid>
+  );
+};
+
 const ProjectDashboard: React.FC = () => {
   const t = useTranslations("dashboard.ProjectDashboard");
   const ts = useTranslations("dashboard.stats");
   const theme = useTheme();
+  const { connection, projects } = useWorkspaceStore();
   const params = useParams();
-  const { projectKey, basePath } = useMemo(() => {
+  const { projectKey, basePath, selectedProject } = useMemo(() => {
+    const projectKey = params.projectKey as string;
+    const selectedProject = projects.find((p) => p.key === projectKey) || null;
     return {
-      projectKey: params.projectKey as string,
+      projectKey: projectKey,
       basePath: `/app/projects/${params.projectKey}`,
+      selectedProject: selectedProject,
     };
   }, [params]);
-  const router = useRouter();
+  // const router = useRouter();
 
-  const {
-    connection,
-    selectedProject,
-
-    setSelectedStory,
-  } = useWorkspaceStore();
-
-  const { data: dashboardData, isLoading: isDashboardLoading } = useProjectDashboardQuery(projectKey);
+  const { data: dashboardData, isLoading: isDashboardLoading } =
+    useProjectDashboardQuery(projectKey);
   const dashboard = dashboardData?.data;
 
   const {
@@ -68,7 +152,11 @@ const ProjectDashboard: React.FC = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useDashboardStoriesInfiniteQuery(projectKey, 10, dashboard?.num_stories || 0);
+  } = useDashboardStoriesInfiniteQuery(
+    projectKey,
+    12,
+    dashboard?.num_stories || 0,
+  );
 
   const stories = useMemo(() => {
     if (!storiesData) return [];
@@ -77,16 +165,16 @@ const ProjectDashboard: React.FC = () => {
 
   const isLoading = isDashboardLoading || (isStoriesLoading && !stories.length);
 
-  const handleStoryClick = async (story: StorySummary) => {
-    setSelectedStory(story);
-    if (connection && selectedProject) {
-      router.push(`${basePath}/stories/${story.key}`);
-    }
-  };
+  // const handleStoryClick = async (story: StorySummary) => {
+  //   setSelectedStory(story);
+  //   if (connection && selectedProject) {
+  //     router.push(`${basePath}/stories/${story.key}`);
+  //   }
+  // };
 
-  const handleNavigate = async (path: string) => {
-    router.push(`${basePath}/${path}`);
-  };
+  // const handleNavigate = async (path: string) => {
+  //   router.push(`${basePath}/${path}`);
+  // };
 
   const stats = dashboard
     ? [
@@ -94,34 +182,113 @@ const ProjectDashboard: React.FC = () => {
           title: ts("stories"),
           value: dashboard.num_stories,
           icon: <MenuBook fontSize="large" />,
-          onClick: () => handleNavigate("workspace"),
+          // onClick: () => handleNavigate("workspace"),
+          href: `${basePath}/workspace`,
         },
         {
           title: ts("analyses"),
           value: dashboard.num_analyses,
           icon: <Analytics fontSize="large" />,
-          onClick: () => handleNavigate("analyses"),
+          // onClick: () => handleNavigate("analyses"),
+          href: `${basePath}/analyses`,
         },
         {
           title: ts("chats"),
           value: dashboard.num_chats,
           icon: <Assistant fontSize="large" />,
-          onClick: () => handleNavigate("chats"),
+          // onClick: () => handleNavigate("chats"),
+          href: `${basePath}/chats`,
         },
         {
           title: ts("proposals"),
           value: dashboard.num_proposals,
           icon: <EmojiObjects fontSize="large" />,
-          onClick: () => handleNavigate("proposals"),
+          // onClick: () => handleNavigate("proposals"),
+          href: `${basePath}/proposals`,
         },
         {
           title: ts("acs"),
           value: dashboard.num_acs,
           icon: <Code fontSize="large" />,
-          onClick: () => handleNavigate("ac"),
+          // onClick: () => handleNavigate("acs"),
+          href: `${basePath}/acs`,
         },
       ]
     : [];
+
+  const readinessSection = (readiness_score: number) => {
+    return (
+      <Paper
+        elevation={2}
+        sx={{
+          p: 3,
+          borderRadius: 1,
+        }}
+      >
+        <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
+          {t("readinessScore")}
+        </Typography>
+        <Grid container spacing={3} justifyContent="center">
+          {/* Readiness Score Gauge */}
+          <Grid size={{ xs: 12 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                py: 2,
+              }}
+            >
+              <Box sx={{ position: "relative", display: "inline-flex" }}>
+                <CircularProgress
+                  variant="determinate"
+                  value={100}
+                  size={140}
+                  thickness={4}
+                  sx={{
+                    color:
+                      theme.palette.mode === "dark"
+                        ? "rgba(255,255,255,0.08)"
+                        : "rgba(0,0,0,0.08)",
+                    position: "absolute",
+                  }}
+                />
+                <CircularProgress
+                  variant="determinate"
+                  value={readiness_score}
+                  size={140}
+                  thickness={4}
+                  color={getReadinessColor(readiness_score)}
+                />
+                <Box
+                  sx={{
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    right: 0,
+                    position: "absolute",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Typography
+                    variant="h3"
+                    fontWeight="bold"
+                    color={`${getReadinessColor(readiness_score)}.main`}
+                  >
+                    {Math.round(readiness_score)}%
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          </Grid>
+        </Grid>
+      </Paper>
+    );
+  };
 
   return (
     <DashboardLayout
@@ -167,75 +334,9 @@ const ProjectDashboard: React.FC = () => {
           </Paper>
 
           {/* Readiness section */}
-          <Paper
-            elevation={2}
-            sx={{
-              p: 3,
-              borderRadius: 1,
-            }}
-          >
-            <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-              {t("readinessScore")}
-            </Typography>
-            <Grid container spacing={3} justifyContent="center">
-              {/* Readiness Score Gauge */}
-              <Grid size={{ xs: 12 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    py: 2,
-                  }}
-                >
-                  <Box sx={{ position: "relative", display: "inline-flex" }}>
-                    <CircularProgress
-                      variant="determinate"
-                      value={100}
-                      size={140}
-                      thickness={4}
-                      sx={{
-                        color:
-                          theme.palette.mode === "dark"
-                            ? "rgba(255,255,255,0.08)"
-                            : "rgba(0,0,0,0.08)",
-                        position: "absolute",
-                      }}
-                    />
-                    <CircularProgress
-                      variant="determinate"
-                      value={dashboard.readiness_score}
-                      size={140}
-                      thickness={4}
-                      color={getReadinessColor(dashboard.readiness_score)}
-                    />
-                    <Box
-                      sx={{
-                        top: 0,
-                        left: 0,
-                        bottom: 0,
-                        right: 0,
-                        position: "absolute",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Typography
-                        variant="h3"
-                        fontWeight="bold"
-                        color={`${getReadinessColor(dashboard.readiness_score)}.main`}
-                      >
-                        {Math.round(dashboard.readiness_score)}%
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-              </Grid>
-            </Grid>
-          </Paper>
+          {dashboard.readiness_score !== undefined &&
+            readinessSection(dashboard.readiness_score)}
+          {/* { readinessSection(dashboard.readiness_score ?? 0) } */}
 
           {/* Story Lists */}
           <Paper
@@ -249,52 +350,12 @@ const ProjectDashboard: React.FC = () => {
               {t("stories")}
             </Typography>
             <Grid container spacing={2}>
-              {stories.map((story) => story && (
-                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={story.id}>
-                  <Paper
-                    elevation={1}
-                    sx={{
-                      p: 2,
-                      borderRadius: 1,
-                      cursor: "pointer",
-                      "&:hover": { bgcolor: "action.hover" },
-                    }}
-                    onClick={() => handleStoryClick(story as any)}
-                  >
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-                      <Typography variant="subtitle1" fontWeight={600} noWrap sx={{ flex: 1, mr: 1 }}>
-                        {story.key}
-                      </Typography>
-                      <Chip
-                        icon={story.is_ready ? <CheckCircle fontSize="small" /> : <Cancel fontSize="small" />}
-                        label={story.is_ready ? t("ready", { defaultValue: "Ready" }) : t("notReady", { defaultValue: "Not Ready" })}
-                        size="small"
-                        color={story.is_ready ? "success" : "default"}
-                        variant={story.is_ready ? "filled" : "outlined"}
-                      />
-                    </Box>
-                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
-                      <Chip
-                        icon={<Analytics fontSize="small" />}
-                        label={story.analysis_count}
-                        size="small"
-                        color={story.analysis_count > 0 ? "primary" : "default"}
-                      />
-                      <Chip
-                        icon={<EmojiObjects fontSize="small" />}
-                        label={story.proposal_count}
-                        size="small"
-                        color={story.proposal_count > 0 ? "warning" : "default"}
-                      />
-                      <Chip
-                        icon={<Code fontSize="small" />}
-                        label={story.ac_count}
-                        size="small"
-                        color={story.ac_count > 0 ? "success" : "default"}
-                      />
-                    </Stack>
-                  </Paper>
-                </Grid>
+              {stories.map((story) => (
+                <StoryCard
+                  key={story.id}
+                  story={story}
+                  href={`${basePath}/stories/${story.key}`}
+                />
               ))}
             </Grid>
             {hasNextPage && (
@@ -305,7 +366,9 @@ const ProjectDashboard: React.FC = () => {
                   disabled={isFetchingNextPage}
                   endIcon={<KeyboardArrowDown />}
                 >
-                  {isFetchingNextPage ? t("loadingMore", { defaultValue: "Loading..." }) : t("more", { defaultValue: "More" })}
+                  {isFetchingNextPage
+                    ? t("loadingMore")
+                    : t("more", { defaultValue: "More" })}
                 </Button>
               </Box>
             )}

@@ -627,9 +627,8 @@ class JiraService(JiraBaseService):
             )
         return project_dtos
 
-    def _on_story_create(self, connection_id: str, payload: dict):
+    def _on_story_create(self, connection_id: str, issue: dict):
         """Handle a story creation webhook from a single issue payload."""
-        issue = payload.get("issue", payload)
         fields = issue.get("fields", {}) or {}
         project_key = (fields.get("project") or {}).get("key")
         if not project_key:
@@ -712,9 +711,8 @@ class JiraService(JiraBaseService):
             print(f"Error creating story: {e}")
             raise
 
-    def _on_story_update(self, connection_id: str, payload: dict):
+    def _on_story_update(self, connection_id: str, issue: dict):
         """Handle a story update webhook from a single issue payload."""
-        issue = payload.get("issue", payload)
         fields = issue.get("fields", {}) or {}
         project_key = (fields.get("project") or {}).get("key")
         if not project_key:
@@ -804,9 +802,8 @@ class JiraService(JiraBaseService):
             print(f"Error updating story: {e}")
             raise
 
-    def _on_story_delete(self, connection_id: str, payload: dict):
+    def _on_story_delete(self, connection_id: str, issue: dict):
         """Handle a story deletion webhook from a single issue payload."""
-        issue = payload.get("issue", payload)
         fields = issue.get("fields", {}) or {}
         project_key = (fields.get("project") or {}).get("key")
         if not project_key:
@@ -922,28 +919,34 @@ class JiraService(JiraBaseService):
         payload: WebhookCallbackPayload,
     ):
         """Handle incoming Jira webhook payloads"""
+        import json
+
         try:
             issue = payload.issue
             fields = issue.get("fields", {}) or {}
             project_key = (fields.get("project") or {}).get("key")
             issue_type_name = (fields.get("issuetype") or {}).get("name")
+
             if issue_type_name == "Story":
                 match payload.webhookEvent:
                     case "jira:issue_created":
                         self._on_story_create(
-                            connection_id=connection_id, payload=payload.model_dump()
+                            connection_id=connection_id, issue=issue
                         )
                     case "jira:issue_updated":
                         self._on_story_update(
-                            connection_id=connection_id, payload=payload.model_dump()
+                            connection_id=connection_id, issue=issue
                         )
                     case "jira:issue_deleted":
                         self._on_story_delete(
-                            connection_id=connection_id, payload=payload.model_dump()
+                            connection_id=connection_id, issue=issue
                         )
             else:
+                description = fields.get("description")
+                print(f"Description:\n{description}")
                 match payload.webhookEvent:
                     case "jira:issue_created":
+
                         self._on_ac_create(
                             connection_id=connection_id,
                             project_key=project_key,
@@ -952,9 +955,7 @@ class JiraService(JiraBaseService):
                             ac_key=issue.get("key"),
                             summary=fields.get("summary"),
                             description=(
-                                adf_to_md(fields.get("description"))
-                                if fields.get("description")
-                                else None
+                                adf_to_md(description) if description else None
                             ),
                         )
                     case "jira:issue_updated":
@@ -965,9 +966,7 @@ class JiraService(JiraBaseService):
                             ac_key=issue.get("key"),
                             summary=fields.get("summary"),
                             description=(
-                                adf_to_md(fields.get("description"))
-                                if fields.get("description")
-                                else None
+                                adf_to_md(description) if description else None
                             ),
                         )
                     case "jira:issue_deleted":
@@ -1053,6 +1052,7 @@ class JiraService(JiraBaseService):
         description: str,
     ):
         """Handle AC creation: save to local DB and vector store"""
+        print(f"Updating AC {ac_key} with description:\n{description}")
         ac = (
             self.db.query(GherkinAC)
             .join(Story, GherkinAC.story_id == Story.id)

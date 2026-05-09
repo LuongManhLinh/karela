@@ -101,35 +101,35 @@ class DashboardService:
         ).one()
 
         # Calculate readiness score efficiently
-        defect_story_keys_subq = (
-            select(distinct(DefectStoryKey.story_key))
-            .join(Defect)
-            .join(Analysis)
-            .where(
-                Analysis.connection_id == connection_id,
-                Analysis.project_key == project_key,
-            )
-            .correlate(None)
-            .subquery()
-        )
+        # defect_story_keys_subq = (
+        #     select(distinct(DefectStoryKey.story_key))
+        #     .join(Defect)
+        #     .join(Analysis)
+        #     .where(
+        #         Analysis.connection_id == connection_id,
+        #         Analysis.project_key == project_key,
+        #     )
+        #     .correlate(None)
+        #     .subquery()
+        # )
 
-        ac_story_ids_subq = (
-            select(distinct(GherkinAC.story_id)).correlate(None).subquery()
-        )
+        # ac_story_ids_subq = (
+        #     select(distinct(GherkinAC.story_id)).correlate(None).subquery()
+        # )
 
-        num_ready_stories = (
-            self.db.query(func.count(Story.id))
-            .filter(
-                Story.project_id == project.id,
-                Story.id.in_(select(ac_story_ids_subq)),
-                ~Story.key.in_(select(defect_story_keys_subq)),
-            )
-            .scalar()
-        )
-        
-        readiness_score = (
-            (num_ready_stories / num_stories * 100) if num_stories > 0 else 0.0
-        )
+        # num_ready_stories = (
+        #     self.db.query(func.count(Story.id))
+        #     .filter(
+        #         Story.project_id == project.id,
+        #         Story.id.in_(select(ac_story_ids_subq)),
+        #         ~Story.key.in_(select(defect_story_keys_subq)),
+        #     )
+        #     .scalar()
+        # )
+
+        # readiness_score = (
+        #     (num_ready_stories / num_stories * 100) if num_stories > 0 else 0.0
+        # )
 
         return ProjectDashboardDto(
             num_stories=num_stories,
@@ -137,7 +137,6 @@ class DashboardService:
             num_chats=num_chats,
             num_proposals=num_proposals,
             num_acs=num_ac,
-            readiness_score=readiness_score,
         )
 
     def get_paginated_stories(
@@ -169,7 +168,7 @@ class DashboardService:
 
         story_infos = []
         for s in stories:
-            s_num_analyses, s_num_proposals, s_num_ac, s_has_defect = self.db.query(
+            s_num_analyses, s_num_proposals, s_num_ac, s_num_defect = self.db.query(
                 (
                     select(func.count(distinct(Analysis.id)))
                     .join(Defect)
@@ -213,8 +212,6 @@ class DashboardService:
                 ),
             ).one()
 
-            is_ready = s_num_ac > 0 and not s_has_defect
-
             story_infos.append(
                 StoryInfo(
                     id=s.id,
@@ -222,7 +219,7 @@ class DashboardService:
                     analysis_count=s_num_analyses,
                     proposal_count=s_num_proposals,
                     ac_count=s_num_ac,
-                    is_ready=is_ready,
+                    defect_count=s_num_defect,
                 )
             )
 
@@ -377,42 +374,55 @@ class DashboardService:
 
         project_infos = []
         for p in projects:
-            p_num_analyses, p_num_chats, p_num_proposals, p_num_ac = self.db.query(
-                (
-                    select(func.count(Analysis.id))
-                    .where(
-                        Analysis.connection_id == connection.id,
-                        Analysis.project_key == p.key,
-                    )
-                    .correlate(None)
-                    .scalar_subquery()
-                ),
-                (
-                    select(func.count(ChatSession.id))
-                    .where(
-                        ChatSession.connection_id == connection.id,
-                        ChatSession.project_key == p.key,
-                    )
-                    .correlate(None)
-                    .scalar_subquery()
-                ),
-                (
-                    select(func.count(Proposal.id))
-                    .where(
-                        Proposal.connection_id == connection.id,
-                        Proposal.project_key == p.key,
-                    )
-                    .correlate(None)
-                    .scalar_subquery()
-                ),
-                (
-                    select(func.count(GherkinAC.id))
-                    .join(Story)
-                    .where(Story.project_id == p.id)
-                    .correlate(None)
-                    .scalar_subquery()
-                ),
-            ).one()
+            p_num_analyses, p_num_chats, p_num_proposals, p_num_ac, p_num_defect = (
+                self.db.query(
+                    (
+                        select(func.count(Analysis.id))
+                        .where(
+                            Analysis.connection_id == connection.id,
+                            Analysis.project_key == p.key,
+                        )
+                        .correlate(None)
+                        .scalar_subquery()
+                    ),
+                    (
+                        select(func.count(ChatSession.id))
+                        .where(
+                            ChatSession.connection_id == connection.id,
+                            ChatSession.project_key == p.key,
+                        )
+                        .correlate(None)
+                        .scalar_subquery()
+                    ),
+                    (
+                        select(func.count(Proposal.id))
+                        .where(
+                            Proposal.connection_id == connection.id,
+                            Proposal.project_key == p.key,
+                        )
+                        .correlate(None)
+                        .scalar_subquery()
+                    ),
+                    (
+                        select(func.count(GherkinAC.id))
+                        .join(Story)
+                        .where(Story.project_id == p.id)
+                        .correlate(None)
+                        .scalar_subquery()
+                    ),
+                    (
+                        select(func.count(Defect.id))
+                        .join(DefectStoryKey)
+                        .join(Analysis)
+                        .where(
+                            Analysis.connection_id == connection.id,
+                            Analysis.project_key == p.key,
+                        )
+                        .correlate(None)
+                        .scalar_subquery()
+                    ),
+                ).one()
+            )
 
             project_infos.append(
                 ProjectInfo(
@@ -423,6 +433,7 @@ class DashboardService:
                     chat_count=p_num_chats,
                     proposal_count=p_num_proposals,
                     ac_count=p_num_ac,
+                    defect_count=p_num_defect,
                 )
             )
 

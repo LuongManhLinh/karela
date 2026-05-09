@@ -15,7 +15,6 @@ import {
   DialogActions,
   ToggleButtonGroup,
   ToggleButton,
-  Divider,
 } from "@mui/material";
 import {
   Logout,
@@ -24,16 +23,23 @@ import {
   Brightness4,
   Brightness7,
 } from "@mui/icons-material";
+import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations, useLocale } from "next-intl";
 import { Layout } from "@/components/Layout";
 import {
+  CONNECTION_KEYS,
   useConnectionQuery as useGetConnectionQuery,
+  useConnectionSyncStatusQuery,
   useProjectsSyncQuery,
 } from "@/hooks/queries/useConnectionQueries";
 import { useNotificationContext } from "@/providers/NotificationProvider";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useRouter } from "next/navigation";
-import type { ProjectSyncDto } from "@/types/connection";
+import type {
+  ConnectionSyncError,
+  ProjectSyncDto,
+  SyncStatus,
+} from "@/types/connection";
 import { ConnectionItem } from "@/components/profile/ConnectionItem";
 import { SyncProjectsDialog } from "@/components/profile/SyncProjectsDialog";
 import { getThemeName, setThemeName } from "@/utils/themeStorageUtil";
@@ -42,6 +48,9 @@ import { removeToken } from "@/utils/jwtUtils";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { useThemeMode } from "@/providers/ThemeProvider";
 import { setLanguage } from "@/utils/languageUtils";
+import { useWebSocketContext } from "@/providers/WebSocketProvider";
+import { jiraService } from "@/services/jiraService";
+import { set } from "ace-builds-internal/config";
 
 type ThemeOption = {
   name: string;
@@ -64,11 +73,64 @@ export default function ProfilePage() {
   );
 
   const { notify } = useNotificationContext();
+  const queryClient = useQueryClient();
+  const { subscribe, unsubscribe } = useWebSocketContext();
   const [syncDialogOpen, setSyncDialogOpen] = useState(false);
   const [themes, setThemes] = useState<ThemeOption[]>([]);
   const [selectedThemeName, setSelectedThemeName] = useState(getThemeName());
+  const [syncStatus, setSyncStatus] = useState<SyncStatus | undefined>(
+    undefined,
+  );
+  const [syncMessage, setSyncMessage] = useState<string | undefined>(undefined);
+  const [syncError, setSyncError] = useState<ConnectionSyncError | undefined>(
+    undefined,
+  );
 
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+
+  const { data: syncStatusData, isLoading: isSyncStatusLoading } =
+    useConnectionSyncStatusQuery(Boolean(connection));
+
+  useEffect(() => {
+    if (syncStatusData?.data) {
+      setSyncStatus(syncStatusData.data.sync_status);
+      setSyncMessage(syncStatusData.data.sync_message);
+      setSyncError(syncStatusData.data.sync_error);
+    }
+  }, [syncStatusData]);
+
+  useEffect(() => {
+    if (!connection?.id) {
+      return;
+    }
+
+    const topic = `connection:${connection.id}`;
+    const handleMessage = (data: {
+      sync_status: SyncStatus;
+      sync_message?: string;
+      sync_error?: ConnectionSyncError;
+    }) => {
+      console.log(
+        "Received WebSocket message for connection sync status update:",
+        data,
+      );
+      setSyncStatus(data.sync_status);
+      setSyncMessage(data.sync_message);
+      setSyncError(data.sync_error);
+      queryClient.invalidateQueries({
+        queryKey: CONNECTION_KEYS.projects(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: CONNECTION_KEYS.projectsSync(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: CONNECTION_KEYS.syncStatus(),
+      });
+    };
+
+    subscribe(topic, handleMessage);
+    return () => unsubscribe(topic, handleMessage);
+  }, [connection?.id, subscribe, unsubscribe, queryClient]);
 
   const { data, isLoading } = useProjectsSyncQuery();
   const syncStatuses: ProjectSyncDto[] = useMemo(() => {
@@ -124,10 +186,6 @@ export default function ProfilePage() {
 
   const basePath = "/app";
 
-  const handleSyncConnection = async () => {
-    setSyncDialogOpen(true);
-  };
-
   const handleThemeSelect = (themeName: string) => {
     setThemeName(themeName);
     setSelectedThemeName(themeName);
@@ -139,6 +197,38 @@ export default function ProfilePage() {
     removeToken();
     resetAll();
     router.push("/login");
+  };
+
+  let buttonDisabled = !connection;
+  let buttonText: string;
+  if (
+    syncStatus === "done" ||
+    syncStatus === "setup_done" ||
+    syncStatus === "failed"
+  ) {
+    buttonText = t("syncWithCount", {
+      synced: syncedProjectsCount,
+      total: totalProjectsCount,
+    });
+  } else if (syncStatus === "setup_failed") {
+    buttonText = t("retrySync");
+  } else {
+    buttonText = t("syncing");
+    buttonDisabled = true;
+  }
+
+  const handleSyncConnection = async () => {
+    if (syncStatus === "setup_failed") {
+      await jiraService.retrySetup();
+    } else {
+      setSyncDialogOpen(true);
+    }
+  };
+
+  const handleOnSync = async () => {
+    setSyncStatus("not_started");
+    setSyncMessage(undefined);
+    setSyncError(undefined);
   };
 
   if (isConnectionsLoading) {
@@ -192,7 +282,13 @@ export default function ProfilePage() {
           </Box>
           <Stack spacing={2}>
             {connection ? (
-              <ConnectionItem connection={connection} />
+              <ConnectionItem
+                connection={connection}
+                syncStatus={syncStatus}
+                syncMessage={syncMessage}
+                syncError={syncError}
+                isLoading={isSyncStatusLoading}
+              />
             ) : (
               <Typography variant="body2" color="text.secondary">
                 {t("connectJiraToStart")}
@@ -204,11 +300,9 @@ export default function ProfilePage() {
               variant="contained"
               onClick={handleSyncConnection}
               fullWidth
+              disabled={buttonDisabled}
             >
-              {t("syncWithCount", {
-                synced: syncedProjectsCount,
-                total: totalProjectsCount,
-              })}
+              {buttonText}
             </Button>
           </Stack>
         </Paper>
@@ -356,9 +450,10 @@ export default function ProfilePage() {
       <SyncProjectsDialog
         open={syncDialogOpen}
         isLoading={isLoading}
-        syncStatuses={syncStatuses}
+        projectSyncDtos={syncStatuses}
         syncedProjectsCount={syncedProjectsCount}
         totalProjectsCount={totalProjectsCount}
+        onSync={handleOnSync}
         onClose={() => setSyncDialogOpen(false)}
       />
 

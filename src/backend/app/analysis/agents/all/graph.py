@@ -175,10 +175,14 @@ def build_all_graph():
         buckets = [
             (group.target_story, group.related_stories) for group in bucket_groups
         ]
+
+        context = runtime.context
         defects = run_pairwise_defect_analyzer(
             agent=pairwise_agent,
             buckets=buckets,
             project_context=project_context,
+            group=context.group_story,
+            grouped_threshold=context.group_story_threshold,
         )
         return {"raw_defects": defects}
 

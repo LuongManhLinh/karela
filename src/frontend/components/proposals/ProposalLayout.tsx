@@ -122,7 +122,7 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({
         <Typography
           variant="body2"
           color="text.secondary"
-          sx={{ mt: 1, mb: 2 }}
+          sx={{ mt: 1, mb: 2, pl: 2 }}
         >
           {emptyStateText}
         </Typography>
@@ -204,16 +204,14 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({
   const sessionsComponent = (
     <Box
       sx={{
-        flex: 1,
         minHeight: 0,
-        px: 2,
         display: "flex",
         flexDirection: "column",
       }}
     >
       <Typography
         variant="subtitle2"
-        sx={{ textTransform: "uppercase", color: "text.secondary" }}
+        sx={{ textTransform: "uppercase", color: "text.secondary", pl: 2 }}
       >
         {t("analysisProposals")}
       </Typography>
@@ -229,7 +227,12 @@ const ProposalLayout: React.FC<ProposalLayoutProps> = ({
 
       <Typography
         variant="subtitle2"
-        sx={{ textTransform: "uppercase", color: "text.secondary", mt: 1 }}
+        sx={{
+          textTransform: "uppercase",
+          color: "text.secondary",
+          mt: 1,
+          pl: 2,
+        }}
       >
         {t("chatProposals")}
       </Typography>

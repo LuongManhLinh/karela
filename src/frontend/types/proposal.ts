@@ -13,7 +13,7 @@ export interface ProposalContentDto {
 }
 
 export type ProposalSource = "CHAT" | "ANALYSIS";
-export type ProposalActionFlag = -1 | 0 | 1;
+export type ProposalActionFlag = -1 | 0 | 1; // Revert | Reject | Accept
 
 export interface ProposalSummary {
   id: string;
@@ -24,6 +24,7 @@ export interface ProposalSummary {
 }
 
 export interface ProposalDto extends ProposalSummary {
+  accepted?: boolean;
   source: ProposalSource;
   target_defect_keys?: string[] | null;
   contents: ProposalContentDto[];

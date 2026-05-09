@@ -26,6 +26,8 @@ from app.analysis.models import Analysis
 from app.chat.models import ChatSession
 from app.connection.jira.models import Connection
 
+order = {None: 0, True: 1, False: 2}
+
 
 class ProposalService:
     def __init__(self, db: Session):
@@ -109,6 +111,9 @@ class ProposalService:
         Returns:
             list[str]: The list of keys of the created proposals.
         """
+        if not proposal_requests:
+            return []
+        proposal_request = proposal_requests[0]
         stmt = select(func.max(Proposal.key)).filter(
             Proposal.connection_id == proposal_request.connection_id,
             Proposal.project_key == proposal_request.project_key,
@@ -134,6 +139,10 @@ class ProposalService:
         contents: list[ProposalContent],
         transaction_id: str | None = None,
     ):
+        print(
+            f"Accepting proposal contents for connection {connection_id} and project {project_key}"
+        )
+        return  # Return to test
         try:
             create_contents = []
             update_keys = []
@@ -383,6 +392,38 @@ class ProposalService:
         self.db.commit()
 
     def _get_proposal_dto(self, proposal: Proposal) -> ProposalDto:
+        contents = []
+        accepted_count = 0
+        rejected_count = 0
+        pending_count = 0
+        for content in proposal.contents:
+            content_dto = ProposalContentDto(
+                id=content.id,
+                type=content.type.value,
+                story_key=content.story_key,
+                summary=content.summary,
+                description=content.description,
+                explanation=content.explanation,
+                accepted=content.accepted,
+            )
+            contents.append(content_dto)
+
+            if content.accepted is True:
+                accepted_count += 1
+            elif content.accepted is False:
+                rejected_count += 1
+            else:
+                pending_count += 1
+        num_contents = len(contents)
+        if num_contents > 0:
+            if accepted_count == num_contents:
+                accepted = True
+            elif rejected_count == num_contents:
+                accepted = False
+            else:
+                accepted = None
+        else:
+            accepted = None
         return ProposalDto(
             id=proposal.id,
             key=proposal.key,
@@ -394,18 +435,8 @@ class ProposalService:
             ),
             project_key=proposal.project_key,
             created_at=proposal.created_at.isoformat(),
-            contents=[
-                ProposalContentDto(
-                    id=content.id,
-                    type=content.type.value,
-                    story_key=content.story_key,
-                    summary=content.summary,
-                    description=content.description,
-                    explanation=content.explanation,
-                    accepted=content.accepted,
-                )
-                for content in proposal.contents
-            ],
+            contents=contents,
+            accepted=accepted,
             target_defect_keys=(
                 DefectService(self.db).get_defect_keys_by_ids(
                     [pd.defect_id for pd in proposal.proposal_defects]
@@ -463,8 +494,15 @@ class ProposalService:
                 ProposalContent.story_key == story_filter_key
             )
 
-        proposals = query.all()
-        return [self._get_proposal_dto(proposal) for proposal in proposals]
+        # proposals = query.all()
+        # Order by key asc
+        proposals = query.order_by(Proposal.key.asc()).all()
+        dtos = [self._get_proposal_dto(proposal) for proposal in proposals]
+
+        # Order by accepted status: pending first, then accepted, then rejected
+        dtos.sort(key=lambda x: (order[x.accepted]))
+
+        return dtos
 
     def list_sessions_proposals_by_connection(self, connection_id: str):
         """Retrieves all proposals for a given connection ID.

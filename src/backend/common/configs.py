@@ -29,7 +29,7 @@ class LlmConfig:
     LLM_DEFECT_TOP_P = float(os.getenv("LLM_DEFECT_TOP_P", "0.1"))
 
     GEMINI_API_KEYS = os.getenv("GEMINI_API_KEYS", "").split(",")
-    GEMINI_DEFECT_MODEL = os.getenv("GEMINI_DEFECT_MODEL", "gemini-2.5-flash")
+    GEMINI_DEFECT_MODEL = os.getenv("GEMINI_DEFECT_MODEL", "gemini-2.5-flash-lite")
     GEMINI_CHAT_MODEL = os.getenv("GEMINI_CHAT_MODEL", "gemini-2.5-flash")
     GEMINI_DEFAULT_MODEL = os.getenv("GEMINI_DEFAULT_MODEL", "gemini-2.5-flash")
     GEMINI_TAXONOMY_MODEL = os.getenv("GEMINI_TAXONOMY_MODEL", "gemini-2.5-flash-lite")

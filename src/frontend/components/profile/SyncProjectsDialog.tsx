@@ -24,6 +24,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Stack,
   Switch,
   TextField,
   Tooltip,
@@ -38,15 +39,15 @@ import {
   PendingFileDoc,
 } from "@/components/documentation/DocumentationManager";
 import { DialogContentText } from "@mui/material";
-import { useBulkUploadDocsMutation } from "@/hooks/queries/useDocumentationQueries";
 import { useQueryClient } from "@tanstack/react-query";
 
 export interface SyncProjectsDialogProps {
   open: boolean;
   isLoading: boolean;
-  syncStatuses: ProjectSyncDto[];
+  projectSyncDtos: ProjectSyncDto[];
   syncedProjectsCount: number;
   totalProjectsCount: number;
+  onSync: () => void;
   onClose: () => void;
 }
 
@@ -282,10 +283,12 @@ const ProjectConfigDialog = ({
 export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
   open,
   isLoading,
-  syncStatuses,
+  projectSyncDtos,
   syncedProjectsCount,
   totalProjectsCount,
+  onSync,
   onClose,
+
 }) => {
   const t = useTranslations("profile.SyncProjectsDialog");
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
@@ -296,18 +299,20 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
   const [isSyncing, setIsSyncing] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [confirmSyncDialogOpen, setConfirmSyncDialogOpen] = useState(false);
-  const [projectsMissingDocs, setProjectsMissingDocs] = useState<string[]>([]);
+  const [projectsMissingDocs, setProjectsMissingDocs] = useState<
+    ProjectSyncDto[]
+  >([]);
 
   const queryClient = useQueryClient();
 
   const unsyncedProjects = useMemo(
-    () => syncStatuses.filter((p) => !p.synced),
-    [syncStatuses],
+    () => projectSyncDtos.filter((p) => !p.synced),
+    [projectSyncDtos],
   );
 
   const syncedProjects = useMemo(
-    () => syncStatuses.filter((p) => p.synced),
-    [syncStatuses],
+    () => projectSyncDtos.filter((p) => p.synced),
+    [projectSyncDtos],
   );
 
   const handleToggle = useCallback(
@@ -368,7 +373,9 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
       }
 
       if (keysMissingDocs.length > 0) {
-        setProjectsMissingDocs(keysMissingDocs);
+        setProjectsMissingDocs(
+          projectSyncDtos.filter((p) => keysMissingDocs.includes(p.key)),
+        );
         setConfirmSyncDialogOpen(true);
       } else {
         await executeSync();
@@ -386,6 +393,7 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
     setIsSyncing(true);
     setConfirmSyncDialogOpen(false);
     try {
+      onSync();
       onClose();
       const projectsToSync: SyncProject[] = [];
       for (const key of selectedKeys) {
@@ -455,7 +463,7 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
           >
             <CircularProgress size={32} />
           </Box>
-        ) : syncStatuses.length === 0 ? (
+        ) : projectSyncDtos.length === 0 ? (
           <Box sx={{ py: 4, textAlign: "center" }}>
             <Typography color="text.secondary">
               {t("noProjectsFound")}
@@ -571,16 +579,16 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
           <DialogContentText>
             {t("missingDocumentationMessage")}
           </DialogContentText>
-          <List dense>
-            {projectsMissingDocs.map((key) => (
-              <ListItem key={key} sx={{ display: "list-item" }}>
-                <Typography variant="body2" fontWeight="bold">
-                  {key}
-                </Typography>
-              </ListItem>
+          <Stack gap={2} my={3}>
+            {projectsMissingDocs.map((dto) => (
+              <Typography variant="body2" fontWeight="bold" key={dto.id}>
+                {dto.key}
+                {dto.name ? ` - ${dto.name}` : ""}
+              </Typography>
             ))}
-          </List>
-          <DialogContentText sx={{ mt: 2 }}>
+          </Stack>
+
+          <DialogContentText>
             {t("missingDocumentationConfirmation")}
           </DialogContentText>
         </DialogContent>

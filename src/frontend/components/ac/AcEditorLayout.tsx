@@ -44,6 +44,9 @@ const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
     idOrKey || null,
   );
 
+  const [creating, setCreating] = useState(false);
+  const [creatingWithAI, setCreatingWithAI] = useState(false);
+
   const connectionQuery = useACsByConnectionQuery();
   const projectQuery = useACsByProjectQuery(projectKey);
   const storyQuery = useACsByStoryQuery(projectKey, storyKey);
@@ -82,24 +85,41 @@ const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
     project: ProjectDto,
     story?: StorySummary,
   ) => {
-    if (!story) {
-      return null;
+    let id = null;
+    try {
+      setCreating(true);
+      if (story) {
+        const newId = await acService.createAC(project.key, story.key, false);
+        await refetchACs();
+        id = newId?.data || null;
+      }
+    } catch (error) {
+      id = null;
+    } finally {
+      setCreating(false);
     }
-    const newId = await acService.createAC(project.key, story.key, false);
-    await refetchACs();
-    return newId?.data || null;
+    return id;
   };
 
   const handleNewGherkinWithAI = async (
     project: ProjectDto,
     story?: StorySummary,
   ) => {
-    if (!story) {
-      return null;
+    let id = null;
+    try {
+      setCreatingWithAI(true);
+      if (!story) {
+        return null;
+      }
+      const newId = await acService.createAC(project.key, story.key, true);
+      await refetchACs();
+      id = newId?.data || null;
+    } catch (error) {
+      id = null;
+    } finally {
+      setCreatingWithAI(false);
     }
-    const newId = await acService.createAC(project.key, story.key, true);
-    await refetchACs();
-    return newId?.data || null;
+    return id;
   };
 
   const sessionsComponent = (
@@ -194,7 +214,7 @@ const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
                         gap: 0.75,
                       }}
                     >
-                      <Chip size="small" label={`ID: ${itemId}`} />
+                      <Chip size="small" label={`KEY: ${itemId}`} />
                       <Chip
                         size="small"
                         label={`${tSessionList("project")}: ${ac.project_key}`}
@@ -214,6 +234,8 @@ const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
     </Box>
   );
 
+  const actionDisabled = creating || creatingWithAI;
+
   return (
     <PageLayout
       level={level}
@@ -230,6 +252,10 @@ const AcEditorLayout: React.FC<AcEditorLayoutProps> = ({
       secondaryActionLabel={t("generateWithAI")}
       showStoryCheckbox={false}
       requireStory={true}
+      primaryActionRunning={creating}
+      secondaryActionRunning={creatingWithAI}
+      primaryActionDisabled={actionDisabled}
+      secondaryActionDisabled={actionDisabled}
     >
       {children}
     </PageLayout>

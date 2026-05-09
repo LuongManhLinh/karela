@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useInfiniteQuery,
+} from "@tanstack/react-query";
 import { connectionService } from "@/services/connectionService";
 
 export const CONNECTION_KEYS = {
@@ -25,10 +30,11 @@ export const CONNECTION_KEYS = {
     [...CONNECTION_KEYS.all, "dashboardProjects"] as const,
 };
 
-export const useConnectionSyncStatusQuery = () => {
+export const useConnectionSyncStatusQuery = (enabled: boolean = true) => {
   return useQuery({
     queryKey: CONNECTION_KEYS.syncStatus(),
     queryFn: () => connectionService.getConnectionSyncStatus(),
+    enabled,
   });
 };
 
@@ -70,12 +76,20 @@ export const useProjectDashboardQuery = (projectKey: string | undefined) => {
   });
 };
 
-export const useDashboardStoriesInfiniteQuery = (projectKey: string | undefined, limit: number = 10, numStories: number = 0) => {
+export const useDashboardStoriesInfiniteQuery = (
+  projectKey: string | undefined,
+  limit: number = 12,
+  numStories: number = 0,
+) => {
   return useInfiniteQuery({
     queryKey: CONNECTION_KEYS.dashboardStories(projectKey || ""),
-    queryFn: ({ pageParam = 0 }) => connectionService.getDashboardStories(projectKey!, pageParam, limit),
+    queryFn: ({ pageParam = 0 }) =>
+      connectionService.getDashboardStories(projectKey!, pageParam, limit),
     getNextPageParam: (lastPage, allPages) => {
-      const loadedStories = allPages.reduce((acc, page) => acc + (page.data?.length || 0), 0);
+      const loadedStories = allPages.reduce(
+        (acc, page) => acc + (page.data?.length || 0),
+        0,
+      );
       if (loadedStories < numStories) {
         return loadedStories;
       }
@@ -105,12 +119,19 @@ export const useConnectionDashboardQuery = () => {
   });
 };
 
-export const useDashboardProjectsInfiniteQuery = (limit: number = 5, numProjects: number = 0) => {
+export const useDashboardProjectsInfiniteQuery = (
+  limit: number = 5,
+  numProjects: number = 0,
+) => {
   return useInfiniteQuery({
     queryKey: CONNECTION_KEYS.dashboardProjects(),
-    queryFn: ({ pageParam = 0 }) => connectionService.getDashboardProjects(pageParam, limit),
+    queryFn: ({ pageParam = 0 }) =>
+      connectionService.getDashboardProjects(pageParam, limit),
     getNextPageParam: (lastPage, allPages) => {
-      const loadedProjects = allPages.reduce((acc, page) => acc + (page.data?.length || 0), 0);
+      const loadedProjects = allPages.reduce(
+        (acc, page) => acc + (page.data?.length || 0),
+        0,
+      );
       if (loadedProjects < numProjects) {
         return loadedProjects;
       }

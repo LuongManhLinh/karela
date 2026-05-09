@@ -1,5 +1,6 @@
 import { getToken } from "@/utils/jwtUtils";
 import apiClient from "./api";
+import { BasicResponse } from "@/types";
 
 export const jiraService = {
   startOAuth: async (): Promise<void> => {
@@ -35,5 +36,13 @@ export const jiraService = {
         throw new Error(`Blank Redirect URL`);
       }
     }
+  },
+
+  retrySetup: async (): Promise<BasicResponse> => {
+    const response = await apiClient.post<BasicResponse<void>>(
+      `/integrations/jira/setup`,
+    );
+
+    return response.data;
   },
 };

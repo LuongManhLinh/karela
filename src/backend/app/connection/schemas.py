@@ -17,13 +17,13 @@ class StoryInfo(BaseModel):
     analysis_count: int = 0
     proposal_count: int = 0
     ac_count: int = 0
-    is_ready: bool = False
+    defect_count: int = 0
 
 
 class ProjectDashboardDto(DashboardDto):
     num_chats: int
     num_stories: int
-    readiness_score: float
+    # readiness_score: float
 
 
 class StoryDashboardDto(DashboardDto):
@@ -38,6 +38,7 @@ class ProjectInfo(BaseModel):
     chat_count: int = 0
     proposal_count: int = 0
     ac_count: int = 0
+    defect_count: int = 0
 
 
 class ConnectionDashboardDto(DashboardDto):

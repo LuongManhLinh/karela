@@ -38,11 +38,15 @@ export interface PageLayoutProps {
     story?: StorySummary,
   ) => Promise<string | null | undefined>;
   primaryActionLabel?: string;
+  primaryActionRunning?: boolean;
+  primaryActionDisabled?: boolean;
   secondaryAction?: (
     project: ProjectDto,
     story?: StorySummary,
   ) => Promise<string | null | undefined>;
   secondaryActionLabel?: string;
+  secondaryActionRunning?: boolean;
+  secondaryActionDisabled?: boolean;
   showStoryCheckbox?: boolean;
   requireStory?: boolean;
   createable?: boolean;
@@ -69,6 +73,10 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   showStoryCheckbox = true,
   requireStory = false,
   createable = true,
+  primaryActionRunning = false,
+  secondaryActionRunning = false,
+  primaryActionDisabled = false,
+  secondaryActionDisabled = false,
 }) => {
   const tPage = useTranslations("PageLayout");
   const [startDialogOpen, setStartDialogOpen] = useState(false);
@@ -294,6 +302,10 @@ const PageLayout: React.FC<PageLayoutProps> = ({
         secondaryLabel={secondaryActionLabel}
         showUseStoryCheckbox={showStoryCheckbox}
         requireStory={requireStory}
+        primaryActionRunning={primaryActionRunning}
+        secondaryActionRunning={secondaryActionRunning}
+        primaryDisabled={primaryActionDisabled}
+        secondaryDisabled={secondaryActionDisabled}
       />
     </>
   );

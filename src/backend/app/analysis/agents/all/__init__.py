@@ -27,6 +27,8 @@ def run_analysis(
     existing_defects: list[DefectByLlm] = None,
     self_batch_size: int = 20,
     project_description: str | None = None,
+    group_story: bool = False,
+    group_story_threshold: int = 10,
 ) -> list[DefectByLlm]:
     """Run the ALL (batch) defect detection workflow on all project stories.
 
@@ -67,6 +69,8 @@ def run_analysis(
         existing_defects=existing_defects or [],
         self_batch_size=self_batch_size,
         project_description=project_description,
+        group_story=group_story,
+        group_story_threshold=group_story_threshold,
     )
 
     final_state = _graph.invoke(initial_state, context=context)

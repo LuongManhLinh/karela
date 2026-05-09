@@ -10,10 +10,7 @@ import {
   CircularProgress,
   Paper,
 } from "@mui/material";
-import type {
-  ProjectDto,
-  StorySummary,
-} from "@/types/connection";
+import type { ProjectDto, StorySummary } from "@/types/connection";
 import { useTranslations } from "next-intl";
 
 import { scrollBarSx } from "@/constants/scrollBarSx";
@@ -32,6 +29,7 @@ export interface SubmitAction {
   label: string;
   onClick: () => void;
   disabled?: boolean;
+  running?: boolean;
 }
 
 export interface SessionStartFormProps {
@@ -210,6 +208,7 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
               storyOptions?.loading
             }
             onClick={primaryAction.onClick}
+            startIcon={primaryAction.running && <CircularProgress size={20} />}
           >
             {primaryAction.label}
           </Button>
@@ -225,6 +224,9 @@ export const SessionStartForm: React.FC<SessionStartFormProps> = ({
               storyOptions?.loading
             }
             onClick={secondaryAction.onClick}
+            startIcon={
+              secondaryAction.running && <CircularProgress size={20} />
+            }
           >
             {secondaryAction.label}
           </Button>

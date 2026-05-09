@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { acService } from "@/services/acService";
 
 export const AC_KEYS = {
@@ -53,5 +53,21 @@ export const useStoryByACQuery = (acId: string | undefined) => {
     queryKey: AC_KEYS.story(acId || ""),
     queryFn: () => acService.getStoryByAC(acId!),
     enabled: !!acId,
+  });
+};
+
+export const useACRegenerateMutation = () => {
+  return useMutation({
+    mutationFn: async ({
+      acId,
+      gherkin,
+      feedback,
+    }: {
+      acId: string;
+      gherkin: string;
+      feedback: string;
+    }) => {
+      await acService.regenerateAC(acId, gherkin, feedback);
+    },
   });
 };

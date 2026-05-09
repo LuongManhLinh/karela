@@ -242,6 +242,10 @@
       "defectDialogTitle": "Defects related to proposal {proposalKey}",
       "close": "Close",
       "errorOccurred": "Oops! Some error occurred. Please reload the page.",
+      "runAlertTitle": "Run analysis",
+      "runAlertMessage": "An ALL analysis already exists for this project. Rerunning may not find new defects but will still incur costs to run. Do you want to continue?",
+      "cancel": "Cancel",
+      "confirm": "Run anyway",
       "errors": {
         "failedToUpdateDefect": "Failed to update defect status",
         "failedToStartProposalGen": "Failed to start proposal generation",
@@ -281,7 +285,7 @@
       "explanation": "Explanation",
       "suggestedFix": "Suggested Fix",
       "relatedStories": "Related Stories",
-      "proposalLink": "Proposal Link",
+      "proposalLink": "View Proposals",
       "HIGH": "High",
       "MEDIUM": "Medium",
       "LOW": "Low",
@@ -372,7 +376,8 @@
       "withAcs": "With ACs",
       "noProjectsWithAcs": "No projects with ACs",
       "unableToLoad": "Unable to load dashboard data",
-      "selectToView": "Please select a connection to view the dashboard"
+      "selectToView": "Please select a connection to view the dashboard",
+      "projects": "Projects"
     },
     "ProjectDashboard": {
       "title": "Project Dashboard",
@@ -392,7 +397,10 @@
       "noReadyStories": "No ready stories yet",
       "readinessScore": "Readiness Score",
       "unableToLoad": "Unable to load dashboard data",
-      "selectToView": "Please select a connection and project to view the dashboard"
+      "selectToView": "Please select a connection and project to view the dashboard",
+      "stories": "Stories",
+      "more": "More",
+      "loadingMore": "Loading more..."
     },
     "StoryDashboard": {
       "title": "Story Dashboard",
@@ -489,7 +497,9 @@
       "documentation": "Documentation",
       "preferences": "Project Preferences",
       "light": "Light",
-      "dark": "Dark"
+      "dark": "Dark",
+      "retrySync": "Retry Sync",
+      "syncing": "Syncing..."
     },
     "SyncProjectsDialog": {
       "title": "Sync Projects",

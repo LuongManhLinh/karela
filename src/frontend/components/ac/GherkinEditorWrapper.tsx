@@ -64,6 +64,7 @@ interface GherkinEditorWrapperProps {
   readOnly?: boolean;
   onSave?: (gherkin: string) => void;
   onSendFeedback?: (gherkin: string, feedback: string) => Promise<void>;
+  regenerating?: boolean;
 }
 
 interface LintAnnotation {
@@ -90,6 +91,7 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
   readOnly = false,
   onSave,
   onSendFeedback,
+  regenerating,
 }) => {
   const [suggestion, setSuggestion] = useState<ParsedSuggestion | null>(null);
   const [annotations, setAnnotations] = useState<LintAnnotation[]>([]);
@@ -415,12 +417,12 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
     return () => clearTimeout(handler);
   }, [value, aiSuggestionEnabled, fetchSuggestions, suggestion]); // Removed suggestions.length
 
-  const handleToggleAISuggestions = (checked: boolean) => {
-    if (!checked) {
-      clearSuggestions();
-    }
-    setAiSuggestionEnabled(checked);
-  };
+  // const handleToggleAISuggestions = (checked: boolean) => {
+  //   if (!checked) {
+  //     clearSuggestions();
+  //   }
+  //   setAiSuggestionEnabled(checked);
+  // };
 
   const handleThemeChange = (theme: string) => {
     setEditorTheme(theme);
@@ -539,7 +541,7 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
           </Tooltip>
         </Box>
 
-        <Box display="flex" alignItems="center">
+        {/* <Box display="flex" alignItems="center">
           <Typography variant="body2" sx={{ fontWeight: "bold" }}>
             {t("aiSuggestions")}:
           </Typography>
@@ -548,15 +550,19 @@ const GherkinEditorWrapper: React.FC<GherkinEditorWrapperProps> = ({
             onChange={(e) => handleToggleAISuggestions(e.target.checked)}
             color="primary"
           />
-        </Box>
+        </Box> */}
 
         <Box flexGrow={1} />
-        <IconButton onClick={hanldeChatClick} ref={chatButtonRef}>
-          <TryIcon color="action" />
-        </IconButton>
-        <Tooltip title={t("aiTip")}>
+        {regenerating ? (
+          <CircularProgress size={24} />
+        ) : (
+          <IconButton onClick={hanldeChatClick} ref={chatButtonRef}>
+            <TryIcon color="action" />
+          </IconButton>
+        )}
+        {/* <Tooltip title={t("aiTip")}>
           <InfoIcon color="action" />
-        </Tooltip>
+        </Tooltip> */}
       </Box>
 
       {/* Editor Container */}

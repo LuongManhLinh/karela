@@ -18,3 +18,5 @@ class AllState(AnalysisState):
 
 class AllContext(AnalysisContext):
     self_batch_size: int = 20
+    group_story: bool = False
+    group_story_threshold: int = 10

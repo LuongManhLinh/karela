@@ -141,11 +141,12 @@ async def get_project_dashboard_info(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
+
 @router.get("/projects/{project_key}/dashboard/stories")
 async def get_project_dashboard_stories(
     project_key: str,
     skip: int = 0,
-    limit: int = 10,
+    limit: int = 12,
     service: DashboardService = Depends(get_dashboard_service),
     jwt_payload=Depends(get_jwt_payload),
 ):
@@ -153,6 +154,9 @@ async def get_project_dashboard_stories(
     if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
+        print(
+            "Fetching paginated stories for project dashboard", project_key, skip, limit
+        )
         stories = service.get_paginated_stories(
             connection_id=conn_id,
             project_key=project_key,
@@ -201,6 +205,7 @@ async def get_connection_dashboard_info(
     except ValueError as e:
         traceback.print_exc()
         raise HTTPException(status_code=404, detail=str(e))
+
 
 @router.get("/dashboard/projects")
 async def get_connection_dashboard_projects(

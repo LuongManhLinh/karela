@@ -29,6 +29,8 @@ export interface SessionFilterDialogProps {
   secondaryDisabled?: boolean;
   showUseStoryCheckbox?: boolean;
   requireStory?: boolean;
+  primaryActionRunning?: boolean;
+  secondaryActionRunning?: boolean;
 }
 
 export const SessionFilterDialog: React.FC<SessionFilterDialogProps> = ({
@@ -45,6 +47,8 @@ export const SessionFilterDialog: React.FC<SessionFilterDialogProps> = ({
   secondaryDisabled,
   showUseStoryCheckbox,
   requireStory,
+  primaryActionRunning = false,
+  secondaryActionRunning = false,
 }) => {
   const t = useTranslations("Common");
   const [storyFilterable, setStoryFilterable] = useState(Boolean(requireStory));
@@ -105,6 +109,7 @@ export const SessionFilterDialog: React.FC<SessionFilterDialogProps> = ({
               primaryDisabled ||
               !projectOptions?.selectedOption ||
               (requireStory && !storyOptions?.selectedOption),
+            running: primaryActionRunning,
           }}
           secondaryAction={
             onSecondarySubmit
@@ -124,6 +129,7 @@ export const SessionFilterDialog: React.FC<SessionFilterDialogProps> = ({
                     secondaryDisabled ||
                     !projectOptions?.selectedOption ||
                     (requireStory && !storyOptions?.selectedOption),
+                  running: secondaryActionRunning,
                 }
               : undefined
           }
@@ -147,6 +153,8 @@ export interface SessionStartDialogProps {
   secondaryDisabled?: boolean;
   showUseStoryCheckbox?: boolean;
   requireStory?: boolean;
+  primaryActionRunning?: boolean;
+  secondaryActionRunning?: boolean;
 }
 
 export const SessionStartDialog: React.FC<SessionStartDialogProps> = ({
@@ -163,6 +171,8 @@ export const SessionStartDialog: React.FC<SessionStartDialogProps> = ({
   secondaryDisabled,
   showUseStoryCheckbox,
   requireStory,
+  primaryActionRunning = false,
+  secondaryActionRunning = false,
 }) => {
   return (
     <SessionFilterDialog
@@ -179,6 +189,8 @@ export const SessionStartDialog: React.FC<SessionStartDialogProps> = ({
       secondaryDisabled={secondaryDisabled}
       showUseStoryCheckbox={showUseStoryCheckbox}
       requireStory={requireStory}
+      primaryActionRunning={primaryActionRunning}
+      secondaryActionRunning={secondaryActionRunning}
     />
   );
 };

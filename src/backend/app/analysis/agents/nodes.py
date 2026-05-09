@@ -254,7 +254,7 @@ def run_pairwise_defect_analyzer(
     buckets: list[tuple[StoryMinimal, list[StoryMinimal]]],
     project_context: str,
     group: bool = False,
-    grouped_story_threshold: int = 10,
+    grouped_threshold: int = 10,
 ) -> list[DefectByLlm]:
     """Compare stories pairwise for CONFLICT and DUPLICATION.
 
@@ -285,7 +285,7 @@ def run_pairwise_defect_analyzer(
 
     defects = []
 
-    if not group or grouped_story_threshold < 2:
+    if not group or grouped_threshold < 2:
         msg_lists = []
         for target_story, related_stories in valid_buckets:
             target_text = format_stories([target_story])
@@ -320,6 +320,7 @@ def run_pairwise_defect_analyzer(
                 )
     else:
         # Sort small buckets first so each request can pack more buckets under the threshold.
+        init_bucket_count = len(valid_buckets)
         sorted_valid_buckets = sorted(valid_buckets, key=lambda bucket: len(bucket[1]))
 
         grouped_chunks: list[list[tuple[StoryMinimal, list[StoryMinimal]]]] = []
@@ -331,7 +332,7 @@ def run_pairwise_defect_analyzer(
             k = len(related_stories) + 1
 
             # Single oversized bucket: send it alone.
-            if k >= grouped_story_threshold:
+            if k >= grouped_threshold:
                 if current_chunk:
                     grouped_chunks.append(current_chunk)
                     current_chunk = []
@@ -339,7 +340,7 @@ def run_pairwise_defect_analyzer(
                 grouped_chunks.append([(target_story, related_stories)])
                 continue
 
-            if current_chunk and current_story_total + k >= grouped_story_threshold:
+            if current_chunk and current_story_total + k >= grouped_threshold:
                 grouped_chunks.append(current_chunk)
                 current_chunk = []
                 current_story_total = 0
@@ -349,6 +350,11 @@ def run_pairwise_defect_analyzer(
 
         if current_chunk:
             grouped_chunks.append(current_chunk)
+
+        print(
+            f"| Buckets grouped {init_bucket_count} buckets into {len(grouped_chunks)} chunks "
+            f"with grouped_threshold={grouped_threshold} (original buckets: {init_bucket_count})"
+        )
 
         msg_lists = []
         next_bucket_id = 1
@@ -387,7 +393,7 @@ def run_pairwise_defect_analyzer(
             f"| Pairwise Defect Analyzer - Group mode enabled\n"
             f"| Non-empty buckets: {len(valid_buckets)}\n"
             f"| API calls after grouping: {len(msg_lists)}\n"
-            f"| Story threshold per API call: {grouped_story_threshold}"
+            f"| Story threshold per API call: {grouped_threshold}"
         )
 
         responses = agent.batch(msg_lists)

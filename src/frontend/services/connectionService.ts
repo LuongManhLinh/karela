@@ -72,7 +72,7 @@ export const connectionService = {
   getDashboardStories: async (
     projectKey: string,
     skip: number = 0,
-    limit: number = 10,
+    limit: number = 12,
   ): Promise<BasicResponse<StoryInfo[]>> => {
     const response = await apiClient.get<BasicResponse<StoryInfo[]>>(
       `/connections/projects/${projectKey}/dashboard/stories`,

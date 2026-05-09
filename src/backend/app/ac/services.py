@@ -204,10 +204,11 @@ class ACService:
 
         if not story:
             raise ValueError("Story not found")
-        prefrence = self.preference_service.get_ac_preference(
-            connection_id, project_key
-        )
+
         if gen_with_ai:
+            prefrence = self.preference_service.get_ac_preference(
+                connection_id, project_key
+            )
             content = generate_ac_from_story(
                 summary=story.summary,
                 description=story.description or "",
@@ -227,14 +228,17 @@ class ACService:
         ac_id = uuid_generator()
         new_ac = GherkinAC(
             id=ac_id,
-            summary=content.splitlines()[0].replace("Feature: ", "").strip(),
+            summary=content.splitlines()[0],
             description=content,
             story_id=story.id,
         )
         self.db.add(new_ac)
+        print(f"Creating AC with ID {ac_id} on Jira for story {story.key}...")
         jira_issue_key = self._create_on_jira(
             connection_id, project_key, story_key, new_ac
         )
+
+        print(f"Created AC with ID {ac_id} on Jira with key {jira_issue_key}")
         if jira_issue_key:
             new_ac.key = jira_issue_key
 
@@ -248,7 +252,9 @@ class ACService:
         try:
             # Convert content to ADF format
             description = md_to_adf(f"```gherkin\n{ac.description}\n```")
-
+            print(
+                f"Creating issue on Jira with summary:\n{ac.summary}\nand description:\n{description}"
+            )
             issue_update = {
                 "fields": {
                     "project": {"key": project_key},
@@ -283,10 +289,9 @@ class ACService:
 
     def _get_ac_and_related(self, ac_id: str):
         result = (
-            self.db.query(GherkinAC, Story, Project.key, Connection.id)
+            self.db.query(GherkinAC, Story, Project)
             .join(Story, GherkinAC.story_id == Story.id)
             .join(Project, Story.project_id == Project.id)
-            .join(Connection, Project.connection_id == Connection.id)
             .filter(
                 GherkinAC.id == ac_id,
             )
@@ -304,8 +309,10 @@ class ACService:
         content: str,
         feedback: Optional[str] = None,
     ):
-
-        ac, story, project_key, connection_id = self._get_ac_and_related(ac_id)
+        print(f"Regenerating AC {ac_id} with feedback: {feedback}")
+        ac, story, project = self._get_ac_and_related(ac_id)
+        connection_id = project.connection_id
+        project_key = project.key
         prefrence = self.preference_service.get_ac_preference(
             connection_id, project_key
         )
@@ -318,21 +325,25 @@ class ACService:
             connection_id=connection_id,
             project_key=project_key,
             extra_instruction=prefrence.gen_ac_guidelines if prefrence else None,
-            initial_messages=self.documentation_service.simulate_list_docs_messages(
-                connection_id=connection_id, project_key=project_key
-            ),
         )
-        ac.content = new_content
+        print(f"Generated new content for AC {ac_id}:\n{new_content}")
+        ac.description = f"```gherkin\n{new_content}\n```"
+        ac.summary = new_content.splitlines()[0]
+        self.db.add(ac)
         self.db.commit()
 
+        print("Updated AC in database, now updating on Jira...")
         self._update_on_jira(connection_id, project_key, ac)
+        print("Regeneration completed.")
 
     def update_ac(
         self,
         ac_id: str,
         content: str,
     ):
-        ac, story, project_key, connection_id = self._get_ac_and_related(ac_id)
+        ac, story, project = self._get_ac_and_related(ac_id)
+        connection_id = project.connection_id
+        project_key = project.key
         if not ac:
             raise ValueError("AC not found")
         ac.description = content
@@ -340,7 +351,9 @@ class ACService:
         self._update_on_jira(connection_id, project_key, ac)
 
     def delete_ac(self, ac_id: str):
-        ac, _, project_key, connection_id = self._get_ac_and_related(ac_id)
+        ac, _, project = self._get_ac_and_related(ac_id)
+        connection_id = project.connection_id
+        project_key = project.key
         if not ac:
             raise ValueError("AC not found")
 

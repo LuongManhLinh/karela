@@ -75,10 +75,14 @@ def md_to_adf(markdown: str) -> dict:
     return json.loads(out)
 
 
-def adf_to_md(adf: dict) -> str:
+def adf_to_md(adf: any) -> str:
     """Convert ADF dict -> Markdown string."""
-    out = _run_bridge("adf2md", json.dumps(adf))
-    return out
+    if isinstance(adf, dict):
+        return _run_bridge("adf2md", json.dumps(adf))
+    elif isinstance(adf, str):
+        return adf.replace("{noformat}", "")  # Strip noformat if accidentally included
+    else:
+        return str(adf)
 
 
 def jira_markup_to_md(jira_text: str, mention_mapping: Optional[dict] = None) -> str:

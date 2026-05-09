@@ -4,11 +4,13 @@ from fastapi.responses import FileResponse, RedirectResponse
 import httpx
 import traceback
 
+from app.auth_factory import get_jwt_payload
 from app.service_factory import get_jira_service
 from .services import JiraService
 from .schemas import WebhookCallbackPayload
 from common.configs import JiraConfig
 from common.schemas import BasicResponse
+from .tasks import setup_connection
 
 router = APIRouter()
 
@@ -80,3 +82,16 @@ async def jira_webhook(
 async def webhook_health():
     """Health check endpoint for Jira webhooks."""
     return BasicResponse(data="Webhook endpoint is healthy")
+
+
+@router.post("/setup")
+async def trigger_setup(
+    jwt_payload=Depends(get_jwt_payload),
+):
+    conn_id = jwt_payload.get("sub")
+    if not conn_id:
+        raise HTTPException(
+            status_code=401, detail="Invalid JWT payload: missing 'sub'"
+        )
+    setup_connection.delay(connection_id=conn_id)
+    return BasicResponse(data="Sync job triggered")

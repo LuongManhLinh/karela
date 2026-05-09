@@ -2,26 +2,28 @@
 
 import React from "react";
 import { Box, Paper, Typography, useTheme } from "@mui/material";
+import Link from "next/link";
 
 export interface StatCardProps {
   title: string;
   value: number;
   icon: React.ReactNode;
-  onClick?: () => void;
+  href: string;
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
   title,
   value,
   icon,
-  onClick,
+  href,
 }) => {
   const theme = useTheme();
 
   return (
     <Paper
       elevation={2}
-      onClick={onClick}
+      component={Link}
+      href={href}
       sx={{
         p: 2,
         borderRadius: 1,
@@ -30,18 +32,17 @@ export const StatCard: React.FC<StatCardProps> = ({
         alignItems: "center",
         justifyContent: "center",
         minWidth: 140,
-        cursor: onClick ? "pointer" : "default",
+        cursor: "pointer",
         transition: "all 0.2s ease-in-out",
+        // bgcolor: "secondaryContainer",
+        // color: "onSecondaryContainer",
         bgcolor: "primaryContainer",
         color: "onPrimaryContainer",
-        "&:hover": onClick
-          ? {
-              transform: "translateY(-2px)",
-              boxShadow: theme.shadows[4],
-              bgcolor: "onTertiaryFixed",
-              color: "tertiaryFixed",
-            }
-          : {},
+        textDecoration: "none",
+        "&:hover": {
+          boxShadow: 5,
+          transform: "translateY(-2px)",
+        },
       }}
     >
       <Box

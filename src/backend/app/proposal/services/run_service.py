@@ -25,7 +25,7 @@ class ProposalRunService:
         self.jira_service = JiraService(db=db)
 
     def _get_proposal_generation_inputs(
-        self, connection_id, project_key, input_defects
+        self, connection_id, project_key, input_defects: list[Defect]
     ):
         involved_story_keys = set()
         defects = []
@@ -37,7 +37,7 @@ class ProposalRunService:
             involved_story_keys.update(keys)
             defects.append(
                 DefectForProposal(
-                    id=d.id,
+                    id=d.key,
                     type=d.type.value,
                     severity=d.severity.value,
                     explanation=d.explanation,
@@ -81,6 +81,7 @@ class ProposalRunService:
         input_defects: list[Defect],
         clarifications: str = None,
         max_rewrite_attempts: int = 3,
+        project_description: str | None = None,
     ) -> list:
         inputs = self._get_proposal_generation_inputs(
             connection_id=connection_id,
@@ -105,7 +106,10 @@ class ProposalRunService:
                 preference.gen_proposal_guidelines if preference else None
             ),
             clarifications=clarifications,
+            project_description=project_description,
         )
+
+        print(f"Generated {len(proposals)} proposals")
 
         proposal_service = ProposalService(db=self.db)
 

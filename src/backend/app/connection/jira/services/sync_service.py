@@ -66,7 +66,8 @@ class JiraSyncService(JiraBaseService):
         self._publish_status(connection, status=SyncStatus.SETTING_UP)
         try:
             issue_type_id = self._create_ac_issue_type(connection)
-            self._update_issue_type_for_connection(connection, issue_type_id)
+            connection.ac_issue_type_id = issue_type_id
+            self.db.commit()
             self._register_webhooks(connection)
             field_id = self.create_custom_ai_transaction_id_field(connection)
             connection.ai_transaction_id_field_id = field_id
@@ -137,6 +138,19 @@ class JiraSyncService(JiraBaseService):
             def process_project(project_data):
                 """Process a single project: fetch issues and return data for DB"""
                 print("Processing project:", project_data.key)
+
+                self._exec_refreshing_access_token(
+                    connection=connection,
+                    func=JiraClient.add_issue_type_to_project,
+                    cloud_id=cloud_id,
+                    issue_type_id=connection.ac_issue_type_id,
+                    project_id=project_data.id,
+                )
+
+                print(
+                    "Added AC issue type to project if not already added:",
+                    project_data.key,
+                )
 
                 # Fetch stories for this project using pre-fetched token (no DB access)
                 response = JiraClient.search_issues(
@@ -292,7 +306,7 @@ class JiraSyncService(JiraBaseService):
         try:
             self._exec_refreshing_access_token(
                 connection=connection,
-                func=JiraClient.add_issue_type_to_activated_schemes,
+                func=JiraClient.add_issue_type_to_project,
                 cloud_id=connection.id,
                 issue_type_id=issue_type_id,
             )
@@ -372,6 +386,9 @@ class JiraSyncService(JiraBaseService):
             connection,
             message=f"Creating custom field for {AI_TRANSACTION_ID_FIELD_NAME}...",
         )
+        print(
+            f"Creating custom field {AI_TRANSACTION_ID_FIELD_NAME} for connection: {connection.id}"
+        )
         try:
             field_id = self._exec_refreshing_access_token(
                 connection=connection,
@@ -383,6 +400,9 @@ class JiraSyncService(JiraBaseService):
             return field_id
         except Exception as e:
             if "409" in str(e):
+                print(
+                    f"{AI_TRANSACTION_ID_FIELD_NAME} field already exists, retrieving ID..."
+                )
                 field_id = self._exec_refreshing_access_token(
                     connection=connection,
                     func=JiraClient.get_custom_field_by_name,
@@ -400,6 +420,9 @@ class JiraSyncService(JiraBaseService):
 
                 return field_id
             else:
+                print(
+                    f"Error creating {AI_TRANSACTION_ID_FIELD_NAME} custom field: {e}"
+                )
                 self._publish_status(
                     connection,
                     message=f"Error creating {AI_TRANSACTION_ID_FIELD_NAME} custom field: {e}",

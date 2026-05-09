@@ -63,6 +63,7 @@ class JiraBaseService:
             if "401" in str(e) or "400" in str(e):
                 print("Access token expired, refreshing...")
                 access_token = self.__refresh_access_token(connection)
+                print("Refreshed access token, retrying function...")
                 return func(access_token=access_token, *args, **kwargs)
             else:
                 raise e

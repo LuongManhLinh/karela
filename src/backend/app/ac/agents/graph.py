@@ -8,7 +8,6 @@ from sqlalchemy.orm import Session
 from llm.dynamic_agent import GenimiDynamicAgent
 from common.configs import LlmConfig
 from common.agents.schemas import LlmContext
-from app.documentation.llm_tools import doc_tools as doc_tools
 from langchain.agents.middleware import dynamic_prompt, ModelRequest
 
 from .prompts import (
@@ -26,11 +25,19 @@ from .schemas import (
     ACReview,
 )
 
+from .utils import (
+    format_ac_generator_input,
+    format_ac_reviewer_input,
+    format_ac_rewriter_input,
+)
+
 from .fake_history import (
     AC_GENERATOR_FAKE_HISTORY,
     AC_REVIEWER_FAKE_HISTORY,
     AC_REWRITER_FAKE_HISTORY,
 )
+
+from app.analysis.agents.utils import get_response_as_schema
 
 
 def get_dynamic_prompt_middleware_for_node(node_name: str) -> str:
@@ -53,12 +60,11 @@ def get_dynamic_prompt_middleware_for_node(node_name: str) -> str:
 
 # Create agents for each node
 ac_generator_agent = GenimiDynamicAgent(
-    model_name=LlmConfig.GEMINI_CHAT_MODEL,
-    temperature=LlmConfig.LLM_CHAT_TEMPERATURE,
+    model_name=LlmConfig.GEMINI_DEFAULT_MODEL,
+    temperature=LlmConfig.LLM_DEFAULT_TEMPERATURE,
     response_mime_type="application/json",
     response_schema=ACGeneratorOutput,
     api_keys=LlmConfig.GEMINI_API_KEYS,
-    tools=doc_tools,
     middleware=[get_dynamic_prompt_middleware_for_node("ac_generator")],
 )
 
@@ -68,7 +74,6 @@ ac_reviewer_agent = GenimiDynamicAgent(
     response_mime_type="application/json",
     response_schema=ACReviewerOutput,
     api_keys=LlmConfig.GEMINI_API_KEYS,
-    tools=doc_tools,
     middleware=[get_dynamic_prompt_middleware_for_node("ac_reviewer")],
 )
 
@@ -78,7 +83,6 @@ ac_rewriter_agent = GenimiDynamicAgent(
     response_mime_type="application/json",
     response_schema=ACGeneratorOutput,  # Re-use generator output schema
     api_keys=LlmConfig.GEMINI_API_KEYS,
-    tools=doc_tools,
     middleware=[get_dynamic_prompt_middleware_for_node("ac_rewriter")],
 )
 
@@ -121,7 +125,7 @@ def ac_generator(state: State, runtime: Runtime[Context]) -> State:
 
     messages = AC_GENERATOR_FAKE_HISTORY + [
         HumanMessage(
-            content=f"Here is the input for generating AC:\n{input_data.model_dump_json(indent=2)}"
+            content=f"Here is the input for generating AC:\n{format_ac_generator_input(input_data)}"
         )
     ]
 
@@ -130,11 +134,10 @@ def ac_generator(state: State, runtime: Runtime[Context]) -> State:
         messages = init_messages + messages
 
     response = ac_generator_agent.invoke(messages=messages)
-    structured_response = response["structured_response"]
+    structured_response = get_response_as_schema(response, ACGeneratorOutput)
 
     state.generated_ac = structured_response.gherkin_ac
     state.reasoning = structured_response.reasoning
-    print("AC Generated.")
     return state
 
 
@@ -150,7 +153,7 @@ def ac_reviewer(state: State, runtime: Runtime[Context]) -> State:
 
     messages = AC_REVIEWER_FAKE_HISTORY + [
         HumanMessage(
-            content=f"Please review this AC:\n{input_data.model_dump_json(indent=2)}"
+            content=f"Please review this AC:\n{format_ac_reviewer_input(input_data)}"
         )
     ]
 
@@ -191,7 +194,7 @@ def ac_rewriter(state: State, runtime: Runtime[Context]) -> State:
     )
 
     current_message = HumanMessage(
-        content=f"Please rewrite the AC based on this feedback:\n{input_data.model_dump_json(indent=2)}"
+        content=f"Please rewrite the AC based on this feedback:\n{format_ac_rewriter_input(input_data)}"
     )
 
     messages = AC_REWRITER_FAKE_HISTORY + state.loop_history + [current_message]

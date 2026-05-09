@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { use, useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -8,21 +8,16 @@ import {
   Skeleton,
   Tab,
   Tabs,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Stack,
 } from "@mui/material";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { useNotificationContext } from "@/providers/NotificationProvider";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { ProposalCard } from "@/components/proposals/ProposalCard";
 import type {
   ProposalContentDto,
   ProposalActionFlag,
   ProposalDto,
 } from "@/types/proposal";
-import DefectCard from "@/components/analysis/DefectCard";
 import { downloadAsJson } from "@/utils/exportUtils";
 import {
   useAnalysisDetailsQuery,
@@ -44,6 +39,11 @@ import { scrollBarSx } from "@/constants/scrollBarSx";
 import { MultiStoryDetailDialog } from "../StoryDialog";
 import ProposalContentDiffDialog from "@/components/proposals/ProposalContentDiffDialog";
 import { AnalysisDto, DefectDto } from "@/types/analysis";
+import { DefectTab } from "@/components/analysis/DefectTab";
+import { ProposalTab } from "@/components/analysis/ProposalTab";
+import { ProposalDialog } from "@/components/analysis/ProposalDialog";
+import { DefectDialog } from "@/components/analysis/DefectDialog";
+import { RunAlertDialog } from "@/components/analysis/RunAlertDialog";
 
 export interface AnalysisItemPageProps {
   projectFilterKey?: string;
@@ -92,7 +92,8 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
   const { mutateAsync: actOnProposalContent } =
     useActOnProposalContentMutation();
 
-  const isGenerating = analysisDetailData?.data?.generating_proposals || false;
+  // const isGenerating = analysisDetailData?.data?.generating_proposals || false;
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const { notify } = useNotificationContext();
 
@@ -133,9 +134,17 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
   const [defectDialogProposalKey, setDefectDialogProposalKey] =
     useState<string>("");
   const [dialogDefects, setDialogDefects] = useState<DefectDto[]>([]);
+  const [runAlertOpen, setRunAlertOpen] = useState(false);
 
   const { subscribe, unsubscribe } = useWebSocketContext();
   const queryClient = useQueryClient();
+
+  // Use effect to update isGenerating based on selectedAnalysisDetail changes
+  useEffect(() => {
+    if (selectedAnalysisDetail) {
+      setIsGenerating(selectedAnalysisDetail.generating_proposals || false);
+    }
+  }, [selectedAnalysisDetail]);
 
   useEffect(() => {
     const analysisId = selectedAnalysisDetail?.id;
@@ -147,6 +156,18 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
         queryClient.invalidateQueries({
           queryKey: ["analysis", "details", idOrKey],
         });
+        if (data.status === "GENERATING_PROPOSALS") {
+          setIsGenerating(true);
+        } else if (
+          data.status === "PROPOSALS_GENERATED" ||
+          data.status === "PROPOSAL_GENERATION_FAILED"
+        ) {
+          setIsGenerating(false);
+          // Invalidate proposals query to fetch new proposals
+          queryClient.invalidateQueries({
+            queryKey: ["proposals", "session", selectedAnalysisDetail.key],
+          });
+        }
       }
     };
 
@@ -340,6 +361,7 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
     const analysisId = selectedAnalysisDetail?.id;
     if (!analysisId) return;
     try {
+      setIsGenerating(true);
       await generateProposals(analysisId);
     } catch (err: any) {
       const errorMessage =
@@ -380,9 +402,26 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
   const handleRerunAnalysis = async () => {
     const analysisId = selectedAnalysisDetail?.id;
     if (!analysisId) return;
+    // If this is an ALL analysis, warn the user first
+    if (selectedAnalysisDetail?.type === "ALL") {
+      setRunAlertOpen(true);
+      return;
+    }
     try {
       await rerunAnalysis(analysisId);
-      // Invalidation handles state update
+    } catch (err: any) {
+      const errorMessage =
+        err.response?.data?.detail || t("errors.failedToRerunAnalysis");
+      notify(errorMessage, { severity: "error" });
+    }
+  };
+
+  const handleConfirmRerun = async () => {
+    setRunAlertOpen(false);
+    const analysisId = selectedAnalysisDetail?.id;
+    if (!analysisId) return;
+    try {
+      await rerunAnalysis(analysisId);
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.detail || t("errors.failedToRerunAnalysis");
@@ -454,7 +493,11 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
       selectedAnalysisDetail?.status === "PENDING" ||
       selectedAnalysisDetail?.status === "IN_PROGRESS";
     return (
-      <Button variant="contained" onClick={handleRerunAnalysis}>
+      <Button
+        variant="contained"
+        onClick={handleRerunAnalysis}
+        disabled={running}
+      >
         {running ? t("analysisRunning") : t("rerunAnalysis")}
       </Button>
     );
@@ -482,155 +525,16 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
       <Button
         variant="contained"
         onClick={handleGenerateProposals}
-        disabled={isGenerating || selectedAnalysis.status === "IN_PROGRESS"}
+        disabled={
+          isGenerating ||
+          selectedAnalysis.status === "IN_PROGRESS" ||
+          selectedAnalysis.status === "PENDING"
+        }
       >
         {isGenerating ? t("generating") : t("generateFromDefects")}
       </Button>
     );
   };
-
-  const defectTab = (selectedAnalysis: AnalysisDto) => (
-    <Box
-      sx={{
-        flex: 1,
-        display: "flex", // Added
-        flexDirection: "column", // Added
-        minHeight: 0, // Added: Forces constraint so child can scroll
-      }}
-    >
-      {selectedAnalysis.defects.length === 0 ? (
-        <Typography color="text.secondary">{t("noDefectsFound")}</Typography>
-      ) : (
-        <Box
-          ref={defectsContainerRef}
-          sx={{
-            display: "flex",
-            flex: 1,
-            flexDirection: "column",
-            gap: 2,
-            overflowY: "auto", // Changed to overflowY for clarity
-            minHeight: 0,
-            p: 2,
-          }}
-        >
-          {selectedAnalysis.defects.map((defect) => (
-            <Box
-              key={defect.id}
-              ref={(el: HTMLDivElement) => {
-                defectRefs.current[defect.key] = el;
-              }}
-            >
-              <DefectCard
-                defect={defect}
-                onMarkSolved={handleMarkSolved}
-                onStoriesClick={handleDefectCardStoriesClick}
-                onProposalLinkClick={handleDefectProposalLinkClick}
-                highlight={defect.key === highlightedDefectKey}
-              />
-            </Box>
-          ))}
-
-          {/* Moved Skeletons inside the scrollable area so they scroll too */}
-          {(selectedAnalysis.status === "IN_PROGRESS" ||
-            selectedAnalysis.status === "PENDING") && (
-            <>
-              <Skeleton
-                variant="rectangular"
-                height={100}
-                sx={{ borderRadius: 2, flexShrink: 0 }}
-              />
-              <Skeleton
-                variant="rectangular"
-                height={100}
-                sx={{ borderRadius: 2, flexShrink: 0 }}
-              />
-              <Skeleton
-                variant="rectangular"
-                height={100}
-                sx={{ borderRadius: 2, flexShrink: 0 }}
-              />
-            </>
-          )}
-        </Box>
-      )}
-    </Box>
-  );
-
-  const proposalTab = (selectedAnalysis: AnalysisDto) => (
-    <Box
-      sx={{
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        minHeight: 0,
-      }}
-    >
-      {isProposalsLoading ? (
-        <LoadingSpinner />
-      ) : analysisProposals.length === 0 && !isGenerating ? (
-        <Typography color="text.secondary">
-          {t("noProposalsGenerated")}
-        </Typography>
-      ) : (
-        <Box
-          ref={proposalsContainerRef}
-          sx={{
-            display: "flex",
-            flex: 1,
-            flexDirection: "column",
-            gap: 2,
-            overflowY: "auto", // Changed to overflowY
-            minHeight: 0,
-            pr: 1,
-            pb: 1,
-          }}
-        >
-          {analysisProposals.map((proposal) => (
-            <Box
-              key={proposal.id}
-              ref={(el: HTMLDivElement) => {
-                proposalRefs.current[proposal.key] = el;
-              }}
-            >
-              <ProposalCard
-                proposal={proposal}
-                onProposalAction={handleProposalAction}
-                onProposalContentAction={handleProposalContentAction}
-                onProposalContentClick={handleProposalContentClick}
-                onTargetDefectClick={(defectKey, useSwitchAndScroll) =>
-                  handleProposalDefectLinkClick(
-                    proposal.key,
-                    defectKey,
-                    useSwitchAndScroll,
-                  )
-                }
-                highlight={proposal.key === highlightedProposalKey}
-              />
-            </Box>
-          ))}
-          {isGenerating && (
-            <>
-              <Skeleton
-                variant="rectangular"
-                height={120}
-                sx={{ borderRadius: 2, flexShrink: 0 }}
-              />
-              <Skeleton
-                variant="rectangular"
-                height={120}
-                sx={{ borderRadius: 2, flexShrink: 0 }}
-              />
-              <Skeleton
-                variant="rectangular"
-                height={120}
-                sx={{ borderRadius: 2, flexShrink: 0 }}
-              />
-            </>
-          )}
-        </Box>
-      )}
-    </Box>
-  );
 
   return (
     <Box
@@ -693,7 +597,15 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
               pt: 2,
             }}
           >
-            {defectTab(selectedAnalysisDetail)}
+            <DefectTab
+              selectedAnalysis={selectedAnalysisDetail}
+              defectsContainerRef={defectsContainerRef}
+              defectRefs={defectRefs}
+              onMarkSolved={handleMarkSolved}
+              onStoriesClick={handleDefectCardStoriesClick}
+              onProposalLinkClick={handleDefectProposalLinkClick}
+              highlightedDefectKey={highlightedDefectKey}
+            />
           </Box>
           <Box
             role="tabpanel"
@@ -706,7 +618,19 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
               pt: 2,
             }}
           >
-            {proposalTab(selectedAnalysisDetail)}
+            <ProposalTab
+              showLoading={isProposalsLoading}
+              showNoGenerated={analysisProposals.length === 0 && !isGenerating}
+              containerRef={proposalsContainerRef}
+              proposalRefs={proposalRefs.current}
+              proposals={analysisProposals}
+              isGenerating={isGenerating}
+              onProposalAction={handleProposalAction}
+              onProposalContentAction={handleProposalContentAction}
+              onProposalContentClick={handleProposalContentClick}
+              onTargetDefectClick={handleProposalDefectLinkClick}
+              highlightedProposalKey={highlightedProposalKey}
+            />
           </Box>
         </Box>
       ) : (
@@ -734,83 +658,32 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
         onClose={handleCloseDiffDialog}
         content={selectedContentForDiff}
       />
-
-      <Dialog
+      <ProposalDialog
         open={proposalDialogOpen}
         onClose={() => setProposalDialogOpen(false)}
-        maxWidth="lg"
-        fullWidth
-      >
-        <DialogTitle>
-          {t("proposalDialogTitle", { defectKey: proposalDialogDefectKey })}
-        </DialogTitle>
-        <DialogContent dividers>
-          {dialogProposals.length === 0 ? (
-            <Typography color="text.secondary">
-              {t("noProposalsGenerated")}
-            </Typography>
-          ) : (
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              {dialogProposals.map((proposal) => (
-                <ProposalCard
-                  key={proposal.id}
-                  proposal={proposal}
-                  onProposalAction={handleProposalAction}
-                  onProposalContentAction={handleProposalContentAction}
-                  onProposalContentClick={handleProposalContentClick}
-                  onTargetDefectClick={(defectKey, useSwitchAndScroll) =>
-                    handleProposalDefectLinkClick(
-                      proposal.key,
-                      defectKey,
-                      useSwitchAndScroll,
-                    )
-                  }
-                />
-              ))}
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setProposalDialogOpen(false)}>
-            {t("close")}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        proposals={dialogProposals}
+        defectKey={proposalDialogDefectKey}
+        onProposalAction={handleProposalAction}
+        onProposalContentAction={handleProposalContentAction}
+        onProposalContentClick={handleProposalContentClick}
+        onTargetDefectClick={handleProposalDefectLinkClick}
+      />
 
-      <Dialog
+      <DefectDialog
         open={defectDialogOpen}
         onClose={() => setDefectDialogOpen(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          {t("defectDialogTitle", { proposalKey: defectDialogProposalKey })}
-        </DialogTitle>
-        <DialogContent dividers>
-          {dialogDefects.length === 0 ? (
-            <Typography color="text.secondary">
-              {t("noDefectsFound")}
-            </Typography>
-          ) : (
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              {dialogDefects.map((defect) => (
-                <DefectCard
-                  key={defect.id}
-                  defect={defect}
-                  onMarkSolved={handleMarkSolved}
-                  onStoriesClick={handleDefectCardStoriesClick}
-                  onProposalLinkClick={handleDefectProposalLinkClick}
-                />
-              ))}
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDefectDialogOpen(false)}>
-            {t("close")}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        defects={dialogDefects}
+        proposalKey={defectDialogProposalKey}
+        onMarkSolved={handleMarkSolved}
+        onStoriesClick={handleDefectCardStoriesClick}
+        onProposalLinkClick={handleDefectProposalLinkClick}
+      />
+
+      <RunAlertDialog
+        open={runAlertOpen}
+        onClose={() => setRunAlertOpen(false)}
+        onConfirm={handleConfirmRerun}
+      />
     </Box>
   );
 };
