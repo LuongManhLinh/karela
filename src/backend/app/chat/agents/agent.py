@@ -1,4 +1,4 @@
-from llm.gemini_dynamic_agent import GenimiDynamicAgent
+from llm.dynamic_agent import DynamicAgent
 from langchain.agents.middleware import dynamic_prompt, ModelRequest
 from langchain_core.messages import BaseMessage, HumanMessage
 
@@ -30,21 +30,36 @@ def user_context_prompt(request: ModelRequest) -> str:
     )
 
 
-chat_agent = GenimiDynamicAgent(
-    model_name=LlmConfig.GEMINI_CHAT_MODEL,
+family = "openai"
+
+if family == "gemini":
+    model_name = LlmConfig.GEMINI_CHAT_MODEL
+    api_keys = LlmConfig.GEMINI_API_KEYS
+    max_retries = LlmConfig.GEMINI_API_MAX_RETRY
+elif family == "openai":
+    model_name = LlmConfig.OPENAI_CHAT_MODEL
+    api_keys = LlmConfig.OPENAI_API_KEYS
+    max_retries = LlmConfig.OPENAI_API_MAX_RETRY
+else:
+    raise ValueError(f"Unsupported LLM family: {family}")
+
+chat_agent = DynamicAgent(
+    family=family,
+    model_name=model_name,
     temperature=LlmConfig.LLM_CHAT_TEMPERATURE,
     tools=tools,
     middleware=[user_context_prompt],
-    api_keys=LlmConfig.GEMINI_API_KEYS,
-    max_retries=LlmConfig.GEMINI_API_MAX_RETRY,
+    api_keys=api_keys,
+    max_retries=max_retries,
 )
 
-titler_agent = GenimiDynamicAgent(
-    model_name=LlmConfig.GEMINI_CHAT_MODEL,
+titler_agent = DynamicAgent(
+    family=family,
+    model_name=model_name,
     temperature=LlmConfig.LLM_CHAT_TEMPERATURE,
     system_prompt=CHAT_TITLER_SYSTEM_PROMPT,
-    api_keys=LlmConfig.GEMINI_API_KEYS,
-    max_retries=LlmConfig.GEMINI_API_MAX_RETRY,
+    api_keys=api_keys,
+    max_retries=max_retries,
 )
 
 

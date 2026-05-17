@@ -299,25 +299,27 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
                     >
                       {new Date(session.created_at).toLocaleString()}
                     </Typography>
-                    <Box
-                      sx={{
-                        mt: 1,
-                        display: "flex",
-                        flexWrap: "wrap",
-                        gap: 0.75,
-                      }}
-                    >
-                      <Chip
-                        size="small"
-                        label={`${tSessionList("project")}: ${session.project_key}`}
-                      />
-                      {session.story_key && (
+                    {level === "connection" && (
+                      <Box
+                        sx={{
+                          mt: 1,
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: 0.75,
+                        }}
+                      >
                         <Chip
                           size="small"
-                          label={`${tSessionList("story")}: ${session.story_key}`}
+                          label={`${tSessionList("project")}: ${session.project_key}`}
                         />
-                      )}
-                    </Box>
+                        {session.story_key && (
+                          <Chip
+                            size="small"
+                            label={`${tSessionList("story")}: ${session.story_key}`}
+                          />
+                        )}
+                      </Box>
+                    )}
                   </Box>
                 </ListItemButton>
               </ListItem>

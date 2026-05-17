@@ -5,18 +5,12 @@ from common.database import get_db
 
 print("Reading data")
 
-with open("data/extracted_data.json", "r") as f:
+with open("data/IntelligenceBank/test_100_us.json", "r") as f:
     data = json.load(f)
 
-data_len = len(data)  # = 500
-
-start = 0
-end = 2
-data = data[start:end]
+print(f"Read {len(data)} user stories")
 stories = []
 for issue in data:
-    print(f"{start}/{end - 1}")
-    start += 1
     stories.append(
         CreateStoryRequest(
             summary=issue["user_story"], description=issue["requirements"]
@@ -26,7 +20,7 @@ for issue in data:
 print("Uploading...")
 res = JiraService(next(get_db())).create_stories(
     connection_id="515b536d-ab6f-4c9c-9e8e-caf2147d0aed",
-    project_key="IB",
+    project_key="IBT",
     stories=stories,
 )
 print("Results:", res)

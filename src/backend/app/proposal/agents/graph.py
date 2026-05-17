@@ -51,7 +51,7 @@ def _build_agent(
     response_schema=ProposalOutput,
     temperature: float = LlmConfig.LLM_DEFECT_TEMPERATURE,
     top_p: float = LlmConfig.LLM_DEFECT_TOP_P,
-    family: Literal["gemini", "openai"] = "openai",
+    family: Literal["gemini", "openai"] = "gemini",
 ):
     @dynamic_prompt
     def user_context_prompt(request: ModelRequest) -> str:

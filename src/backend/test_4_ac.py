@@ -42,7 +42,7 @@ ac_result = generate_ac_from_story(
 end_time = time.time()
 print(f"Generated AC in {end_time - start_time:.2f} seconds")
 
-output_dir = "data/IntelligenceBank/ac/gpt"
+output_dir = "data/IntelligenceBank/ac/gemini"
 os.makedirs(output_dir, exist_ok=True)
 output_file = f"{output_dir}/{project_key}_{story_key}_ac.json"
 

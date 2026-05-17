@@ -24,13 +24,11 @@ def search_stories_by_keywords(keywords: str, runtime: ToolRuntime[Context]) -> 
         str: A JSON string containing: the list of matching user stories or an error message.
             Disclaimer: results are based on similarity search and may not be exact matches.
     """
-    print(
-        f"""
+    print(f"""
 {"-"*100}
 | Retrieve Stories Tool Called
 {"-"*100}
-"""
-    )
+""")
     context = runtime.context
 
     vector_store = JiraVectorStore()
@@ -55,13 +53,11 @@ def get_story_details(story_key: str, runtime: ToolRuntime[Context]) -> str:
     Returns:
         str: A JSON string containing: the story details or an error message.
     """
-    print(
-        f"""
+    print(f"""
 {"-"*100}
 | Get Story Details Tool Called
 {"-"*100}
-"""
-    )
+""")
 
     context = runtime.context
     story_service = JiraService(db=context.db)
@@ -94,13 +90,11 @@ def get_defects_for_story(story_key: str, runtime: ToolRuntime[Context]) -> str:
     Returns:
         str: A JSON string containing: the list of defects or an error message.
     """
-    print(
-        f"""
+    print(f"""
 {"-"*100}
 | Get Defects Tool Called
 {"-"*100}
-"""
-    )
+""")
 
     if not story_key:
         return json.dumps(
@@ -130,14 +124,12 @@ def run_defect_analysis(story_key: Optional[str], runtime: ToolRuntime[Context])
     Returns:
         str: A JSON string containing: the analysis ID and status, or an error message.
     """
-    print(
-        f"""
+    print(f"""
 {"-"*100}
 | Run Defect Analysis Tool Called
 | Story Key: {story_key}
 {"-"*100}
-"""
-    )
+""")
     if not story_key:
         return json.dumps(
             {"error": "Story Key not provided. Cannot run defect analysis."},
@@ -171,15 +163,13 @@ def run_proposal_generation(
     Returns:
         str: A JSON string containing: the proposal ID and status, or an error message.
     """
-    print(
-        f"""
+    print(f"""
 {"-"*100}
 | Run Proposal Generation Tool Called
 | Defect Keys: {defect_keys}
 | Clarifying Info: {clarifying_info}
 {"-"*100}
-"""
-    )
+""")
 
     if not defect_keys:
         return json.dumps(
@@ -238,13 +228,11 @@ def update_stories(modifications: list[dict], runtime: ToolRuntime[Context]) -> 
         str: A JSON string containing: the list of proposed story keys or an error message.
     """
 
-    print(
-        f"""
+    print(f"""
 {"-"*100}
 | Modify Story Proposals Tool Called
 {"-"*100}
-"""
-    )
+""")
 
     if not modifications:
         return json.dumps(
@@ -312,13 +300,11 @@ def create_stories(
         str: A message indicating the success of the story creation.
     """
 
-    print(
-        f"""
+    print(f"""
 {"-"*100}
 | Create Story Proposals Tool Called
 {"-"*100}
-"""
-    )
+""")
     if not stories:
         return json.dumps(
             {"error": "No story data provided. Cannot create stories."},
@@ -357,11 +343,8 @@ tools = [
     search_stories_by_keywords,
     get_story_details,
     get_defects_for_story,
-    run_defect_analysis,
-    run_proposal_generation,
     update_stories,
     create_stories,
 ]
 
 tools.extend(doc_tools)
-tools.extend(graphrag_search_tools)

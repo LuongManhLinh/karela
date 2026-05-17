@@ -59,6 +59,6 @@ proposals = run_proposal_generation(
 end_time = time.time()
 print(f"Generated {len(proposals)} proposals in {end_time - start_time:.2f} seconds")
 with open(
-    f"data/IntelligenceBank/proposal/gpt/{project_key}_{mode}_proposals.json", "w"
+    f"data/IntelligenceBank/proposal/gemini/{project_key}_{mode}_proposals.json", "w"
 ) as f:
     json.dump([p.model_dump() for p in proposals], f, indent=2)

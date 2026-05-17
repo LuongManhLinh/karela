@@ -1,0 +1,566 @@
+[
+  {
+    "target_defect_ids": [
+      "IB2_DEF_0",
+      "IB2_DEF_1",
+      "IB2_DEF_2",
+      "IB2_DEF_3",
+      "IB2_DEF_4",
+      "IB2_DEF_5",
+      "IB2_DEF_6",
+      "IB2_DEF_7",
+      "IB2_DEF_8",
+      "IB2_DEF_9",
+      "IB2_DEF_10",
+      "IB2_DEF_11",
+      "IB2_DEF_12",
+      "IB2_DEF_13",
+      "IB2_DEF_14",
+      "IB2_DEF_15",
+      "IB2_DEF_16",
+      "IB2_DEF_17",
+      "IB2_DEF_18",
+      "IB2_DEF_19",
+      "IB2_DEF_20",
+      "IB2_DEF_21",
+      "IB2_DEF_22",
+      "IB2_DEF_23",
+      "IB2_DEF_24",
+      "IB2_DEF_25",
+      "IB2_DEF_26",
+      "IB2_DEF_27",
+      "IB2_DEF_28",
+      "IB2_DEF_29"
+    ],
+    "contents": [
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-299",
+        "summary": "As a user, I want a 'Limit to current view' search-scope control so I can restrict Ask AI queries to my current location",
+        "description": "As a user I want a 'Limit to current view' checkbox under the question field so that Ask AI queries can be restricted to the current location or expanded to the whole platform.\n\nAcceptance Criteria:\n- Checkbox appears under the question field and is enabled by default when panel opens.\n- Checkbox state persists for the Ask action and is readable by the Ask action contract (mocked API during Alpha).\n- UI includes a tooltip explaining the control.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-323",
+        "summary": "As a user, I want the Ask UI to show a disabled Ask button which enables when a valid question is entered",
+        "description": "As a user I want the Ask button visible (disabled by default when the panel opens) and enabled only when a valid question is present so that I know when I can submit.\n\nAcceptance Criteria:\n- Ask button displays under the question field and is disabled by default.\n- Entering a non-empty valid question enables the Ask button.\n- Hover text when enabled: 'Click or hit enter to ask your question.'\n- The Ask button is implemented to call a mocked search endpoint (contract) so frontend work is testable.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-382",
+        "summary": "As a Public user, I want the public upload header simplified (hide DB name and close icon) so the guest upload UI matches public UX requirements",
+        "description": "As a Public user creating a public record I want the page header to drop the Database name and hide the 'x' close icon so the public upload experience uses a simplified header.\n\nAcceptance Criteria:\n- When user is public and creating a public record, the header only shows 'Create {{Record}}'.\n- The close ('x') icon is hidden for public create flows.\n- Behavior covered by unit/regression tests and a feature flag for rollout.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-366",
+        "summary": "As a Guest user, I want a consistent success confirmation with a small set of predefined, accessible presentations so that visual variety is possible without harming usability",
+        "description": "In order to provide lightweight visual variety while maintaining predictability and accessibility, As a Guest user I want the post-submission success confirmation to use one of three predefined presentation styles (selected per page load) rather than fully random presentation. The success UI must support both the simplified public header and the existing header without blocking deployment.\n\nAcceptance Criteria (Gherkin):\nScenario: Success uses one of three predefined styles\nGiven a Guest user loads the success page after submission\nWhen the success UI renders\nThen it uses one of three predefined, documented presentation styles (A/B/C) chosen at random per page load\n\nScenario: Header compatibility\nGiven the simplified header is present\nWhen the success UI renders\nThen it uses the simplified header layout for that style; otherwise it uses the existing header layout\n\nScenario: Feature flag and UI tests\nGiven the feature flag for \"Success Presentation Variants\" is OFF\nWhen a Guest submits\nThen the success UI uses the default single style\nAnd UI tests cover both header states and the three styles when the flag is ON\n\nNotes: The randomization is limited to three curated, accessible styles to avoid unpredictable UX while allowing controlled variety.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-51",
+        "summary": "As a user, I want a stable Smart Page List API contract and mocked endpoints so the UI can be built independently",
+        "description": "As a developer I want the Smart Page List API contract defined and a mocked endpoint provided so the frontend can retrieve lists of Smart Pages without waiting for final backend implementation.\n\nAcceptance Criteria:\n- An OpenAPI/Swagger contract for GET /smart-pages (list) is published.\n- A mock server (or mock responses) is available returning representative payloads for the UI.\n- Response time constraints and pagination schema are defined in the contract.\n- Unit/integration tests validate mock responses match contract.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-53",
+        "summary": "As a user, I want a Delete Smart Page API implemented against the agreed contract so deletions are reliable and testable",
+        "description": "As a developer I want the DELETE /smart-pages/{id} API implemented and verified against the published contract so the UI can perform deletions reliably.\n\nAcceptance Criteria:\n- Delete API follows the published contract (identifier and payload format consistent with GET responses).\n- API returns immediate acknowledgement and performs asynchronous cleanup if necessary.\n- Unit and integration tests validate contract compliance and that deletion is idempotent for repeated calls.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-27",
+        "summary": "As a user, I want the Status column implemented with updated color chips so I can see workflow request status",
+        "description": "As a user I want a Status column to display current workflow request status using color chips so I can quickly scan request states.\n\nAcceptance Criteria:\n- Status column displays to the right of Request Details and left of Workflow Name/Type by default.\n- Status chips support values: Pending, Approved, Declined, Reviewed, Cancelled.\n- Chip colors are updated per design and a migration plan exists to update chips elsewhere later.\n- Existing cancel logic is respected for status transitions.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-44",
+        "summary": "As a user, I want to view and navigate Pages and Stages on a Record so stage navigation is available",
+        "description": "As a user I want the Record view to allow navigation to any Page and to show Stage-specific availability for staged records so the Request Status can map to the currently viewed context.\n\nAcceptance Criteria:\n- Single-record flows allow navigation to any Page/Section.\n- For staged records when pending, only allowed stages are enabled (Stage 1 active; future stages visible but disabled).\n- API contracts/events exist so the Request Status component can read the current stage context.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-41",
+        "summary": "As a user, I want a Request Status section that initially displays static request information for a given page or stage",
+        "description": "As a user I want a Request Status section in the Record Publish Approval review page that shows Request Status, Approvals Still Required, and Waiting On for the current page or stage. Initially this will display static/deterministic data until dynamic navigation contract is available.\n\nAcceptance Criteria:\n- Request Status section shows Request Status, Approval(s) Still Required, Waiting On for the current context.\n- For staged records, the section shows values corresponding to the currently selected stage (based on mocked stage context if dynamic navigation is not yet available).\n- The component can be wired to the real stage navigation later with minimal changes (clear contract documented).",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As an Admin, I want an 'Enable Azure Image Tagging' MCP setting so the tenant can opt into Azure tagging",
+        "description": "As an Admin I want a new MCP setting 'Enable Image Tagging (Azure)' under Asset Intelligence so that image-tagging provider selection can be controlled per tenant.\n\nAcceptance Criteria:\n- New boolean MCP setting exists in Admin > Asset Intelligence.\n- When enabled, UI and backend use Azure provider selection rather than Imagga (provider selection flag applied at runtime).\n- Setting is behind a feature flag and documented.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As an Admin, I want Azure Image Processing limit settings so tenant quotas can be enforced per billing cycle",
+        "description": "As an Admin I want 'Azure Image Processing Limit (Images) (per billing cycle)' and renamed 'Azure Video Processing Limit (Minutes)' settings so quotas and units are explicit.\n\nAcceptance Criteria:\n- New image-limit setting and renamed video-limit setting exist in MCP settings.\n- Limits are stored in config and surfaced to billing/quota services.\n- Admin UI validations and unit tests included.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As an Engineer, I want migration tooling to move Imagga image-tagging configurations and usage history to Azure so historical context is preserved",
+        "description": "As an engineer I want a migration script/process to move Imagga image-tagging configs and usage history to the Azure provider schema so tenants do not lose historical usage or settings.\n\nAcceptance Criteria:\n- Migration design documented and a safe, idempotent migration script exists.\n- Smoke tests confirm migrated settings and sample usage history match expected schema.\n- Migration can be run per-tenant and includes a rollback plan.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As a Platform owner, I want billing & quota updates for Azure image processing so usage is tracked and charged correctly",
+        "description": "As a platform owner I want billing and quota-tracking changes for Azure image processing so consumption is measured per the new image limits and reflected in tenant billing.\n\nAcceptance Criteria:\n- Billing service accepts Azure image-processing usage metrics and calculates consumption against per-billing-cycle limits.\n- Alerts are emitted when quota thresholds are crossed.\n- Unit/integration tests validate usage accounting for images/minutes.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As a Product manager, I want analytics, reporting, and notifications for Azure image-tagging so operators can monitor provider activity and limits",
+        "description": "As a product manager I want analytics and reporting for image-tagging usage and provider activity plus notifications for processing limits, quota exhaustion, and provider failures so tenants and ops can react proactively.\n\nAcceptance Criteria:\n- Basic analytics dashboard shows image-tagging request counts by provider and success/failure rates.\n- Notifications exist for quota-exhaustion and provider failures (configurable recipients).\n- Reporting exports for image-tagging usage are available for a tenant's billing window.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As a Developer, I want API, permissions, docs, and rollout configuration for Azure image-tagging so feature enablement is complete",
+        "description": "As a developer I want updated APIs, permission checks, documentation, and rollout configuration so Azure image-tagging can be safely enabled for tenants.\n\nAcceptance Criteria:\n- API endpoints updated with provider selection parameter and permissions enforced.\n- Documentation updated to reflect MCP settings, limits, and rollout procedures.\n- Rollout configuration (feature flags/per-tenant enable) implemented.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-141",
+        "summary": "As a Reporting user, I want the weekly report renamed and extended to include Question/Answer/Rating data",
+        "description": "As a reporting consumer I want the weekly report renamed to 'weekly_asset_intelligence_report' and include Question/Answer/Rating data so downstream analytics can use these metrics.\n\nAcceptance Criteria:\n- Report renamed to weekly_asset_intelligence_report.\n- Report payload includes Question / Answer / Rating fields for assets.\n- Dev-server entries removed from report generation config.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-141",
+        "summary": "As an Engineer, I want to remove dev server entries from reporting configuration and support export synchronization",
+        "description": "As an engineer I want dev/test environment entries removed from report runs and ensure export/report synchronization settings are documented so production reports are clean and reproducible.\n\nAcceptance Criteria:\n- Known dev servers removed from the report generation filter list.\n- Export/report synchronization settings documented and automated for production runs.\n- Backward-compatible change with unit tests.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-141",
+        "summary": "As a Data Engineer, I want a historical data migration plan for Question/Answer/Rating data so past data is available in the new report",
+        "description": "As a data engineer I want an executable, idempotent migration plan to surface historical Q/A/Rating data into the new report schema so downstream consumers see complete timelines.\n\nAcceptance Criteria:\n- Migration design documented and tested on a representative sample.\n- Migration includes validation scripts and rollback steps.\n- Runbook for multi-environment aggregation included.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-395",
+        "summary": "As an Admin, I want a UI to configure sub-page permissions in Admin -> Group so I can manage access inline",
+        "description": "As an Admin I want to view and configure permissions for sub-pages under parent pages in Admin -> Group -> Permission so permission management mirrors resource folder/sub-folder behavior.\n\nAcceptance Criteria:\n- Admin UI lists sub-pages under parent pages and allows permission edits inline.\n- Permission changes can be saved and previewed.\n- Basic unit tests and access control checks included.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-395",
+        "summary": "As a Platform engineer, I want permission propagation logic for sub-pages so hierarchical inheritance can be applied",
+        "description": "As a platform engineer I want permission propagation logic that mirrors resource folder behavior so permission updates cascade predictably across sub-pages.\n\nAcceptance Criteria:\n- A propagation engine with configurable depth exists.\n- Admin can trigger propagation and view a preview of affected resources.\n- Tests validate propagation rules and edge cases (conflicts, explicit denies).",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-395",
+        "summary": "As a Compliance officer, I want permission changes recorded in audit history and synchronized across platforms so governance is demonstrable",
+        "description": "As a compliance officer I want permission change audit entries and cross-platform synchronization so security and audit requirements are met.\n\nAcceptance Criteria:\n- Permission changes generate audit records with before/after states.\n- Changes are propagated to mobile/API clients or queued for eventual sync.\n- Tests and runbooks for sync failure/retry behavior provided.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-395",
+        "summary": "As an Admin, I want permission updates to integrate with approval workflows so governance can require approvals for major changes",
+        "description": "As an Admin I want permission changes to optionally trigger approval workflows so critical permission changes can require sign-off.\n\nAcceptance Criteria:\n- Option to require approval when changing permissions is available.\n- Approval workflow ties into existing workflow engine and notifies approvers.\n- Tests validate approval path and finalization of permission changes.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-413",
+        "summary": "As an Ops engineer, I want delivery tracking metadata and a basic external provider integration so notification delivery status can be monitored",
+        "description": "In order to monitor deliverability and diagnose notification failures, As an Ops engineer I want each outbound notification to record delivery metadata (sent, delivered, failed) and to support an integration hook (webhook) to receive provider delivery events. A simple dashboard or log view should surface aggregated delivery metrics.\n\nAcceptance Criteria (Gherkin):\nScenario: Delivery metadata captured\nGiven a notification is sent\nWhen the send completes or fails\nThen the system records metadata including timestamp, provider message id, and status (sent/delivered/failed)\n\nScenario: Provider webhook integration\nGiven an external provider posts a delivery event to our webhook\nWhen the event is received and validated\nThen the corresponding notification record is updated to \"delivered\" or \"failed\"\n\nScenario: Dashboard shows basic metrics\nGiven delivery records exist for a time range\nWhen I open the Delivery dashboard\nThen I see counts of sent, delivered, and failed notifications for that time range\n\nNotes: This story limits scope to metadata capture, a validated webhook endpoint, and a basic metrics view (no advanced analytics or multi-provider orchestration).",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-20",
+        "summary": "As a Main Admin, I want the Ask AI Alpha access gate implemented (feature-flag + gating API + test contract) so only Main Admins see AI Assist in Alpha",
+        "description": "As a Main Admin / I want the platform to enforce an Ask AI Alpha access gate via a feature-flag and role-check API / So that only Main Admins can see the 'AI Assist' button during Alpha and front-end teams can test against a stable contract.\n\nAcceptance Criteria:\n- Given I am a Main Admin, when I call the gating API, then it returns {\"allowed\": true} and the UI shows the 'AI Assist' button.\n- Given I am not a Main Admin, when I call the gating API, then it returns {\"allowed\": false} and the UI hides the 'AI Assist' button.\n- The gating service provides a mock/test endpoint (configurable) that front-end can use during sprint to simulate gate states.\n- Unit tests validate role checks, feature-flag toggles, and emulation-mode behavior (emulation hides AI Assist unless explicitly allowed and documented).\n\nNotes: This story implements the gate and a mock contract so the Ask action can be developed and tested independently of other infrastructure.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-23",
+        "summary": "As a Main Admin, I want the Ask action to trigger a scoped AI search that respects the access gate (IB2-20) and current view so AI queries run with correct context",
+        "description": "As a Main Admin / I want the Ask button to trigger an AI search that reads the 'Limit to current view' checkbox and verifies the Ask AI Alpha gate (IB2-20) before calling the AI endpoint / So that results are scoped and secure and the feature can be validated without the real backend.\n\nAcceptance Criteria:\n- Given the 'Limit to current view' checkbox state, when I press Ask, then the request payload includes limitToView boolean.\n- Given the gating API (IB2-20 mock) reports allowed=false, when I press Ask, then the UI prevents the request and shows an access denied state.\n- Given the gating API reports allowed=true, when I press Ask, then the UI calls the mocked AI endpoint (contract-based mock) and renders results.\n- Frontend tests use the gating service's mock endpoint (from IB2-20) so the story is deliverable and testable independently of other infra.\n\nNotes: This story explicitly depends on IB2-20's gating API and its mock/test endpoint (no reference to non-existent IB2-318).",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-57",
+        "summary": "Integration: Trigger Migration Engine test endpoint after Move UI (IB2-55) completes",
+        "description": "As a Page Builder user / I want the move operation to trigger the Migration Engine test endpoint (or a mock equivalent) so that child references can be updated after a move.\n\nAcceptance Criteria:\n- Given a user performs a move in the editor (IB2-55), when the move completes, then the editor sends the standard move event to the Migration Engine test endpoint or to the shared mock move-event endpoint.\n- Given the Migration Engine (or mock) responds success, when the editor refreshes relevant pages, then links resolve to the updated targets in the editor preview.\n- Integration tests use the mock move-event endpoint if the real Move UI is delivered separately; the acceptance criteria explicitly accept either the real IB2-55 event or the shared mock event contract.\n\nNotes: This integration story explicitly references IB2-55 (Move UI) and documents that a mock move-event endpoint will be available for integration testing if the UI and engine are delivered in separate sprints.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-59",
+        "summary": "Integration: Request Redirect & SEO metadata updates after Move UI (IB2-55) completes",
+        "description": "As a Page Builder user / I want the Move UI to request redirects and metadata updates (or call the mock Redirect test endpoint) so that the editor preview reflects updated URLs and breadcrumbs after a move.\n\nAcceptance Criteria:\n- Given a successful move (IB2-55), when the UI calls the Redirect Service test endpoint or mock endpoint, then redirect and metadata changes are returned and applied to the editor preview.\n- Breadcrumb display in the editor updates to the new path immediately after the integration completes.\n- Integration tests may use the shared mock redirect/test API if the Redirect Service is delivered separately; the acceptance criteria accept either the real service or the mock contract.\n\nNotes: Integration story now references IB2-55 and requires a mock test endpoint to keep front-end integration testable independent of backend delivery.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-61",
+        "summary": "Integration: Invoke Permissions Migration & Audit Service after Move UI (IB2-55) completes",
+        "description": "As an Editor / I want the Move UI to invoke the Permissions Migration & Audit Service test endpoint (or the shared mock) after a move so that permissions and audit logs can be applied and previewed.\n\nAcceptance Criteria:\n- Given a successful move (IB2-55), when the editor invokes the Permissions Migration Service test API or mock endpoint, then an audit entry is recorded and notification payloads are returned (or a mock response is returned for UI preview).\n- The editor displays a success message and a sample notification preview based on the service response (using mock responses in test mode).\n- Integration tests validate end-to-end flow using the service's test endpoint or the shared mock.\n\nNotes: Story explicitly references IB2-55 and accepts mock responses to decouple scheduling while keeping integration testable.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-63",
+        "summary": "Integration: Expose Undo/Redo and Version History in Move UI (IB2-55) using Versioning Engine test endpoint or mock",
+        "description": "As a Product team / I want the editor UI to call the Versioning & Undo Engine test endpoints (or the shared mock) so undo/redo and version history for move operations can be shown in the editor.\n\nAcceptance Criteria:\n- Given a move recorded by the Versioning Engine (or a mock), when I press undo in the editor session, then the editor calls the engine undo API (or mock) and reflects the reverted hierarchy.\n- The editor displays a version history entry for the move with timestamp and actor; persistent revert invokes the engine's revert endpoint (or mock).\n- Integration tests validate UI/engine interactions using the Versioning Engine test endpoints or the shared mock.\n\nNotes: This story references IB2-55 explicitly and documents the use of mocks when the Versioning engine is not yet available for integration testing.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-55",
+        "summary": "As a Page Builder user, I want to move a sub-page to a standalone page so the editor emits a standard move event",
+        "description": "As a Page Builder user / I want to drag a sub-page from the Navigation Panel to the top-level / So that it becomes a standalone page in the editor and the editor emits a standard move event for downstream processors.\n\nAcceptance Criteria:\n- Given I am in editor mode, when I drag a sub-page to the top-level, then the page becomes top-level in the editor and remains editable.\n- When the move completes, the Navigation panel updates immediately to reflect the new order and hierarchy in the editor UI.\n- The editor emits the standard move event payload (oldPath/newPath/childRefs) to the shared move-event endpoint or the configured test/mock endpoint.\n- Child-content link migration is explicitly out-of-scope for the UI story; verification that links are updated is handled by the Migration Engine (IB2-56) or by the integration test using the Migration Engine mock endpoint.\n- Simple undo (within the same session) is available for the move action in the editor UI (UI-level only; persistent undo uses the Versioning Engine integration story).\n\nNotes: This story is UI-only and no longer asserts that it can guarantee child link updates. Integration verification is provided via separate integration stories (which may use mock endpoints).",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-117",
+        "summary": "As a User, I want visual feedback (dotted outline & bounding box) when placing or resizing an Image Widget so placement is clear",
+        "description": "As a User / I want a dotted outline and full widget bounding box to appear when I place or resize an Image Widget / So that I receive clear visual feedback about widget boundaries and selection.\n\nAcceptance Criteria:\n- Given an Image Widget on a page, when I place it, a dotted outline and full widget bounding box with default 8px padding appear.\n- The dotted outline and bounding box remain visible after resizing the Image Widget.\n- The widget's outer bounding box border remains visible whenever the Image has been resized.\n- UI matches Smart Page builder design system styling and works in supported browsers.\n\nNotes: This story includes UI rendering, CSS, and selection state management. No focal-point persistence, keyboard nudging, or slider sync is included here; those are in follow-up slices.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-117",
+        "summary": "As a User, I want to reposition the image (focal-point) by dragging so the focal point is preserved as a stored percentage",
+        "description": "As a User / I want to drag the image inside its Block to set a focal point / So that the image's horizontal placement is stored as a percentage and preserved across resizes and block width changes.\n\nAcceptance Criteria:\n- Given an Image Widget on a page, when I drag the image, the image repositions and the new horizontal placement is saved as a percentage focal-point in the widget model.\n- When the Block or Image is resized later (via drag or slider), the image's horizontal position is recalculated from the stored percentage focal-point and preserved proportionally.\n- The data model (widget attribute) which stores the focal-point percentage is documented and has a defined API for read/write.\n- Basic unit tests validate focal-point persistence across a resize operation.\n\nNotes: This slice includes the drag repositioning UI, model persistence (e.g., widget.focalPointX percent), and apply-on-resize behavior. Keyboard nudging, snapping, and slider synchronization are out-of-scope for this slice.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-117",
+        "summary": "As a User, I want keyboard accessibility and nudge/snap support for image repositioning so repositioning is accessible",
+        "description": "As a User / I want to nudge the image with keyboard arrow keys and use snap-to-grid when applicable / So that repositioning is accessible and precise.\n\nAcceptance Criteria:\n- Given focus on an Image Widget reposition control, when I press arrow keys, the image nudges by the configured nudge increment and the stored focal-point percentage updates accordingly.\n- Holding modifier keys (Shift) changes nudge increment per design (larger step); snap-to-grid toggles are honored if enabled.\n- Accessibility requirements (focus ring, ARIA labels, keyboard-only interaction path) are implemented and pass basic a11y checks.\n- Unit/interaction tests cover keyboard nudging behavior and update of the focal-point model.\n\nNotes: This slice implements accessibility and keyboard-driven repositioning only; it consumes the focal-point model from the focal-point story and reuses the visual feedback UI.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-117",
+        "summary": "As a User, I want Block width resizing to stay in sync with the Nav Width slider and preserve focal-point on resize",
+        "description": "As a User / I want the Block width changed via page drag or Nav Panel Width slider to remain synchronized and preserve the image focal-point percentage / So that resizing behaves consistently across controls.\n\nAcceptance Criteria:\n- Given an Image Widget on a page, when I drag the dotted outline to resize the Block, the Nav Width slider updates to the same width value.\n- Given the Nav Width slider is changed, the Block size updates and the dotted outline reflects the same size.\n- When the Block or Image is resized (either control), the image's horizontal position is recalculated from the stored percentage focal-point and preserved (not reset to center).\n- If the Nav Width slider is read-only due to permissions/template, the slider displays the current Block width in disabled state while drag resizing remains available if allowed by permissions.\n- Integration tests verify sync between slider and drag and confirm focal-point preservation.\n\nNotes: This slice implements synchronization logic, permission-state UI behavior, and consumes the focal-point model. It is scoped to width synchronization and preservation behavior only.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-56",
+        "summary": "Migration Engine - MVP API & test endpoint (accepts move payload, returns stubbed report)",
+        "description": "As an Engineer / I want a minimal Migration Engine API and a test endpoint that accepts a move payload and returns a stubbed report / So that frontend/integration teams can validate event emission and basic contract.\n\nAcceptance Criteria:\n- The service exposes a REST test endpoint that accepts move payloads (oldPath/newPath/childRefs) and returns a deterministic stubbed report.\n- Unit tests cover basic request/response behavior and input validation.\n- The test endpoint runs in mock mode for integration tests and is documented in the API contract.\n\nNotes: This is the first incremental deliverable (core API + test endpoint) to allow parallel integration work.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-56",
+        "summary": "Migration Engine - Reference patterns & idempotence tests",
+        "description": "As an Engineer / I want to implement idempotence and support for common child reference patterns (relative links, widget refs) / So that the Migration Engine can safely re-run and correctly update typical references.\n\nAcceptance Criteria:\n- The service includes unit/integration tests demonstrating idempotence for representative reference patterns (relative links, widget refs).\n- The test harness can run sample payloads and assert idempotent behavior.\n- Documentation includes how the service handles each reference pattern.\n\nNotes: This is the second incremental deliverable focused on correctness and reliability.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-58",
+        "summary": "Redirect & SEO Service - MVP API & test endpoint (generate redirects & canonical URL stub)",
+        "description": "As a Product owner / I want an MVP Redirect & SEO test endpoint that generates redirect records and returns canonical URL/breadcrumb suggestions / So that integrations and the UI can validate redirect generation behavior using a stubbed service.\n\nAcceptance Criteria:\n- Service exposes a test API that accepts oldPath/newPath and returns stubbed redirect records and a canonical URL/breadcrumb suggestion.\n- Regression tests validate canonical URL rules for representative cases.\n- API contract and mock responses are documented for frontend consumption.\n\nNotes: This incremental deliverable enables frontend integration with a lightweight mock.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-60",
+        "summary": "Permissions Migration & Audit Service - MVP API & test endpoint (permission propagation stub + audit entry)",
+        "description": "As an Editor/Engineer / I want a minimal Permissions Migration test endpoint that simulates permission propagation and returns an audit entry / So that UI integrations can validate permission-migration behavior using a mock.\n\nAcceptance Criteria:\n- Service exposes a test endpoint that accepts a move payload and returns a simulated permission propagation result and an audit entry.\n- Unit tests validate audit entry format and basic propagation logic (stubbed).\n- Documentation includes the test payload format and sample responses for frontend integration.\n\nNotes: Enables frontend and integration testing before full migration logic is delivered.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-62",
+        "summary": "Versioning & Undo Engine - MVP API & test endpoint (record move, undo in-session stub)",
+        "description": "As a Product team / I want a minimal Versioning & Undo test endpoint that records a move snapshot and supports a stubbed in-session undo API / So that the editor can validate undo/redo UI behavior using a mock engine.\n\nAcceptance Criteria:\n- Service exposes endpoints to record a move (before/after snapshot) and to undo the last recorded move in-session, returning a deterministic stubbed response.\n- Unit tests verify API contract and basic behavior.\n- Integration test support (mock mode) is documented for frontend use.\n\nNotes: This MVP enables the UI to implement and test undo/redo flows against a stable contract.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-62",
+        "summary": "Versioning & Undo Engine - Persistent revert, event emission & integration hooks",
+        "description": "As a Product team / I want persistent revert APIs, version history persistence, and event emission so that moves can be audited and reverted persistently.\n\nAcceptance Criteria:\n- Service implements persistent recording of moves with version entries and a persistent revert endpoint.\n- Undo/redo behavior across sessions is documented and covered by integration tests.\n- The service emits standard events for audit consumers and integration stories.\n\nNotes: This is the follow-up increment to the MVP test API, completing production capabilities.",
+        "explanation": null
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-41",
+        "original_story_key": null,
+        "summary": "As an Engineer, I want multi-environment aggregation and backward-compatible export so the report can aggregate multi-tenant/environments reliably",
+        "description": "As an engineer I want to implement multi-environment aggregation and ensure backward-compatible exports so the report works across environments and integrates with existing reporting systems.\n\nAcceptance Criteria:\n- Aggregation logic outlined and implemented for supported environments.\n- Backward compatibility layer for older consumers provided.\n- Automated export synchronization configurable and tested.",
+        "explanation": null
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-51",
+        "original_story_key": null,
+        "summary": "As an Admin, I want template-level notification options for Grouped Resource Publish when MCP and template toggles are enabled so publishers can configure requester notifications",
+        "description": "In order to allow template authors to tailor notifications for grouped resource publishes, As an Admin I want additional notification controls to appear in the Resource Publish Template editor when both the MCP 'Enable Grouped Requests' global toggle and the template-level 'Enable Grouped Requests' toggle are enabled.\n\nAcceptance Criteria (Gherkin):\nScenario: Additional options appear when toggles enabled\nGiven MCP global setting \"Enable Grouped Requests\" = ON\nAnd the Template-level toggle \"Enable Grouped Requests\" = ON in the Template editor\nWhen I open the Template editor\nThen a new section \"Grouped Request Notifications\" is visible with options including \"Requester Emails\" selection\n\nScenario: Requester Emails selection works at template level\nGiven the \"Requester Emails\" option is visible\nWhen I select one or more requester email recipients and save the template\nThen the template saves and the selected recipients are persisted and returned by the Template GET API\n\nScenario: Options hidden when toggles disabled\nGiven either MCP global toggle or template toggle is OFF\nWhen I open the Template editor\nThen the \"Grouped Request Notifications\" section is not visible\n\nNotes: This narrows the ambiguous \"additional options\" to a specific UI section and a concrete Requester Emails control so the work can be estimated and tested.",
+        "explanation": null
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-52",
+        "original_story_key": null,
+        "summary": "As an Admin, I want a core Requester Emails template engine so tenant templates can render requester notifications with placeholders and tenant overrides",
+        "description": "In order to send consistent requester notifications across tenants, As an Admin I want a core template rendering service for Requester Emails that supports placeholders, basic localization keys, and tenant-level overrides (limited to rendering and placeholder substitution in this story).\n\nAcceptance Criteria (Gherkin):\nScenario: Placeholder substitution\nGiven a Requester Email template with subject \"Your {{RecordTitle}} was submitted\"\nWhen the template is rendered for RecordTitle = \"Annual Report\"\nThen the rendered subject equals \"Your Annual Report was submitted\"\n\nScenario: Tenant override fallback\nGiven tenant provides an override template for subject\nWhen the tenant override exists\nThen rendering uses the tenant override\nAnd when no tenant override exists\nThen rendering falls back to the core default template\n\nScenario: Basic localization key support\nGiven a template contains a localization key \"greeting\" with locales en and fr\nWhen rendering for locale \"fr\"\nThen the localized string for \"greeting\" in French is used\n\nNotes: This story is intentionally scoped to core rendering (no delivery pipeline, no advanced templating features) so it is estimable and testable.",
+        "explanation": null
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-53",
+        "original_story_key": null,
+        "summary": "As a Localization lead, I want multilingual Requester Email templates and a language fallback so tenants receive notifications in their preferred language",
+        "description": "In order to deliver requester notifications in the recipient's language, As a Localization lead I want the Requester Email system to support per-language templates with a defined fallback policy and selection based on tenant/user preference.\n\nAcceptance Criteria (Gherkin):\nScenario: Use user-preferred language\nGiven a user preference for language = \"fr\"\nAnd a Requester Email template exists in French\nWhen a notification is rendered for that user\nThen the French template is used\n\nScenario: Language fallback policy\nGiven a user preferred language = \"es\"\nAnd a Spanish template does not exist but English does\nWhen rendering the notification\nThen the English template is used as the fallback\n\nScenario: Template selection respects tenant override\nGiven a tenant override exists for French templates\nWhen rendering for a user with language \"fr\"\nThen the tenant override French template is used\n\nNotes: Scope is limited to selection and fallback behavior for email templates; translation management UI and translation workflows are out of scope for this story.",
+        "explanation": null
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-78",
+        "original_story_key": null,
+        "summary": "Redirect & SEO Service - Full metadata rules & reporting",
+        "description": "As a Product owner / I want full implementation of redirect generation rules, breadcrumb updates, and change reports / So that the service can run independently and provide production-grade metadata updates.\n\nAcceptance Criteria:\n- Service implements canonical URL generation rules and breadcrumb consistency for a comprehensive set of cases.\n- The service returns change reports and supports regression tests.\n- Test endpoint remains available for integration testing.\n\nNotes: This follows the MVP API and adds production behavior in a second increment.",
+        "explanation": null
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-80",
+        "original_story_key": null,
+        "summary": "Permissions Migration & Audit Service - Full propagation rules & notifications",
+        "description": "As an Editor/Engineer / I want the Permissions Migration service to implement configured propagation rules, create audit entries, and produce notification payloads / So that migrations preserve governance and produce notifications.\n\nAcceptance Criteria:\n- Service applies configured permission propagation rules for a set of representative scenarios and writes audit entries with before/after states.\n- The service exposes a test endpoint that returns notification payloads produced by the migration and emits an event for integration consumers.\n- Unit/integration tests cover propagation rules and notification payloads.\n\nNotes: This follows the MVP increment and completes the production implementation.",
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-1",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-117",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-141",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-189",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-240",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-27",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-299",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-308",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-318",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-323",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-326",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-366",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-382",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-383",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-385",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-395",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-396",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-413",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-429",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-44",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      }
+    ]
+  }
+]

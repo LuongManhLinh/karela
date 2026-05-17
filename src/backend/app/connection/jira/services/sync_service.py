@@ -130,6 +130,8 @@ class JiraSyncService(JiraBaseService):
                 project_keys=project_keys,
             )
 
+            print(f"Fetched {len(projects_data)} projects from Jira")
+
             # Get access token once for all concurrent operations
             # This also ensures token is refreshed if needed before concurrent work
             access_token = self._get_valid_access_token(connection)
@@ -160,6 +162,8 @@ class JiraSyncService(JiraBaseService):
                     fields=["summary", "description", "issuetype", "parent", "created"],
                 )
                 issues = response.issues
+
+                print(f"Fetched {len(issues)} issues for project {project_data.key}")
 
                 stories: list[Story] = []
                 gherkin_acs: list[GherkinAC] = []

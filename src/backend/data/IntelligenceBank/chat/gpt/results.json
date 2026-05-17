@@ -1,0 +1,77 @@
+[
+  {
+    "id": 1,
+    "question": "List the documents currently available in the system that you can search.",
+    "answer": ""
+  },
+  {
+    "id": 2,
+    "question": "According to the Product Vision, which user groups is IntelligenceBank V3 designed for?",
+    "answer": ""
+  },
+  {
+    "id": 3,
+    "question": "According to the Roadmap, which epics are the focus of Q2 2026?",
+    "answer": ""
+  },
+  {
+    "id": 4,
+    "question": "Find the user stories related to Smart Page Builder.",
+    "answer": ""
+  },
+  {
+    "id": 5,
+    "question": "Retrieve the details of story ID 53 and explain what requirements the Delete Smart Page API must satisfy.",
+    "answer": ""
+  },
+  {
+    "id": 6,
+    "question": "Compare story ID 299, 323, and 326. How are these three stories related in the Ask AI Alpha flow?",
+    "answer": ""
+  },
+  {
+    "id": 7,
+    "question": "According to the Product Roadmap, which quarter includes Azure AI Integration? Find the backlog stories related to Azure image tagging or MCP governance.",
+    "answer": ""
+  },
+  {
+    "id": 8,
+    "question": "Find all stories related to Guest Upload MVP and summarize the shared goal of this group of stories.",
+    "answer": ""
+  },
+  {
+    "id": 9,
+    "question": "Check the stories related to \u201cSimple Page\u201d and \u201cSmart Page.\u201d Are there any terminology inconsistencies?",
+    "answer": ""
+  },
+  {
+    "id": 10,
+    "question": "Compare story ID 80 and story ID 337. Do these two stories conflict regarding the behavior when no Master Template exists?",
+    "answer": ""
+  },
+  {
+    "id": 11,
+    "question": "Find the stories related to Image Widget resizing/repositioning and identify which stories may be duplicated or conflicting.",
+    "answer": ""
+  },
+  {
+    "id": 12,
+    "question": "Check whether story ID 308 conflicts with story ID 116 or story ID 190. If yes, explain the specific conflict.",
+    "answer": ""
+  },
+  {
+    "id": 13,
+    "question": "Find the stories related to workflow staged requests, bulk review, and collaborator management, then explain how they support the \u201cIntelligent Workflows\u201d pillar.",
+    "answer": ""
+  },
+  {
+    "id": 14,
+    "question": "Identify which backlog stories appear to be outside the V3 scope according to the Product Scope, especially those related to native mobile apps, CMS integrations, custom LLM training, or on-premise deployment.",
+    "answer": ""
+  },
+  {
+    "id": 15,
+    "question": "Act as a Product Owner: based on the Q2\u2013Q4 2026 roadmap, select 10 stories that should be prioritized for the first MVP, explain why, and identify stories that should be postponed because they are dependent or too complex.",
+    "answer": ""
+  }
+]

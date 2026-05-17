@@ -63,7 +63,7 @@ def create_agent_for_node(
     response_schema,
     temperature: float = LlmConfig.LLM_DEFECT_TEMPERATURE,
     top_p: float = LlmConfig.LLM_DEFECT_TOP_P,
-    family: Literal["gemini", "openai"] = "openai",
+    family: Literal["gemini", "openai"] = "gemini",
 ) -> DynamicAgent:
     if family == "gemini":
         model_name = LlmConfig.GEMINI_DEFECT_MODEL
