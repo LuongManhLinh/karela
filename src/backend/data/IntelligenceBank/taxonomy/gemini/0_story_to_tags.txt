@@ -1,0 +1,100 @@
+IB2-1: {'Platform Administration', 'AI & Automation'}
+IB2-2: {'Platform Administration', 'AI & Automation'}
+IB2-3: {'Platform Administration'}
+IB2-9: {'Digital Asset Management'}
+IB2-15: {'Workflow & Approvals'}
+IB2-20: {'Workflow & Approvals'}
+IB2-21: {'User Experience'}
+IB2-27: {'Workflow & Approvals'}
+IB2-41: {'Workflow & Approvals'}
+IB2-44: {'Content & Templates', 'Workflow & Approvals'}
+IB2-48: {'User Experience'}
+IB2-51: {'Content & Templates', 'Platform Administration'}
+IB2-52: {'Content & Templates', 'Platform Administration'}
+IB2-53: {'Content & Templates', 'Platform Administration'}
+IB2-74: {'Platform Administration'}
+IB2-75: {'Platform Administration', 'Workflow & Approvals'}
+IB2-78: {'User Experience', 'Platform Administration'}
+IB2-80: {'Content & Templates'}
+IB2-82: {'Content & Templates'}
+IB2-83: {'Content & Templates'}
+IB2-87: {'User Experience'}
+IB2-93: {'User Experience'}
+IB2-94: {'Workflow & Approvals'}
+IB2-105: {'Content & Templates'}
+IB2-107: {'Content & Templates'}
+IB2-108: {'Content & Templates'}
+IB2-109: {'Platform Administration'}
+IB2-111: {'Content & Templates'}
+IB2-115: {'User Experience', 'Content & Templates'}
+IB2-116: {'User Experience', 'Digital Asset Management'}
+IB2-117: {'User Experience', 'Digital Asset Management', 'Content & Templates'}
+IB2-120: {'Workflow & Approvals'}
+IB2-129: {'Platform Administration'}
+IB2-141: {'Reporting & Analytics'}
+IB2-143: {'Authentication & Access', 'User Experience', 'External Collaboration'}
+IB2-145: {'User Experience'}
+IB2-147: {'Workflow & Approvals'}
+IB2-148: {'Authentication & Access', 'User Experience'}
+IB2-158: {'Notification'}
+IB2-163: {'User Experience', 'Platform Administration', 'Content & Templates'}
+IB2-164: {'Content & Templates'}
+IB2-167: {'User Experience'}
+IB2-170: {'User Experience'}
+IB2-172: {'User Experience', 'Platform Administration'}
+IB2-186: {'Content & Templates'}
+IB2-189: {'User Experience', 'Content & Templates'}
+IB2-190: {'User Experience', 'Content & Templates'}
+IB2-191: {'User Experience'}
+IB2-192: {'User Experience', 'Content & Templates'}
+IB2-208: {'User Experience', 'Content & Templates'}
+IB2-211: {'Reporting & Analytics'}
+IB2-213: {'Content & Templates'}
+IB2-215: {'Content & Templates'}
+IB2-224: {'Workflow & Approvals'}
+IB2-225: {'Content & Templates'}
+IB2-233: {'User Experience', 'Content & Templates'}
+IB2-240: {'User Experience', 'Workflow & Approvals'}
+IB2-245: {'User Experience'}
+IB2-248: {'Reporting & Analytics'}
+IB2-256: {'Content & Templates'}
+IB2-273: {'User Experience'}
+IB2-279: {'User Experience', 'Workflow & Approvals'}
+IB2-281: {'Digital Asset Management'}
+IB2-286: {'Content & Templates'}
+IB2-299: {'AI & Automation'}
+IB2-305: {'Content & Templates'}
+IB2-308: {'User Experience', 'Content & Templates'}
+IB2-318: {'Authentication & Access', 'AI & Automation'}
+IB2-323: {'AI & Automation'}
+IB2-326: {'Authentication & Access', 'AI & Automation'}
+IB2-337: {'Content & Templates'}
+IB2-347: {'Content & Templates'}
+IB2-366: {'User Experience', 'External Collaboration'}
+IB2-367: {'Content & Templates', 'Notifications', 'Workflow & Approvals'}
+IB2-382: {'Authentication & Access', 'User Experience', 'External Collaboration'}
+IB2-383: {'Content & Templates'}
+IB2-385: {'User Experience', 'Content & Templates'}
+IB2-387: {'Authentication & Access', 'Content & Templates', 'Digital Asset Management'}
+IB2-388: {'Authentication & Access', 'Digital Asset Management'}
+IB2-389: {'Content & Templates', 'Platform Administration'}
+IB2-392: {'Workflow & Approvals'}
+IB2-394: {'User Experience', 'Content & Templates'}
+IB2-395: {'Authentication & Access', 'Content & Templates', 'Platform Administration'}
+IB2-396: {'Content & Templates'}
+IB2-413: {'Digital Asset Management', 'Notifications'}
+IB2-415: {'Content & Templates'}
+IB2-420: {'User Experience', 'Workflow & Approvals'}
+IB2-429: {'User Experience', 'Content & Templates'}
+IB2-436: {'Content & Templates', 'Digital Asset Management'}
+IB2-445: {'User Experience', 'Workflow & Approvals'}
+IB2-447: {'User Experience', 'Workflow & Approvals'}
+IB2-448: {'User Experience', 'Workflow & Approvals'}
+IB2-450: {'User Experience', 'Workflow & Approvals'}
+IB2-455: {'User Experience', 'Workflow & Approvals'}
+IB2-463: {'Content & Templates'}
+IB2-465: {'User Experience', 'Digital Asset Management', 'Content & Templates'}
+IB2-476: {'User Experience', 'Platform Administration', 'Content & Templates'}
+IB2-479: {'Platform Administration', 'Notifications'}
+IB2-497: {'Platform Administration', 'Workflow & Approvals'}
+IB2-499: {'Reporting & Analytics', 'Digital Asset Management'}

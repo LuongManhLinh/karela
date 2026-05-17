@@ -377,7 +377,9 @@
       "noProjectsWithAcs": "Không có dự án nào có AC",
       "unableToLoad": "Không thể tải dữ liệu bảng điều khiển",
       "selectToView": "Vui lòng chọn kết nối để xem bảng điều khiển",
-      "projects": "Dự án"
+      "projects": "Dự án",
+      "more": "Thêm",
+      "loadingMore": "Đang tải thêm..."
     },
     "ProjectDashboard": {
       "title": "Bảng điều khiển dự án",

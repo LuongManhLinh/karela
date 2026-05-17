@@ -17,6 +17,7 @@ import {
   Code,
   Folder,
   KeyboardArrowDown,
+  BookmarkBorderTwoTone,
 } from "@mui/icons-material";
 import { useParams, useRouter } from "next/navigation";
 
@@ -67,6 +68,11 @@ export const ProjectCard: React.FC<{ project: ProjectInfo; href: string }> = ({
           {project.key}
         </Typography>
         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+          <Chip
+            icon={<BookmarkBorderTwoTone fontSize="small" />}
+            label={project.story_count}
+            size="small"
+          />
           <Chip
             icon={<Analytics fontSize="small" />}
             label={project.analysis_count}

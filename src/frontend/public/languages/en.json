@@ -377,7 +377,9 @@
       "noProjectsWithAcs": "No projects with ACs",
       "unableToLoad": "Unable to load dashboard data",
       "selectToView": "Please select a connection to view the dashboard",
-      "projects": "Projects"
+      "projects": "Projects",
+      "more": "More",
+      "loadingMore": "Loading more..."
     },
     "ProjectDashboard": {
       "title": "Project Dashboard",

@@ -1,9 +1,10 @@
 """Shared node functions used by both TARGETED and ALL workflows."""
 
+from typing import Literal
 from langchain_core.messages import HumanMessage
 from langchain.agents.middleware import dynamic_prompt, ModelRequest
 
-from llm.dynamic_agent import GenimiDynamicAgent
+from llm.dynamic_agent import DynamicAgent
 from common.configs import LlmConfig
 from common.agents.schemas import LlmContext
 
@@ -17,11 +18,9 @@ from .response_schemas import (
 )
 from .prompts import (
     CONTEXT_GATHERER_PROMPT,
-    RELATIONAL_GRAPH_SEARCH_PROMPT,
     SELF_DEFECT_ANALYZER_PROMPT,
     SELF_DEFECT_ANALYZER_MESSAGE,
     PAIRWISE_DEFECT_ANALYZER_PROMPT,
-    PAIRWISE_DEFECT_ANALYZER_MESSAGE,
     PAIRWISE_DEFECT_ANALYZER_TARGETED_PROMPT,
     PAIRWISE_DEFECT_ANALYZER_TARGETED_MESSAGE,
     PAIRWISE_DEFECT_ANALYZER_TARGETED_GROUPED_PROMPT,
@@ -52,8 +51,9 @@ def _build_agent(
     response_schema=None,
     tools=None,
     response_mime_type="text/plain",
+    family: Literal["gemini", "openai"] = "gemini",
 ):
-    """Helper to create a GenimiDynamicAgent with standard config."""
+    """Helper to create a DynamicAgent with standard config."""
 
     @dynamic_prompt
     def user_context_prompt(request: ModelRequest) -> str:
@@ -63,13 +63,28 @@ def _build_agent(
         except:
             return system_prompt
 
-    return GenimiDynamicAgent(
-        model_name=LlmConfig.GEMINI_DEFECT_MODEL,
+    if family == "gemini":
+        model_name = LlmConfig.GEMINI_DEFECT_MODEL
+        api_keys = LlmConfig.GEMINI_API_KEYS
+        max_retries = LlmConfig.GEMINI_API_MAX_RETRY
+    elif family == "openai":
+        model_name = LlmConfig.OPENAI_DEFECT_MODEL
+        api_keys = LlmConfig.OPENAI_API_KEYS
+        max_retries = LlmConfig.OPENAI_API_MAX_RETRY
+    else:
+        raise ValueError(f"Unsupported LLM family: {family}")
+
+    print(
+        f"Building {family} agent with model {model_name} and response schema {response_schema.__name__ if response_schema else 'None'}"
+    )
+    return DynamicAgent(
+        family=family,
+        model_name=model_name,
         temperature=LlmConfig.LLM_DEFECT_TEMPERATURE,
         response_mime_type=response_mime_type,
         response_schema=response_schema,
-        api_keys=LlmConfig.GEMINI_API_KEYS,
-        max_retries=LlmConfig.GEMINI_API_MAX_RETRY,
+        api_keys=api_keys,
+        max_retries=max_retries,
         system_prompt=system_prompt,
         tools=tools,
         middleware=[user_context_prompt] if system_prompt else None,
@@ -82,13 +97,6 @@ def build_context_gatherer_agent():
     return _build_agent(
         system_prompt=CONTEXT_GATHERER_PROMPT,
         tools=doc_tools + context_gatherer_tools,
-    )
-
-
-def build_relational_search_agent():
-    return _build_agent(
-        system_prompt=RELATIONAL_GRAPH_SEARCH_PROMPT,
-        tools=relational_search_tools,
     )
 
 
@@ -140,7 +148,7 @@ def build_dependency_matrix_agent():
 
 
 def run_context_gatherer(
-    agent: GenimiDynamicAgent,
+    agent: DynamicAgent,
     context: LlmContext,
     target_stories: list[StoryMinimal] = None,
     project_desc: str = None,
@@ -177,6 +185,8 @@ def run_context_gatherer(
 
     response = agent.invoke(messages, context=context)
 
+    print("| Context Gatherer Node - Agent invoked, processing response...")
+
     # Extract text response (this agent returns plain text, not JSON)
     gathered_context = get_last_langchain_message(response)
     project_context = (
@@ -192,7 +202,7 @@ def run_context_gatherer(
 
 
 def run_self_defect_analyzer(
-    agent: GenimiDynamicAgent,
+    agent: DynamicAgent,
     stories: list[StoryMinimal],
     project_context: str,
     batch_size: int = 1,
@@ -250,7 +260,7 @@ def run_self_defect_analyzer(
 
 
 def run_pairwise_defect_analyzer(
-    agent: GenimiDynamicAgent,
+    agent: DynamicAgent,
     buckets: list[tuple[StoryMinimal, list[StoryMinimal]]],
     project_context: str,
     group: bool = False,
@@ -391,7 +401,7 @@ def run_pairwise_defect_analyzer(
 
         print(
             f"| Pairwise Defect Analyzer - Group mode enabled\n"
-            f"| Non-empty buckets: {len(valid_buckets)}\n"
+            f"| Total buckets: {len(valid_buckets)}\n"
             f"| API calls after grouping: {len(msg_lists)}\n"
             f"| Story threshold per API call: {grouped_threshold}"
         )
@@ -403,6 +413,7 @@ def run_pairwise_defect_analyzer(
             )
 
             if not output:
+                print("| Warning: No structured response found in this response.")
                 continue
 
             for group_result in output.results:
@@ -426,7 +437,7 @@ def run_pairwise_defect_analyzer(
 
 
 def run_defect_validator(
-    agent: GenimiDynamicAgent,
+    agent: DynamicAgent,
     raw_defects: list[DefectByLlm],
     stories: list[StoryMinimal] | str,
 ) -> list[DefectByLlm]:
@@ -518,7 +529,7 @@ def run_defect_filter(
 
 
 def run_dependency_matrix_analyzer(
-    agent: GenimiDynamicAgent,
+    agent: DynamicAgent,
     stories: list[StoryMinimal],
 ) -> list[DefectByLlm]:
     """Analyze stories for dependency defects (circular deps, extreme bottlenecks).
@@ -557,7 +568,7 @@ def run_dependency_matrix_analyzer(
                 type="NOT_INDEPENDENT",
                 story_keys=d.story_keys,
                 severity=d.severity,
-                explanation=f"[{d.type}] {d.explanation}",
+                explanation=f"[{d.type}] {d.reasoning}",
                 confidence=d.confidence,
                 suggested_fix=d.suggested_fix,
             )

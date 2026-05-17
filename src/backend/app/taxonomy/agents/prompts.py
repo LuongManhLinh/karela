@@ -10,7 +10,7 @@ taxonomy design for large-scale Agile projects.
 
 ## YOUR MISSION
 Given a batch of User Stories, generate an initial **Master Taxonomy** - a set of Buckets \
-(business domains or cross-cutting concerns).
+(Business Domains or Cross-Cutting Concerns).
 
 ## RULES
 1. **Bucket Naming:** Use short, precise names (1-3 words). Examples: "Payment", \
@@ -49,14 +49,15 @@ Given new User Stories AND the current Master Taxonomy, your goal is to evolve t
 existing domain.
 
 ## RULES
-1. **Prefer existing buckets.** Only create a new bucket if a story introduces a \
+1. **Business Domain Focus:** Buckets should represent distinct Business Domains or Cross-Cutting Concerns. For example, "Payment", "User Authentication", "Data Privacy", "Performance" are valid buckets, while "Frontend", "Backend", or "Database" are not.
+2. **Prefer existing buckets.** Only create a new bucket if a story introduces a \
 genuinely new domain or cross-cutting concern.
-2. **Description updates:** Only propose an update if the new stories reveal that \
+3. **Description updates:** Only propose an update if the new stories reveal that \
 the bucket's scope is broader/narrower than the current description suggests. \
 Include a reason for the change.
-3. **Don't rename buckets.** If a name is slightly imprecise, update the description \
+4. **Don't rename buckets.** If a name is slightly imprecise, update the description \
 instead.
-4. **STRICT LIMIT:** The total taxonomy MUST remain between 5 and 15 buckets. Generating excessive granular buckets violates system constraints.
+5. **STRICT LIMIT:** The total taxonomy MUST remain between 5 and 15 buckets. Generating excessive granular buckets violates system constraints.
 
 ## OUTPUT FORMAT
 Respond with STRICTLY valid JSON matching the provided schema.
@@ -195,6 +196,9 @@ Respond with STRICTLY valid JSON matching the provided schema.
 """
 
 SEED_VALIDATOR_MESSAGE = """\
+## Project Context
+{project_context}
+
 ## Proposed Initial Taxonomy
 {proposed_taxonomy}
 

@@ -3,10 +3,9 @@
 from sqlalchemy.orm import Session
 
 from common.schemas import StoryMinimal
-from typing import Literal
 
-from .schemas import NewBucket, StoryCategorization
-from .agents.graph import run_taxonomy_graph
+from ..agents.schemas import NewBucket, StoryCategorization
+from ..agents.graph import run_taxonomy_graph
 from .query import (
     get_story_tags as _get_story_tags,
     get_stories_by_tags as _get_stories_by_tags,
@@ -44,6 +43,9 @@ class TaxonomyService:
             return
 
         drop_all_buckets(self.db, connection_id, project_key)
+        print(
+            f"Existing buckets dropped for project {project_key}. Starting fresh initialization."
+        )
 
         buckets, categorizations = run_taxonomy_graph(
             user_stories=stories,
@@ -90,6 +92,13 @@ class TaxonomyService:
         )
 
         self._persist_state(connection_id, project_key, all_bucket, categorizations)
+
+    def get_all_buckets(self, connection_id: str, project_key: str) -> list[NewBucket]:
+        """Return all buckets for a project."""
+        db_buckets = get_all_buckets(self.db, connection_id, project_key)
+        return [
+            NewBucket(name=b.tag, description=b.description or "") for b in db_buckets
+        ]
 
     def delete_buckets_by_story_keys(
         self, connection_id: str, project_key: str, story_keys: list[str]

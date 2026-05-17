@@ -1,0 +1,100 @@
+IB2-1: {'MCP Settings', 'Asset Intelligence'}
+IB2-2: {'MCP Settings', 'Widgets & Media'}
+IB2-3: {'MCP Settings', 'Widgets & Media', 'Upload & Processing'}
+IB2-9: {'Widgets & Media', 'Upload & Processing'}
+IB2-15: {'UX & Error Handling', 'Workflows & Approvals'}
+IB2-20: {'UX & Error Handling', 'Workflows & Approvals'}
+IB2-21: {'UX & Error Handling', 'Workflows & Approvals'}
+IB2-27: {'UX & Error Handling', 'Workflows & Approvals'}
+IB2-41: {'UX & Error Handling', 'Workflows & Approvals'}
+IB2-44: {'Smart Page Builder', 'Workflows & Approvals'}
+IB2-48: {'UX & Error Handling'}
+IB2-51: {'Smart Page Builder', 'APIs & Integrations'}
+IB2-52: {'Smart Page Builder', 'Widgets & Media', 'APIs & Integrations'}
+IB2-53: {'Smart Page Builder', 'APIs & Integrations'}
+IB2-74: {'MCP Settings', 'Workflows & Approvals'}
+IB2-75: {'MCP Settings', 'Workflows & Approvals'}
+IB2-78: {'UX & Error Handling', 'MCP Settings'}
+IB2-80: {'Smart Page Builder', 'UX & Error Handling'}
+IB2-82: {'Reporting & Analytics', 'Smart Page Builder', 'Upload & Processing'}
+IB2-83: {'Smart Page Builder', 'Permissions & Access'}
+IB2-87: {'Smart Page Builder', 'UX & Error Handling'}
+IB2-93: {'UX & Error Handling', 'MCP Settings'}
+IB2-94: {'Permissions & Access'}
+IB2-105: {'Smart Page Builder', 'UX & Error Handling'}
+IB2-107: {'Smart Page Builder', 'UX & Error Handling'}
+IB2-108: {'Smart Page Builder'}
+IB2-109: {'MCP Settings', 'Permissions & Access'}
+IB2-111: {'UX & Error Handling', 'Widgets & Media'}
+IB2-115: {'UX & Error Handling', 'Widgets & Media'}
+IB2-116: {'Smart Page Builder', 'Widgets & Media'}
+IB2-117: {'Smart Page Builder', 'Widgets & Media'}
+IB2-120: {'Workflows & Approvals', 'Permissions & Access'}
+IB2-129: {'MCP Settings', 'APIs & Integrations'}
+IB2-141: {'Reporting & Analytics', 'APIs & Integrations'}
+IB2-143: {'UX & Error Handling', 'Permissions & Access'}
+IB2-145: {'Smart Page Builder', 'UX & Error Handling'}
+IB2-147: {'UX & Error Handling', 'Workflows & Approvals'}
+IB2-148: {'UX & Error Handling', 'Security & Compliance'}
+IB2-158: {'Notifications & Alerts', 'Notifications & Communication'}
+IB2-163: {'Smart Page Builder', 'MCP Settings'}
+IB2-164: {'MCP Settings'}
+IB2-167: {'Smart Page Builder', 'Widgets & Media', 'Reporting & Analytics'}
+IB2-170: {'Smart Page Builder', 'UX & Error Handling'}
+IB2-172: {'UX & Error Handling', 'MCP Settings'}
+IB2-186: {'Smart Page Builder', 'Widgets & Media'}
+IB2-189: {'Smart Page Builder', 'Widgets & Media'}
+IB2-190: {'Smart Page Builder', 'Widgets & Media'}
+IB2-191: {'Smart Page Builder', 'UX & Error Handling', 'Widgets & Media'}
+IB2-192: {'Smart Page Builder'}
+IB2-208: {'Smart Page Builder', 'UX & Error Handling', 'Widgets & Media'}
+IB2-211: {'Smart Page Builder', 'Reporting & Analytics'}
+IB2-213: {'Smart Page Builder'}
+IB2-215: {'Smart Page Builder', 'APIs & Integrations'}
+IB2-224: {'UX & Error Handling', 'Workflows & Approvals'}
+IB2-225: {'Smart Page Builder'}
+IB2-233: {'Smart Page Builder'}
+IB2-240: {'UX & Error Handling', 'Workflows & Approvals'}
+IB2-245: {'MCP Settings', 'Permissions & Access'}
+IB2-248: {'Smart Page Builder', 'Reporting & Analytics'}
+IB2-256: {'Smart Page Builder', 'Widgets & Media'}
+IB2-273: {'Smart Page Builder', 'UX & Error Handling'}
+IB2-279: {'Smart Page Builder', 'UX & Error Handling'}
+IB2-281: {'Widgets & Media', 'APIs & Integrations'}
+IB2-286: {'Smart Page Builder', 'UX & Error Handling'}
+IB2-299: {'Asset Intelligence', 'APIs & Integrations'}
+IB2-305: {'Smart Page Builder', 'Widgets & Media'}
+IB2-308: {'UX & Error Handling', 'Widgets & Media'}
+IB2-318: {'Permissions & Access', 'Asset Intelligence'}
+IB2-323: {'UX & Error Handling', 'Asset Intelligence', 'APIs & Integrations'}
+IB2-326: {'Permissions & Access', 'Asset Intelligence', 'APIs & Integrations'}
+IB2-337: {'Smart Page Builder'}
+IB2-347: {'Smart Page Builder', 'Widgets & Media'}
+IB2-366: {'UX & Error Handling', 'Upload & Processing'}
+IB2-367: {'Notifications & Alerts', 'Workflows & Approvals'}
+IB2-382: {'Security & Compliance', 'Permissions & Access', 'Upload & Processing'}
+IB2-383: {'Smart Page Builder', 'UX & Error Handling'}
+IB2-385: {'Smart Page Builder', 'UX & Error Handling'}
+IB2-387: {'Widgets & Media', 'Permissions & Access'}
+IB2-388: {'Widgets & Media', 'Permissions & Access'}
+IB2-389: {'Smart Page Builder', 'MCP Settings'}
+IB2-392: {'Workflows & Approvals', 'Permissions & Access'}
+IB2-394: {'Smart Page Builder'}
+IB2-395: {'Smart Page Builder', 'Permissions & Access'}
+IB2-396: {'Smart Page Builder'}
+IB2-413: {'Notifications & Alerts', 'Notifications & Communication'}
+IB2-415: {'Smart Page Builder'}
+IB2-420: {'UX & Error Handling', 'Workflows & Approvals'}
+IB2-429: {'Smart Page Builder', 'UX & Error Handling'}
+IB2-436: {'Smart Page Builder', 'Widgets & Media'}
+IB2-445: {'UX & Error Handling', 'Workflows & Approvals'}
+IB2-447: {'UX & Error Handling', 'Workflows & Approvals'}
+IB2-448: {'UX & Error Handling', 'Workflows & Approvals'}
+IB2-450: {'UX & Error Handling', 'Workflows & Approvals'}
+IB2-455: {'UX & Error Handling', 'Workflows & Approvals'}
+IB2-463: {'MCP Settings'}
+IB2-465: {'Smart Page Builder', 'Widgets & Media', 'Upload & Processing', 'APIs & Integrations'}
+IB2-476: {'MCP Settings'}
+IB2-479: {'Notifications & Alerts', 'Notifications & Communication'}
+IB2-497: {'MCP Settings', 'Workflows & Approvals'}
+IB2-499: {'Reporting & Analytics', 'Upload & Processing'}

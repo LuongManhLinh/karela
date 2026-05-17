@@ -58,7 +58,6 @@ staticfiles/
 
 # Jupyter / IPython
 .ipynb_checkpoints
-
 # Notebook checkpoints (VSCode)
 .vscode/
 
@@ -123,3 +122,5 @@ mysql-init/
 neo4j_data/
 
 TASKS.md
+
+data/*.log

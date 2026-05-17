@@ -1,0 +1,100 @@
+IB4-1: {'Asset Intelligence', 'Platform Configuration'}
+IB4-2: {'Asset Processing', 'Platform Configuration'}
+IB4-3: {'Asset Processing', 'Platform Configuration'}
+IB4-9: {'User Experience', 'Asset Processing'}
+IB4-15: {'User Experience', 'Platform Configuration', 'Workflow & Approvals'}
+IB4-20: {'User Experience', 'Workflow & Approvals'}
+IB4-21: {'User Experience', 'Workflow & Approvals'}
+IB4-27: {'User Experience', 'Workflow & Approvals'}
+IB4-41: {'User Experience', 'Workflow & Approvals'}
+IB4-44: {'Smart Page Management', 'User Experience', 'Workflow & Approvals'}
+IB4-48: {'User Experience'}
+IB4-51: {'Smart Page Management'}
+IB4-52: {'Smart Page Management'}
+IB4-53: {'Smart Page Management'}
+IB4-74: {'User Experience', 'Platform Configuration'}
+IB4-75: {'Platform Configuration', 'Workflow & Approvals'}
+IB4-78: {'User Experience', 'Platform Configuration'}
+IB4-80: {'Smart Page Management', 'User Experience'}
+IB4-82: {'Smart Page Management', 'User Experience', 'Workflow & Approvals'}
+IB4-83: {'Smart Page Management', 'Security & Access', 'Workflow & Approvals'}
+IB4-87: {'User Experience'}
+IB4-93: {'User Experience'}
+IB4-94: {'Workflow & Approvals'}
+IB4-105: {'Smart Page Management'}
+IB4-107: {'Smart Page Management', 'User Experience'}
+IB4-108: {'Smart Page Management'}
+IB4-109: {'Platform Configuration'}
+IB4-111: {'Smart Page Management', 'User Experience'}
+IB4-115: {'Smart Page Management', 'User Experience'}
+IB4-116: {'Smart Page Management', 'User Experience'}
+IB4-117: {'Smart Page Management', 'User Experience'}
+IB4-120: {'Workflow & Approvals'}
+IB4-129: {'User Experience'}
+IB4-141: {'Reporting & Analytics'}
+IB4-143: {'Security & Access'}
+IB4-145: {'User Experience'}
+IB4-147: {'Workflow & Approvals'}
+IB4-148: {'Security & Access'}
+IB4-158: {'Notification Management'}
+IB4-163: {'Platform Configuration'}
+IB4-164: {'Smart Page Management'}
+IB4-167: {'User Experience'}
+IB4-170: {'User Experience'}
+IB4-172: {'User Experience'}
+IB4-186: {'Smart Page Management'}
+IB4-189: {'Smart Page Management'}
+IB4-190: {'Smart Page Management'}
+IB4-191: {'User Experience'}
+IB4-192: {'Smart Page Management'}
+IB4-208: {'Smart Page Management'}
+IB4-211: {'Reporting & Analytics'}
+IB4-213: {'Smart Page Management'}
+IB4-215: {'Smart Page Management'}
+IB4-224: {'Workflow & Approvals'}
+IB4-225: {'Smart Page Management'}
+IB4-233: {'Smart Page Management'}
+IB4-240: {'Workflow & Approvals'}
+IB4-245: {'User Experience'}
+IB4-248: {'Reporting & Analytics'}
+IB4-256: {'Smart Page Management'}
+IB4-273: {'User Experience'}
+IB4-279: {'User Experience'}
+IB4-281: {'Asset Processing'}
+IB4-286: {'Smart Page Management'}
+IB4-299: {'Asset Intelligence'}
+IB4-305: {'Smart Page Management'}
+IB4-308: {'Smart Page Management', 'User Experience'}
+IB4-318: {'Security & Access'}
+IB4-323: {'User Experience', 'Asset Intelligence'}
+IB4-326: {'Security & Access', 'Asset Intelligence'}
+IB4-337: {'Smart Page Management'}
+IB4-347: {'Smart Page Management'}
+IB4-366: {'User Experience'}
+IB4-367: {'Workflow & Approvals'}
+IB4-382: {'Security & Access'}
+IB4-383: {'Smart Page Management'}
+IB4-385: {'Smart Page Management', 'User Experience'}
+IB4-387: {'Security & Access', 'Asset Processing'}
+IB4-388: {'Security & Access', 'Asset Processing'}
+IB4-389: {'Platform Configuration'}
+IB4-392: {'Workflow & Approvals'}
+IB4-394: {'Smart Page Management'}
+IB4-395: {'Security & Access'}
+IB4-396: {'Smart Page Management'}
+IB4-413: {'Notification Management'}
+IB4-415: {'Smart Page Management'}
+IB4-420: {'Workflow & Approvals'}
+IB4-429: {'User Experience'}
+IB4-436: {'Smart Page Management'}
+IB4-445: {'User Experience', 'Workflow & Approvals'}
+IB4-447: {'User Experience', 'Workflow & Approvals'}
+IB4-448: {'Workflow & Approvals'}
+IB4-450: {'User Experience', 'Workflow & Approvals'}
+IB4-455: {'User Experience', 'Workflow & Approvals'}
+IB4-463: {'Platform Configuration'}
+IB4-465: {'Smart Page Management'}
+IB4-476: {'Platform Configuration'}
+IB4-479: {'Notification Management'}
+IB4-497: {'Platform Configuration', 'Workflow & Approvals'}
+IB4-499: {'Reporting & Analytics'}

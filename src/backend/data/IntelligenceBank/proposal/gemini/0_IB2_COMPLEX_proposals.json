@@ -1,0 +1,463 @@
+[
+  {
+    "target_defect_ids": [],
+    "contents": [
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As an Admin, I want to configure Azure Image Tagging settings and provider switch",
+        "description": "As an administrator, I want to manage the core settings for image tagging, including enabling Azure as the provider and setting processing limits, so that I can control the image tagging service used by the platform.\n\n**Acceptance Criteria:**\nGiven I am in the MCP settings under Asset Intelligence\nWhen I see the 'Enable Image Tagging (Azure)' setting\nThen I can enable or disable Azure image tagging.\n\nGiven Azure image tagging is enabled\nWhen the platform processes images\nThen Imagga is disabled and Azure is used for image tagging.\n\nGiven I am in the MCP settings under Asset Intelligence\nWhen I see the 'Azure Image Processing Limit (Images) (per billing cycle)' setting\nThen I can configure the processing limit.\n\nGiven I am in the MCP settings under Asset Intelligence\nWhen I see the 'Azure Video Processing Limit' setting\nThen it is renamed to use minutes instead of generic processing units.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As a System, I want to migrate Imagga image tagging data to Azure",
+        "description": "As a system, I want to automatically migrate existing image tagging configurations and usage history from Imagga to Azure, so that historical data is preserved and consistent with the new provider. This migration process can be developed and tested against a simulated 'Azure image tagging enabled' state, based on the expected configuration contract from IB2-20.\n\n**Acceptance Criteria:**\nGiven Imagga was previously used for image tagging\nWhen Azure image tagging is enabled (simulated or via defined contract from IB2-20)\nThen existing Imagga image-tagging configurations are migrated to Azure.\nAnd existing Imagga image-tagging usage history is migrated to Azure.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As an Admin, I want to track Azure image processing usage and quotas",
+        "description": "As an administrator, I want to view and manage billing and quota tracking for Azure image processing usage, so that I can monitor costs and ensure compliance with service limits. This tracking can be developed and tested assuming 'Azure image tagging is active' based on a defined contract from IB2-20.\n\n**Acceptance Criteria:**\nGiven Azure image tagging is active (simulated or via defined contract from IB2-20)\nWhen images are processed (simulated)\nThen the system tracks Azure image processing usage.\nAnd the system tracks Azure image processing quotas.\nAnd I can view the current usage and quota status.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As an Admin, I want to view analytics for image tagging usage and provider activity",
+        "description": "As an administrator, I want to access analytics and reporting for image-tagging usage and provider activity, so that I can gain insights into platform usage and service performance. This story can be developed using mocked or sample data for image processing usage and quotas, based on the expected data contract from IB2-22.\n\n**Acceptance Criteria:**\nGiven image tagging is active\nWhen I access the analytics dashboard\nThen I can view reports on image-tagging usage (using mocked data from IB2-22).\nAnd I can view reports on image-tagging provider activity (Azure/Imagga) (using mocked data from IB2-22).",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As an Admin, I want to receive notifications for Azure image processing limits and failures",
+        "description": "As an administrator, I want to receive notifications for processing limits, quota exhaustion, and provider failures related to Azure image tagging, so that I can proactively address issues and maintain service availability. This story can be developed and tested against simulated limit/quota thresholds and failure events, based on the expected monitoring data from IB2-22.\n\n**Acceptance Criteria:**\nGiven Azure image processing is nearing its limit or quota is exhausted (simulated based on IB2-22 contract)\nWhen a threshold is met\nThen I receive a notification.\n\nGiven Azure image tagging provider experiences a failure (simulated)\nWhen a failure occurs\nThen I receive a notification.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-141",
+        "summary": "As a User, I want the weekly asset intelligence report to include Q&A/Rating data and exclude dev entries",
+        "description": "As a user, I want the weekly asset intelligence report to be updated to include Question/Answer/Rating backend data and exclude development server entries, so that the report is more comprehensive and relevant. This story can be developed using mocked or sample historical Q&A/Rating data, based on the expected data structure from IB2-27.\n\n**Acceptance Criteria:**\nGiven the `closed_captions_activation_report_` is generated\nWhen the report is updated\nThen it includes Question/Answer/Rating data (using mocked data from IB2-27).\nAnd the report is renamed to `weekly_asset_intelligence_report`.\nAnd Dev Server report entries are removed from the report.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-141",
+        "summary": "As a System, I want to aggregate asset intelligence report data across multiple environments",
+        "description": "As a system, I want to support multi-environment aggregation of asset intelligence report data, so that a consolidated view of usage and performance can be obtained across different deployments.\n\n**Acceptance Criteria:**\nGiven data exists in multiple environments\nWhen the report is generated\nThen data from multiple environments is aggregated into a single report.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-141",
+        "summary": "As a System, I want to ensure backward compatibility for asset intelligence report data formats",
+        "description": "As a system, I want to ensure backward compatibility for asset intelligence report data formats, so that older reports and integrations continue to function correctly after updates.\n\n**Acceptance Criteria:**\nGiven existing integrations or historical reports rely on previous data formats\nWhen new report formats are introduced\nThen backward compatibility is maintained for existing data consumers.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-141",
+        "summary": "As a System, I want to synchronize asset intelligence reports with external reporting systems",
+        "description": "As a system, I want to enable automated export and report synchronization across various reporting systems, so that asset intelligence data is consistently available where needed.\n\n**Acceptance Criteria:**\nGiven external reporting systems are configured\nWhen the weekly report is generated\nThen the report is automatically exported and synchronized with configured external systems.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-383",
+        "summary": "As an Admin, I want to manage permissions and approval workflows for Smart Page hierarchy changes",
+        "description": "As an administrator, I want to support role-based permissions and approval workflows for restructuring operations, so that page hierarchy changes are controlled and authorized.\n\n**Acceptance Criteria:**\nGiven I am an Admin\nWhen I configure permissions for page hierarchy changes\nThen I can define role-based access for moving pages.\n\nGiven a page hierarchy change requires approval\nWhen a user attempts to make the change\nThen an approval workflow is initiated.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-395",
+        "summary": "As an Admin, I want to configure sub-page permissions and trigger propagation in Admin > Group",
+        "description": "As an administrator, I want to be able to see and configure sub-pages under parent pages in the Admin - Group - Permission section, and trigger permission propagation, so that I can manage access control for nested pages.\n\n**Acceptance Criteria:**\nGiven I am in Admin - Group - Permission\nWhen I view a parent page\nThen I can see and configure its sub-pages.\nAnd the sub-page configuration aligns with the resource folder/sub-folder design.\n\nWhen I modify permissions for a parent page\nThen I can trigger permission propagation to its sub-pages using the same logic as resource folders.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-395",
+        "summary": "As an Admin, I want sub-page permissions to support hierarchical inheritance and multi-level propagation",
+        "description": "As an administrator, I want sub-page permission updates to support hierarchical permission inheritance and multi-level propagation, so that complex access structures can be efficiently managed.\n\n**Acceptance Criteria:**\nGiven a parent page has specific permissions\nWhen a sub-page is created or moved under it\nThen the sub-page inherits permissions hierarchically.\n\nGiven a permission change is applied at a high level\nWhen propagation is triggered\nThen permissions are correctly propagated through multiple levels of sub-pages.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-395",
+        "summary": "As a System, I want to log audit history for sub-page permission updates",
+        "description": "As a system, I want to maintain an audit history for all sub-page permission updates, so that a clear record of access control changes is available for compliance and review.\n\n**Acceptance Criteria:**\nGiven a sub-page permission is updated\nWhen the change is saved\nThen an audit log entry is created, detailing the change, user, and timestamp.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-395",
+        "summary": "As a System, I want sub-page permission updates to synchronize across platforms",
+        "description": "As a system, I want sub-page permission updates to synchronize across various platforms (e.g., APIs, mobile clients), so that access control is consistent across all interfaces.\n\n**Acceptance Criteria:**\nGiven a sub-page permission is updated\nWhen the change is saved\nThen the updated permissions are reflected in the APIs.\nAnd the updated permissions are reflected in mobile clients.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-413",
+        "summary": "As an Admin, I want requester email notifications to support global template inheritance, so that I can define consistent email layouts and content across the platform and reduce configuration effort",
+        "description": "As an administrator, I want requester email notification settings to support global template inheritance, so that I can define consistent email layouts and content across the platform, ensuring brand consistency and reducing manual configuration effort.Given global email templates are defined and activeWhen I configure requester email notifications for a specific workflow or tenantThen I can select an option to 'Inherit from Global Template'And if 'Inherit from Global Template' is selected, the local template fields are read-only and display the global content.Given a global email template is updatedWhen a requester email notification is sent using an inherited templateThen the email content reflects the latest changes from the global template.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-413",
+        "summary": "As an Admin, I want requester email notifications to support multilingual generation, so that users receive communications in their preferred language and improve user experience",
+        "description": "As an administrator, I want requester email notifications to support multilingual email generation, so that users receive communications in their preferred language, enhancing clarity and user experience across diverse user bases.Given multiple languages (e.g., English, Spanish) are configured in the systemAnd a user's preferred language is set to SpanishWhen a requester email is sent to this userThen the email content (subject, body, and any dynamic fields) is generated in Spanish, if a Spanish template exists.Given a user's preferred language is set to SpanishAnd no Spanish template exists for a specific notificationWhen a requester email is sent to this userThen the email content defaults to the system's primary language (e.g., English).",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-413",
+        "summary": "As an Admin, I want to customize requester email notifications at the tenant level, so that each tenant can have tailored email communications and maintain brand autonomy",
+        "description": "As an administrator, I want to be able to customize requester email notification settings at the tenant level, so that each tenant can have tailored email communications, allowing for brand-specific messaging and compliance requirements.Given I am an Admin for a specific tenantWhen I configure requester email notificationsThen I can customize templates and content specifically for that tenant, overriding global settings if desired.Given Tenant A has customized a notification templateAnd Tenant B has not customized the same template (inheriting global)When a notification is sent to a user in Tenant A, it uses Tenant A's custom template.When a notification is sent to a user in Tenant B, it uses the global template.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-413",
+        "summary": "As a System, I want to track real-time delivery of requester email notifications, so that administrators can monitor the status of sent emails and troubleshoot delivery issues",
+        "description": "As a system, I want to implement real-time delivery tracking for requester email notifications, so that administrators can monitor the status of sent emails, identify delivery failures, and troubleshoot communication issues proactively.Given a requester email notification is sent via the email service providerWhen the email is successfully delivered to the recipient's inboxThen the system updates the notification's status to 'Delivered' in real-time.Given a requester email notification is sentWhen the email bounces (e.g., invalid address)Then the system updates the notification's status to 'Bounced' and records the bounce reason.Given I am an administratorWhen I view the notification logs or a specific notification's detailsThen I can see the real-time delivery status (e.g., Sent, Delivered, Bounced, Opened).",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-413",
+        "summary": "As an Admin, I want to use approval workflows for requester email notification settings, so that modifications to communication policies are authorized and controlled",
+        "description": "As an administrator, I want to integrate approval workflows for changes to requester email notification settings, so that modifications to communication policies are authorized, reviewed, and controlled before being applied, ensuring compliance and consistency.Given a change to requester email notification settings is proposed by a non-admin userWhen the change requires approval (as per system configuration)Then an approval workflow is initiated, notifying designated approvers.And the proposed change is not applied to the live system until it receives all required approvals.Given a proposed change is approvedWhen all approvals are grantedThen the updated requester email notification settings are automatically applied.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-448",
+        "summary": "As a System, I want to process Bulk Apply updates with validation for Grouped work",
+        "description": "This story focuses on implementing the backend processing logic and validation for Bulk Apply functionality.\n\n**Acceptance Criteria:**\nGiven a Bulk Apply action is triggered\nWhen the system processes the request\nThen it supports the same apply processing logic used in the current implementation.\nAnd it includes additional validation checks specific to this workflow.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-448",
+        "summary": "As a System, I want to determine and execute Complete Request and Stage actions for Bulk Apply",
+        "description": "This story focuses on the logic for determining and executing 'Complete Request' and 'Stage' actions within the Bulk Apply workflow.\n\n**Acceptance Criteria:**\nGiven a Bulk Apply action is triggered\nWhen the system evaluates the requests\nThen it determines Complete Request and Stage actions based on whether Requests are staged requests, their current stage status, or standalone requests.\nAnd it executes the determined actions correctly.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-25",
+        "summary": "As the system, I want updated APIs for Azure image tagging so that automated asset categorization improves discoverability",
+        "description": "In order to drive asset discoverability and enable automated categorization, the core APIs must be updated to fully support the integration with Azure Cognitive Services for image tagging. This includes endpoints for submitting images for analysis, retrieving generated tags, and storing/associating these tags with digital assets.\n\n**Acceptance Criteria:**\nGiven an image is uploaded to the DAM\nWhen the image is processed by the Azure AI tagging service via the updated API\nThen the API successfully returns a list of relevant tags with confidence scores\n\nGiven a digital asset has Azure AI-generated tags\nWhen a user searches for one of those tags\nThen the asset is returned in the search results, demonstrating improved discoverability",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-25",
+        "summary": "As an administrator, I want to control permissions for Azure image tagging so that data integrity and compliance are maintained",
+        "description": "In order to ensure data integrity and compliance, administrators must be able to control which user roles can apply, modify, or view Azure AI-generated image tags. This involves updating permission sets for 'Content Manager', 'Editor', and 'Viewer' roles to define their access levels to the tagging features.\n\n**Acceptance Criteria:**\nGiven I am logged in as a 'Content Manager'\nWhen I view an asset with Azure AI tags\nThen I can see the tags and have the option to modify or remove them\n\nGiven I am logged in as an 'Editor'\nWhen I view an asset with Azure AI tags\nThen I can see the tags but cannot modify or remove them\n\nGiven I am logged in as a 'Viewer'\nWhen I view an asset with Azure AI tags\nThen I cannot see the Azure AI-generated tags",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-25",
+        "summary": "As a content manager, I want updated documentation for Azure image tagging so that I can effectively use the feature",
+        "description": "In order to empower self-service and ensure users can effectively utilize the new Azure AI image tagging features, the relevant user documentation must be updated. This includes the 'User Guide' section on asset management and the 'Administrator Guide' section on AI configuration, specifically covering how tags are generated, reviewed, and managed.\n\n**Acceptance Criteria:**\nGiven I am a content manager seeking information on AI tagging\nWhen I navigate to the 'User Guide' section on asset management\nThen I find a dedicated subsection explaining how Azure AI tags are applied and reviewed\n\nGiven I am an administrator configuring AI services\nWhen I navigate to the 'Administrator Guide' section on AI configuration\nThen I find clear instructions on enabling/disabling Azure AI tagging and managing its settings",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-25",
+        "summary": "As a platform administrator, I want to update rollout configuration for Azure image tagging so that we can manage its phased deployment",
+        "description": "In order to manage the phased deployment of Azure AI image tagging and minimize disruption, the rollout configuration must be updated. This involves implementing feature flags or tenant-specific toggles to enable or disable the functionality for specific customer tenants or user groups, allowing for a controlled release strategy.\n\n**Acceptance Criteria:**\nGiven the Azure AI image tagging feature is ready for rollout\nWhen a platform administrator enables the feature flag for 'Tenant A'\nThen all users within 'Tenant A' can access and utilize Azure AI image tagging\n\nGiven the Azure AI image tagging feature is enabled for 'Tenant A'\nWhen a platform administrator disables the feature flag for 'Tenant B'\nThen no users within 'Tenant B' can access Azure AI image tagging",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-34",
+        "summary": "As a User, I want to undo/redo Smart Page hierarchy changes",
+        "description": "This story focuses on implementing undo/redo functionality for Smart Page hierarchy changes. This functionality can be developed and tested against a defined interface for hierarchy changes (e.g., from IB2-31).\n\n**Acceptance Criteria:**\nGiven I have made a page hierarchy change (via IB2-31 or similar mechanism)\nWhen I click 'Undo'\nThen the previous hierarchy state is restored.\nGiven I have undone a change\nWhen I click 'Redo'\nThen the change is reapplied.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-34",
+        "summary": "As a User, I want to view version history for Smart Page hierarchy changes",
+        "description": "This story focuses on providing users with a persistent version history for Smart Page hierarchy modifications. This can be developed and tested against a defined interface for hierarchy changes (e.g., from IB2-31).\n\n**Acceptance Criteria:**\nGiven I want to review past changes\nWhen I access the version history\nThen I can see a full history of page hierarchy modifications.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-38",
+        "summary": "As a System, I want Smart Page hierarchy updates to synchronize with APIs",
+        "description": "This story focuses on ensuring Smart Page hierarchy updates are reflected in the platform's APIs. This can be developed and tested by reacting to hierarchy change events (e.g., from IB2-31) via a defined API contract.\n\n**Acceptance Criteria:**\nGiven a Smart Page hierarchy is updated (e.g., via IB2-31)\nWhen the change is saved\nThen the updated hierarchy is reflected in the APIs.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-38",
+        "summary": "As a System, I want Smart Page hierarchy updates to synchronize with mobile clients and exports",
+        "description": "This story focuses on ensuring Smart Page hierarchy updates are reflected in mobile clients and data exports. This can be developed and tested by reacting to hierarchy change events (e.g., from IB2-31) via a defined API contract.\n\n**Acceptance Criteria:**\nGiven a Smart Page hierarchy is updated (e.g., via IB2-31)\nWhen the change is saved\nThen the updated hierarchy is reflected in mobile clients.\nAnd the updated hierarchy is reflected in exports.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-38",
+        "summary": "As a System, I want Smart Page hierarchy updates to synchronize with collaborative editing sessions",
+        "description": "This story focuses on ensuring Smart Page hierarchy updates are reflected in collaborative editing sessions. This can be developed and tested by reacting to hierarchy change events (e.g., from IB2-31) via a defined API contract.\n\n**Acceptance Criteria:**\nGiven a Smart Page hierarchy is updated (e.g., via IB2-31)\nWhen the change is saved\nThen the updated hierarchy is reflected in collaborative editing sessions.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-50",
+        "summary": "As a System, I want requester email notifications to synchronize with legacy workflow systems",
+        "description": "This story focuses on synchronizing requester email notifications with legacy workflow systems.\n\n**Acceptance Criteria:**\nGiven a legacy workflow system is integrated for notification synchronization\nWhen a requester email notification is sent\nThen the system attempts to push the notification details to the legacy system's API for record-keeping or further processing.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-31",
+        "summary": "As a User, I want to drag-and-drop a sub-page to a new parent position in the Navigation Panel so I can visually reorganize page hierarchy",
+        "description": "This story focuses on the frontend UI interaction for moving a sub-page. It includes the visual feedback and persistence of the new hierarchy in the Navigation Panel.\n\n**Acceptance Criteria:**\nGiven I am in Page Builder editing mode\nWhen I drag a sub-page from the Navigation Panel\nThen I can drop it to become a standalone parent page.\nAnd the Navigation Panel visually updates to reflect the new hierarchy.\nAnd the reordered Navigation Panel structure persists across editing and viewing sessions.\nAnd the system provides visual feedback during drag-and-drop operations.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-31",
+        "summary": "As a System, I want to update child references and linked content when a Smart Page is moved so data integrity is maintained",
+        "description": "This story covers the backend logic required to update all internal references and linked content when a Smart Page's position in the hierarchy changes.\n\n**Acceptance Criteria:**\nGiven a sub-page has been moved to a new parent position\nWhen the page movement is confirmed\nThen all child references are updated to reflect the new parentage.\nAnd all linked content within the moved page remains correctly linked.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-31",
+        "summary": "As a System, I want to update URLs, breadcrumbs, navigation paths, and SEO metadata when a Smart Page is moved so external discoverability is preserved",
+        "description": "This story handles the system-wide updates for page discoverability and navigation when a Smart Page's hierarchy changes.\n\n**Acceptance Criteria:**\nGiven a sub-page has been moved to a new parent position\nWhen the page movement is confirmed\nThen the page's URL is updated to reflect its new path.\nAnd breadcrumbs and navigation paths reflect the new hierarchy.\nAnd SEO metadata (e.g., canonical tags, sitemap entries) is updated accordingly.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-31",
+        "summary": "As a System, I want to log audit trails and activity tracking when a Smart Page is moved so changes are traceable",
+        "description": "This story ensures that all page movements are properly recorded for auditing and activity tracking purposes.\n\n**Acceptance Criteria:**\nGiven a sub-page has been moved to a new parent position\nWhen the page movement is confirmed\nThen an audit log entry is created, detailing the change, user, and timestamp.\nAnd activity tracking records the page movement for user analytics.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-31",
+        "summary": "As a System, I want to trigger notifications and workflow updates when a Smart Page is moved so impacted users and processes are informed",
+        "description": "This story covers the integration with notification and workflow engines to react to page hierarchy changes.\n\n**Acceptance Criteria:**\nGiven a sub-page has been moved to a new parent position\nWhen the page movement is confirmed\nThen relevant users receive notifications about the change.\nAnd associated workflows are updated or re-triggered as necessary.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-65",
+        "summary": "As a System, I want requester email notifications to synchronize with Slack so users receive timely updates",
+        "description": "This story focuses on integrating requester email notifications with Slack.\n\n**Acceptance Criteria:**\nGiven Slack is configured and enabled for a specific workflow\nWhen a requester email notification is sent for that workflow\nThen a corresponding notification is also sent to the configured Slack channel or user.",
+        "explanation": null
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-65",
+        "summary": "As a System, I want requester email notifications to synchronize with Microsoft Teams so users receive timely updates",
+        "description": "This story focuses on integrating requester email notifications with Microsoft Teams.\n\n**Acceptance Criteria:**\nGiven Microsoft Teams is configured and enabled for a specific workflow\nWhen a requester email notification is sent for that workflow\nThen a corresponding notification is also sent to the configured Microsoft Teams channel or user.",
+        "explanation": null
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-27",
+        "original_story_key": null,
+        "summary": "As a System, I want to migrate historical Q&A/Rating data for asset intelligence reports",
+        "description": "As a system, I want to perform historical data migration for Question/Answer/Rating data, so that past information is available for comprehensive asset intelligence reporting.\n\n**Acceptance Criteria:**\nGiven historical Q&A/Rating data exists\nWhen the migration process runs\nThen historical Q&A/Rating data is successfully migrated for reporting purposes.",
+        "explanation": null
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-41",
+        "original_story_key": null,
+        "summary": "As an Admin, I want to use approval workflows for sub-page permission updates",
+        "description": "As an administrator, I want to integrate approval workflows for sub-page permission updates, so that changes to access control are reviewed and authorized before implementation.\n\n**Acceptance Criteria:**\nGiven a sub-page permission change is proposed\nWhen the change requires approval\nThen an approval workflow is initiated.\nAnd the permission change is not applied until approved.",
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-1",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-116",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-117",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-141",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-189",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-240",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-383",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-385",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-395",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-396",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-413",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-429",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-44",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-448",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-51",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-52",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-53",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": null
+      }
+    ]
+  }
+]

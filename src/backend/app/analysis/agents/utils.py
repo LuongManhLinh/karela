@@ -48,9 +48,15 @@ def get_last_langchain_message(response) -> str:
             content = (
                 msgs[-1].content if hasattr(msgs[-1], "content") else str(msgs[-1])
             )
+            if isinstance(content, list):
+                content = content[0] if content else ""
+            if isinstance(content, dict):
+                content = content.get("text", str(content))
         else:
             content = str(response)
+            print(f"Content is not AIMessage, return it as string")
     else:
+        print("Unexpected type of response, return it as string")
         content = str(response)
     return content
 
@@ -96,4 +102,6 @@ def get_response_as_schema(response, Clazz):
         output = parse_last_message(response, Clazz=Clazz)
     if not output:
         print(f"| Failed to parse response into {Clazz.__name__}")
+        with open("data/debug_response.log", "w") as f:
+            f.write(str(response))
     return output

@@ -1,0 +1,631 @@
+1:
+  tags:
+    - Asset Intelligence
+    - Image Tagging
+  defects:
+    - possible NOT_SMALL because it is related to many other things like UI, billing, provider logic
+    - INJECTED NOT_SMALL
+
+2:
+  tags:
+    - Resource Management
+    - Media Resource Management
+  defects: []
+
+3:
+  tags:
+    - Resource Management
+    - Media Resource Management
+  defects:
+    - NOT_ESTIMABLE 'independed if needed'
+
+9:
+  tags:
+    - Resource Management
+    - Media Resource Management
+    - Media Preview & Presentation
+  defects:
+    - NOT_ESTIMABLE at "converted MP4"
+    - INJECTED NOT_ESTIMABLE
+
+15:
+  tags:
+    - Data / Record Management
+    - Workflow & Record Automation
+  defects:
+    - NOT_ESTIMABLE because some conditions and UI copy are not fully finalized
+    - NOT_INDEPENDENT if "same as if the new feature is not enabled" where is it?
+
+20:
+  tags:
+    - Data / Record Management
+    - Workflow & Record Automation
+  defects:
+    - there can be NOT_ESTIMABLE, but fine if no found
+
+21:
+  tags:
+    - Resource Management
+
+  defects:
+    - NOT_ESTIMABLE risks about 'correctly applied'
+
+27:
+  tags:
+    - Workflow & Approval Management
+    - Workflow & Record Automation
+  defects:
+    - NOT_ESTIMABLE risks
+
+41:
+  tags:
+    - Workflow & Approval Management
+  defects: 
+    - INJECTED NOT_INDEPENDENT by modifying this story to be dependent on 44
+
+44:
+  tags:
+    - Workflow & Approval Management
+    - Record Management
+    - Resource Management
+  defects:
+    - NOT_ESTIMABLE risks because Pending is mentioned but not other stages / statuses
+
+48:
+  tags:
+    - UI Feedback / Messaging
+  defects: []
+
+51:
+  tags:
+    - Smart Pages / Page Management
+    - Content / Page Management
+    - API
+  defects:
+    - INJECTED NOT_ESTIMABLE
+
+52:
+  tags:
+    - Smart Pages / Page Management
+    - API
+  defects: []
+
+53:
+  tags:
+    - Smart Pages / Page Management
+    - API
+  defects: 
+    - INJECTED NOT_ESTIMABLE
+    - INJECTED NOT_INDEPENDENT on 51 and 52
+
+74:
+  tags:
+    - Platform Configuration
+    - Kanban / Database View
+  defects:
+    - unclear words may lead to NOT_ESTIMABLE
+
+75:
+  tags:
+    - Platform Configuration
+    - Approvals / Bulk Actions
+  defects:
+    - unclear words may lead to NOT_ESTIMABLE
+
+78:
+  tags:
+    - Server Management
+    - Platform Administration
+  defects:
+    - NOT_SMALL risks - maybe too many operations as create, update and delete are here
+    - NOT_ESTIMABLE 'the dialog remains open(?)'
+
+80:
+  tags:
+    - Template Management
+    - Empty state / fallback creation flow
+  defects:
+    - unclear words may lead to NOT_ESTIMABLE
+
+82:
+  tags:
+    - Template & Job Management
+    - Job creation / template-derived job tracking
+  defects: []
+
+83:
+  tags:
+    - Template & Job Management
+    - Template permissions / adopter editing restrictions
+  defects: []
+
+87:
+  tags:
+    - Editor Experience
+    - Template & Job Management
+  defects: []
+
+93:
+  tags:
+    - Server Management
+    - Form layout / editor usability
+  defects: []
+
+94:
+  tags:
+    - Workflow & Approval Management
+    - Collaborator permissions
+  defects:
+    - unclear/messy words may lead to NOT_ESTIMABLE
+
+105:
+  tags:
+    - Page Management
+    - Navigation / category filtering
+  defects: []
+
+107:
+  tags:
+    - Page Management
+    - Page category navigation
+  defects:
+    - unclear words may lead to NOT_ESTIMABLE
+    - INJECTED NOT_VALUABLE - deselect and select -> nonsense
+
+108:
+  tags:
+    - Page Management
+    - Page ordering / category ordering
+  defects:
+    - potential NOT_ESTIMABLE because of no clear information to distinguish All Pages and each Page
+    - PARAPHRASED to KEEP OFF DUPLICATION with 215
+
+109:
+  tags:
+    - Platform Configuration
+    - Drag & Drop Pages feature flags
+  defects:
+    - potential NOT_SMALL since it can be splitted into many by each target
+
+111:
+  tags:
+    - Page Builder / Widget Editing
+    - Text Widget styling
+  defects: []
+
+115:
+  tags:
+    - Page Builder / Widget Editing
+    - Widget property configuration
+  defects:
+    - potential NOT_ESTIMABLE because 'new widget settings' is unclear (not specified)
+    - potential NOT_SMALL because it does both "Block" and "Widget"
+    - INJECTED NOT_VALUABLE - transformed to questions
+
+116:
+  tags:
+    - Page Builder / Widget Editing
+  defects: []
+
+117:
+  tags:
+    - Page Builder / Widget Editing
+  defects:
+    - NOT_ESTIMABLE because it ends with "if the 'Block' width changes by" which is incomplete
+
+120:
+  tags:
+    - Workflow & Approval Management
+    - Collaborator assignment / approval list actions
+  defects:
+    - NOT_ESTIMABLE because the "2." criterion is incomplete
+
+129:
+  tags:
+    - Server Management
+  defects: []
+
+141:
+  tags:
+    - Asset Intelligence
+    - Reporting / analytics
+  defects:
+    - potential NOT_ESTIMABLE because of awkwardness
+    - potential NOT_SMALL because there are too many functions though they belongs to a feature
+    - INJECTED NOT_SMALL
+
+143:
+  tags:
+    - Record Management
+    - Staged database UI / public user visibility
+  defects: []
+
+145:
+  tags:
+    - Record Management
+  defects: []
+
+147:
+  tags:
+    - Workflow & Approval Management
+    - Record Management
+  defects: []
+
+148:
+  tags:
+    - Authentication & Access Experience
+  defects:
+    - unclear words may lead to NOT_ESTIMABLE
+
+158:
+  tags:
+    - Notifications & Alerts
+  defects: []
+
+163:
+  tags:
+    - Page Management
+  defects: []
+
+164:
+  tags:
+    - Platform Configuration
+  defects:
+    - unclear words may lead to NOT_ESTIMABLE
+    - INJECTED NOT_ESTIMABLE
+
+167:
+  tags:
+    - Asset Intelligence
+    - Answer
+  defects: []
+
+170:
+  tags:
+    - Record Management
+  defects:
+    - NOT_ESTIMABLE risks because of "according to design"
+    - INJECTED NOT_VALUABLE - disappear and reappear
+
+172:
+  tags:
+    - Server Management
+  defects:
+    - just unclear words
+    - INJECTED CONFLICT with 78
+  
+186:
+  tags:
+    - Page Builder / Widget Editing
+  defects:
+    - NOT_ESTIMABLE risks because of "new widget settings" - which settings?
+
+189:
+  tags:
+    - Page Builder / Widget Editing
+  defects:
+    - DUPLICATION with 117
+    - PARAPHRASED for make the DUPLICATION not too clear
+
+190:
+  tags:
+    - Page Builder / Widget Editing
+  defects:
+    - unclear words may lead to NOT_ESTIMABLE
+
+191:
+  tags:
+    - Page Builder / Widget Editing
+  defects:
+    - NOT_ESTIMABLE risks of vague words 'unsuccessful cases have been handled by experience provided'
+
+192:
+  tags:
+    - Page Management
+  defects: []
+
+208:
+  tags:
+    - Page Builder / Widget Editing
+  defects: []
+
+211:
+  tags:
+    - Usage Reporting / Analytics
+  defects: []
+
+213:
+  tags:
+    - Page Management
+  defects:
+    - unclear words may lead to NOT_ESTIMABLE
+
+215:
+  tags:
+    - Page Management
+  defects:
+    - possible DUPLICATION with 108
+    - PARAPHRASED to KEEP OFF DUPLICATION with 108
+
+224:
+  tags:
+    - Workflow & Approval Management
+  defects: []
+
+225:
+  tags:
+    - Page Management
+  defects:
+    - NOT_ESTIMABLE as there is a "simple page", only "Smart Page" is mentioned, it could be a mismatch
+
+233:
+  tags:
+    - Page Management
+  defects:
+    - unclear words may lead to NOT_ESTIMABLE
+
+
+240:
+  tags:
+    - Workflow & Approval Management
+  defects:
+    - unclear words may lead to NOT_ESTIMABLE
+
+245:
+  tags:
+    - Workflow & Approval Management
+  defects:
+    - unclear words may lead to NOT_ESTIMABLE
+
+248:
+  tags:
+    - Usage Reporting / Analytics
+  defects: []
+
+256:
+  tags:
+    - Page Builder / Widget Editing
+  defects: []
+
+273:
+  tags:
+    - Record Management
+  defects: []
+
+279:
+  tags:
+    - Record Management
+    - Record status visibility
+  defects: []
+
+286:
+  tags:
+    - Page Management
+  defects: []
+
+299:
+  tags:
+    - Search & AI Assistance
+    - Asset Intelligence
+    - Platform Search
+  defects: []
+
+305:
+  tags:
+    - Page Builder / Widget Editing
+  defects:
+    - DUPLICATION with 115
+    - 115 MODIFIED -> no more DUPLICATION
+
+308:
+  tags:
+    - Page Builder / Widget Editing
+  defects:
+    - unclear words may lead to NOT_ESTIMABLE
+    - DUPLICATION with 116
+    - INJECTED CONFLICT with 116
+
+318:
+  tags:
+    - Search & AI Assistance
+  defects:
+    - NOT_ESTIMABLE risks "maybe acceptable" in the brackets
+
+323:
+  tags:
+    - Search & AI Assistance
+  defects: []
+
+326:
+  tags:
+    - Search & AI Assistance
+  defects:
+    - INJECTED NOT_INDEPENDENT to be dependent on 299, 323, 318
+
+337:
+  tags:
+    - Page Management
+  defects:
+    - possible DUPLICATION with 80
+    - INJECTED CONFLICT with 80
+
+347:
+  tags:
+    - Page Builder / Widget Editing
+  defects: []
+
+366:
+  tags:
+    - Guest Upload / Public Record Creation
+    - Success message / confirmation UI
+  defects:
+    - INJECTED NOT_VALUABLE - funny random change
+    - INJECTED NOT_INDEPENDENT to be dependent on 382
+
+367:
+  tags:
+    - Workflow & Approval Management
+  defects:
+    - NOT_ESTIMABLE high risks because the description appears incomplete. It states the condition but does not clearly state the expected outcome.
+382:
+  tags:
+    - Guest Upload / Public Record Creation
+  defects: []
+
+
+383:
+  tags:
+    - Page Management
+  defects:
+    - potential NOT_SMALL because it includes many functions
+    - INJECTED NOT_SMALL
+
+385:
+  tags:
+    - Page Management
+  defects:
+    - DUPLICATION with 215
+
+387:
+  tags:
+    - Page Builder / Widget Editing
+    - Resource Management
+  defects: []
+
+388:
+  tags:
+    - Page Builder / Widget Editing
+    - Resource permission / Resource Lookup
+  defects: 
+    - possible NOT_ESTIMABLE because no tooltip text is provided
+
+389:
+  tags: 
+    - Platform Configuration
+    - Page limits / MCP settings
+  defects: 
+    - possible DUPLICATION or CONFLICT with 164
+    - INJECTED CONFLICT with 164
+
+392:
+  tags:
+    - Workflow & Approval Management
+    - Requester reassignment permissions
+  defects: []
+
+394:
+  tags:
+    - Page Management
+  defects: []
+
+395:
+  tags:
+    - Page Management
+    - Sub-page permissions / Admin Group permissions
+  defects:
+    - possible NOT_SMALL as it can be splitted
+    - INJECTED NOT SMALL
+
+396:
+  tags:
+    - Page Management
+  defects:
+    - DUPLICATION with 225
+
+413:
+  tags:
+    - Workflow & Approval Management
+    - Grouped email notification settings
+  defects:
+    - potential NOT_ESTIMABLE since "2." is incomplete
+    - INJECTED NOT_ESTIMABLE
+    - INJECTED NOT_SMALL
+
+420:
+  tags:
+    - Workflow & Approval Management
+  defects: []
+
+426:
+  tags:
+    - Usage Reporting / Analytics
+    - Bulk approve response tracking / stats condition
+  defects: []
+
+429:
+  tags:
+    - Page Management
+  defects:
+    - DUPLICATION with 233
+
+436:
+  tags:
+    - Page Builder / Widget Editing
+    - Video Widget / Resource Lookup linkage
+  defects: []
+
+445:
+  tags:
+    - Workflow & Approval Management
+  defects:
+    - NOT_ESTIMABLE high risk "below fields", "2." is incomplete
+
+447:
+  tags:
+    - Workflow & Approval Management
+  defects: 
+    - INJECTED NOT_VALUABLE - nonsense action 
+
+448:
+  tags:
+    - Workflow & Approval Management
+  defects:
+    - DUPLICATION with 240
+    - PARAPHRASED for unclear DUPLICATION
+
+450:
+  tags:
+    - Workflow & Approval Management
+  defects: []
+
+455:
+  tags:
+    - Workflow & Approval Management
+  defects: []
+
+463:
+  tags:
+    - Platform Configuration
+    - Facial Recognition / Asset Intelligence
+    - Resource Management
+  defects:
+    - possible NOT_ESTIMABLE because of "could be"
+
+465:
+  tags:
+    - Page Builder / Widget Editing
+  defects:
+    - possible NOT_ESTIMABLE because description is missing "upload"
+
+476:
+  tags:
+    - Facial Recognition / Asset Intelligence
+    - Resource Management
+  defects:
+    - INJECTED CONFLICT with 463
+
+479:
+  tags:
+    - Notifications & Alerts
+  defects:
+    - unclear words may lead to NOT_ESTIMABLE
+
+497:
+  tags:
+    - Record Management
+  defects: []
+
+499:
+  tags:
+    - Usage Reporting / Analytics
+  defects: []

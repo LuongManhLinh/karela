@@ -57,10 +57,6 @@ const WorkspacePage: React.FC<WorkspacePageProps> = ({
   const [acDetails, setAcDetails] = useState<Record<string, ACDto>>({});
   const [loadingAcDetails, setLoadingAcDetails] = useState(false);
 
-  // State for proposals (need to fetch from multiple sessions)
-  const [proposals, setProposals] = useState<ProposalDto[]>([]);
-  const [loadingProposals, setLoadingProposals] = useState(false);
-
   // Queries
   const { data: storyData, isLoading: isStoryLoading } =
     useStoryDetailsQuery(storyKey);
@@ -74,73 +70,8 @@ const WorkspacePage: React.FC<WorkspacePageProps> = ({
   );
 
   // Get sessions that have proposals for this story
-  const { data: proposalsSessionsData, isLoading: isProposalsSessionsLoading } =
+  const { data: proposalsData, isLoading: isProposalsLoading } =
     useStoryProposalsQuery(projectKey, storyKey);
-
-  // Fetch proposals from all sessions
-  useEffect(() => {
-    const fetchProposalsFromSessions = async () => {
-      if (!proposalsSessionsData?.data) {
-        setProposals([]);
-        return;
-      }
-
-      const sessionsWithProposals =
-        proposalsSessionsData.data as SessionsWithProposals;
-      const allSessions: {
-        session: SessionSummary;
-        source: "ANALYSIS" | "CHAT";
-      }[] = [
-        ...(sessionsWithProposals.analysis_sessions || []).map((s) => ({
-          session: s,
-          source: "ANALYSIS" as const,
-        })),
-        ...(sessionsWithProposals.chat_sessions || []).map((s) => ({
-          session: s,
-          source: "CHAT" as const,
-        })),
-      ];
-
-      if (allSessions.length === 0) {
-        setProposals([]);
-        return;
-      }
-
-      setLoadingProposals(true);
-      const allProposals: ProposalDto[] = [];
-
-      try {
-        await Promise.all(
-          allSessions.map(async ({ session, source }) => {
-            try {
-              const response = await proposalService.getProposalsBySession(
-                session.id,
-                source,
-
-                projectKey,
-                storyKey,
-              );
-              if (response.data) {
-                allProposals.push(...response.data);
-              }
-            } catch (e) {
-              console.error(
-                `Failed to fetch proposals for session ${session.id}:`,
-                e,
-              );
-            }
-          }),
-        );
-        setProposals(allProposals);
-      } finally {
-        setLoadingProposals(false);
-      }
-    };
-
-    fetchProposalsFromSessions();
-  }, [proposalsSessionsData, projectKey, storyKey]);
-
-  const isProposalsLoading = isProposalsSessionsLoading || loadingProposals;
 
   const { data: acsData, isLoading: isAcsLoading } = useACsByStoryQuery(
     projectKey,
@@ -292,7 +223,7 @@ const WorkspacePage: React.FC<WorkspacePageProps> = ({
         },
         content: (
           <ProposalsPanelContent
-            proposals={proposals}
+            proposals={proposalsData?.data || []}
             loading={isProposalsLoading}
             onProposalAction={handleProposalAction}
             onProposalContentAction={handleProposalContentAction}
@@ -326,7 +257,7 @@ const WorkspacePage: React.FC<WorkspacePageProps> = ({
     defects,
     isDefectsLoading,
     handleMarkDefectSolved,
-    proposals,
+    proposalsData,
     isProposalsLoading,
     handleProposalAction,
     handleProposalContentAction,

@@ -3,7 +3,7 @@ from typing_extensions import TypedDict
 from common.schemas import StoryMinimal
 from common.agents.schemas import LlmContext
 
-from ..schemas import NewBucket, StoryCategorization, TaxonomyDraft
+from .schemas import NewBucket, StoryCategorization, TaxonomyDraft
 
 
 class TaxonomyState(TypedDict):
@@ -41,3 +41,4 @@ class TaxonomyContext(LlmContext):
     seed_size: int = 50
     seed_hybrid_first_pct: float = 0.6
     extension_batch_size: int = 20
+    extra_instruction: Optional[str] = None

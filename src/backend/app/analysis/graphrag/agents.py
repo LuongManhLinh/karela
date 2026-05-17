@@ -5,7 +5,7 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.runtime import Runtime
 from langchain.agents.middleware import dynamic_prompt, ModelRequest
 
-from llm.dynamic_agent import GenimiDynamicAgent
+from llm.gemini_dynamic_agent import GenimiDynamicAgent
 from common.configs import LlmConfig
 from .prompts import SELF_DEFECT_SYSTEM_PROMPT, PAIRWISE_DEFECT_SYSTEM_PROMPT
 from .schemas import SingleDefectResponse, PairwiseDefectResponse

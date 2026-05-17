@@ -395,13 +395,13 @@ export const DocumentationManager: React.FC<DocumentationManagerProps> = ({
     if (TEXT_EXTENSIONS.includes(extension)) {
       return {
         icon: <DescriptionIcon fontSize="small" />,
-        chipLabel: t("fileTypeText"),
+        chipLabel: extension.toUpperCase(),
         color: "info" as const,
       };
     }
     return {
       icon: <InsertDriveFileIcon fontSize="small" />,
-      chipLabel: t("fileTypeFile"),
+      chipLabel: extension.toUpperCase(),
       color: "default" as const,
     };
   };

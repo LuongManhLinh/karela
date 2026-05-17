@@ -1,0 +1,100 @@
+IB4-1: {'Master Control Panel', 'Asset Intelligence'}
+IB4-2: {'Master Control Panel', 'Asset Intelligence'}
+IB4-3: {'Master Control Panel', 'Media Processing'}
+IB4-9: {'Media Processing', 'Frontend UI/UX & Components'}
+IB4-15: {'Frontend UI/UX & Components', 'Workflow & Approvals'}
+IB4-20: {'Frontend UI/UX & Components', 'Workflow & Approvals'}
+IB4-21: {'Frontend UI/UX & Components', 'Bulk Operations & Performance'}
+IB4-27: {'Frontend UI/UX & Components', 'Workflow & Approvals'}
+IB4-41: {'Frontend UI/UX & Components', 'Workflow & Approvals'}
+IB4-44: {'Frontend UI/UX & Components', 'Workflow & Approvals', 'Smart Pages'}
+IB4-48: {'Frontend UI/UX & Components'}
+IB4-51: {'APIs & Integrations', 'Smart Pages'}
+IB4-52: {'APIs & Integrations', 'Smart Pages'}
+IB4-53: {'APIs & Integrations', 'Smart Pages'}
+IB4-74: {'Master Control Panel', 'Frontend UI/UX & Components'}
+IB4-75: {'Master Control Panel', 'Bulk Operations & Performance', 'Workflow & Approvals'}
+IB4-78: {'Frontend UI/UX & Components', 'APIs & Integrations'}
+IB4-80: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-82: {'APIs & Integrations', 'Smart Pages'}
+IB4-83: {'Frontend UI/UX & Components', 'APIs & Integrations', 'Smart Pages'}
+IB4-87: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-93: {'Frontend UI/UX & Components', 'APIs & Integrations'}
+IB4-94: {'Workflow & Approvals', 'Smart Pages'}
+IB4-105: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-107: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-108: {'Smart Pages'}
+IB4-109: {'Master Control Panel', 'Smart Pages'}
+IB4-111: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-115: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-116: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-117: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-120: {'Frontend UI/UX & Components', 'Workflow & Approvals'}
+IB4-129: {'Frontend UI/UX & Components', 'APIs & Integrations'}
+IB4-141: {'Analytics & Reporting', 'Reporting & Analytics'}
+IB4-143: {'Frontend UI/UX & Components', 'Security, Privacy & Access Control'}
+IB4-145: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-147: {'Workflow & Approvals'}
+IB4-148: {'Frontend UI/UX & Components', 'Security, Privacy & Access Control'}
+IB4-158: {'Notifications & Alerts', 'Notifications & Communications'}
+IB4-163: {'Master Control Panel', 'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-164: {'Master Control Panel', 'Smart Pages'}
+IB4-167: {'Analytics & Reporting', 'Frontend UI/UX & Components', 'Asset Intelligence'}
+IB4-170: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-172: {'Master Control Panel', 'Frontend UI/UX & Components', 'APIs & Integrations'}
+IB4-186: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-189: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-190: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-191: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-192: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-208: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-211: {'Analytics & Reporting', 'Reporting & Analytics', 'Smart Pages'}
+IB4-213: {'Smart Pages'}
+IB4-215: {'Frontend UI/UX & Components', 'APIs & Integrations', 'Smart Pages'}
+IB4-224: {'Bulk Operations & Performance', 'Workflow & Approvals'}
+IB4-225: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-233: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-240: {'Bulk Operations & Performance', 'Smart Pages'}
+IB4-245: {'Master Control Panel', 'Frontend UI/UX & Components'}
+IB4-248: {'Analytics & Reporting', 'Reporting & Analytics', 'Smart Pages'}
+IB4-256: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-273: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-279: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-281: {'APIs & Integrations', 'Smart Pages'}
+IB4-286: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-299: {'Frontend UI/UX & Components', 'Asset Intelligence'}
+IB4-305: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-308: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-318: {'Security, Privacy & Access Control', 'Master Control Panel', 'Asset Intelligence'}
+IB4-323: {'Frontend UI/UX & Components', 'APIs & Integrations', 'Asset Intelligence'}
+IB4-326: {'Frontend UI/UX & Components', 'Security, Privacy & Access Control', 'Master Control Panel', 'Asset Intelligence', 'APIs & Integrations'}
+IB4-337: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-347: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-366: {'Frontend UI/UX & Components', 'Notifications & Alerts'}
+IB4-367: {'Workflow & Approvals', 'Notifications & Communications'}
+IB4-382: {'Frontend UI/UX & Components', 'Security, Privacy & Access Control'}
+IB4-383: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-385: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-387: {'APIs & Integrations', 'Security, Privacy & Access Control', 'Smart Pages'}
+IB4-388: {'APIs & Integrations', 'Security, Privacy & Access Control', 'Smart Pages'}
+IB4-389: {'Master Control Panel', 'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-392: {'Frontend UI/UX & Components', 'APIs & Integrations', 'Workflow & Approvals'}
+IB4-394: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-395: {'Master Control Panel', 'Security, Privacy & Access Control', 'Smart Pages'}
+IB4-396: {'APIs & Integrations', 'Smart Pages'}
+IB4-413: {'Smart Pages', 'Notifications & Communications'}
+IB4-415: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-420: {'Bulk Operations & Performance', 'Workflow & Approvals'}
+IB4-429: {'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-436: {'Media Processing', 'Frontend UI/UX & Components', 'Smart Pages'}
+IB4-445: {'Frontend UI/UX & Components', 'Workflow & Approvals'}
+IB4-447: {'Frontend UI/UX & Components', 'Bulk Operations & Performance', 'Workflow & Approvals'}
+IB4-448: {'Bulk Operations & Performance', 'Workflow & Approvals'}
+IB4-450: {'Frontend UI/UX & Components', 'Bulk Operations & Performance', 'Workflow & Approvals'}
+IB4-455: {'Frontend UI/UX & Components', 'Bulk Operations & Performance', 'Workflow & Approvals'}
+IB4-463: {'Master Control Panel', 'APIs & Integrations'}
+IB4-465: {'Frontend UI/UX & Components', 'APIs & Integrations', 'Smart Pages'}
+IB4-476: {'Master Control Panel', 'Reporting & Analytics'}
+IB4-479: {'Notifications & Communications'}
+IB4-497: {'Master Control Panel', 'Workflow & Approvals'}
+IB4-499: {'Reporting & Analytics'}

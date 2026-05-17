@@ -430,31 +430,27 @@ class DocumentationService:
         return docs
 
     def get_doc_id(self, connection_id: str, project_key: str, doc_key: str):
-        text_doc = (
-            self.db.query(TextDocumentation)
+        text_id = (
+            self.db.query(TextDocumentation.id)
             .filter(
                 TextDocumentation.connection_id == connection_id,
                 TextDocumentation.project_key == project_key,
                 TextDocumentation.key == doc_key,
             )
-            .first()
+            .scalar()
         )
 
-        file_doc = (
-            self.db.query(FileDocumentation)
+        file_id = (
+            self.db.query(FileDocumentation.id)
             .filter(
                 FileDocumentation.connection_id == connection_id,
                 FileDocumentation.project_key == project_key,
                 FileDocumentation.key == doc_key,
             )
-            .first()
+            .scalar()
         )
 
-        doc = text_doc or file_doc
-        if not doc:
-            return None
-
-        return doc.id
+        return text_id or file_id
 
     def simulate_list_docs_messages(
         self, connection_id: str, project_key: str

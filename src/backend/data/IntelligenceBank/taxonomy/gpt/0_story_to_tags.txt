@@ -1,0 +1,100 @@
+IB4-1: {'MCP Settings', 'Asset Intelligence'}
+IB4-2: {'MCP Settings', 'Asset Intelligence'}
+IB4-3: {'MCP Settings', 'Asset Intelligence'}
+IB4-9: {'Asset Intelligence', 'UX & Error Handling'}
+IB4-15: {'Workflow & Approvals', 'UX & Error Handling'}
+IB4-20: {'Workflow & Approvals', 'UX & Error Handling'}
+IB4-21: {'Bulk Operations & Jobs', 'UX & Error Handling'}
+IB4-27: {'Reporting & Analytics', 'UX & Error Handling'}
+IB4-41: {'Workflow & Approvals', 'UX & Error Handling'}
+IB4-44: {'Smart Page Builder', 'Workflow & Approvals'}
+IB4-48: {'UX & Error Handling'}
+IB4-51: {'API & Integrations', 'Smart Page Builder'}
+IB4-52: {'API & Integrations', 'Smart Page Builder'}
+IB4-53: {'API & Integrations', 'Smart Page Builder'}
+IB4-74: {'MCP Settings'}
+IB4-75: {'MCP Settings', 'Workflow & Approvals'}
+IB4-78: {'UX & Error Handling'}
+IB4-80: {'Smart Page Builder', 'UX & Error Handling'}
+IB4-82: {'Smart Page Builder', 'Bulk Operations & Jobs'}
+IB4-83: {'Permissions & Collaboration', 'Smart Page Builder', 'Bulk Operations & Jobs'}
+IB4-87: {'Navigation & Site Management', 'UX & Error Handling'}
+IB4-93: {'Navigation & Site Management', 'UX & Error Handling'}
+IB4-94: {'Permissions & Collaboration', 'Smart Page Builder'}
+IB4-105: {'Smart Page Builder', 'UX & Error Handling'}
+IB4-107: {'Smart Page Builder', 'UX & Error Handling'}
+IB4-108: {'Navigation & Site Management', 'Smart Page Builder'}
+IB4-109: {'MCP Settings', 'Smart Page Builder'}
+IB4-111: {'Smart Page Builder', 'UX & Error Handling'}
+IB4-115: {'Smart Page Builder', 'UX & Error Handling'}
+IB4-116: {'Smart Page Builder', 'UX & Error Handling'}
+IB4-117: {'Smart Page Builder', 'UX & Error Handling'}
+IB4-120: {'Permissions & Collaboration', 'Workflow & Approvals'}
+IB4-129: {'API & Integrations', 'UX & Error Handling'}
+IB4-141: {'Reporting & Analytics', 'Bulk Operations & Jobs'}
+IB4-143: {'Guest Uploads & Public Portals', 'UX & Error Handling'}
+IB4-145: {'Navigation & Site Management', 'UX & Error Handling'}
+IB4-147: {'Workflow & Approvals', 'UX & Error Handling'}
+IB4-148: {'Security & Compliance', 'UX & Error Handling'}
+IB4-158: {'Notifications & Alerts', 'Notification'}
+IB4-163: {'Navigation & Site Management', 'Smart Page Builder'}
+IB4-164: {'MCP Settings', 'Navigation & Site Management', 'Smart Page Builder'}
+IB4-167: {'Reporting & Analytics', 'Asset Intelligence', 'UX & Error Handling'}
+IB4-170: {'UX & Error Handling'}
+IB4-172: {'MCP Settings', 'UX & Error Handling'}
+IB4-186: {'Smart Page Builder', 'UX & Error Handling'}
+IB4-189: {'Smart Page Builder', 'UX & Error Handling'}
+IB4-190: {'Smart Page Builder', 'UX & Error Handling'}
+IB4-191: {'Smart Page Builder', 'UX & Error Handling'}
+IB4-192: {'Navigation & Site Management', 'Smart Page Builder'}
+IB4-208: {'Smart Page Builder', 'UX & Error Handling'}
+IB4-211: {'Reporting & Analytics', 'Smart Page Builder'}
+IB4-213: {'Navigation & Site Management', 'Smart Page Builder'}
+IB4-215: {'API & Integrations', 'Navigation & Site Management', 'Smart Page Builder'}
+IB4-224: {'Workflow & Approvals', 'Bulk Operations & Jobs', 'UX & Error Handling'}
+IB4-225: {'Navigation & Site Management', 'Smart Page Builder'}
+IB4-233: {'Navigation & Site Management', 'Smart Page Builder'}
+IB4-240: {'Bulk Operations & Jobs', 'Workflow & Approvals'}
+IB4-245: {'MCP Settings', 'UX & Error Handling'}
+IB4-248: {'Reporting & Analytics', 'Smart Page Builder'}
+IB4-256: {'Smart Page Builder', 'UX & Error Handling'}
+IB4-273: {'Smart Page Builder', 'UX & Error Handling'}
+IB4-279: {'Smart Page Builder', 'UX & Error Handling'}
+IB4-281: {'API & Integrations', 'Smart Page Builder'}
+IB4-286: {'Smart Page Builder'}
+IB4-299: {'Asset Intelligence'}
+IB4-305: {'Smart Page Builder', 'UX & Error Handling'}
+IB4-308: {'Smart Page Builder', 'UX & Error Handling'}
+IB4-318: {'Permissions & Collaboration', 'MCP Settings', 'Asset Intelligence'}
+IB4-323: {'Asset Intelligence', 'UX & Error Handling'}
+IB4-326: {'Permissions & Collaboration', 'MCP Settings', 'Asset Intelligence'}
+IB4-337: {'Smart Page Builder'}
+IB4-347: {'Smart Page Builder', 'UX & Error Handling'}
+IB4-366: {'Guest Uploads & Public Portals', 'UX & Error Handling'}
+IB4-367: {'Notifications & Alerts', 'Workflow & Approvals'}
+IB4-382: {'Guest Uploads & Public Portals', 'UX & Error Handling'}
+IB4-383: {'Navigation & Site Management', 'Smart Page Builder'}
+IB4-385: {'Navigation & Site Management', 'UX & Error Handling'}
+IB4-387: {'API & Integrations', 'Permissions & Collaboration', 'Smart Page Builder'}
+IB4-388: {'API & Integrations', 'Permissions & Collaboration', 'Smart Page Builder'}
+IB4-389: {'MCP Settings', 'Smart Page Builder'}
+IB4-392: {'Permissions & Collaboration', 'Workflow & Approvals'}
+IB4-394: {'Navigation & Site Management', 'Smart Page Builder'}
+IB4-395: {'Permissions & Collaboration', 'Navigation & Site Management'}
+IB4-396: {'API & Integrations', 'Navigation & Site Management'}
+IB4-413: {'Notifications & Alerts'}
+IB4-415: {'Navigation & Site Management', 'Smart Page Builder'}
+IB4-420: {'Bulk Operations & Jobs', 'Workflow & Approvals'}
+IB4-429: {'Navigation & Site Management', 'UX & Error Handling'}
+IB4-436: {'API & Integrations', 'Smart Page Builder'}
+IB4-445: {'UX & Error Handling'}
+IB4-447: {'Workflow & Approvals', 'Bulk Operations & Jobs', 'UX & Error Handling'}
+IB4-448: {'Bulk Operations & Jobs', 'Workflow & Approvals'}
+IB4-450: {'Workflow & Approvals', 'Bulk Operations & Jobs', 'UX & Error Handling'}
+IB4-455: {'Workflow & Approvals', 'Bulk Operations & Jobs', 'UX & Error Handling'}
+IB4-463: {'MCP Settings', 'Navigation & Site Management'}
+IB4-465: {'API & Integrations', 'Smart Page Builder'}
+IB4-476: {'MCP Settings', 'Navigation & Site Management'}
+IB4-479: {'Notifications & Alerts', 'Notification'}
+IB4-497: {'MCP Settings', 'Workflow & Approvals'}
+IB4-499: {'Reporting & Analytics'}

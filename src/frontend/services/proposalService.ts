@@ -38,8 +38,8 @@ export const proposalService = {
   listProposalsByStory: async (
     projectKey: string,
     storyKey: string,
-  ): Promise<BasicResponse<SessionsWithProposals>> => {
-    const response = await apiClient.get<BasicResponse<SessionsWithProposals>>(
+  ): Promise<BasicResponse<ProposalDto[]>> => {
+    const response = await apiClient.get<BasicResponse<ProposalDto[]>>(
       `/proposals/projects/${projectKey}/stories/${storyKey}`,
     );
     return response.data;

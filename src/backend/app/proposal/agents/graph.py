@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 
 from app.proposal.schemas import DefectForProposal
-from llm.dynamic_agent import GenimiDynamicAgent
+from llm.dynamic_agent import DynamicAgent
 from .prompts import (
     SPLITTER_SYSTEM_PROMPT,
     REFINER_SYSTEM_PROMPT,
@@ -51,6 +51,7 @@ def _build_agent(
     response_schema=ProposalOutput,
     temperature: float = LlmConfig.LLM_DEFECT_TEMPERATURE,
     top_p: float = LlmConfig.LLM_DEFECT_TOP_P,
+    family: Literal["gemini", "openai"] = "openai",
 ):
     @dynamic_prompt
     def user_context_prompt(request: ModelRequest) -> str:
@@ -60,12 +61,27 @@ def _build_agent(
         except Exception:
             return system_prompt
 
-    return GenimiDynamicAgent(
-        model_name=LlmConfig.GEMINI_DEFECT_MODEL,
+    if family == "gemini":
+        model_name = LlmConfig.GEMINI_DEFECT_MODEL
+        api_keys = LlmConfig.GEMINI_API_KEYS
+        max_retries = LlmConfig.GEMINI_API_MAX_RETRY
+    elif family == "openai":
+        model_name = LlmConfig.OPENAI_DEFECT_MODEL
+        api_keys = LlmConfig.OPENAI_API_KEYS
+        max_retries = LlmConfig.OPENAI_API_MAX_RETRY
+    else:
+        raise ValueError(f"Unsupported LLM family: {family}")
+
+    print(
+        f"Building {family} agent with model {model_name} and response schema {response_schema.__name__ if response_schema else 'None'}"
+    )
+    return DynamicAgent(
+        family=family,
+        model_name=model_name,
         response_mime_type="application/json",
         response_schema=response_schema,
-        api_keys=LlmConfig.GEMINI_API_KEYS,
-        max_retries=LlmConfig.GEMINI_API_MAX_RETRY,
+        api_keys=api_keys,
+        max_retries=max_retries,
         middleware=[user_context_prompt],
         temperature=temperature,
         top_p=top_p,
@@ -73,11 +89,11 @@ def _build_agent(
 
 
 # Agents (no tools: response_mime_type="application/json" is incompatible with tool calling)
-splitter_agent = _build_agent(SPLITTER_SYSTEM_PROMPT, temperature=0.2, top_p=0.8)
-refiner_agent = _build_agent(REFINER_SYSTEM_PROMPT, temperature=0.2, top_p=0.8)
-resolver_agent = _build_agent(RESOLVER_SYSTEM_PROMPT, temperature=0.2, top_p=0.8)
+splitter_agent = _build_agent(SPLITTER_SYSTEM_PROMPT, temperature=0.1, top_p=0.8)
+refiner_agent = _build_agent(REFINER_SYSTEM_PROMPT, temperature=0.1, top_p=0.8)
+resolver_agent = _build_agent(RESOLVER_SYSTEM_PROMPT, temperature=0.1, top_p=0.8)
 
-simple_agent = _build_agent(SIMPLE_SYSTEM_PROMPT, temperature=0.2, top_p=0.8)
+simple_agent = _build_agent(SIMPLE_SYSTEM_PROMPT, temperature=0.1, top_p=0.8)
 validator_agent = _build_agent(
     VALIDATOR_SYSTEM_PROMPT,
     response_schema=ValidatorOutput,
@@ -86,10 +102,6 @@ validator_agent = _build_agent(
 )
 
 ctx_agent = build_context_gatherer_agent()
-
-# ---------------------------------------------------------------------------
-# Helper: build human message for a specialized drafter
-# ---------------------------------------------------------------------------
 
 
 def _format_raw_defects(defects: list[DefectForProposal]) -> str:
@@ -112,7 +124,7 @@ def _build_drafter_message(
     stories: list[StoryMinimal],
     defects: list[DefectForProposal],
     clarifications: str | None = None,
-    inter_story_context: str | None = None,
+    project_context: str | None = None,
     validation_feedback: str | None = None,
 ) -> str:
     msg = (
@@ -123,8 +135,8 @@ def _build_drafter_message(
         f"{_format_raw_defects(defects)}"
     )
 
-    if inter_story_context:
-        msg += f"\n\n## Inter-Story Context\n{inter_story_context}"
+    if project_context:
+        msg += f"\n\n## Project Context\n{project_context}"
 
     if clarifications:
         msg += f"\n\nClarifications:\n{clarifications}"
@@ -241,7 +253,7 @@ def defect_router(
 
 
 def _run_specialized_drafter(
-    agent: GenimiDynamicAgent,
+    agent: DynamicAgent,
     fake_history: list,
     defects: list[DefectForProposal],
     stories: list[StoryMinimal],
@@ -261,10 +273,7 @@ def _run_specialized_drafter(
         stories=stories,
         defects=defects,
         clarifications=context.clarifications,
-        inter_story_context=state.project_context,
-        validation_feedback=(
-            state.validation_feedback if state.validation_attempt > 0 else None
-        ),
+        project_context=state.project_context,
     )
 
     messages = fake_history + [HumanMessage(content=human_message)]
@@ -531,7 +540,7 @@ def deep_validation_node(
 ) -> ProposalState:
     """Run the FULL defect detection pipeline on generated proposals."""
     print(
-        f"\n{'='*80}\n| Complex Validation Node - Attempt {state.validation_attempt + 1}/{state.max_validation_attempts}\n{'='*80}"
+        f"\n{'='*80}\n| Deep Validation Node - Attempt {state.validation_attempt + 1}/{state.max_validation_attempts}\n{'='*80}"
     )
     context = runtime.context
 
@@ -596,6 +605,10 @@ def deep_validation_node(
                 )
             )
 
+    print(
+        f"| Running deep analysis on {len(proposed_stories)} proposed stories with {len(bucket_groups)} bucket groups..."
+    )
+
     new_defects = run_analysis(
         connection_id=context.connection_id,
         project_key=context.project_key,
@@ -632,7 +645,7 @@ def complex_validation_node(
 ) -> ProposalState:
     """Run lightweight LLM-based validation on generated proposals."""
     print(
-        f"\n{'='*80}\n| Medium Validation Node - Attempt {state.validation_attempt + 1}/{state.max_validation_attempts}\n{'='*80}"
+        f"\n{'='*80}\n| Complex Validation Node - Attempt {state.validation_attempt + 1}/{state.max_validation_attempts}\n{'='*80}"
     )
     context = runtime.context
 
@@ -740,6 +753,7 @@ def synthesis_node(
                 original_story_key=orig_key,
                 summary=s.summary,
                 description=s.description,
+                explanation=None,
             )
         )
 
@@ -753,6 +767,7 @@ def synthesis_node(
                 original_story_key=None,
                 summary=s.summary,
                 description=s.description,
+                explanation=None,
             )
         )
 
@@ -761,9 +776,12 @@ def synthesis_node(
         contents.append(ProposalContent(type="DELETE", story_key=k))
 
     final_proposals = state.proposals.copy() if state.proposals else []
+
     if contents:
         # Single combined proposal for all deltas
-        proposal = Proposal(target_defect_ids=[], contents=contents)
+        proposal = Proposal(
+            target_defect_ids=[d.id for d in runtime.context.defects], contents=contents
+        )
         final_proposals.append(proposal)
 
     print(

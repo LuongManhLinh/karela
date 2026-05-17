@@ -33,7 +33,7 @@ from common.database import get_db
 from app.analysis.agents.utils import format_stories, get_response_as_schema
 from app.analysis.agents.nodes import build_context_gatherer_agent, run_context_gatherer
 
-from ..schemas import (
+from .schemas import (
     NewBucket,
     StoryCategorization,
     TaxonomyDraft,
@@ -131,6 +131,7 @@ def context_gatherer_node(state: TaxonomyState, runtime: Runtime[TaxonomyContext
         runtime.context,
         project_desc=runtime.context.project_description,
     )
+    print(f"| Context gathered:\n{context_text}")
     return {"project_context": context_text}
 
 
@@ -201,6 +202,8 @@ def seed_extraction_node(state: TaxonomyState):
             ],
         }
 
+    print(f"| Seed extraction complete:\n{output.model_dump_json(indent=2)}")
+
     return {"seed_results": output.new_buckets, "errors": []}
 
 
@@ -218,10 +221,12 @@ def seed_validation_node(state: TaxonomyState):
         }
 
     # Format proposed taxonomy as a readable list for the reviewer
+    project_context = state.get("project_context", "N/A") or "N/A"
     proposed_text = _format_taxonomy_new_bucket(seed_results)
     stories_text = format_stories(state["seed_stories"])
 
     msg = SEED_VALIDATOR_MESSAGE.format(
+        project_context=project_context,
         proposed_taxonomy=proposed_text,
         stories=stories_text,
     )
@@ -307,6 +312,7 @@ def extension_extraction_node(state: TaxonomyState):
     for idx in indices_to_process:
         batch = batches[idx]
         stories_text = format_stories(batch)
+        print(f"| Extension batch {idx}: {len(batch)} stories")
 
         err = extension_errors.get(idx, "")
         error_text = f"## Validation Errors to Fix: {err}" if err else ""
@@ -320,6 +326,7 @@ def extension_extraction_node(state: TaxonomyState):
         msg_lists.append(EXTENSION_FEW_SHOT + [HumanMessage(content=msg)])
 
     # Run all concurrently
+    print(f"| Sending {len(msg_lists)} batches to extension agent")
     responses = extension_agent.batch(msg_lists)
 
     # Build results list: reuse existing on reprocess, create fresh on first run
@@ -368,9 +375,13 @@ def extension_validation_node(state: TaxonomyState):
     project_context = state.get("project_context", "N/A") or "N/A"
     msg_lists = []
 
+    actual_indices_to_check = []
     for idx in indices_to_check:
         batch = batches[idx]
         draft = results[idx]
+        if not draft.new_buckets and not draft.bucket_updates:
+            print(f"| Extension validation batch {idx}: no changes proposed, skipping")
+            continue
         draft_text = _format_taxonomy_draft(draft)
         stories_text = format_stories(batch)
 
@@ -381,11 +392,12 @@ def extension_validation_node(state: TaxonomyState):
             stories=stories_text,
         )
         msg_lists.append(VALIDATE_TAXONOMY_FEW_SHOT + [HumanMessage(content=msg)])
+        actual_indices_to_check.append(idx)
 
     responses = validator_agent.batch(msg_lists)
     failed_indices = []
     errors = {}
-    for i, idx in enumerate(indices_to_check):
+    for i, idx in enumerate(actual_indices_to_check):
         output: TaxonomyValidationResponse = get_response_as_schema(
             responses[i], TaxonomyValidationResponse
         )
@@ -407,7 +419,9 @@ def extension_validation_node(state: TaxonomyState):
             results[idx] = adjusted_draft
         else:
             print(f"| Extension validation batch {idx}: INVALID - {output.reasoning}")
-            errors[idx] = output.reasoning
+            errors[idx] = (
+                f"The previous proposed taxonomy changes for this batch were rejected by the validator: {output.reasoning}\nThis is the rejected draft:\n{_format_taxonomy_draft(results[idx])}"
+            )
             failed_indices.append(idx)
     return {
         "extension_results": results,
@@ -437,6 +451,9 @@ def join_buckets_node(state: TaxonomyState):
     return {"final_taxonomy": current_taxonomy}
 
 
+MAX_CATEGORIZE_RETRIES = 10
+
+
 def categorize_node(state: TaxonomyState, runtime: Runtime[TaxonomyContext]):
     """Categorize ALL stories (seed + extension) via agent.batch."""
     all_stories: list[StoryMinimal] = state.get("all_stories", [])
@@ -445,40 +462,68 @@ def categorize_node(state: TaxonomyState, runtime: Runtime[TaxonomyContext]):
         print("| Taxonomy Graph -> [categorize] no stories to categorize")
         return {"categorizations": []}
 
-    # Batch stories for categorization
     batch_size = runtime.context.extension_batch_size
-    story_batches = [
-        all_stories[i : i + batch_size] for i in range(0, len(all_stories), batch_size)
-    ]
-
-    print(
-        f"| Taxonomy Graph -> [categorize] categorizing {len(all_stories)} stories in {len(story_batches)} batches"
-    )
-
     taxonomy_text = _format_taxonomy_new_bucket(state.get("final_taxonomy", []))
+    story_map = {s.key: s for s in all_stories}
 
-    msg_lists = []
-    for batch in story_batches:
-        stories_text = format_stories(batch)
-        msg = CATEGORIZER_MESSAGE.format(
-            taxonomy=taxonomy_text,
-            stories=stories_text,
-            errors="",
+    # Initial run on all stories
+    stories_to_categorize = all_stories
+    all_categorizations: dict[str, StoryCategorization] = {}
+
+    for attempt in range(1 + MAX_CATEGORIZE_RETRIES):
+        story_batches = [
+            stories_to_categorize[i : i + batch_size]
+            for i in range(0, len(stories_to_categorize), batch_size)
+        ]
+
+        label = "categorizing" if attempt == 0 else f"retry {attempt}"
+        print(
+            f"| Taxonomy Graph -> [categorize] {label} {len(stories_to_categorize)} stories in {len(story_batches)} batches"
         )
-        msg_lists.append(CATEGORIZE_FEW_SHOT + [HumanMessage(content=msg)])
 
-    responses = categorization_agent.batch(msg_lists)
+        msg_lists = []
+        for batch in story_batches:
+            stories_text = format_stories(batch)
+            error_text = (
+                "## IMPORTANT: Some stories were not categorized in a previous attempt. "
+                "You MUST assign at least one tag to EVERY story listed above."
+                if attempt > 0
+                else ""
+            )
+            msg = CATEGORIZER_MESSAGE.format(
+                taxonomy=taxonomy_text,
+                stories=stories_text,
+                errors=error_text,
+            )
+            msg_lists.append(CATEGORIZE_FEW_SHOT + [HumanMessage(content=msg)])
 
-    all_categorizations = []
-    for response in responses:
-        output: TaxonomyCategorizationResponse = get_response_as_schema(
-            response, TaxonomyCategorizationResponse
+        responses = categorization_agent.batch(msg_lists)
+
+        for response in responses:
+            output: TaxonomyCategorizationResponse = get_response_as_schema(
+                response, TaxonomyCategorizationResponse
+            )
+            if output:
+                for cat in output.categorizations:
+                    if cat.tags and cat.key in story_map:
+                        all_categorizations[cat.key] = cat
+
+        # Check for uncategorized stories
+        uncategorized_keys = [k for k in story_map if k not in all_categorizations]
+
+        if not uncategorized_keys:
+            break
+
+        print(
+            f"| Categorize: {len(uncategorized_keys)} stories still uncategorized after attempt {attempt + 1}"
         )
-        if output:
-            all_categorizations.extend(output.categorizations)
 
-    print(f"| Categorize complete: {len(all_categorizations)} total categorizations")
-    return {"categorizations": all_categorizations}
+        if attempt < MAX_CATEGORIZE_RETRIES:
+            stories_to_categorize = [story_map[k] for k in uncategorized_keys]
+
+    result = list(all_categorizations.values())
+    print(f"| Categorize complete: {len(result)} total categorizations")
+    return {"categorizations": result}
 
 
 # ─── Route from START ─────────────────────────────────────────────────────────
@@ -510,11 +555,6 @@ def update_setup_node(state: TaxonomyState, runtime: Runtime[TaxonomyContext]):
         "all_stories": stories,
         "extension_batches": extension_batches,
     }
-
-
-# ═════════════════════════════════════════════════════════════════════════════
-# Graph Compilation
-# ═════════════════════════════════════════════════════════════════════════════
 
 
 def build_taxonomy_graph():

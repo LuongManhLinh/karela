@@ -1,0 +1,4 @@
+- most of the defect are detected
+- GPT is more conservative (found less defect). It is less false positive, but couldn't find NOT_INDEPENDENT
+- GPT somehow coul
+- while Gemini is over-expanding (more defects). It covers more cases, but more false positive

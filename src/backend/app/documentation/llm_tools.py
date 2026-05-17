@@ -4,7 +4,7 @@ import json
 
 from .vectorstore import DocumentationVectorStore
 from .services import DocumentationService
-from common.database import get_db
+from common.database import SessionLocal
 
 
 @tool
@@ -16,9 +16,15 @@ def list_available_docs(runtime: ToolRuntime[LlmContext]) -> str:
     print("| Tool: list_available_docs called")
     context = runtime.context
 
-    docs = DocumentationService(db=context.db).list_all_docs_for_project(
-        connection_id=context.connection_id, project_key=context.project_key
-    )
+    db = SessionLocal()
+    try:
+        docs = DocumentationService(db=db).list_all_docs_for_project(
+            connection_id=context.connection_id, project_key=context.project_key
+        )
+    finally:
+        db.close()
+
+    print(f"| Tool: list_available_docs listed {len(docs)} docs")
     return json.dumps({"docs": docs}, indent=2)
 
 
@@ -33,29 +39,33 @@ def search_in_docs(
     Args:
         query (str): The search query
         doc_key (str, optional): The key of the documentation to search in.
-            If not provided, searches in all documentation. Defaults to None.
+            If not provided, searches in all documentation. Defaults to null.
         k (int, optional): The number of top results to return. Defaults to 5.
     Returns:
         str: A JSON string containing the search results
     """
     print(
-        f"| Tool: search_in_docs called with query='{query}', doc_key='{doc_key}', k={k}"
+        f"| Tool: search_in_docs called with query='{query}', doc_key={doc_key}, k={k}"
     )
 
     context = runtime.context
-    service = DocumentationService(db=context.db)
 
-    doc_id = None
-    if doc_key:
-        doc_id = service.get_doc_id(
-            connection_id=context.connection_id,
-            project_key=context.project_key,
-            doc_key=doc_key,
-        )
-        if not doc_id:
-            return json.dumps(
-                {"error": f"Documentation with key '{doc_key}' not found"}, indent=2
+    db = SessionLocal()
+    try:
+        service = DocumentationService(db=db)
+        doc_id = None
+        if doc_key:
+            doc_id = service.get_doc_id(
+                connection_id=context.connection_id,
+                project_key=context.project_key,
+                doc_key=doc_key,
             )
+            if not doc_id:
+                return json.dumps(
+                    {"error": f"Documentation with key '{doc_key}' not found"}, indent=2
+                )
+    finally:
+        db.close()
 
     vectorstore = DocumentationVectorStore()
     results = vectorstore.retrieve_similar(
@@ -63,6 +73,8 @@ def search_in_docs(
         documentation_id=doc_id,
         k=k,
     )
+
+    print(f"| Tool: search_in_docs retrieved {len(results)} results")
 
     return json.dumps({"results": results}, indent=2)
 

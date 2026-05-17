@@ -18,7 +18,7 @@ from ..nodes import (
 )
 
 
-from app.taxonomy.query import get_story_tags, get_stories_by_tags
+from app.taxonomy.services.query import get_story_tags, get_stories_by_tags
 
 
 def build_targeted_graph():

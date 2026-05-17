@@ -2,8 +2,8 @@
 
 from sqlalchemy.orm import Session
 
-from .models import Bucket, BucketItem
-from .schemas import NewBucket, StoryCategorization
+from ..models import Bucket, BucketItem
+from ..agents.schemas import NewBucket, StoryCategorization
 from common.database import uuid_generator
 
 

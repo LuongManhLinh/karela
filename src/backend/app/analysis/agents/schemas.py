@@ -13,9 +13,13 @@ class DefectByLlm(BaseModel):
         description="Keys of the stories involved in the defect"
     )
     severity: str = Field(description="'LOW' | 'MEDIUM' | 'HIGH'")
-    explanation: str = Field()
-    confidence: float = Field()
-    suggested_fix: str = Field()
+    explanation: str = Field(description="A clear explanation of why this is a defect")
+    confidence: float = Field(
+        description="A confidence score between 0 and 1 indicating how certain the agent is about this defect"
+    )
+    suggested_fix: str = Field(
+        description="A brief suggestion on how to fix this defect, if possible"
+    )
 
     model_config = ConfigDict(
         extra="ignore",

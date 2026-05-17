@@ -1,0 +1,498 @@
+[
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-116", "IB2-308"],
+    "severity": "HIGH",
+    "explanation": "IB2-116 requires the Image Widget to be resizable via a Width slider in the Nav Panel (\"Be able to set the ratio of the Image to change the \u2018Block'\u2019s width...\", \"Be able to still see Image remain the same percentage of it\u2019s \u2018Block\u2019 horizontally\") and also allow resizing by dragging. IB2-308 explicitly requires that the Image Widget's width must NOT be changeable from the Nav Panel Width slider and that any existing Width slider is read-only; it also requires the image to reset to center rather than preserve horizontal percentage. These are directly contradictory rules about the same specific behavior (how Image Widget width/position is controlled and preserved). Implementing both stories as-written is logically impossible.",
+    "confidence": 0.95,
+    "suggested_fix": "Product must choose one consistent UX for Image Widget resizing. Options: (a) Keep IB2-116 behavior (Nav slider + dragging) and update/close IB2-308, or (b) Adopt IB2-308 (drag-only) and update IB2-116 to remove Nav-slider requirements. If both modes are required, define explicit precedence and an admin/user setting that selects the resizing mode and specify exact interactions (how horizontal percentage is preserved or reset). Update acceptance criteria of the affected stories to reflect the chosen approach and remove the contradictory statements."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-117", "IB2-308"],
+    "severity": "HIGH",
+    "explanation": "IB2-117 requires that the image 'remain proportional' / 'in the same percentage of Block' after resizing and when Block width changes. IB2-308 explicitly requires that 'When the Image Widget is resized, the image should reset to the center of its Block instead of preserving the same horizontal percentage position.' These two requirements are mutually exclusive for the same behavior (image positioning after widget resize).",
+    "confidence": 0.9,
+    "suggested_fix": "Product/UX must choose the expected post-resize behavior and update stories accordingly. Options: (a) adopt proportional-preservation (update IB2-308 to remove the 'reset to center' clause), (b) adopt reset-to-center (adjust IB2-117 to remove preservation requirement), or (c) make behavior conditional and explicit (e.g., preserve percentage when repositioning the image, but reset to center when resizing via a specific control). Update acceptance criteria in both stories to be consistent."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-164", "IB2-389"],
+    "severity": "MEDIUM",
+    "explanation": "IB2-164 requests the Drag & Drop Page limit to be present in the Restrictions tab in MCP or shown on the Custom Page ('should be in the Restrictions tab in MCP or Custom Page' and 'shown somewhere on Custom Page'). IB2-389 explicitly requires page limits to be set via MCP settings and not in Custom Page ('set Page limits via MCP settings, not in Custom Page'). These two statements are mutually exclusive about where the authoritative setting may be edited/displayed.",
+    "confidence": 0.95,
+    "suggested_fix": "Clarify the intended UX and single source of truth: either (A) MCP is the only place to configure page limits (IB2-389) and any Custom Page UI only displays a read-only indicator, or (B) allow both MCP and Custom Page to set limits with a clear precedence (e.g., MCP global default, Custom Page override). Update both stories to state the chosen approach and acceptance criteria (where editable, read-only display rules, precedence and propagation on save). Consider merging the work into one story or adding a short dependency/implementation note so development is not duplicated or contradictory."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-172", "IB2-78"],
+    "severity": "HIGH",
+    "explanation": "IB2-78 requires that when a Server delete fails, the dialog remains open and a snackbar appears with the error message: \"After deleting a Server and it fails, the dialog remains open(?) and a snackbar appears with the error message\". IB2-172 requires the opposite UX for a failed delete: \"When deletion fails, the confirmation dialog must close automatically\" and explicitly: \"No snackbar error message should be displayed after a failed delete action.\" Both stories specify mutually exclusive behaviors for the same operation (failed Server delete), making them contradictory if implemented as written.",
+    "confidence": 0.9,
+    "suggested_fix": "Clarify and align the expected UX for failed Server deletes. Options: (a) Choose a single consistent behavior (either close the confirmation dialog and surface an inline error, or keep the dialog open and show a snackbar) and update both stories\u2019 acceptance criteria; or (b) Split by context and make it explicit (e.g., IB2-172 applies to deletes initiated from the Servers table confirmation dialog and IB2-78 applies to deletes from the Server detail page), documenting the context in each story. Update acceptance criteria and designs to remove ambiguity about the dialog state and whether a snackbar is used."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-189", "IB2-308"],
+    "severity": "HIGH",
+    "explanation": "IB2-189 requires that the Image Widget \"allow the image position within its Block area to remain proportional after resizing... and preserve that proportional placement if the Block width later changes.\" IB2-308 explicitly requires that \"When the Image Widget is resized, the image should reset to the center of its Block instead of preserving the same horizontal percentage position.\" These are mutually exclusive behaviors for image positioning after a resize (preserve proportional placement vs. always reset to center).",
+    "confidence": 0.95,
+    "suggested_fix": "Clarify and consolidate the expected post-resize behavior: either (A) adopt proportional placement preservation (IB2-189) or (B) adopt center-reset on resize (IB2-308). If both behaviors must exist, specify the exact conditions that decide which applies (e.g., different widget modes, a user toggle, or only center-reset when resizing via a specific control). Update one story to reference the chosen canonical behavior and mark the other as dependent/removed."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-190", "IB2-308"],
+    "severity": "HIGH",
+    "explanation": "IB2-190 requires that after resizing (by dragging) and repositioning an Image, the same horizontal percentage position of the Image within its Block is preserved across mobile, tablet, and desktop responsive modes. IB2-308 explicitly states that \"When the Image Widget is resized, the image should reset to the center of its Block instead of preserving the same horizontal percentage position.\" These two requirements are mutually exclusive for the same image-resize behavior.",
+    "confidence": 0.9,
+    "suggested_fix": "Clarify and reconcile the expected behavior for image resizing across responsive modes. Options: (a) Choose one behavior\u2014either preserve horizontal percentage across responsive modes (update IB2-308 to remove the 'reset to center' clause), or reset to center on resize (update IB2-190 to remove the preserve-percentage clause); (b) Define a conditional rule (e.g., preserve percentage when switching responsive preview modes, but reset-to-center only when a specific action occurs), or (c) Expose an explicit setting/toggle (e.g., 'Preserve image position across breakpoints') so both behaviors are supported but unambiguous. Update acceptance criteria in both stories to state the chosen rule and add UI/UX examples and automated test cases to verify the resulting behavior."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-323", "IB2-326"],
+    "severity": "MEDIUM",
+    "explanation": "IB2-323 describes the Ask button as available to \"a user\" (UI: button displays under question field, disabled by default, hover text). IB2-326 explicitly restricts the Ask button visibility to Alpha Main Admin users: \"The Ask button must only be displayed after the Alpha Main Admin access restriction has been implemented.\" Those two statements contradict each other about who should see the Ask button (general users vs. Admin-only).",
+    "confidence": 0.9,
+    "suggested_fix": "Clarify and reconcile visibility rules: (a) Decide which roles should see the Ask button (all users, only Admins, or role-based exposure). Then either: 1) Update IB2-323 to state it is the generic UI behavior that will be gated by the Admin visibility story (make IB2-323 dependent on IB2-326), or 2) Merge the stories so the UI behavior and permission rules are implemented together, or 3) Split responsibilities clearly (one story implements UI behavior for all users; another story adds role-based visibility). Also add an explicit acceptance criterion specifying role(s) allowed to view/use the Ask button."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-337", "IB2-80"],
+    "severity": "HIGH",
+    "explanation": "IB2-80 requires that when no Master Templates exist the UI displays 'No Master Templates available' and the user can select 'Create a Blank Template' instead. IB2-337 explicitly requires the opposite: 'The \u201cStart with a blank template\u201d option must only be displayed when at least one Master Template exists' and states that if none exist users must not be allowed to create a blank template and should be instructed to create a Master Template first. These are mutually exclusive rules for the same UI flow.",
+    "confidence": 0.9,
+    "suggested_fix": "Clarify and align product intent with PM/UX: decide whether creating a blank Smart Page is allowed when no Master Templates exist. Then update both stories to express the same rule. If the chosen behavior is to allow blank creation, modify IB2-337 to remove the prohibition and specify the exact message/link shown. If the chosen behavior is to require a Master Template first, change IB2-80 to remove the 'Create a Blank Template' action and specify the alternate messaging and CTA (e.g., 'Create Master Template' with link). Add precise acceptance criteria (exact text, button states, and navigation target) to avoid future ambiguity."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-420", "IB2-455"],
+    "severity": "MEDIUM",
+    "explanation": "IB2-420 assumes mixed selections are possible (requests selected for Bulk Review may include some items with Hide Decline enabled and some without). IB2-455 states that when one pending request is selected, \u201cOnly checkboxes for relevant related Pending requests remain selectable,\u201d which implies the UI may prevent selecting requests that are not eligible for the same bulk actions. These two statements contradict each other about whether a mixed selection (different applicability states for Decline) can occur.",
+    "confidence": 0.8,
+    "suggested_fix": "Clarify selection rules for Bulk Review: specify whether the UI allows selecting items with differing action-eligibility (and therefore requires IB2-420 handling), or whether selection is restricted to only similarly-eligible requests (per IB2-455). Update both stories to state the agreed behavior and add UI/validation acceptance criteria to prevent ambiguity (e.g., disable checkboxes or show a warning when mixing incompatible items)."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-463", "IB2-476"],
+    "severity": "HIGH",
+    "explanation": "IB2-463 requests a mechanism to allow complete removal (wiping) of existing facial data and related flags during MCP Site clone. IB2-476 requires that existing Unknown face flags be preserved during clone so the \u201cUnknown People\u201d filter still returns matches. These are mutually exclusive on the same topic (clone handling of facial recognition data): one mandates deletion, the other mandates preservation.",
+    "confidence": 0.92,
+    "suggested_fix": "Clarify the intended clone behavior in acceptance criteria: make the wipe action explicit and optional (e.g., add a 'Wipe facial data and flags' checkbox on the clone flow). Define the default: either preserve flags unless the admin opts into wiping, or wipe by default and document consequences. Update both stories to reference the same behavior (or convert IB2-476 into an explicit acceptance criterion when the wipe option is unchecked). Ensure UI copy and data-migration steps reflect the chosen default and add tests for both paths."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-117", "IB2-189"],
+    "severity": "HIGH",
+    "explanation": "IB2-189 and IB2-117 contain the same functional requirements: both require dragging the image directly to reposition, displaying the dotted image outline and full widget boundary with 8px spacing, keeping the outer bounding box visible after resize, and preserving the image's proportional placement within the Block after resizing and when Block width changes. Implementing one would fully cover the other's deliverables.",
+    "confidence": 0.95,
+    "suggested_fix": "Merge IB2-189 into IB2-117 (or mark one as duplicate). Consolidate acceptance criteria and design notes into the single story to avoid duplicated implementation and QA effort."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-189", "IB2-192"],
+    "severity": "MEDIUM",
+    "explanation": "IB2-189 requires preserving proportional placement when a Block width changes after resizing. IB2-192 requires that the \"position and size that I set of the image [will] still work in different responsive modes\" and explicitly: \"see the same percentage horizontally of Image with the Block... after resizing... repositioning.\" Both stories specify the same core deliverable (maintain horizontal percentage/ proportional placement across responsive modes) for the Image Widget, so implementing IB2-189 would fulfill IB2-192's stated behavior.",
+    "confidence": 0.8,
+    "suggested_fix": "Merge IB2-192 into IB2-189 or convert IB2-192 into a subtask/acceptance criterion of IB2-189 focused solely on responsive-mode verification. Ensure combined acceptance criteria explicitly cover: resizing, repositioning, and behavior across mobile/tablet/desktop breakpoints, plus any edge cases."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-21", "IB2-240"],
+    "severity": "MEDIUM",
+    "explanation": "IB2-21 specifies the expected behavior of the Bulk 'Apply to Selected' action (deselected resources must not receive updates). IB2-240 requests the Bulk Apply feature and explicitly calls out 'Actual apply logic' and UI behaviors (apply count, tooltips, snackbars). Both stories appear to target the same technical area (the bulk apply processing and selection semantics). If the team implements IB2-240's 'actual apply logic' without separate handling, IB2-21's work could be redundant or overlap significantly.",
+    "confidence": 0.75,
+    "suggested_fix": "Clarify ownership and scope: either merge IB2-21 into IB2-240 as a detailed acceptance criterion (explicitly documenting deselect semantics), or keep IB2-21 but reference IB2-240 as the story that implements the shared apply-processing engine. Update acceptance criteria to state which story is authoritative for selection/exclusion logic."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-21", "IB2-448"],
+    "severity": "MEDIUM",
+    "explanation": "IB2-21 defines a specific rule for Bulk 'Apply to Selected' (deselected items excluded). IB2-448 asks to 'Ensure the experience follows the same behavior as the existing Grouped Review page' and to 'Support the same apply processing logic used in the current implementation.' Both items cover the bulk apply processing and likely the same selection/exclusion behavior. This creates overlap where two stories ask for the same apply logic to be implemented/validated.",
+    "confidence": 0.75,
+    "suggested_fix": "Resolve overlap by consolidating apply-processing requirements: make IB2-448 (or IB2-240) the parent/implementation story for bulk apply logic and move the deselection rule from IB2-21 into that story's acceptance criteria, or mark IB2-21 as an explicit UI/UX verification sub-task tied to the implementation story."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-215", "IB2-385"],
+    "severity": "HIGH",
+    "explanation": "Both stories describe the exact same deliverable: drag-and-drop reordering of Pages within the Navigation panel while editing, moving child pages together, and collapsing sub-pages under the parent after reorder. IB2-215: \"Be able to re-order Pages via drag-and-drop from Nav Panel during editing\"; \"Sub-pages will be moved all together with Page\"; \"After drag-and-drop of Pages, Sub-pages will be *collapsed* under Page from Nav Panel.\" IB2-385: \"Allow users to change the order of Pages by using drag-and-drop interactions within the Navigation panel while editing\"; \"When a Page contains child pages, move all associated sub-pages together with the parent Page\"; \"ensure all Sub-pages are displayed in a collapsed state beneath their parent.\" Implementing one makes the other redundant.",
+    "confidence": 0.92,
+    "suggested_fix": "Consolidate these two stories into a single canonical story (or mark one as duplicate). Merge any unique acceptance criteria (e.g., IB2-215's note 'This ticket does NOT include drag-and-drop across Parent' and any FE-integration specifics) into the canonical story, and remove the redundant duplicate to avoid duplicated development effort."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-225", "IB2-415"],
+    "severity": "HIGH",
+    "explanation": "Both stories are PB (DND replace) asking for the same UI feature: creating a sub-page via the Navigation panel. IB2-225 and IB2-415 both state: 'Be able to click on setting button of a simple page from Nav', 'Be able to see the sub-page popup', and 'Be able to input the sub page's title and save (change \"Done\" to \"Save\")'. The core deliverable (front-end UI to create a sub-page) is identical; implementing IB2-225 would make IB2-415 redundant.",
+    "confidence": 0.9,
+    "suggested_fix": "Consolidate IB2-415 into IB2-225 (or mark IB2-415 as duplicate). Merge any unique acceptance details from IB2-415 into IB2-225, or if IB2-415 was intended as a smaller task, convert it to a dependent/child task (implementation subtask) rather than a separate story."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-233", "IB2-429"],
+    "severity": "HIGH",
+    "explanation": "IB2-429 has the same title and duplicate acceptance points as IB2-233: both require the new extend/collapse button to open the Left Side Panel as Page Nav and to display all saved Simple Pages in the Left Side Panel according to the current user\u2019s permissions. The overlap is on the exact same UI behavior and data shown in the same context (viewing a Simple Page), so delivering IB2-233 would make IB2-429 implementation redundant.",
+    "confidence": 0.9,
+    "suggested_fix": "Merge IB2-429 into IB2-233 (or close one as a duplicate). Consolidate and ensure IB2-233 contains the complete acceptance criteria from both items (including any wording differences). Update references and remove duplicate work from the sprint backlog."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-240", "IB2-448"],
+    "severity": "HIGH",
+    "explanation": "IB2-240 and IB2-448 both request the same feature: Bulk Apply for updates coming from Grouped work and specify identical UI/behavior and processing requirements. Both stories state: 'follow the same as it does in Grouped Review page, including: Apply count in button, Button hover tooltip text for enable + disable views, Snackbars' (IB2-240) and 'Ensure the experience follows the same behavior as the existing Grouped Review page, including Apply button item counts, tooltip text for enabled and disabled button states, and snackbar notifications; Support the same apply processing logic used in the current implementation; ... Determine Complete Request and Stage actions...' (IB2-448). Implementing one would make the other fully redundant.",
+    "confidence": 0.9,
+    "suggested_fix": "Consolidate the two stories into a single canonical story (merge IB2-448 into IB2-240 or vice versa). Combine and de-duplicate acceptance criteria and checklist items so the implementation and QA teams have one source of truth. If there are any additional validations or edge-cases unique to one of the two, surface them as separate child tasks rather than separate top-level stories."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-281", "IB2-388"],
+    "severity": "MEDIUM",
+    "explanation": "Both stories require the Resource Lookup selection to have its status linked with the Resource module. IB2-281: 'link the status of the background Image with the derived Image resources in Resource Module if ... added as Page or Section background in Page Builder via Resource Lookup.' IB2-388: 'status of Resource added via Resource Lookup to be linked with Resource module - resource permission lost scenario' \u2014 the core technical action (linking resource status between Page Builder usage and the Resource module) appears identical. IB2-388 adds permission-lost UI behavior, but it likely implements the same linking mechanism that IB2-281 requests for background images, making one story potentially redundant without clarified scope.",
+    "confidence": 0.7,
+    "suggested_fix": "Clarify scope and acceptance criteria with product: either (A) make IB2-388 the canonical, generic implementation (covering all Resource Lookup uses including background images) and convert IB2-281 to a verification/acceptance test case, or (B) narrow IB2-388 to only cover permission-lost UI behavior and explicitly state that background-image status-linking (page/section backgrounds) is handled separately by IB2-281. Update story descriptions/AC to state which story owns the status-linking implementation for background images."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-396", "IB2-415"],
+    "severity": "MEDIUM",
+    "explanation": "Both stories describe the same user action and UI flow: clicking the settings button in the Nav to open a sub-page popup and create a sub-page. IB2-396: 'Be able to click on setting button of a simple page from Nav' and 'Be able to see the sub-page popup as per'. IB2-415: 'Be able to click on setting button of a simple page from Nav' and 'Be able to see the sub-page popup as per' (plus input title and change 'Done' to 'Save'). The core deliverable (create sub-page via Nav) appears identical, so completing one would largely duplicate effort for the other unless intentionally split by technical layer or target page type.",
+    "confidence": 0.8,
+    "suggested_fix": "Clarify scope and split responsibilities: either (A) merge the two stories into one end-to-end story that covers frontend (popup UI, title input, 'Save' text) and backend create-sub-page behavior, or (B) explicitly separate them as Backend vs Frontend with acceptance criteria that make the split clear (e.g., IB2-396 = backend API to create sub-page + contract; IB2-415 = frontend UI/UX including title input and button text). Also confirm whether 'Simple Page' vs 'Smart Page' is intentional \u2014 if they target different page types, update titles/descriptions to avoid overlap."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-448", "IB2-455"],
+    "severity": "MEDIUM",
+    "explanation": "IB2-448 requires the Bulk Apply experience to \u201cfollow the same behavior as the existing Grouped Review page\u201d and to \u201csupport the same apply processing logic.\u201d IB2-455 specifies the exact selection behavior for checkboxes when a Pending request is selected (only related Pending requests remain selectable). That checkbox-selection rule is part of the Grouped Review page behavior; if IB2-448 implements the full Grouped Review behavior it would already deliver IB2-455's functionality, making IB2-455 redundant.",
+    "confidence": 0.7,
+    "suggested_fix": "Clarify scope: either merge IB2-455 into IB2-448 as an explicit acceptance criterion (selection rules documented/tested there), or narrow IB2-448 to exclude the detailed checkbox selection logic and keep IB2-455 as the separate implementation story. Update acceptance criteria to avoid overlap."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-115"],
+    "severity": "MEDIUM",
+    "explanation": "This item is written as a question/request for clarification rather than a concrete story: it does not define which specific 'new widget settings' need explanation or what the expected behaviour/outcome should be. The team cannot reliably estimate implementation without concrete acceptance criteria.",
+    "confidence": 0.85,
+    "suggested_fix": "Turn the item into a clear story or a set of acceptance criteria listing each widget and the exact new settings (name, default value, allowed range/choices, expected UI location and behaviour). Alternatively, make this a grooming task to document/decide the settings before implementation."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-117"],
+    "severity": "MEDIUM",
+    "explanation": "The final acceptance criterion is incomplete/ambiguous (\"the percentage will obtain if the 'Block' width changes by\"), leaving key behaviour undefined (how percentage is calculated, what triggers re-positioning, expected constraints). Without that, developers and QA cannot estimate or implement confidently.",
+    "confidence": 0.88,
+    "suggested_fix": "Complete and formalize the acceptance criteria: define how the image's position is stored (percent offsets relative to block), how it should behave when block width changes (maintain center, maintain percentage offset, clamp rules), and provide example scenarios and target pixel/percentage math."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-120"],
+    "severity": "MEDIUM",
+    "explanation": "Acceptance criteria are unclear about exactly which users should see the new 'assign collaborators' action (the second point is incomplete/ambiguous about other added collaborators and staged requests). This ambiguity affects UI visibility rules, permission checks, and scope of work.",
+    "confidence": 0.74,
+    "suggested_fix": "Clarify visibility and permission rules in acceptance criteria: explicitly list all actor types who should see the action (requester, current-stage reviewers, added collaborators, admins), whether it appears for all stages or only current stage, and include example scenarios to remove ambiguity."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-148"],
+    "severity": "MEDIUM",
+    "explanation": "The description is vague and lacks concrete acceptance criteria: it only notes a consensus to show a logo and omit login/nav menu and references 'CPSL links' without specifying exact screens, placements, responsive behaviour, accessibility requirements, or success criteria for the Success Page and menu/login bar changes.",
+    "confidence": 0.76,
+    "suggested_fix": "Provide precise UI requirements: include mockups or references for the new auth screens and success page, list exact header/footer elements to show or hide per breakpoint, define expected navigation/links, accessibility text, and acceptance criteria (visual spec, responsiveness, and behaviour). If this is exploratory, convert to a discovery/grooming task first."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-164"],
+    "severity": "MEDIUM",
+    "explanation": "The story never defines what the 'Drag & Drop limit' actually is (items, pages, file size?), the units, default value, or the exact expected behavior when the limit is reached. The UI location instructions are vague ('in the Restrictions tab in MCP or Custom Page' / 'shown somewhere on Custom Page') so the team cannot reliably estimate implementation or test cases.",
+    "confidence": 0.8,
+    "suggested_fix": "Specify the limit metric and behaviour in acceptance criteria: e.g., 'Limit = max number of Drag & Drop blocks per Page (integer)', default value, editable field label and location (exact Restrictions tab path), validation rules, and expected system behaviour when exceeded (error message, prevention, or soft warning). Add screenshots or exact placement text for the Custom Page."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-186"],
+    "severity": "MEDIUM",
+    "explanation": "The story states 'combine previously defined Block and Widget's settings' but lists no concrete settings, behaviours, or UI flows. Without an itemized list of the settings to be merged and how conflicts are resolved, the team cannot estimate implementation effort or test coverage.",
+    "confidence": 0.8,
+    "suggested_fix": "Provide a detailed mapping of which Block and Text Widget settings must be exposed (names, data types, defaults), the desired combined UI layout in Nav, rules for precedence/conflicts, and acceptance criteria for saving/applying settings. Include mockups if possible."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-211"],
+    "severity": "MEDIUM",
+    "explanation": "The description is contradictory and ambiguous (e.g., 'Module appears if it applies to User\u2019s usage report, whilst in Custom Page usage report the Module will not be displayed') and lacks precise tracking requirements (what exact events/fields to record, where they appear, and how 'Custom Page' naming is resolved). This prevents estimation and testing of reporting behaviour.",
+    "confidence": 0.75,
+    "suggested_fix": "Clarify the reporting scope and semantics: list exact events (Resource Download - Preview), which reports should include the module and which should not, the dynamic naming rule and where it's configured, expected schema fields, filtering/search/export behaviours, and acceptance criteria with example queries/rows."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-240"],
+    "severity": "MEDIUM",
+    "explanation": "The ticket references 'follow the same as Grouped Review page' and contains placeholders ('Actual apply logic', 'need extra check') but does not define the concrete apply logic, edge cases, or how counts/tooltips/snackbars behave. The scope and success criteria are insufficiently specified for a reliable estimate.",
+    "confidence": 0.8,
+    "suggested_fix": "Replace references to 'same as Grouped Review' with explicit acceptance criteria: precise apply logic, when Apply count increments/decrements, tooltip text for enabled/disabled states, snackbar content and timing, and rules for completing requests/stages. Add examples for staged and single requests and expected UI state transitions."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-281"],
+    "severity": "MEDIUM",
+    "explanation": "The story asks to 'link the status' of a background image with derived image resources in the Resource module but does not define what 'status' means (e.g., published/archived/permission changes/processing), when updates must propagate, whether linking is one\u2011way or two\u2011way, or what the UI/UX should show. Without these details the team cannot reliably estimate effort or test scenarios.",
+    "confidence": 0.8,
+    "suggested_fix": "Clarify the exact statuses to be linked and the expected behavior: define the set of status values, propagation direction (Page Builder -> Resource module, Resource module -> Page Builder, or both), event/refresh rules, UI states/indicators, error handling, and example test cases. Add acceptance criteria describing expected visible outcomes and timing."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-305"],
+    "severity": "MEDIUM",
+    "explanation": "The title says 'configure both Block and Button Widget properties' but the description only lists Button fields (Text, Link) and omits which Block properties should be combined or how the Nav panel should behave. Scope and UI interactions for merging Block and Widget settings are unclear, preventing a reliable estimate.",
+    "confidence": 0.85,
+    "suggested_fix": "List the complete set of Block properties and Button widget properties to be exposed, provide UI mocks showing the Nav layout and interaction flow, and specify expected behavior when properties conflict. Define acceptance criteria for each property (validation, defaults, persistence) so the team can size the work."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-367"],
+    "severity": "MEDIUM",
+    "explanation": "The description is fragmentary and references multiple cross-folder reviewer/configuration scenarios without concrete acceptance criteria or examples. The lack of clear scenarios, expected email content/recipients, and exact behavior when templates span folders prevents confident effort estimation and testing.",
+    "confidence": 0.85,
+    "suggested_fix": "Provide concrete scenarios and acceptance criteria: enumerate example folder/template combinations, define expected grouping of emails/recipients for each scenario, include sample templates/messages, and specify failure modes. Break the work into smaller stories per scenario if needed."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-389"],
+    "severity": "MEDIUM",
+    "explanation": "The story requests setting 'Page limits via MCP settings' but does not define what 'page limits' are (count, size, depth, per-site vs global), how limits are enforced, default values, or the UI/validation required. This ambiguity prevents an accurate estimate.",
+    "confidence": 0.7,
+    "suggested_fix": "Clarify the types of limits (e.g., max pages per site, max sections per page, max blocks per page), scope (per-client, per-database), enforcement behavior (blocking creation vs warning), default and maximum values, and provide MCP UI/UX mockups and API contract changes. Add acceptance criteria and example scenarios."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-392"],
+    "severity": "MEDIUM",
+    "explanation": "The description is incomplete and ambiguous (unfinished sentence). It's unclear the exact permission rule, which lists are affected, what UI/UX changes are required, and acceptance criteria for when a Requester can or cannot re-assign. A dev team could not reliably estimate effort from this text.",
+    "confidence": 0.85,
+    "suggested_fix": "Clarify the intended rule with concrete acceptance criteria and examples: specify which V2 lists are excluded, exact permission matrix (which roles can re-assign in which contexts), expected UI/UX changes, error messages, and test cases. Provide any related workflow IDs or sample requests that illustrate the behavior."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-395"],
+    "severity": "MEDIUM",
+    "explanation": "Beyond being large, many requirements are vague (e.g., 'trigger permission propagation using the same logic as resource folder/sub-folders', 'cross-platform synchronization'). The team cannot estimate the work without details on expected propagation algorithm, conflict resolution, audit data model, and target platforms for synchronization.",
+    "confidence": 0.85,
+    "suggested_fix": "Provide a precise spec for propagation rules (examples of parent->child changes and expected outcomes), define audit data fields, list target systems for 'cross-platform synchronization' and the required sync semantics, and include UI acceptance criteria and test cases."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-396"],
+    "severity": "MEDIUM",
+    "explanation": "The story refers to UI behavior ('as per') but omits the referenced designs/flows and acceptance criteria. Missing details about expected popup fields, validations, navigation outcomes, and success criteria make effort estimation unreliable.",
+    "confidence": 0.8,
+    "suggested_fix": "Attach or link the referenced UI mockups and a step-by-step acceptance checklist (click target, popup content, required fields, validation rules, where the sub-page is stored and listed after creation). Include edge cases (permissions, naming conflicts)."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-413"],
+    "severity": "MEDIUM",
+    "explanation": "The first paragraph is unclear about which notification options should appear under which exact configuration. The second paragraph adds a long list of advanced features (multilingual, tenant customization, real-time tracking, external provider sync) without scoping which are required for this story, causing ambiguity.",
+    "confidence": 0.86,
+    "suggested_fix": "Define the exact acceptance criteria for this story: which notification options must be shown/hidden under which toggles, and which of the advanced features (if any) are in-scope. If advanced features are required, split them into separate stories with clear non-functional requirements."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-415"],
+    "severity": "MEDIUM",
+    "explanation": "Like IB2-396, the story references UI behaviors 'as per' but omits the referenced designs and detailed acceptance criteria (what fields are required, validations, exact button text/state changes). This prevents confident estimation.",
+    "confidence": 0.8,
+    "suggested_fix": "Attach the UI mockups and a clear acceptance checklist: navigation steps, popup fields, field validations, required text change from 'Done' to 'Save', and expected post-save behavior. Include permission constraints and error handling."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-420"],
+    "severity": "MEDIUM",
+    "explanation": "The intended behavior for mixed selections is contradictory/unclear: title suggests 'hide Decline' but description says Decline is still displayed as an option when selections mix. The acceptance criteria do not state whether Decline should be disabled, hidden, or apply only to applicable items.",
+    "confidence": 0.82,
+    "suggested_fix": "Clarify the expected UX and business rule for mixed selections (options: hide Decline entirely, show but disable with tooltip explaining why, allow Decline but apply only to applicable items and show results per item). Provide examples and acceptance tests for each mixed-case scenario."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-445"],
+    "severity": "MEDIUM",
+    "explanation": "The story claims the 'My Response' panel should show editable fields 'based on request settings/params' but does not list which fields, the triggering parameters, nor the display/validation rules. 'Response Comment (either rich text, or not)' is vague and lacks acceptance criteria.",
+    "confidence": 0.75,
+    "suggested_fix": "List all fields that can appear, the exact conditions under which each appears, the expected input type/validation (plain text vs rich text), and sample requests demonstrating different parameter combinations. Add explicit acceptance criteria and UI mockups if needed."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-463"],
+    "severity": "HIGH",
+    "explanation": "The story asks to 'completely remove existing facial data and related flags' but does not define the scope of 'facial data' (raw images, embeddings, training datasets, logs, audit records), the retention/backup implications, whether deletion is tenant-scoped, or legal/compliance/pen-test requirements. This has high technical and compliance risk and cannot be estimated as-written.",
+    "confidence": 0.88,
+    "suggested_fix": "Specify exactly what must be removed (flags, embeddings, model training data, metadata, backups), whether the operation is reversible, required audit trails, confirmation and authorization workflow, and compliance constraints. Include acceptance criteria for data verifiability, migration/restore impact, and testing requirements for penetration/security validation."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-78"],
+    "severity": "LOW",
+    "explanation": "The desired behavior for the delete-failure case is ambiguous ('dialog remains open(?)'), and snackbar behavior/placement/stacking is not fully specified. That ambiguity prevents a confident estimate of UI work and edge-case handling.",
+    "confidence": 0.85,
+    "suggested_fix": "Clarify expected UX for each failure case: explicitly state whether create/edit/delete dialogs/pages should remain open or close on failure, the exact snackbar copy and priority/stacking rules, and any required error detail. Add acceptance criteria and sample error scenarios for QA."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-9"],
+    "severity": "MEDIUM",
+    "explanation": "The acceptance language is vague and hedged ('should probably', 'may show', 'controls may be hidden', 'may autoplay'), leaving ambiguity about exact UI behavior, controls, autoplay rules, and accessibility/UX expectations. Team cannot reliably estimate effort or QA scope without these specifics.",
+    "confidence": 0.9,
+    "suggested_fix": "Clarify exact acceptance criteria: specify whether the MP4 preview must always render or only when conversion succeeded, whether playback controls are shown/hidden (and which controls), autoplay behavior and mobile/browser constraints, error/fallback behavior, performance requirements, and any accessibility requirements. Add example UI mocks and test cases."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-94"],
+    "severity": "MEDIUM",
+    "explanation": "The story changes collaborator selection semantics and the platform permission model (\"bypass permissions will be extended\"), but it does not specify exactly which permissions are bypassed, how conflicts with existing module permissions are resolved, audit/logging requirements, or expected security constraints and edge-cases. That makes implementation effort and QA scope unclear.",
+    "confidence": 0.78,
+    "suggested_fix": "Specify exact permission rules and boundaries: enumerate which permissions are bypassed (read, edit, download, etc.), define whether collaborators gain temporary module access or only workflow-level rights, list audit/logging and notification requirements, and add acceptance criteria covering edge cases (inactive users, users from other tenants, scoped admin roles)."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-48", "IB2-1"],
+    "severity": "MEDIUM",
+    "explanation": "[NOT_INDEPENDENT] IB2-1 mandates that all image-tagging capabilities depend on the new MCP setting for Azure image tagging. IB2-48 is a UI change that removes duplicate messaging related to image-tagging ('Image will be tagged after saving.'). Because the message is directly tied to the image-tagging behaviour that IB2-1 reconfigures (provider switch, enable/disable via MCP), IB2-48 cannot be fully accepted without the image-tagging gating/behaviour from IB2-1 being clarified or available for testing.",
+    "confidence": 0.7,
+    "suggested_fix": "Coordinate IB2-48 with IB2-1. Either complete the MCP image-tagging setting and provider migration first, or agree a testable behaviour (e.g., mock tagging pipeline or a dev toggle) so IB2-48 can be validated independently."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-190", "IB2-116", "IB2-117"],
+    "severity": "MEDIUM",
+    "explanation": "[NOT_INDEPENDENT] IB2-190 (responsive preservation of image position/size across modes) explicitly depends on users being able to resize (dragging dots) and reposition (dragging the image) the Image Widget. Those capabilities are provided by IB2-116 (resize including dragging dots) and IB2-117 (reposition by dragging). Without those implemented, IB2-190 cannot be validated or accepted.",
+    "confidence": 0.8,
+    "suggested_fix": "Implement the underlying resize/reposition stories (IB2-116, IB2-117) before IB2-190, or provide test stubs/mocks to simulate the resize/reposition behaviour for verification."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-191", "IB2-117", "IB2-189"],
+    "severity": "MEDIUM",
+    "explanation": "[NOT_INDEPENDENT] IB2-191 (Undo & Redo for resizing & repositioning) requires the resizing and repositioning interactions to exist (dragging dots to resize and dragging the image to reposition). These interactions are specified in IB2-117 and IB2-189. Without those base interactions, the undo/redo behaviour cannot be meaningfully implemented or acceptance tested.",
+    "confidence": 0.85,
+    "suggested_fix": "Deliver IB2-117 and IB2-189 first, or split IB2-191 into UI scaffolding now and the full undo/redo integration after the base resize/reposition stories are done."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-326", "IB2-318", "IB2-299"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-326 (Ask button behaviour in Alpha) explicitly states it should be implemented after AI Assist visibility rules and the \"Limit to current view\" search-scope logic are available. Those behaviours are defined by IB2-318 (Alpha Main Admin access visibility) and IB2-299 (\"Limit to current view\" checkbox). Without those prerequisites the Ask button cannot be shown/hidden correctly or wired to the search-scope control, so IB2-326 is not independently testable or deliverable.",
+    "confidence": 0.9,
+    "suggested_fix": "Make IB2-318 and IB2-299 sprint priorities before IB2-326, or split IB2-326 into a purely UI stub that is behind a temporary dev toggle and a follow-up integration story that wires to IB2-318/IB2-299."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-9", "IB2-3"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-9 (preview GIF/Lottie converted MP4 on the Share screen) is explicitly gated by the MCP feature flag described in IB2-3: IB2-3 states that when the \u201cResources - GIF/Lottie Preview Support\u201d setting is disabled, no GIF/Lottie preview features should be available. Therefore IB2-9 cannot be meaningfully delivered or acceptance-tested unless the MCP setting from IB2-3 exists and is enabled (or a dev-mode equivalent is available).",
+    "confidence": 0.85,
+    "suggested_fix": "Schedule IB2-3 (create the MCP toggle) to be completed before or in the same sprint as IB2-9. Alternatively implement a temporary dev-mode toggle or mock provider to allow IB2-9 to be developed and tested independently."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-326"],
+    "severity": "MEDIUM",
+    "explanation": "The story explicitly states it 'should be implemented after the AI Assist visibility rules and the \u201cLimit to current view\u201d search-scope logic are available', creating a hard dependency on other stories. It cannot be meaningfully implemented or tested on its own until those pre-reqs exist.",
+    "confidence": 0.95,
+    "suggested_fix": "Mark this story as dependent (blocker) on the AI Assist visibility and search-scope stories or combine the required pre-req work into a single vertical slice. Alternatively, split this into a small story for the Ask-button UI and a follow-up story that wires it to permissions and scope logic."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-366"],
+    "severity": "MEDIUM",
+    "explanation": "The story states it 'should wait until IB-382 completed' (simplified header state for public users), so it depends on IB-382 being done before its randomized presentation behavior can be applied/tested.",
+    "confidence": 0.9,
+    "suggested_fix": "Either remove the hard dependency by making the success-state changes tolerant of both header states, or explicitly link this story to IB-382 as a follow-up task and add acceptance criteria gating completion on IB-382."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-41", "IB2-44"],
+    "severity": "MEDIUM",
+    "explanation": "[NOT_INDEPENDENT] IB2-41 requires the Request Status section to dynamically reflect the currently viewed Stage and update when users navigate between available Stages. That dynamic staged-navigation behaviour is defined by IB2-44 (view all Pages and specific Stages on the record view). Without IB2-44 the dynamic, stage-aware portion of IB2-41 cannot be implemented or acceptance-tested meaningfully.",
+    "confidence": 0.8,
+    "suggested_fix": "Implement IB2-44 (staged record navigation/view rules) prior to or in the same increment as IB2-41, or scope IB2-41 initially to show static status information with a follow-up story to add stage-aware dynamic updates."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-1"],
+    "severity": "MEDIUM",
+    "explanation": "The story bundles many distinct deliverables and cross-cutting work (new MCP setting, provider switch behavior, migration of Imagga configs and usage history, billing/quota updates, analytics/reporting, notifications, API/permission updates, rollout/documentation). This is an epic-sized scope unlikely to be completed and validated within a single sprint.",
+    "confidence": 0.95,
+    "suggested_fix": "Split into smaller stories: (a) Add 'Enable Image Tagging (Azure)' setting and provider-selection behavior, (b) Implement Azure processing limits UI (images and videos) and rename video units, (c) Migrate Imagga configs & usage history (migration runbook + verification), (d) Update billing/quota tracking, (e) Add analytics/reporting, (f) Add notifications for limits/failures, (g) Update APIs/permissions/docs and rollout config. Create an explicit migration/rollback acceptance criteria and a sequencing plan."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-141"],
+    "severity": "HIGH",
+    "explanation": "The story bundles multiple large concerns: updating report content, renaming, removing many dev-server entries, historical data migration, multi-environment aggregation, backward compatibility, and automated export synchronization. This is broad and likely spans multiple teams, data migration effort and verification\u2014too large for a single sprint story.",
+    "confidence": 0.92,
+    "suggested_fix": "Split into smaller stories: (a) add Question/Answer/Rating fields to the report and rename it; (b) implement dev-server filtering; (c) implement historical data migration (separate migration task with data-volume estimates); (d) implement multi-environment aggregation; (e) add automated export/report synchronization. Define acceptance criteria and success metrics for each."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-383"],
+    "severity": "HIGH",
+    "explanation": "The story bundles many large, distinct requirements (drag-and-drop move, migrate child references, permissions, update URLs/breadcrumbs/SEO, undo/redo, version history, audit logging, notifications, workflow updates, cross-API/mobile/export synchronization). This is an epic-sized scope unlikely to be completed in a single sprint.",
+    "confidence": 0.98,
+    "suggested_fix": "Split into multiple smaller stories that each deliver a vertical slice: (a) basic move operation with child relocation and UI update, (b) persistence and hierarchy ordering, (c) URL/breadcrumb/SEO updates and redirects, (d) permission/ownership migration, (e) notifications and workflow updates, (f) undo/redo and version history, (g) audit logging and API sync. Define acceptance criteria for each split story."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-395"],
+    "severity": "HIGH",
+    "explanation": "The story bundles multiple large capabilities (view/configure sub-pages, permission propagation, hierarchical inheritance, multi-level propagation, approval workflows, audit history, and cross-platform synchronization). This is an epic-sized scope that cannot reasonably be completed and validated in a single sprint.",
+    "confidence": 0.9,
+    "suggested_fix": "Break into smaller stories (e.g., view/configure sub-pages; implement permission propagation rules for one level; add multi-level inheritance; add audit history; integrate approval workflow changes; cross-platform sync as a separate integration epic). For each child story include clear acceptance criteria and success tests."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-413"],
+    "severity": "HIGH",
+    "explanation": "The described work references many cross-cutting capabilities (global template inheritance, multilingual generation, tenant-level customization, delivery tracking, approval workflows, synchronization with external systems). Together these represent multiple large concerns and integrations that cannot be completed in a single story.",
+    "confidence": 0.87,
+    "suggested_fix": "Decompose into focused stories (e.g., add grouped-request notification toggle UI; implement multilingual template rendering for notifications; implement tenant-level customization; add delivery tracking). For each, provide acceptance criteria and any required API contracts."
+  },
+  {
+    "type": "NOT_VALUABLE",
+    "story_keys": ["IB2-107"],
+    "severity": "HIGH",
+    "explanation": "The requested behaviour describes the Page Category name briefly disappearing and reappearing each time a Page is viewed (a UI flicker). That is either describing an undesirable visual glitch or asking for a transient, confusing UI effect with no clear user benefit.",
+    "confidence": 0.82,
+    "suggested_fix": "Clarify the user problem being solved. If the intent is to indicate reload/state change, replace the flicker requirement with an explicit, accessible loading or state-change affordance (e.g., subtle skeleton, spinner, or highlighted selection change) and add acceptance criteria that avoid visual instability."
+  },
+  {
+    "type": "NOT_VALUABLE",
+    "story_keys": ["IB2-170"],
+    "severity": "HIGH",
+    "explanation": "The story requests integrated fields to 'briefly disappear and reappear' every time they are displayed. Flashing/hiding UI elements by default is user\u2011hostile, confusing, and provides no stated user or business benefit \u2014 it appears arbitrary and likely harms usability.",
+    "confidence": 0.85,
+    "suggested_fix": "Clarify the user problem that this behaviour is intended to solve. If the goal is to refresh data, specify a non\u2011disruptive visual pattern (e.g., spinner, subtle skeleton loading, or smooth update animation) and exact timing. If blinking is required for accessibility or attention, justify it and provide acceptance criteria covering duration, frequency, and opt\u2011out."
+  },
+  {
+    "type": "NOT_VALUABLE",
+    "story_keys": ["IB2-172"],
+    "severity": "HIGH",
+    "explanation": "The acceptance criteria mandate that on delete failure the confirmation dialog must close and 'No snackbar error message should be displayed'. Hiding failure feedback leaves users unaware that the delete failed and prevents recovery \u2014 this is user\u2011hostile and undermines reliability/observability.",
+    "confidence": 0.85,
+    "suggested_fix": "Revisit the UX decision: specify a clear failure handling policy. Typical fixes: keep the dialog open and show an inline error with retry, or close the dialog but display a clear error notification with retry/undo options. Add acceptance criteria showing exact messaging and recovery steps."
+  },
+  {
+    "type": "NOT_VALUABLE",
+    "story_keys": ["IB2-366"],
+    "severity": "HIGH",
+    "explanation": "The core requested outcome is randomized confirmation presentation (tick icon size, wording position/style) on each page load. Randomized, inconsistent confirmation UI introduces confusion and reduces predictability/usability; it appears decorative and not solving a user or business problem.",
+    "confidence": 0.95,
+    "suggested_fix": "Remove the randomization requirement. Use a consistent, accessible confirmation design that communicates success clearly. If variation is desired for A/B testing or branding, define the measurable objective, success metrics, and guardrails (accessibility, recognizability) and implement it as an experiment rather than deterministic product behavior."
+  },
+  {
+    "type": "NOT_VALUABLE",
+    "story_keys": ["IB2-447"],
+    "severity": "MEDIUM",
+    "explanation": "Requiring users to hover over the Submit & Continue button before Bulk Submit becomes available introduces arbitrary friction. Unless there is a clear, documented reason (e.g., accessibility, preventing accidental submission with evidence), this UX pattern reduces efficiency and conflicts with the product goal of reducing friction.",
+    "confidence": 0.86,
+    "suggested_fix": "Either remove the hover requirement or justify it with specific user-safety requirements. If prevention of accidental submissions is the goal, consider alternatives that are less error-prone (confirmation modal, undo capability, explicit enable step, or a secondary confirmation checkbox). If reuse of existing behavior is required, document the rationale and include accessibility acceptance criteria."
+  }
+]

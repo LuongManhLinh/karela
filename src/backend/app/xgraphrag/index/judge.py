@@ -1,7 +1,7 @@
 import json
 from typing import Optional, List, Dict
 from pydantic import BaseModel, Field
-from llm.dynamic_agent import GenimiDynamicAgent
+from llm.gemini_dynamic_agent import GenimiDynamicAgent
 from common.configs import LlmConfig
 from langchain_core.messages import HumanMessage
 from ..logger import Logger

@@ -1,0 +1,100 @@
+IB2-1: {'Digital Asset Management'}
+IB2-2: {'Digital Asset Management'}
+IB2-3: {'Digital Asset Management'}
+IB2-9: {'Digital Asset Management'}
+IB2-15: {'Workflow & Approvals'}
+IB2-20: {'Workflow & Approvals'}
+IB2-21: {'User Experience & Platform Core'}
+IB2-27: {'Workflow & Approvals'}
+IB2-41: {'Workflow & Approvals'}
+IB2-44: {'Workflow & Approvals'}
+IB2-48: {'User Experience & Platform Core'}
+IB2-51: {'Page Builder'}
+IB2-52: {'Page Builder'}
+IB2-53: {'Page Builder'}
+IB2-74: {'Workflow & Approvals'}
+IB2-75: {'User Experience & Platform Core', 'Workflow & Approvals'}
+IB2-78: {'User Experience & Platform Core', 'Platform Administration & Integrations'}
+IB2-80: {'User Experience & Platform Core', 'Page Builder'}
+IB2-82: {'Workflow & Approvals'}
+IB2-83: {'Workflow & Approvals'}
+IB2-87: {'User Experience & Platform Core'}
+IB2-93: {'User Experience & Platform Core'}
+IB2-94: {'Workflow & Approvals'}
+IB2-105: {'Page Builder'}
+IB2-107: {'Page Builder'}
+IB2-108: {'Page Builder'}
+IB2-109: {'Page Builder'}
+IB2-111: {'Page Builder'}
+IB2-115: {'Page Builder'}
+IB2-116: {'Page Builder'}
+IB2-117: {'Page Builder'}
+IB2-120: {'Workflow & Approvals'}
+IB2-129: {'Platform Administration & Integrations'}
+IB2-141: {'Reporting & Analytics'}
+IB2-143: {'User Experience & Platform Core', 'External Collaboration & Public Portals'}
+IB2-145: {'Workflow & Approvals'}
+IB2-147: {'Workflow & Approvals'}
+IB2-148: {'User Authentication'}
+IB2-158: {'Notification'}
+IB2-163: {'Page Builder', 'Platform Administration & Integrations'}
+IB2-164: {'Page Builder'}
+IB2-167: {'User Experience & Platform Core'}
+IB2-170: {'User Experience & Platform Core'}
+IB2-172: {'Platform Administration & Integrations'}
+IB2-186: {'Page Builder'}
+IB2-189: {'Page Builder'}
+IB2-190: {'Page Builder'}
+IB2-191: {'Page Builder'}
+IB2-192: {'Page Builder'}
+IB2-208: {'Page Builder'}
+IB2-211: {'Reporting & Analytics', 'Page Builder'}
+IB2-213: {'Page Builder'}
+IB2-215: {'Page Builder'}
+IB2-224: {'User Experience & Platform Core'}
+IB2-225: {'Page Builder'}
+IB2-233: {'Page Builder'}
+IB2-240: {'User Experience & Platform Core'}
+IB2-245: {'User Experience & Platform Core'}
+IB2-248: {'Reporting & Analytics', 'Page Builder'}
+IB2-256: {'Page Builder'}
+IB2-273: {'User Experience & Platform Core'}
+IB2-279: {'User Experience & Platform Core'}
+IB2-281: {'Digital Asset Management', 'Page Builder'}
+IB2-286: {'Page Builder'}
+IB2-299: {'Artificial Intelligence'}
+IB2-305: {'Page Builder'}
+IB2-308: {'User Experience & Platform Core', 'Page Builder'}
+IB2-318: {'Artificial Intelligence', 'Platform Administration & Integrations'}
+IB2-323: {'Artificial Intelligence'}
+IB2-326: {'Artificial Intelligence', 'Platform Administration & Integrations'}
+IB2-337: {'Page Builder'}
+IB2-347: {'Page Builder'}
+IB2-366: {'User Experience & Platform Core', 'External Collaboration & Public Portals'}
+IB2-367: {'Notification & Communication'}
+IB2-382: {'User Experience & Platform Core', 'External Collaboration & Public Portals'}
+IB2-383: {'Page Builder'}
+IB2-385: {'Page Builder'}
+IB2-387: {'Digital Asset Management', 'Page Builder'}
+IB2-388: {'Digital Asset Management', 'Page Builder'}
+IB2-389: {'Page Builder', 'Portal & Site Management'}
+IB2-392: {'Workflow & Approvals'}
+IB2-394: {'Page Builder'}
+IB2-395: {'Page Builder'}
+IB2-396: {'Page Builder'}
+IB2-413: {'Notification'}
+IB2-415: {'Page Builder'}
+IB2-420: {'User Experience & Platform Core', 'Workflow & Approvals'}
+IB2-429: {'Page Builder'}
+IB2-436: {'Digital Asset Management'}
+IB2-445: {'User Experience & Platform Core'}
+IB2-447: {'User Experience & Platform Core'}
+IB2-448: {'User Experience & Platform Core'}
+IB2-450: {'User Experience & Platform Core', 'Workflow & Approvals'}
+IB2-455: {'User Experience & Platform Core', 'Workflow & Approvals'}
+IB2-463: {'Portal & Site Management'}
+IB2-465: {'Digital Asset Management', 'Page Builder'}
+IB2-476: {'Portal & Site Management'}
+IB2-479: {'Notification'}
+IB2-497: {'Workflow & Approvals'}
+IB2-499: {'Reporting & Analytics'}

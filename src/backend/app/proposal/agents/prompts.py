@@ -2,6 +2,7 @@ from app.analysis.agents.defect_definitions import (
     SPLITTER_DEFECTS,
     REFINER_DEFECTS,
     RESOLVER_DEFECTS,
+    ALL_DEFECT_DEFINITIONS,
 )
 
 _BASE_SYSTEM_PROMPT = """You are an **Expert Agile Solution Architect** and **Jira Administrator**.
@@ -169,22 +170,18 @@ Synthesize technical **Fix Proposals** for Jira User Stories to resolve the iden
 # Validator prompt for MEDIUM mode
 # ---------------------------------------------------------------------------
 
-VALIDATOR_SYSTEM_PROMPT = """You are an **Expert Agile Solution Architect** and **Jira Administrator**.
-Your goal is to validate a set of proposed User Stories to ensure they are logically consistent, independent, and do not introduce new defects (such as Circular Dependencies, Conflicts, or Duplication).
+VALIDATOR_SYSTEM_PROMPT = f"""You are an **Expert Agile Solution Architect** and **Jira Administrator**.
+Your goal is to validate a set of proposed User Stories to ensure they are logically consistent, independent, and do not introduce new defects. You will analyze the proposed stories against a comprehensive checklist of Requirement Engineering defects and output any issues you find in a structured format.
 
 ## **INPUT CONTEXT**
 *   **Proposed Stories:** The newly drafted user stories and any existing stories that were updated.
 *   **Documentation:** (Optional) Project scope and style guides.
 
-## **YOUR MISSION**
-Analyze the proposed stories as a whole system. Look for the following defects:
-1.  **Circular Dependencies / Not Independent:** Does Story A depend on Story B, while Story B depends on Story A? 
-2.  **Conflict:** Do two stories contradict each other in their rules or acceptance criteria?
-3.  **Duplication:** Do two stories cover the exact same scope or functionality?
+## **DEFECT CHECKLIST**
+{ALL_DEFECT_DEFINITIONS}
 
 ## **ACTION GUIDELINES**
 If you find ANY of the above defects in the proposed stories, you must output a list of defects using the JSON schema provided. 
-*   Use standard defect types: "NOT_INDEPENDENT", "CONFLICT", "DUPLICATION".
 *   In `story_keys`, list the keys of the proposed stories involved in the defect.
 *   If the proposals are completely clean and free of these defects, return an empty list `[]` for defects.
 """

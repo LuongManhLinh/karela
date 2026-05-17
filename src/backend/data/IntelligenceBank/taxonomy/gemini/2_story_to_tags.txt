@@ -1,0 +1,100 @@
+IB2-1: {'Platform Configuration', 'Digital Asset Management'}
+IB2-2: {'Platform Configuration', 'Digital Asset Management'}
+IB2-3: {'Platform Configuration', 'Digital Asset Management'}
+IB2-9: {'Digital Asset Management'}
+IB2-15: {'User Experience & UI', 'Workflow & Approvals'}
+IB2-20: {'Platform Configuration', 'User Experience & UI'}
+IB2-21: {'Workflow & Approvals'}
+IB2-27: {'User Experience & UI', 'Workflow & Approvals'}
+IB2-41: {'User Experience & UI', 'Workflow & Approvals'}
+IB2-44: {'User Experience & UI', 'Workflow & Approvals'}
+IB2-48: {'User Experience & UI'}
+IB2-51: {'Smart Page Builder'}
+IB2-52: {'Smart Page Builder'}
+IB2-53: {'Smart Page Builder'}
+IB2-74: {'Platform Configuration', 'User Experience & UI'}
+IB2-75: {'Platform Configuration', 'Workflow & Approvals'}
+IB2-78: {'Platform Configuration', 'User Experience & UI', 'Notification'}
+IB2-80: {'User Experience & UI', 'Smart Page Builder'}
+IB2-82: {'User Experience & UI', 'Smart Page Builder'}
+IB2-83: {'Smart Page Builder'}
+IB2-87: {'User Experience & UI'}
+IB2-93: {'User Experience & UI'}
+IB2-94: {'Workflow & Approvals'}
+IB2-105: {'User Experience & UI', 'Smart Page Builder'}
+IB2-107: {'User Experience & UI', 'Smart Page Builder'}
+IB2-108: {'Smart Page Builder'}
+IB2-109: {'Platform Configuration'}
+IB2-111: {'User Experience & UI', 'Smart Page Builder'}
+IB2-115: {'User Experience & UI', 'Smart Page Builder'}
+IB2-116: {'User Experience & UI', 'Smart Page Builder'}
+IB2-117: {'User Experience & UI', 'Smart Page Builder'}
+IB2-120: {'User Experience & UI', 'Workflow & Approvals'}
+IB2-129: {'Platform Configuration', 'User Experience & UI'}
+IB2-141: {'Reporting & Analytics'}
+IB2-143: {'Security', 'User Experience & UI'}
+IB2-145: {'User Experience & UI'}
+IB2-147: {'Workflow & Approvals'}
+IB2-148: {'Security', 'User Experience & UI'}
+IB2-158: {'Notifications & Communication'}
+IB2-163: {'Platform Configuration', 'User Experience & UI', 'Smart Page Builder'}
+IB2-164: {'Platform Configuration', 'Smart Page Builder'}
+IB2-167: {'User Experience & UI'}
+IB2-170: {'User Experience & UI'}
+IB2-172: {'Platform Configuration', 'User Experience & UI'}
+IB2-186: {'Smart Page Builder'}
+IB2-189: {'Smart Page Builder'}
+IB2-190: {'Smart Page Builder'}
+IB2-191: {'User Experience & UI', 'Smart Page Builder'}
+IB2-192: {'Smart Page Builder'}
+IB2-208: {'User Experience & UI', 'Smart Page Builder'}
+IB2-211: {'Reporting & Analytics', 'Smart Page Builder'}
+IB2-213: {'Smart Page Builder'}
+IB2-215: {'Smart Page Builder'}
+IB2-224: {'User Experience & UI', 'Workflow & Approvals'}
+IB2-225: {'Smart Page Builder'}
+IB2-233: {'Smart Page Builder'}
+IB2-240: {'Workflow & Approvals'}
+IB2-245: {'User Experience & UI'}
+IB2-248: {'Reporting & Analytics', 'Smart Page Builder'}
+IB2-256: {'Smart Page Builder'}
+IB2-273: {'User Experience & UI'}
+IB2-279: {'User Experience & UI'}
+IB2-281: {'Digital Asset Management', 'Smart Page Builder'}
+IB2-286: {'Smart Page Builder'}
+IB2-299: {'Digital Asset Management', 'User Experience & UI'}
+IB2-305: {'Smart Page Builder'}
+IB2-308: {'User Experience & UI', 'Smart Page Builder'}
+IB2-318: {'Security'}
+IB2-323: {'Digital Asset Management', 'User Experience & UI'}
+IB2-326: {'Security', 'Digital Asset Management', 'User Experience & UI'}
+IB2-337: {'Smart Page Builder'}
+IB2-347: {'Smart Page Builder'}
+IB2-366: {'User Experience & UI'}
+IB2-367: {'Workflow & Approvals', 'Notification'}
+IB2-382: {'Security', 'User Experience & UI'}
+IB2-383: {'Smart Page Builder'}
+IB2-385: {'User Experience & UI', 'Smart Page Builder'}
+IB2-387: {'Security', 'Digital Asset Management', 'Smart Page Builder'}
+IB2-388: {'Security', 'Digital Asset Management', 'Smart Page Builder'}
+IB2-389: {'Platform Configuration', 'Smart Page Builder'}
+IB2-392: {'Workflow & Approvals'}
+IB2-394: {'Smart Page Builder'}
+IB2-395: {'Security', 'Smart Page Builder'}
+IB2-396: {'Smart Page Builder'}
+IB2-413: {'Notification'}
+IB2-415: {'Smart Page Builder'}
+IB2-420: {'Workflow & Approvals'}
+IB2-429: {'Smart Page Builder'}
+IB2-436: {'Digital Asset Management', 'Smart Page Builder'}
+IB2-445: {'User Experience & UI'}
+IB2-447: {'User Experience & UI', 'Workflow & Approvals'}
+IB2-448: {'Workflow & Approvals'}
+IB2-450: {'Workflow & Approvals'}
+IB2-455: {'User Experience & UI', 'Workflow & Approvals'}
+IB2-463: {'Platform Configuration'}
+IB2-465: {'Digital Asset Management', 'Smart Page Builder'}
+IB2-476: {'Platform Configuration'}
+IB2-479: {'Notifications & Communication'}
+IB2-497: {'Platform Configuration', 'Workflow & Approvals'}
+IB2-499: {'Reporting & Analytics'}

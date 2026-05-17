@@ -88,6 +88,7 @@ export interface ProjectInfo {
   chat_count: number;
   proposal_count: number;
   ac_count: number;
+  story_count: number;
 }
 
 export interface ConnectionDashboardDto extends DashboardDto {

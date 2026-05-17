@@ -478,7 +478,10 @@ class JiraService(JiraBaseService):
         )
 
     def fetch_project_dtos(
-        self, connection_id: str, local: bool = True
+        self,
+        connection_id: str,
+        project_keys: list[str] | None = None,
+        local: bool = True,
     ) -> list[ProjectDto]:
         connection = (
             self.db.query(Connection)
@@ -492,7 +495,7 @@ class JiraService(JiraBaseService):
             raise ValueError("Connection not found")
 
         if local:
-            projects = (
+            query = (
                 self.db.query(
                     Project.id,
                     Project.key,
@@ -504,8 +507,10 @@ class JiraService(JiraBaseService):
                 .outerjoin(Story, Story.project_id == Project.id)
                 .group_by(Project.id)
                 .order_by(Project.key)
-                .all()
             )
+            if project_keys:
+                query = query.filter(Project.key.in_(project_keys))
+            projects = query.all()
             return [
                 ProjectDto(
                     id=prod.id,
@@ -521,7 +526,7 @@ class JiraService(JiraBaseService):
             connection,
             JiraClient.fetch_projects,
             cloud_id=connection.id,
-            project_keys=["RD", "VBS"],
+            project_keys=project_keys,
         )
 
     def fetch_story_summaries(
@@ -573,6 +578,21 @@ class JiraService(JiraBaseService):
                 local=False,
             )
         ]
+
+    def get_project_description(
+        self, connection_id: str, project_key: str
+    ) -> Optional[str]:
+        """Fetch project description from local cache or Jira"""
+        project_desc = (
+            self.db.query(Project.description)
+            .filter(
+                Project.connection_id == connection_id,
+                Project.key == project_key,
+            )
+            .scalar()
+        )
+
+        return project_desc
 
     def fetch_all_projects_checked_sync(
         self, connection_id: str
@@ -930,17 +950,11 @@ class JiraService(JiraBaseService):
             if issue_type_name == "Story":
                 match payload.webhookEvent:
                     case "jira:issue_created":
-                        self._on_story_create(
-                            connection_id=connection_id, issue=issue
-                        )
+                        self._on_story_create(connection_id=connection_id, issue=issue)
                     case "jira:issue_updated":
-                        self._on_story_update(
-                            connection_id=connection_id, issue=issue
-                        )
+                        self._on_story_update(connection_id=connection_id, issue=issue)
                     case "jira:issue_deleted":
-                        self._on_story_delete(
-                            connection_id=connection_id, issue=issue
-                        )
+                        self._on_story_delete(connection_id=connection_id, issue=issue)
             else:
                 description = fields.get("description")
                 print(f"Description:\n{description}")

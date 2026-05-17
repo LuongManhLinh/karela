@@ -1,0 +1,55 @@
+defect_count:
+  NOT_VALUABLE: 5
+  NOT_ESTIMABLE: 10
+  NOT_SMALL: 5
+
+  DUPLICATION: 5
+  CONFLICT: 5
+
+  NOT_INDEPENDENT: 5
+
+NOT_VALUABLE: 
+  - 107 # F
+  - 115 # F
+  - 170 # F
+  - 366 # F
+  - 447 #
+  
+NOT_ESTIMABLE: 
+  - 3   # 
+  - 78  # 
+  - 367 # F
+  - 445 # F
+  - 413 # F
+  - 9   # F
+  - 51  # 
+  - 53  # 
+  - 164 # F
+
+NOT_SMALL: 
+  - 1   # F
+  - 383 # F
+  - 395 # F
+  - 141 # F
+  - 413 # F
+
+DUPLICATION:
+  - [117, 189] # F
+  - [215, 385] # F
+  - [225, 396] # F
+  - [233, 429] # F
+  - [240, 448] # F
+
+CONFLICT:
+  - [164, 389] # F
+  - [80, 337]  # F
+  - [116, 308] # F
+  - [78, 172]  # F
+  - [463, 476] # F
+
+NOT_INDEPENDENT:
+  - [326, 299, 323] # F
+  - [326, 318]      # F
+  - [41, 44]        #
+  - [53, 51, 52]    # 
+  - [366, 382]      # F

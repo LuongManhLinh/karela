@@ -12,21 +12,26 @@ class ProposalContent(BaseModel):
         description="The type of action for the proposal content.",
     )
     story_key: Optional[str] = Field(
+        default=None,
         description="The story key for UPDATE or DELETE actions. Null for CREATE actions.",
     )
     original_story_key: Optional[str] = Field(
+        default=None,
         description=(
             "The original story key that this proposal content derives from."
             "Used only for CREATE actions, if the proposal is generated from an existing story (e.g., splitting)."
         ),
     )
     summary: Optional[str] = Field(
+        default=None,
         description="A brief summary of the User Story. Only valid for CREATE or UPDATE actions.",
     )
     description: Optional[str] = Field(
+        default=None,
         description="A detailed description of the User Story. Only valid for CREATE or UPDATE actions. ",
     )
     explanation: Optional[str] = Field(
+        default=None,
         description="An explanation of the rationale behind the proposed action.",
     )
 
@@ -57,6 +62,7 @@ class ProposalOutput(BaseModel):
     """Schema for the output of the proposal generator."""
 
     proposals: list[Proposal] = Field(
+        default=[],
         description="List of generated proposals to solve all the defects.",
     )
 

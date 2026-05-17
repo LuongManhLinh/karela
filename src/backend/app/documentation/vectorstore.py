@@ -1,10 +1,13 @@
+import concurrent.futures
 from langchain_core.documents import Document
 
-from common.vectorstore import default_vectorstore
+from common.vectorstore import create_vectorstore
+
+import httpx
 
 
 class DocumentationVectorStore:
-    def __init__(self, vector_store=default_vectorstore):
+    def __init__(self, vector_store=create_vectorstore()):
         self.vector_store = vector_store
 
     def add_chunks(
@@ -46,10 +49,7 @@ class DocumentationVectorStore:
         )
 
     def retrieve_similar(
-        self,
-        query: str,
-        documentation_id: str | None = None,
-        k: int = 5,
+        self, query: str, documentation_id: str | None = None, k: int = 5
     ) -> list[dict]:
         """Retrieve similar document chunks for a query.
 
@@ -68,13 +68,26 @@ class DocumentationVectorStore:
         if documentation_id:
             and_conditions.append({"documentation_id": {"$eq": documentation_id}})
 
-        where_filter = {"$and": and_conditions} if and_conditions else None
+        if len(and_conditions) > 1:
+            where_filter = {"$and": and_conditions}
+        elif len(and_conditions) == 1:
+            where_filter = and_conditions[0]
+        else:
+            where_filter = None
 
-        results = self.vector_store.similarity_search_with_relevance_scores(
-            query=query,
-            k=k,
-            filter=where_filter,
-        )
+        try:
+            # The underlying httpx client will forcefully abort if this takes > 5s
+            results = self.vector_store.similarity_search_with_relevance_scores(
+                query=query,
+                k=k,
+                filter=where_filter,
+            )
+        except (httpx.TimeoutException, httpx.ConnectTimeout, httpx.ReadTimeout) as e:
+            print(f"| Warning: Chroma network request timed out! Details: {e}")
+            return [{"error": "Vector store retrieval timed out"}]
+        except Exception as e:
+            print(f"| Error: Unexpected error querying Chroma: {e}")
+            return [{"error": f"Internal vector store error: {str(e)} "}]
 
         return [
             {

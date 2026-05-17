@@ -39,6 +39,7 @@ class ProjectInfo(BaseModel):
     proposal_count: int = 0
     ac_count: int = 0
     defect_count: int = 0
+    story_count: int = 0
 
 
 class ConnectionDashboardDto(DashboardDto):

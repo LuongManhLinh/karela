@@ -36,6 +36,14 @@ class LlmConfig:
     GEMINI_API_MAX_RETRY = int(os.getenv("GEMINI_API_MAX_RETRY", "3"))
     GEMINI_API_RETRY_DELAY_MS = int(os.getenv("GEMINI_API_RETRY_DELAY_MS", "1000"))
 
+    OPENAI_API_KEYS = os.getenv("OPENAI_API_KEYS", "").split(",")
+    OPENAI_DEFECT_MODEL = os.getenv("OPENAI_DEFECT_MODEL", "gpt-5-mini")
+    OPENAI_CHAT_MODEL = os.getenv("OPENAI_CHAT_MODEL", "gpt-5-mini")
+    OPENAI_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-5-mini")
+    OPENAI_TAXONOMY_MODEL = os.getenv("OPENAI_TAXONOMY_MODEL", "gpt-5-mini")
+    OPENAI_API_MAX_RETRY = int(os.getenv("OPENAI_API_MAX_RETRY", "3"))
+    OPENAI_API_RETRY_DELAY_MS = int(os.getenv("OPENAI_API_RETRY_DELAY_MS", "1000"))
+
 
 class OpenRouterConfig:
     OPENROUTER_API_KEYS = os.getenv("OPENROUTER_API_KEYS", "").split(",")

@@ -18,7 +18,7 @@ from app.connection.jira.schemas import IssueUpdate, StoryDto
 from common.configs import LlmConfig
 from utils.markdown_adf_bridge import md_to_adf
 
-from llm.dynamic_agent import GenimiDynamicAgent
+from llm.gemini_dynamic_agent import GenimiDynamicAgent
 from langchain_core.messages import SystemMessage, HumanMessage
 from app.documentation.services import DocumentationService
 from app.preference.services import PreferenceService
@@ -216,9 +216,6 @@ class ACService:
                 connection_id=connection_id,
                 project_key=project_key,
                 extra_instruction=prefrence.gen_ac_guidelines if prefrence else None,
-                initial_messages=self.documentation_service.simulate_list_docs_messages(
-                    connection_id=connection_id, project_key=project_key
-                ),
             )
         else:
             content = (

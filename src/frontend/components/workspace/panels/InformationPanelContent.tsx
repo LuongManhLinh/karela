@@ -1,9 +1,10 @@
 "use client";
 
 import React from "react";
-import { Box, Typography, Divider, Paper } from "@mui/material";
+import { Box, Typography, Divider, Paper, Stack, Switch } from "@mui/material";
 import { useTranslations } from "next-intl";
 import type { StoryDto } from "@/types/connection";
+import { MarkdownMessage } from "@/components/chat/MarkdownMessage";
 
 interface InformationPanelContentProps {
   story: StoryDto | null;
@@ -14,6 +15,8 @@ export const InformationPanelContent: React.FC<
   InformationPanelContentProps
 > = ({ story, loading }) => {
   const t = useTranslations("workspace.WorkspacePage");
+
+  const [renderMarkdown, setRenderMarkdown] = React.useState(false);
 
   if (loading) {
     return (
@@ -32,18 +35,18 @@ export const InformationPanelContent: React.FC<
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 4, px: 2 }}>
       {/* Summary Section */}
       <Box>
         <Typography variant="subtitle2" fontWeight={600} color="text.secondary">
           {t("summary")}
         </Typography>
         <Paper
-          variant="outlined"
+          elevation={2}
           sx={{
             p: 2,
             mt: 1,
-            bgcolor: "background.default",
+            bgcolor: "surfaceContainer",
           }}
         >
           <Typography variant="body1">
@@ -52,32 +55,57 @@ export const InformationPanelContent: React.FC<
         </Paper>
       </Box>
 
-      <Divider />
-
       {/* Description Section */}
       <Box>
-        <Typography variant="subtitle2" fontWeight={600} color="text.secondary">
-          {t("description")}
-        </Typography>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <Typography
+            variant="subtitle2"
+            fontWeight={600}
+            color="text.secondary"
+          >
+            {t("description")}
+          </Typography>
+          <Box>
+            <Typography variant="caption" color="text.secondary" sx={{ mr: 1 }}>
+              Markdown
+            </Typography>
+            <Switch
+              checked={renderMarkdown}
+              onChange={(_e, checked) => setRenderMarkdown(checked)}
+              color="primary"
+              size="small"
+            />
+          </Box>
+        </Stack>
         <Paper
-          variant="outlined"
+          elevation={2}
           sx={{
             p: 2,
             mt: 1,
-            bgcolor: "background.default",
-            maxHeight: 300,
+            bgcolor: "surfaceContainer",
+
             overflow: "auto",
           }}
         >
-          <Typography
-            variant="body2"
-            sx={{
-              whiteSpace: "pre-wrap",
-              wordBreak: "break-word",
-            }}
-          >
-            {story.description || t("noDescription")}
-          </Typography>
+          {renderMarkdown ? (
+            <MarkdownMessage
+              content={story.description || t("noDescription")}
+            />
+          ) : (
+            <Typography
+              variant="body2"
+              sx={{
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
+              }}
+            >
+              {story.description || t("noDescription")}
+            </Typography>
+          )}
         </Paper>
       </Box>
     </Box>

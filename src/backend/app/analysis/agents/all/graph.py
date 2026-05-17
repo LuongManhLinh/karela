@@ -17,7 +17,8 @@ from ..nodes import (
     run_dependency_matrix_analyzer,
 )
 
-from app.taxonomy.query import get_project_stories_tags
+from app.taxonomy.services.query import get_project_stories_tags
+from natsort import natsorted
 
 
 def build_all_graph():
@@ -27,6 +28,7 @@ def build_all_graph():
     context_agent = build_context_gatherer_agent()
     self_defect_agent = build_self_defect_agent()
     pairwise_agent = build_pairwise_defect_agent(targeted=True)
+    pairwise_group_agent = build_pairwise_defect_agent(targeted=True, grouped=True)
     validator_agent = build_validator_agent()
     dependency_matrix_agent = build_dependency_matrix_agent()
 
@@ -72,7 +74,7 @@ def build_all_graph():
         bucket_groups = []
         checked_pairs = set()
 
-        for key in sorted(key_to_story.keys()):
+        for key in natsorted(key_to_story.keys()):
             story = key_to_story[key]
             all_stories.append(story)
 
@@ -178,7 +180,7 @@ def build_all_graph():
 
         context = runtime.context
         defects = run_pairwise_defect_analyzer(
-            agent=pairwise_agent,
+            agent=pairwise_group_agent if context.group_story else pairwise_agent,
             buckets=buckets,
             project_context=project_context,
             group=context.group_story,
@@ -191,15 +193,21 @@ def build_all_graph():
         raw_defects = state.get("raw_defects", [])
         all_stories = state.get("all_stories", [])
 
-        final = run_defect_validator(
-            agent=validator_agent,
-            raw_defects=raw_defects,
-            stories=all_stories,
-        )
-        print(
-            f"| Defect Validator Node - Completed with {len(final)} final defects\n{'='*80}"
-        )
-        return {"final_defects": final}
+        try:
+            final = run_defect_validator(
+                agent=validator_agent,
+                raw_defects=raw_defects,
+                stories=all_stories,
+            )
+            print(
+                f"| Defect Validator Node - Completed with {len(final)} final defects\n{'='*80}"
+            )
+            return {"final_defects": final}
+        except Exception as e:
+            print(
+                f"| Error in Defect Validator Node: {e}. Returning unvalidated defects."
+            )
+            return {"final_defects": raw_defects}
 
     def defect_filter_node(state: AllState, runtime: Runtime[AllContext]) -> dict:
         print(f"\n{'='*80}\n| Defect Filter Node - Starting\n{'='*80}")

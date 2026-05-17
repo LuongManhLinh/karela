@@ -11,10 +11,13 @@ from pydantic import BaseModel, Field, ConfigDict
 class SelfDefectItem(BaseModel):
     """A single self-defect detected on one user story."""
 
+    explanation: str = Field(
+        description="A concise explanation of why this defect was identified",
+    )
+
     type: str = Field(
         description=(
-            "The defect type. One of: NOT_INDEPENDENT, "
-            "NOT_VALUABLE, NOT_ESTIMABLE, NOT_SMALL"
+            "The defect type. One of:" "NOT_VALUABLE, NOT_ESTIMABLE, NOT_SMALL"
         ),
     )
     story_key: str = Field(
@@ -23,9 +26,7 @@ class SelfDefectItem(BaseModel):
     severity: str = Field(
         description="Severity level: 'HIGH', 'MEDIUM', or 'LOW'",
     )
-    explanation: str = Field(
-        description="A concise explanation of why this defect was identified",
-    )
+
     confidence: float = Field(
         description="Confidence score from 0.0 to 1.0",
     )
@@ -54,6 +55,9 @@ class SelfDefectResponse(BaseModel):
 class PairwiseDefectItem(BaseModel):
     """A single pairwise defect detected between two user stories."""
 
+    explanation: str = Field(
+        description="A concise explanation of why these stories conflict or duplicate",
+    )
     type: str = Field(
         description="The defect type. One of: CONFLICT, DUPLICATION",
     )
@@ -66,9 +70,7 @@ class PairwiseDefectItem(BaseModel):
     severity: str = Field(
         description="Severity level: 'HIGH', 'MEDIUM', or 'LOW'",
     )
-    explanation: str = Field(
-        description="A concise explanation of why these stories conflict or duplicate",
-    )
+
     confidence: float = Field(
         description="Confidence score from 0.0 to 1.0",
     )
@@ -152,21 +154,18 @@ class ValidatorResponse(BaseModel):
 class DependencyDefectItem(BaseModel):
     """A dependency-related defect found by analyzing the dependency graph."""
 
-    story_keys: list[str] = Field(
-        description=(
-            "Keys of all stories involved in this dependency defect. "
-            "For circular dependencies, list all stories in the cycle. "
-            "For bottlenecks, list the blocking story first, then the stories it blocks."
-        ),
+    reasoning: str = Field(
+        description="Chain-of-thought explanation from the agent for why this dependency issue was identified",
     )
     type: str = Field(
-        description="The specific dependency issue: 'CIRCULAR_DEPENDENCY' or 'EXTREME_BOTTLENECK'",
+        description="The specific dependency issue: 'NOT_INDEPENDENT' or 'CIRCULAR_DEPENDENCY' or 'EXTREME_BOTTLENECK'",
     )
+    story_keys: list[str] = Field(
+        description=("Keys of all stories involved in this dependency defect. "),
+    )
+
     severity: str = Field(
         description="Severity level: 'HIGH', 'MEDIUM', or 'LOW'",
-    )
-    explanation: str = Field(
-        description="A concise explanation of the dependency issue",
     )
     confidence: float = Field(
         description="Confidence score from 0.0 to 1.0",

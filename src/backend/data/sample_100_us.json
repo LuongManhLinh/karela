@@ -1,0 +1,602 @@
+[
+  {
+    "id": 7,
+    "user_story": "As a user, I want to be able to preview the GIF or Lottie File converted MP4 on the Info Preview screen so that I can preview what the animation is like before I download it",
+    "requirements": "1. The Info Preview Screen should include a converted MP4 from either the GIF or Lottie file. This MP4 should auto-play, have the video controls hidden and be on a loop.\n2. When a user is on the Info Preview page and the file type is a GIF or Lottie, then:\n3. The Previewer should be displaying the converted GIF or Lottie file MP4 \n4. All other components and actions on the Info Preview screen should remain the same as if it was a GIF or Lottie file.\n5. Download should download the GIF or Lottie file\n6. File type metadata fields and the like should show GIF/Lottie\n7. Version file type should be GIF/Lottie",
+    "scenarios": "Scenario: Verify the preview page of the uploaded GIF and Lottie file\n  Given I am an admin \n  When I upload Lottie and GIF file\n  And I preview the Lottie file\n  Then Previewer should display the converted GIF or Lottie file MP4\n  And Download should download the GIF or Lottie file with the same extension\n  And The file type of metadata fields should be GIF/Lottie\n  And The Version file type should be GIF/Lottie\n  And The video controls should not appear \n  And The slider should not appear \n  And The video should loop continuously\n  And The video should autoplay \n  And The left and right keyboard arrows should not interact with the video"
+  },
+  {
+    "id": 9,
+    "user_story": "As a user, I want to be able to preview the GIF or Lottie File converted MP4 on the Share screen so that I can preview what the animation is like before share it",
+    "requirements": "1. Users should see the preview of the GIF or Lottie File converted MP4 on the Share screen. This should help users to preview the animation before deciding to share it.\n2. As a user on the share/embed screen:\n3. The preview should show the GIF or Lottie File converted MP4.\n4. The controls should be hidden\n5. The MP4 should autoplay ",
+    "scenarios": "Scenario: Verify the GIF and Lottie file preview on the share screen\n  Given I am an admin \n  When I upload Lottie and GIF file\n  And I click on share \n  Then The file should have converted to MP4\n  And The controls should be hidden\n  And The MP4 should autoplay"
+  },
+  {
+    "id": 16,
+    "user_story": "As a user, when parent record undergoes publish approval process, child records are only created when parent is approved",
+    "requirements": "1. When parent record is sent for approval, and is approved, then the child records are created\n2. No snackbar is needed in this scenario, (as that would show to last reviewer user who approves, and who may not need to know child records are created.\n3. This occurs on request status becoming \u2018Approved ' - ie: not when a single Reviewer 'Approves\u2019 in the scenarios where more than 1 approval is required, and also not when the first stage of a multi-staged request is approved.\n4. This can occur, theoretically, months after the record was submitted. ie, if submitted in March 2023 but not approved until June 2023, then child records will be created in June\n5. This can also occur when Auto-Complete is enabled on the parent database workflow, in which the \u2018delay\u2019 time will be be very minimal when it successfully gets auto-completed (assumed this will occur almost immediately after submit)\n6. If record publish is conditionally auto-completed, then:\n7. If single stage workflow then child records will be auto-created upon successful auto-complete of parent record\n8. If first stage of a staged workflow then delay creation of child records will be enacted, since this only completed the first stage of the request\n9. Creator of the child records is the creator of the parent record, not the approver of the publish workflow request. ",
+    "scenarios": "Scenario: Child record creation for approved publish approval records\n      Given I have a database with a workflow\n      And it has a lookup grid with auto create child records enabled\n      When I click submit the workflow request\n      Then the workflow request will be created\n      And the child record will not be created\n      When I approve the workflow request\n      Then the child records will be created\n      Scenario                             | Result\n      Single approved                      | Child record created\n      Stage 1 approved                     | Child record not created\n      Stage 2 approved (final stage)       | Child record created\n      Single conditionally auto-completed  | Child record created\n      Stage 1 conditionally auto-completed | Child record not created"
+  },
+  {
+    "id": 19,
+    "user_story": "As a Database Manager, I want to allow end users to Add More child records ('Add More') - Handle maximum child records",
+    "requirements": "1. Configure Auto-Created Records overlay in the form builder, a setting called Allow User to Add More {Recordcustomnameplural} was added\n2. While 30 is maximum total number of child records, we will keep this field \u2018Allow User to Add More {Recordcustomnameplural}\u2019 enabled / clickable even if 30 exist in config, since end users can potentially remove non-mandatory ones (which would then let them add more)\n3. If however 30 exist in config and ALL 30 are disabled for \u2018Allow User to skip\u2026\u2019 then we de-select + disable this field. This is because in this scenario end user cannot add more.  \n4. Disabled state hover updates to:\nThe max 30 {{Records}} has been added here. Remove any of the above to allow users to add more.\n{{Records}} here = child custom record plural name",
+    "scenarios": "Scenario: 'Allow User to Add More' setting with 30 records\n      Given I am in the Configure Auto-Created Records overlay\n      When I add 30 records \n      And 1 of those records has 'Allow User to skip\u2026\u2019 enabled\n      Then I can enable 'Allow User to Add More'\n      When I disable 'Allow User to skip\u2026\u2019 on the last record\n      Then 'Allow User to Add More' is disabled\n      And if I hover over the setting I see the text 'The max 30 {{Records}} has been added here. Remove any of the above to allow users to add more.'"
+  },
+  {
+    "id": 31,
+    "user_story": "As a user, I want on close of Single view redirect to Grouped Approval Review page (don't clear out single page response values)",
+    "requirements": "1. When a user has entered any response info on a single response page and then returns to the List view, those details (comment/response/approved until values) are retained as long as the overall Grouped Review Page is open (As soon as user closes the overall overlay we no longer store this info)\n2. This means, if user re-opens that single view, their response details remain ",
+    "scenarios": "Scenario: Retaining single view response details on close\n Given I have opened a single response page within a Grouped Approval Review\n And I have entered response information on the single response page\n When I close the single response page and return to the Grouped Approval Review list view\n Then the response details I entered on the single response page should be retained\n And if I reopen the same single response page, the previously entered details should still be present"
+  },
+  {
+    "id": 36,
+    "user_story": "As a user, I want to review my document against compliance rules before submitting it to the system so that I can address issues early in the process.",
+    "requirements": "1. Capture and extract content from the active Word document\n2. Send document content and filter values to Review API\n3. Implement \"Fix Issue\" functionality that navigates to the relevant section in Word\n",
+    "scenarios": "Scenario: User reviews document against compliance rules before submission\n  Given the user has an active Word document open\n  When the user initiates a compliance review\n  Then the system should capture and extract the content from the active Word document\n  And send the extracted content along with any selected filter values to the Review API\n  And display the compliance issues returned by the API\n\n  When the user clicks \"Fix Issue\" on a listed compliance issue\n  Then the system should navigate to the corresponding section in the Word document"
+  },
+  {
+    "id": 37,
+    "user_story": "As a user, I want to view detailed risk results from my document review and take actions on each risk (dismiss or add as comment) so that I can address compliance issues efficiently within my document.\n",
+    "requirements": "1. Display risks in a format matching the current Red Marker Add-ins\n2. Implement risk action buttons: Dismiss button (X), Insert Comment button that adds the risk as a native Office comment\n3. When \"Insert Comment\" is clicked:\n- Create a native Microsoft Office comment at the exact location of the risk\n- Format comment text to include risk details and suggested remediation\n",
+    "scenarios": "Scenario: User views detailed risk results and takes actions within the document\n  Given the user has completed a document compliance review\n  When the risk results are displayed\n  Then each risk should be shown in a format consistent with the current Red Marker Add-ins\n  And each risk should include a \"Dismiss\" button and an \"Insert Comment\" button\n\n  When the user clicks the \"Insert Comment\" button on a risk\n  Then a native Microsoft Office comment should be created at the exact location of the risk in the document\n  And the comment should include the risk details and suggested remediation text\n\n  When the user clicks the \"Dismiss\" button on a risk\n  Then the risk should be removed from the list and not appear in the review summary"
+  },
+  {
+    "id": 39,
+    "user_story": "As an IB Admin, I want to designate a specific database as the default for the Add-in Risk Review so that users have a consistent starting point when using the Add-in as well as having a \u201cQuick\u201d drop off method. ",
+    "requirements": "1. Add a new setting labeled \"Make this [DatabaseSingular] the default for Risk Reviews in Add-ins\" \nin the Database Settings section, above the \u201cCustom Item Names\u201d field.",
+    "scenarios": "Scenario: IB Admin sets a database as the default for Add-in Risk Review\n  Given the IB Admin is on the Database Settings page\n  When the admin checks the option \"Make this [DatabaseSingular] the default for Risk Reviews in Add-ins\"\n  And saves the settings\n  Then the selected database should be designated as the default for Add-in Risk Reviews\n  And users launching the Add-in should automatically have this database preselected for Risk Review"
+  },
+  {
+    "id": 43,
+    "user_story": "As a User, I want to hide the record footer & hide actions in the header within the record view",
+    "requirements": "1. This is to avoid unnecessary confusion for the user and requires us to:\n- Hide the record footer entirely\n- Show Record Header but only display the Database Name, Record name and sequence ID \n- Hide all other actions, etc in top right currently\n- Hide the close button in the record view header\n- Hide left / right navigation arrows that appear on the record page (note these are controlled by an MCP setting)",
+    "scenarios": "Scenario: Hide record footer and header actions in Record View within Approvals module\n  Given the user is viewing a Record in the Approvals module\n  When the record view is loaded\n  Then the record footer should not be displayed\n  And the record header should show only:\n    | Field          |\n    | Database Name  |\n    | Record Name    |\n    | Sequence ID    |\n  And all header actions in the top right should be hidden\n  And the close button in the record view header should be hidden\n  And the left and right navigation arrows should be hidden (as per MCP setting)"
+  },
+  {
+    "id": 53,
+    "user_story": "As a User, I want to Delete a Smart Page via API",
+    "requirements": "1. Be able to delete a Smart page via a API call\n2. The call is documented in the API doc",
+    "scenarios": "Scenario: Delete a Smart Page via API Call\nGiven I have valid API credentials\nAnd a Smart Page with id = 123 exists in the system\nWhen I make a DELETE request to the /smart-pages/123 endpoint\nThen I should receive a response with status code 200\nAnd the response body should confirm that the Smart Page has been deleted\nAnd a request to /smart-pages/123 should return a 404 Not Found response\nAnd the DELETE API call should be documented in the API documentation"
+  },
+  {
+    "id": 60,
+    "user_story": "As a User, I want to have Section's height auto-adjusted based on the Section within",
+    "requirements": "1. Be able to have Section\u2019s height adjusted automatically based on the height of Block within Height increases if the Block\u2019s height is larger, Height decreases if the Block\u2019s height is smaller",
+    "scenarios": "Scenario: Automatically Adjusting Section Height Based on Block Height\nGiven the user has added a Block inside a Section in the Simple Page Builder\nWhen the Block\u2019s height increases beyond the current Section height\nThen the Section\u2019s height should automatically increase to fit the Block\n\nAnd when the Block\u2019s height decreases\nThen the Section\u2019s height should automatically decrease accordingly\n"
+  },
+  {
+    "id": 66,
+    "user_story": "As a User, I want to save the created Simple Page for CP module",
+    "requirements": "1. Be able to click on publish / save and save the Simple Page to CP module database\n2. The successfully saved Simple Page could be listed later when open / refresh the CP module\n3. Details should be in line with Design ",
+    "scenarios": "Scenario: Saving and Listing a Simple Page in the CP Module\nGiven the user has created or edited a Simple Page in the CP module\nWhen the user clicks on the Publish or Save button\nThen the Simple Page should be successfully saved to the CP module database\n\nWhen the user opens or refreshes the CP module later\nThen the saved Simple Page should be listed in the CP module\nAnd all details should match the design specifications"
+  },
+  {
+    "id": 77,
+    "user_story": "As a User, I want to Restricted Actions for Template Resources [Database Locations]",
+    "requirements": "1. When a Resource is a created Template or a Master Template, the below Resource Actions +do not display+ for any user: *Download* , Block from Single and Bulk Download, *Alias* ,Block from Single and Bulk Create Alias\n2.For A/C, below Resource actions +are+ still supported: *Edit*, *Email Internal Share Link*,  *Move*, *Check in / Out*, *Usage*, *Related*, *Feedback* (when enabled)\n",
+    "scenarios": "Scenario: Restricting and Allowing Specific Resource Actions for img.ly Templates and Master Templates\nGiven a resource is created as an img.ly Template or a Master Template\nWhen a user views the available Resource Actions\nThen the following actions do not display:\n\nDownload\nBlock from Single and Bulk Download\nAlias\nBlock from Single and Bulk Create Alias\nAnd the following actions are still supported for A/C:\n\nEdit\nEmail Internal Share Link\nMove\nCheck in / Out\nUsage\nRelated\nFeedback (when enabled)"
+  },
+  {
+    "id": 79,
+    "user_story": "As a User, I want MCP Setting for Single User Record Editor Restriction",
+    "requirements": "1. New development setting added to \u201c*Development Use Only\u201d* section of MCP:\n2. Setting name: *Databases - Single User Record Edit Restriction*\n3. Location: Can be added to bottom of the list",
+    "scenarios": "Scenario: Adding a New Development Setting for Single User Record Edit Restriction\nGiven the user has access to the MCP (Master Control Panel)\nWhen the user navigates to the \"Development Use Only\" section\nThen a new setting named \"Databases - Single User Record Edit Restriction\" is available\nAnd it is located at the bottom of the list"
+  },
+  {
+    "id": 82,
+    "user_story": "As a User, On save, a new Job should appear in job list/tab for that Template Resource (B.E. handling)",
+    "requirements": "1. On successful Save, a Job will be saved against the Template from which it was created from",
+    "scenarios": "Scenario: Job Successfully Saved Against Its Template\nGiven a user has created a Job from a Template\nWhen they successfully save the Job\nThen the Job is saved and associated with the Template from which it was created"
+  },
+  {
+    "id": 85,
+    "user_story": "As a User, I want Close or cancel handling",
+    "requirements": "1. If close or cancel is selected from Edit Template page, user is returned to the location they selected the Edit action from \n",
+    "scenarios": "Scenario: Returning to Previous Location After Cancelling Edit Template\nGiven a user is on the Edit Template page\nWhen they click Close or Cancel\nThen they are returned to the location where they originally selected the Edit action from"
+  },
+  {
+    "id": 90,
+    "user_story": "As a user who selected to Create Blank Template, a blank slate opens with a Default blank size",
+    "requirements": "1. When user choose to create a new blank Template, when the *Create Template* page opens (aka, the Template editor) user sees the blank template opened to a default size\n2. Default size is 1080 x 1080",
+    "scenarios": "Scenario: Creating a New Blank Template Opens with Default Size\nGiven the user is on the Create Template page\nWhen the user selects the option to create a new blank template\nThen the Template Editor opens\nAnd a blank template is displayed\nAnd the default size of the template is 1080 x 1080"
+  },
+  {
+    "id": 91,
+    "user_story": "As a User, I want to Update Workflow Template Configure Groups/Divisions to be a modal not full overlay",
+    "requirements": "1.To update following designs, no changes to logic unless noted in design requirements in figma",
+    "scenarios": "Scenario: Updating UI Based on New Designs Without Changing Logic\nGiven the system is displaying the current UI\nWhen the updated designs are implemented\nThen the UI updates to match the new design specifications from Figma\nAnd no changes are made to the existing logic unless explicitly noted in the design requirements\n\n\n\n\n\n\n"
+  },
+  {
+    "id": 96,
+    "user_story": "As a collaborator, I can be added to a Thread",
+    "requirements": "1. When Comment threads are enabled for the workflow (records file / resource publish / resource feedback), then collaborators can be added to new and existing threads by other thread participants/collaborators/admins/ \n2. When successfully added, added collaborator user can toggle between threads, edit thread, etc, the same as participants can",
+    "scenarios": "Scenario: Collaborator Can Be Added to New and Existing Comment Threads\nGiven comment threads are enabled for the workflow (record file, resource publish, or resource feedback)\nAnd a collaborator is part of the request\nWhen a thread participant, collaborator, or admin adds the collaborator to a new or existing thread\nThen the collaborator is successfully added to the thread\nAnd they can toggle between threads\nAnd they can edit the thread\nAnd they have the same comment interaction options as other participants in the request"
+  },
+  {
+    "id": 99,
+    "user_story": "As a User, I want to Publish Resource Grouped Requests handled in Group Review Page",
+    "requirements": "1. *Overall* page design and behaviour matches Grouped Download handling with some minor exceptions\n2. *Bulk Download* will not yet display here\n3. Response fields may differ than Grouped Download on Bulk and Single level, such as:\n4. *Hide Decline* may be enabled for Record File Approvals (not applicable for Grouped Download)\n5. *Approve with Comments* may be enabled for Record File Approvals (not applicable for Grouped Download)\n6.  Requests may be *staged* (not applicable for Grouped Download)\n7. Logic here to follow Bulk Review for now - ie, requests may be progressed to different stages from one another in the Grouped Request",
+    "scenarios": "Scenario: User reviews and processes grouped requests in the Group Review Page  \n    Given the user is on the Group Review Page  \n    When grouped requests are displayed  \n    Then the overall page design and behavior should match Grouped Download handling  \n    But Bulk Download should not be displayed  \n    When reviewing a Record File Approval request  \n    Then \"Hide Decline\" may be enabled  \n    And \"Approve with Comments\" may be enabled  \n    When processing grouped requests  \n    Then requests may be staged  \n    And requests may progress to different stages independently, following Bulk Review logic  "
+  },
+  {
+    "id": 106,
+    "user_story": "As a User, I want to switch Page Categories when viewing a Page if there are multiple Page Categories",
+    "requirements": "1. Be able to see multiple Page Categories in the dropdown to switch from Nav, if there are more than one Page Categories exist and the user has permission to view those pages are under the Page Categories\n2. Be able to select and to switch to another Page Category (incl. 'All Pages') via the drop-down menu as per design, then load Pages under from Nav\n",
+    "scenarios": "Scenario: User can switch Page Categories via the dropdown  \n    Given the user is viewing a Page  \n    And multiple Page Categories exist  \n    And the user has permission to view pages under these categories  \n    When the user opens the Page Category dropdown in the navigation  \n    Then the available Page Categories, including \"All Pages,\" should be displayed  \n    When the user selects a different Page Category from the dropdown  \n    Then the Pages under the selected category should be loaded in the navigation panel  "
+  },
+  {
+    "id": 107,
+    "user_story": "As a User, I want to see Page Category being selected by default when viewing a Page as it's been assign to one",
+    "requirements": "1. By default the Page Category Name itself is displayed as per \n2. Be able to see the pages under are loaded to the left side from Nav when viewing a Page",
+    "scenarios": "Scenario: User sees the assigned Page Category selected by default  \n    Given the user is viewing a Page that is assigned to a Page Category  \n    When the page loads  \n    Then the assigned Page Category should be selected by default in the dropdown  \n    And the pages under that category should be loaded in the left navigation panel  "
+  },
+  {
+    "id": 110,
+    "user_story": "As a User, I want to be informed why the Page cannot be saved in Page Builder if it's beyond the set Page limit in MCP",
+    "requirements": "1. When the user is in Page Builder already and the set D&D page limit in MCP has been reached:\n2. Be able to see a warning snack bar with message \u201cPage limit of {&number set as page limit in MCP} reached.\u201c *in Page Builder after clicking on:*\n3. Standalone Page creation button \n4. at the bottom of Nav Panel\n5. Page create button via kebab icon from Nav Panel\n6. Sub-page creation button via kebab icon from Nav Panel",
+    "scenarios": "Scenario: User sees a warning when attempting to create a page beyond the set limit  \n    Given the user is in the Page Builder  \n    And the set Drag & Drop (D&D) page limit in MCP has been reached  \n    When the user attempts to create a new page using any of the following actions:  \n      | Action                                        |  \n      | Standalone Page creation button              |  \n      | Page create button at the bottom of the Nav Panel |  \n      | Page create button via kebab icon from Nav Panel |  \n      | Sub-page creation button via kebab icon from Nav Panel |  \n    Then a warning snack bar should be displayed with the message:  \n      \"Page limit of {number set as page limit in MCP} reached.\"  \n    And the page creation process should be blocked  "
+  },
+  {
+    "id": 112,
+    "user_story": "As a User, I want to configure both Block and Video Widget properties",
+    "requirements": "1. Be able to see and configure the new widget settings from Nav (combining previously defined Block and Widget's settings) for each widgets:",
+    "scenarios": "Scenario: User configures settings for Block and Video Widgets  \n    Given the user is in the Page Builder  \n    When the user selects a Block Widget or a Video Widget  \n    Then the widget settings panel should open in the navigation panel  \n    And the settings should include previously defined Block and Video Widget properties  \n    When the user modifies any settings in the panel  \n    Then the changes should be applied to the selected widget in real time  \n    And the settings should persist when the page is saved  "
+  },
+  {
+    "id": 126,
+    "user_story": "As a User, I want to add MCP Feature Flag for Collaborators in Approvals project",
+    "requirements": "1. Add a new MCP setting in development section:\n2. Setting name: *Collaborator in approvals (BETA)*\n3. Can be listed at bottom of development section \n4. All project work to be tied to this setting ",
+    "scenarios": "Scenario: Add and Display MCP Setting for \u2018Collaborator in Approvals (BETA)\u2019\nGiven the user navigates to the development section in settings\nWhen the MCP setting Collaborator in Approvals (BETA) is added\nThen the setting should be listed at the bottom of the development section\nAnd all project work related to Collaborators in Approvals should be tied to this setting"
+  },
+  {
+    "id": 127,
+    "user_story": "As a User, I want a new workflowRequest PATCH call to update the collaborators",
+    "requirements": "1. We will implement a PATCH call for workflowRequest. Only collaborator field will be supported to update. If other fields are provided in the call they will be ignored.",
+    "scenarios": "Scenario: Update Collaborator Field Using PATCH Call for Workflow Request\nGiven a PATCH call is made to update a workflow request\nAnd the request includes the collaborator field\nWhen the request is processed\nThen the collaborator field should be updated successfully\nAnd any other fields provided in the call should be ignored"
+  },
+  {
+    "id": 130,
+    "user_story": "As a User, I want empty stages shouldn't be hidden",
+    "requirements": "1.Currently we hide pages and stages that don\u2019t display any fields/sections.\n2.This ticket is to not hide a stage when it\u2019s empty, but we will continue doing it for Pages.\n",
+    "scenarios": "Scenario: Display Empty Stages but Continue Hiding Empty Pages\nGiven a workflow contains multiple stages and pages\nAnd some stages do not have any fields or sections\nAnd some pages do not have any fields or sections\nWhen the user views the workflow\nThen empty stages should still be displayed\nBut empty pages should continue to be hidden"
+  },
+  {
+    "id": 134,
+    "user_story": "As a User, I want to make the verification code in the email bigger & bolder to stand out more",
+    "requirements": "1. Update to new designs",
+    "scenarios": "Scenario: Apply New Designs to the System\nGiven the system has existing UI designs\nWhen the new designs are implemented\nThen the UI should be updated to reflect the new design changes\nAnd all relevant pages and components should follow the updated design guidelines"
+  },
+  {
+    "id": 135,
+    "user_story": "As a User, I want to add \"Maximum number of files\" to the empty Multi Upload Field so users are aware of limits before uploading",
+    "requirements": "1. Update text in empty multi upload field in create/update to reflect the max file limit as set in the new multi upload form field \u2018*Maximum File Limit*\u2019",
+    "scenarios": "Scenario: Display Maximum File Limit in Empty Multi-Upload Field\nGiven the user is on the create or update page\nAnd there is an empty multi-upload field\nWhen the maximum file limit is set in the new multi-upload form field \u2018Maximum File Limit\u2019\nThen the placeholder text in the empty multi-upload field should reflect the maximum file limit value"
+  },
+  {
+    "id": 140,
+    "user_story": "As a User, I want to change \"Show All\" to \"Show More\" logic",
+    "requirements": "1. Name of \u2018Show All\u2019 to change in all scenarios to \u2018Show More\u2019 when over 50 files exist\n2. Limit to the Max number of items that can be displayed in \u2018Show More\u2019 to be 50 (regardless of how many more files may be allowed/exist)\n3. Others above 50 can be seen within the scroll within the expanded multi upload field",
+    "scenarios": "Scenario: Update \u2018Show All\u2019 to \u2018Show More\u2019 and Limit Displayed Items in Multi-Upload Field\nGiven the user has uploaded more than 50 files in the Multi-Upload Field\nWhen the file list exceeds 50 files\nThen the \u2018Show All\u2019 button should be renamed to \u2018Show More\u2019\nAnd clicking \u2018Show More\u2019 should display only 50 additional files\nAnd any remaining files beyond this limit should be accessible via scrolling within the expanded Multi-Upload Field"
+  },
+  {
+    "id": 143,
+    "user_story": "As a User, I want to hide Left Menu (to hide Future Stage details) for Public Users in updated UI in Create Record",
+    "requirements": "1. When *Databases - Briefs UI Uplift Phase 1* is enabled in MCP then for Public Users only in Create for Staged Databases, we hide the left menu altogether",
+    "scenarios": "Scenario: Hide Left Menu for Public Users in Create for Staged Databases When \u2018Databases - Briefs UI Uplift Phase 1\u2019 is Enabled\nGiven the \u2018Databases - Briefs UI Uplift Phase 1\u2019 setting is enabled in MCP\nAnd a public user is creating a record in a staged database\nWhen the user accesses the create interface\nThen the left menu should be hidden altogether"
+  },
+  {
+    "id": 147,
+    "user_story": "As a user, I want to be able to see the workflow history of a record if there is one",
+    "requirements": "1. Workflow history button in the footer of the side navigation Panel when record has workflow history\n2. Clicking the button will show workflow history\n3. Show Workflow history table on click on button",
+    "scenarios": "Scenario: Display Workflow History from Side Navigation Panel\nGiven a record has workflow history\nWhen the user views the side navigation panel\nThen a Workflow History button should be displayed in the footer\nWhen the user clicks the Workflow History button\nThen the workflow history table should be displayed"
+  },
+  {
+    "id": 148,
+    "user_story": "As a User, I want new Auth Screens + Success Page - Add in Menu / Login Bar",
+    "requirements": "1.The tiger team consensus is to show a logo, but not the log-in or nav menu. So this would be like the CPSL links",
+    "scenarios": "Scenario: Display Logo Without Login or Navigation Menu\nGiven the user accesses the specified page\nWhen the page loads\nThen the logo should be displayed\nAnd the login option should not be shown\nAnd the navigation menu should not be displayed"
+  },
+  {
+    "id": 150,
+    "user_story": "As a User, For \"Ask AI Beta\" project I want Beta icon",
+    "requirements": "1. Add \u2018Beta\u2019 icon to Ask AI opened side panel after the panel name+help tooltip to alert the user this feature is in 'beta'",
+    "scenarios": "Scenario: Display \u2018Beta\u2019 Icon in Ask AI Side Panel\nGiven the user opens the Ask AI side panel\nWhen the panel is displayed\nThen a \u2018Beta\u2019 icon should appear after the panel name and help tooltip\nAnd the icon should clearly indicate that the feature is in beta\n\n\n\n\n\n\n"
+  },
+  {
+    "id": 160,
+    "user_story": "As a User, I want to have an Admin setting to enable that the Session can be manually ended",
+    "requirements": "1. Be able to configure the setting: 'Session Based Digest\u201d for the manual end trigger of Session Based Digest of Markup Comments",
+    "scenarios": "Scenario: Configure \u2018Session Based Digest\u2019 for Manual End Trigger of Markup Comments\nGiven the admin navigates to Admin > Alerts (Markup) Settings\nWhen the admin enables or configures the \u2018Session Based Digest\u2019 setting\nThen the system should allow the admin to set a manual end trigger for Session Based Digest of Markup Comments\nAnd once the session is manually ended, the digest should be sent based on the configured setting\n\n\n\n\n\n\n"
+  },
+  {
+    "id": 162,
+    "user_story": "As a user, I want to see footer actions like cancel, save as draft, next and submit (Staged Database)",
+    "requirements": "1. When MCP is ON\n2.Footer for staged database",
+    "scenarios": "Scenario: Display Footer for Staged Database When MCP is ON\nGiven the MCP setting is enabled\nAnd the user is viewing a staged database\nWhen the user navigates to the bottom of the page\nThen the footer should be displayed for the staged database"
+  },
+  {
+    "id": 165,
+    "user_story": "As a User, I want Permission updates/options: allow all platform users to Ask AI from documents they can Preview (or above)",
+    "requirements": "1. We add a MCP sub-setting under parent \u201c*Enable vector search - text (V3) (development use only):*\u201d\n2. Sub-setting name: *Main Admin only (Beta)*",
+    "scenarios": "Scenario: Add \u2018Main Admin only (Beta)\u2019 Sub-Setting Under \u2018Enable Vector Search - Text (V3)\u2019\nGiven the admin navigates to MCP > Platform Settings > Development-use Only\nAnd the \u2018Enable Vector Search - Text (V3)\u2019 setting is present\nWhen a new sub-setting \u2018Main Admin only (Beta)\u2019 is added under this parent setting\nThen the sub-setting should be displayed with the label \nAnd the admin should be able to enable or disable this sub-setting"
+  },
+  {
+    "id": 175,
+    "user_story": "Guest Upload MVP - Email verification: New Email Template + Send Email",
+    "requirements": "1. When public user enters/submits a valid email address in the new initial screen in then:\n2. In Back end we generate code and sent the below email to the Public User\u2019s entered email address",
+    "scenarios": "Scenario: Public User Submits a Valid Email Address\nGiven a public user is on the new initial screen\nWhen the user enters and submits a valid email address\nThen the backend should generate a verification code\nAnd an email containing the verification code should be sent to the public user's entered email address\n\n\n\n\n\n\n"
+  },
+  {
+    "id": 177,
+    "user_story": "CMD - As a User, I want to see Markup Comments removed from Dashboard automatically for removed / archived Assets",
+    "requirements": "1. Markup comments should be *hidden* (as \u2018removed\u2019) in Dashboard Widget automatically if the associated assets have been deleted",
+    "scenarios": "Scenario: Hide Markup Comments in Dashboard Widget When Associated Assets Are Deleted\nGiven a markup comment exists in the Dashboard Widget\nAnd the associated asset for the markup comment exists\nWhen the associated asset is deleted\nThen the markup comment should be automatically hidden in the Dashboard Widget\nAnd it should be treated as \u2018removed\u2019\n\n\n\n\n\n\n"
+  },
+  {
+    "id": 178,
+    "user_story": "Guest Upload MVP: Add Email address into Public Usage Create Action",
+    "requirements": "1.In Usage, when a record has been created by a public user we update the User details to append user\u2019s email address, ie:\n2. \u201cPublic Access (email@address.com)\u201d",
+    "scenarios": "Scenario: Append Public User\u2019s Email Address in Usage Details\nGiven a record has been created by a public user\nWhen the Usage details are displayed\nThen the User details should be updated to append the public user\u2019s email address\nAnd it should be displayed in the format:\n\u27a1 \"Public Access (email@address.com)\"\n\n\n\n\n\n\n"
+  },
+  {
+    "id": 191,
+    "user_story": "2-3. As a User, I want to Undo & Redo resizing & repositioning",
+    "requirements": "1. Be able to still click on Undo & Redo from top bar to go back & forward the actions on: Resizing the Image by dragging the dots\n2. undo & redo get triggered only after user finishes their dropping by un-clicking the dot - so won't undo every pixel along the way of dragging experience.\n3. the undo & redo also only works for successful cases as unsuccessful cases have been handled by experience provided",
+    "scenarios": "Scenario: User can Undo and Redo resizing and repositioning actions  \n    Given the user is in the Page Builder  \n    And an Image Widget is placed within a Block  \n    When the user resizes the Image Widget by dragging the resize dots  \n    And the user finishes resizing by releasing the mouse click  \n    Then the user should be able to click on the \"Undo\" button in the top bar to undo the resizing action  \n    And the user should be able to click on the \"Redo\" button in the top bar to redo the resizing action  \n    When the user repositions the Image Widget by dragging it to a new position  \n    And the user finishes repositioning by releasing the mouse click  \n    Then the user should be able to click on the \"Undo\" button to undo the repositioning action  \n    And the user should be able to click on the \"Redo\" button to redo the repositioning action  \n    When the user performs an unsuccessful resizing or repositioning action  \n    Then the \"Undo\" and \"Redo\" buttons should not be triggered for these actions, as they are handled by other user experience behaviors  \n    And the user should only be able to undo and redo the successful resizing and repositioning actions, based on the ticket descriptions for successful cases  \n"
+  },
+  {
+    "id": 196,
+    "user_story": "PB - As a User, I want to see a Smart Page  template popup after click on V2 create",
+    "requirements": "1. Be able to go to V3 Page Builder and see a Page Template popup, after clicking on Smart Page from V2 Page creation popup, as per design\n2. Be able to see the popup: Popup Subject\n3.the default background page in Page Builder behind the template popup is an empty default page with three empty Sections\n4. Current \u201ctemplate\u201c and \u201cthumbnails\u201d design are dummy/mock ones, once the real templates are final we will import them with the task: ",
+    "scenarios": "Scenario: User sees Smart Page template popup after clicking on V2 create  \n    Given the user is on the V2 Page creation popup  \n    When the user clicks on \"Smart Page\" option in the V2 Page creation popup  \n    Then the user should be redirected to V3 Page Builder with the Smart Page template popup appearing as per design  \n\n    And the popup should display the following elements:  \n      | Element          | Description                                               |\n      |------------------|-----------------------------------------------------------|\n      | Popup Subject    | Displays the subject or title of the popup, as per design |  \n\n    And the background page in the Page Builder behind the template popup should be an empty default page  \n      And the empty default page should have three empty Sections  \n    And the current \u201ctemplate\u201d and \u201cthumbnails\u201d displayed should be dummy/mock ones  \n    But once the real templates are final, they will be imported and displayed as per the task  \n    When the user interacts with the popup and selects a template,  \n    Then the selected template should be applied in the V3 Page Builder as expected"
+  },
+  {
+    "id": 204,
+    "user_story": "PB - As a User, I want to add Widgets directly to a Section",
+    "requirements": "1. Be able to drag Widgets from Nav to Section directly in Page Builder on Create/Edit mode Widgets: all existing ones, and a new Widget: \"Spacer\" see in corresponding \n2. For default config settings on Nav for each Widgets combined with 'Block', see in corresponding \n3. Be able to drag max. 6 Widgets to one Section\n4. Be able to see *only* Section under Core elements from Nav to drag in without \u201cBlock\u201c option any more",
+    "scenarios": "Scenario: User adds Widgets directly to a Section in Page Builder\n    Given the user is in Create/Edit mode in Page Builder\n    And the user has access to Widgets in the Nav panel\n    When the user drags a Widget from the Nav panel to a Section\n    Then the Widget should be added directly to the Section\n    And the Widget should be added with default configuration settings, as per design\n    And the user can add up to 6 Widgets to one Section\n    And the Section should be the only available option to drag Widgets into under Core elements\n    And the user should not see the \u201cBlock\u201d option when dragging Widgets to the Section\n"
+  },
+  {
+    "id": 205,
+    "user_story": "PB - As a User, I want to add a new Widget \"Spacer\"",
+    "requirements": "1. Be able to see and drag a new type of Widget \"Spacer\" as per design in a Section from Nav\n2. Be able to see and configure settings for Spacer in order: Colour (by default, #FFFFFF) Padding (by default, 0pt for all directions) Ratio (by default, it follows the existing behaviour: 12 for an empty Section)\n3. Be able to further drag a Section in this Widget (just to cater to previous behaviour of dragging a Section to a Block)\n",
+    "scenarios": "Scenario: User adds and configures a Spacer Widget in a Section\n    Given the user is in Create/Edit mode in Page Builder\n    And the user can see the \"Spacer\" Widget in the Nav panel\n    When the user drags the \"Spacer\" Widget from the Nav panel to a Section\n    Then the Spacer Widget should be added to the Section\n    And the Spacer Widget should have default settings:\n      | Property | Default Value  |\n      | Colour   | #FFFFFF        |\n      | Padding  | 0pt (all sides) |\n      | Ratio    | 12 (for empty Section) |\n    When the user opens the Spacer Widget settings\n    Then the user should be able to modify the Colour, Padding, and Ratio properties\n    When the user drags a Section into the Spacer Widget\n    Then the Section should be successfully nested inside the Spacer Widget"
+  },
+  {
+    "id": 206,
+    "user_story": "PB - As a User, I want to delete a Widget with the underlying Block",
+    "requirements": "1. Be able to delete a Widget with the same experience of deleting the old Widget\n\n",
+    "scenarios": "Scenario: User deletes a Widget along with its underlying Block\n    Given the user is in Create/Edit mode in Page Builder\n    And the user has added a Widget with an underlying Block to a Section\n    When the user selects the Widget\n    And the user clicks the delete button\n    Then the Widget and its underlying Block should be removed from the Section\n    And the deletion experience should be the same as deleting the old Widget"
+  },
+  {
+    "id": 208,
+    "user_story": "PB - As a User, I want to only select & see the combo of Widget and Block (bounding box experience) in Page Builder",
+    "requirements": "1. Be able to select Widget and Block as a whole, and the bounding box will be highlighted as the same experience as old Block's bounding box\n2. Be able to only navigate Up back to the Section\n",
+    "scenarios": "Scenario: User selects a Widget and Block as a whole in Page Builder\n    Given the user is in Create/Edit mode in Page Builder\n    And the user has added a Widget inside a Block\n    When the user selects the Widget\n    Then the entire bounding box of the Widget and Block should be highlighted\n    And the selection experience should match the previous Block bounding box behavior\n    And the user should only be able to navigate up to the Section"
+  },
+  {
+    "id": 209,
+    "user_story": "PB - As a User, I want to undo & redo actions for the combo of Widget & Block",
+    "requirements": "1. Be able to Undo & Redo actions of the Widget & Block as whole\n2. Adding Widgets with Blocks to Page (dragging in)\n3. Removing/deleting Widgets with Blocks from Page\n4. Moving Widgets with Blocks by dragging",
+    "scenarios": " Scenario: User performs Undo & Redo actions for Widget and Block as a whole  \n    Given the user is in Create/Edit mode in Page Builder  \n    And the user has added a Widget inside a Block  \n    When the user drags a Widget with a Block into the Page  \n    And the user clicks \"Undo\"  \n    Then the Widget and Block should be removed from the Page  \n    When the user clicks \"Redo\"  \n    Then the Widget and Block should reappear in the Page at the same position  \n    When the user moves the Widget and Block by dragging  \n    And the user clicks \"Undo\"  \n    Then the Widget and Block should return to their previous position  \n    When the user deletes a Widget and Block from the Page  \n    And the user clicks \"Undo\"  \n    Then the Widget and Block should be restored in their previous state  \n    When the user clicks \"Redo\"  \n    Then the Widget and Block should be deleted again  "
+  },
+  {
+    "id": 211,
+    "user_story": "PB - As a User, I want to report Resource Download (Preview) action in Usage Reporting for Custom Page Module",
+    "requirements": "1. Be able to track the Smart Page usage reporting and User\u2019s usage reporting for resource download action (Preview type of Resource, aka \u201cGood\u201c quality)\n2. Module appears if it applies to User\u2019s usage report, whilst in Custom Page usage report the Module will not be displayed\n3.\u201cCustom Page\u201c is dynamic to the setting configured in Admin: {Custom Custom Page Module singular}\n4. Action: Resource Download (Preview) \n",
+    "scenarios": "Scenario: Log resource download (Preview) action in Smart Page usage reporting  \n    Given the user is in the Smart Page module  \n    When the user downloads a resource in Preview quality  \n    Then the action should be recorded in the Smart Page usage report  \n    And the module name should be displayed dynamically based on the admin settings  "
+  },
+  {
+    "id": 215,
+    "user_story": "PB - As a User, I want to re-order pages within the same parent/root via Nav - FE integration",
+    "requirements": "1. Be able to re-order Pages via drag-and-drop from Nav Panel during editing\n2. Sub-pages will be moved all together with Page if it contains any\n3. After drag-and-drop of Pages, Sub-pages will be *collapsed* under Page from Nav Panel\n4. Be able to re-order sub-Pages via drag-and-drop within the *same* parent Page from Nav Panel during editing\n5. Be able to re-order root-Pages via drag-and-drop from Nav Panel during editing This ticket does NOT include drag-and-drop across Parent\n",
+    "scenarios": "Scenario: Re-order pages and sub-pages within the same parent via drag-and-drop in Navigation Panel\n    Given the user is in Page Builder in editing mode  \n    And the user has multiple pages and sub-pages in the Navigation Panel  \n    When the user drags and drops a page within the same parent/root in the Navigation Panel  \n    Then the page should be re-ordered within the Navigation Panel  \n    And if the page contains sub-pages, the sub-pages will be moved together with the page  \n    And after drag-and-drop, sub-pages will be collapsed under the parent page in the Navigation Panel  \n    And the user should be able to re-order sub-pages within the same parent page by drag-and-drop  \n    And the user should be able to re-order root pages by drag-and-drop within the Navigation Panel  \n    And the drag-and-drop should not include re-ordering across different parent pages"
+  },
+  {
+    "id": 219,
+    "user_story": "PB - As an internal User, I want to set Page limits via MCP settings",
+    "requirements": "1. Be able to set Page limits on MCP control panel for client sites\n2. Page limits are set with a number: 2, by default for a new client created on MCP), which restrict client\u2019s site with a total amount of Drag & Drop Pages could be created by users \n3. Location: Platform Restriction area, after Custom Page Limit",
+    "scenarios": "Scenario: Internal User sets page limits for a client site via MCP control panel\n    Given the internal user is on the MCP control panel\n    And the user is in the Platform Restriction area after the Custom Page Limit section\n    When the internal user sets the page limit for a new client site to a number, for example, 2\n    Then the page limit for the new client site should be restricted to the specified number of Drag & Drop Pages (2 in this case)\n    And the page limit setting should apply to the client's site immediately after creation\n    And users should be unable to create more than the set number of Drag & Drop Pages on the client site"
+  },
+  {
+    "id": 233,
+    "user_story": "PB - As a User, I want to see Nav panel when viewing a Simple Page",
+    "requirements": "1. Be able to see the new extend / collapse button icon from the top left to open the Left Side Panel as Page Nav as per design \n2. Be able to see all the saved Simple pages from the Left Side Panel against current user\u2019s permission as per design \n3. By default, in oder of Last Updated as the same in v2 index list\n4. Be able to see the currently opened page in effect as per design from Nav (background: grey-100, font in bold style)\n5. Be able to click on and switch to viewing the designated page For details",
+    "scenarios": "Scenario: User views and interacts with the Navigation Panel on a Simple Page  \n    Given the user is viewing a Simple Page  \n    When the user clicks the extend/collapse button in the top left corner  \n    Then the Left Side Panel (Page Nav) should open  \n    And it should display all saved Simple Pages based on the user\u2019s permissions  \n    And the pages should be listed in order of Last Updated  \n    And the currently opened page should be highlighted with a grey-100 background and bold font  \n    When the user clicks on a different page in the navigation panel  \n    Then the designated page should open for viewing "
+  },
+  {
+    "id": 240,
+    "user_story": "As a user I can Bulk Apply (updates from Grouped work)",
+    "requirements": "1. Behaviour here should follow the same as it does in Grouped Review page, including: Apply count in button , Button hover tooltip text for enable + disable views,Snackbars\n2. Actual apply logic \n3.Behaviour here need extra check, including:\n4. Complete Request/Stage depends on Requests are staged requests and it\u2019s current stage, or single requests",
+    "scenarios": "Scenario: User applies updates in bulk and completes staged requests  \n    Given the user is on the Bulk Review page  \n    When the user clicks the \"Apply\" button  \n    Then the button should display the correct apply count  \n    And the button should show the appropriate hover tooltip text for enabled and disabled views  \n    And the system should display the appropriate snackbar after applying the updates  \n    And the apply logic should be processed successfully  \n    And the \"Complete Request/Stage\" functionality should depend on whether the requests are staged and their current stage, or if they are single requests  "
+  },
+  {
+    "id": 249,
+    "user_story": "PB - As a User, I want to report Edit Page action in the usage reporting",
+    "requirements": "1. Be able to see Simple Page reporting on Edit action\n2. User Usage Report\n3. Custom Page Usage Report\n4. Be able to search and export the Report on Edit action\n5. To note: the searching rules and displaying will be natively handled",
+    "scenarios": "Scenario: User can see Edit Page action in usage reporting  \n    Given the user is in the Usage Reporting section  \n    When the user views the usage reports  \n    Then the Edit action for Simple Page should be visible in the User Usage Report  \n    And the Edit action for Simple Page should be visible in the Custom Page Usage Report  \n    And the user should be able to search for and export the Edit Page action report  \n    And the searching rules and display should be handled natively  "
+  },
+  {
+    "id": 255,
+    "user_story": "PB - (Misc) As a User, I want to differentiate page saving between creating a new and editing an existing Simple Page",
+    "requirements": "1. Be able to differentiate two scenarios while saving a Simple Page in Simple Page Builder\n2. Be able to save the Simple Page then refresh to go to its Editing Page URL in editing mode, when first-time creating a new Simple page (page with create URL, via Create process)\n3. Be able to save the Simple Page with the latest contents, when editing an existing Simple Page (page with update URL, via Edit action process or from the process above) and then stay on the Page in editing mode, meanwhile, cannot continue to save\n4. Be able to continue to save the Simple Page with latest contents if there are new editing actions on this Simple Page",
+    "scenarios": "Scenario: User differentiates saving actions between creating and editing a Simple Page  \n    Given the user is in the Simple Page Builder  \n    When the user creates a new Simple Page and saves it  \n    Then the page should be saved and the user should be redirected to its Editing Page URL in editing mode  \n    And when the user edits an existing Simple Page and saves it  \n    Then the latest content should be saved and the user should remain on the page in editing mode  \n    And the user should not be able to save again unless new edits are made  "
+  },
+  {
+    "id": 265,
+    "user_story": "PB - As a User, I want to have an Image Widget (via URL)",
+    "requirements": "1. Be able to add Image Widget to a Block by dragging the icon from side panel as per design\n2. Be able to see the image placeholder icon as per design  for that added image widget before inputing a valid image URL\n3. Be able to still see the image placeholder icon if the URL won\u2019t work in any way (means the image cannot display)\n4. Be able to see the Image via inputing/updating Image Resource URL from side Panel as per design (URL input placeholder: \u201cEnter URL\u201c)",
+    "scenarios": "Scenario: User adds an Image Widget and inputs a valid URL  \n    Given the user is on the Simple Page Builder  \n    And the user has added a Block to the page  \n    When the user drags the Image Widget from the side panel into the Block  \n    Then the Image Widget should display a placeholder icon  \n    When the user enters a valid image URL in the side panel  \n    Then the Image Widget should display the image from the provided URL  "
+  },
+  {
+    "id": 267,
+    "user_story": "PB - As a User, I want to have a Text Widget",
+    "requirements": "1. Be able to call the rich text editor and use it within the Block, not in right side Panel\n2. Be able to have the same default functionalities as per current custom page V3 rich text editor including: Size, Bold, Italic,Strike-through, Underline Alignment\n3. Be able to auto-extend the height of text box by inputing contents, without limitation\n4. Be able to delete",
+    "scenarios": "Scenario: User adds and edits a Text Widget in a Block  \n    Given the user is on the Simple Page Builder  \n    And the user has added a Block to a Section  \n    When the user drags a Text Widget into the Block  \n    Then the rich text editor should appear within the Block, not in the right-side panel  \n    When the user types text into the Text Widget  \n    Then the text box should auto-extend in height as content is added  \n    When the user applies formatting options such as Bold, Italic, Underline, or Alignment  \n    Then the text should reflect the selected formatting  \n    When the user deletes the Text Widget  \n    Then it should be removed from the Block  "
+  },
+  {
+    "id": 268,
+    "user_story": "PB - As a User, I want to add a Widget to Block",
+    "requirements": "1. Be able to drag one widget from the widget toolbar to one target existing Block\n2. Be able to edit on the added widget from default size according to different widget types: Image, Text, Colour Palette\n3. Be able to disappear if the widget dragged outside any Blocks",
+    "scenarios": "Scenario: User adds a widget to a Block\n    Given the user is on the Simple Page Builder\n    And the user has an existing Block in the Section\n    When the user drags a widget (Image, Text, Colour Palette) from the widget toolbar\n    Then the widget should be added to the target Block\n    When the user edits the widget\n    Then the widget should adjust its size according to the widget type (Image, Text, Colour Palette)\n    When the user drags the widget outside of any Block\n    Then the widget should disappear"
+  },
+  {
+    "id": 270,
+    "user_story": "PB - As a User, I want to Undo & Redo any editing actions on Simple Page",
+    "requirements": "1. Be able to have Undo & Redo action buttons, see button designs \n2. Be able to click on Undo or Redo the previous edit action on sections / widgets / contents within Simple Page Builder\n3. Be able to hover on Undo or Redo buttons and see tooltips",
+    "scenarios": "Scenario: User undoes and redoes an editing action in Simple Page Builder\n    Given the user is on the Simple Page Builder page\n    And the user has made multiple edits to sections, widgets, or contents\n    When the user clicks on the \"Undo\" button\n    Then the most recent edit action should be reverted\n    When the user clicks on the \"Redo\" button\n    Then the previously undone action should be reapplied\n    And the Undo and Redo buttons should function as expected"
+  },
+  {
+    "id": 277,
+    "user_story": "As a user, I want to be able to see the actions when in view and update mode",
+    "requirements": "1. Show actions in View and Update mode",
+    "scenarios": "Scenario: Displaying Actions in View and Update Mode\nGiven the user is viewing or updating a record\nWhen the record is opened in View mode\nThen the available actions should be displayed as per the design\nAnd the actions should be accessible based on user permissions\nWhen the record is opened in Update mode\nThen the actions should also be displayed, allowing the user to perform relevant updates\n\n\n\n\n\n\n"
+  },
+  {
+    "id": 281,
+    "user_story": "PB - As a User, I want the status of background Image added via Resource Lookup to be linked with Resource module",
+    "requirements": "1. Be able to *link the status* of the the background Image *with the derived Image resources in Resource Module* if it has been added as *Page* or *Section* background in Page Builder via Resource Lookup\n",
+    "scenarios": "Scenario: Link Background Image Status with Derived Image Resources in Resource Module\nGiven a background image has been added as a Page or Section background in Page Builder via Resource Lookup\nWhen the background image exists in the Resource Module\nThen the status of the background image should be linked with the derived image resources in the Resource Module\nAnd any changes in the background image status (e.g., active, archived, or deleted) should be reflected in the linked image resources"
+  },
+  {
+    "id": 288,
+    "user_story": "PB - As a User, I want to switch Page Categories when viewing a Page if there are multiple Page Categories",
+    "requirements": "1. Be able to see multiple Page Categories in the dropdown to switch from Nav, if there are more than one Page Categories exist and the user has permission to view those pages are under the Page Categories\n2. Be able to select and to switch to another Page Category (incl. 'All Pages') via the drop-down menu as per design, then load Pages under from Nav",
+    "scenarios": "Scenario: Switch Between Multiple Page Categories in Navigation Dropdown\nGiven there are multiple Page Categories\nAnd the user has permission to view pages under those Page Categories\nWhen the user clicks on the Page Category dropdown in the Navigation\nThen the dropdown should display all available Page Categories, including 'All Pages'\nAnd the user should be able to select a different Page Category\nWhen the user selects a Page Category from the dropdown\nThen the navigation should update to show only the pages under the selected Page Category"
+  },
+  {
+    "id": 290,
+    "user_story": "PB - As a User, I want to un-assign a Page Category from an existing parent / standalone page",
+    "requirements": "1. Be able to un-assign (aka. update a Page to be removed from a Page Category) *a standalone Page* or *Parent including sub-pages together* from an existing Page Category via the Assign Page Category button as per ",
+    "scenarios": "Scenario: Un-assign a Page or Parent with Sub-Pages from a Page Category\nGiven the user is on the Assign Page Category interface\nWhen the user selects a standalone Page or a Parent Page (including all sub-pages) to be removed from an existing Page Category\nAnd the user confirms the action\nThen the selected Page or Parent Page with sub-pages should be unassigned from the Page Category\nAnd the Page(s) should no longer appear under the previously assigned Page Category in the navigation"
+  },
+  {
+    "id": 293,
+    "user_story": "PB - As a User, I want to delete an existing Page Category in Page Builder",
+    "requirements": "1. Be able to click on kebab button next to Page Category dropdown menu  from Navi Panel as per  and click on \u2018Delete Page Category\u2019 in Page Builder",
+    "scenarios": "Scenario: Deleting a Page Category from the Navigation Panel in Page Builder\nGiven the user is in the Page Builder and has access to manage Page Categories\nWhen the user clicks on the kebab button next to the Page Category dropdown menu in the Navigation Panel\nAnd the user selects \u2018Delete Page Category\u2019 from the dropdown options\nThen a confirmation dialog should appear asking the user to confirm the deletion\nAnd if the user confirms the deletion, the selected Page Category should be removed from the system and no longer appear in the dropdown menu\nBut if the user cancels the action, the Page Category remains unchanged"
+  },
+  {
+    "id": 296,
+    "user_story": "PB - [4/4] As an Internal User, I want to have MCP(development use only) settings to enable/disable features per Epic for Drag & Drop Page MVP ",
+    "requirements": "1. Add a MCP setting \u201cDrag & Drop Pages - Page Category (development use only)\u201c under Development Use only section under Platform Settings",
+    "scenarios": "Scenario: Adding MCP Setting for Drag & Drop Pages - Page Category\nGiven the user has access to MCP settings in Platform Settings\nWhen the user navigates to the \"Development Use Only\" section\nThen the user should see a new setting named \"Drag & Drop Pages - Page Category (development use only)\"\nAnd the setting should be listed under the Development Use Only section"
+  },
+  {
+    "id": 304,
+    "user_story": "PB - As a User, I want to configure both Block and Text Widget properties",
+    "requirements": "1. Be able to see and configure the new widget settings from Nav (combining previously defined Block and Widget's settings) for each widgets:\n2. *Text box:*\n3. Padding",
+    "scenarios": "Scenario: Configuring Text Box Widget Padding from Navigation\nGiven the user is in the application\nAnd the navigation menu contains a section for widget settings\nWhen the user selects the \"Text Box\" widget from the navigation menu\nThen the widget settings panel should display the combined settings of Block and Widget\nAnd Given the user is viewing the \"Text Box\" widget settings\nWhen they adjust the padding settings using the provided controls\nThen the padding should be applied to the Text Box widget\nAnd the changes should be reflected in real-time"
+  },
+  {
+    "id": 306,
+    "user_story": "[Ask AI Alpha] As a user I want to choose to search whole platform or current location (Logic: Folder location limit)",
+    "requirements": "1. \u00a0\u2018Limit to current view\u2019 checkbox field appears under question field\n2. This is always enabled by default when panel is opened",
+    "scenarios": "Scenario: \u2018Limit to current view\u2019 Checkbox Behavior in Panel\nGiven the user opens the panel\nWhen the panel is displayed\nThen the \u2018Limit to current view\u2019 checkbox field should appear under the question field\nAnd the checkbox should be enabled by default"
+  },
+  {
+    "id": 315,
+    "user_story": "[Ask AI Alpha] As a user, I want the Q&A system not to include any deleted documents ",
+    "requirements": "1. Deleted resources should be excluded from being a source for any questions/answers",
+    "scenarios": "Scenario: Excluding Deleted Resources from Questions and Answers\nGiven a resource has been deleted\nWhen a question or answer attempts to reference the deleted resource as a source\nThen the deleted resource should not be available as a source\nAnd the question or answer should not display or retrieve information from the deleted resource"
+  },
+  {
+    "id": 317,
+    "user_story": "PB - (Misc) As a User, I want to set auto-play as default or not for Video Widgets when viewing a Smart Page",
+    "requirements": "1. Be able to set added Video Widget auto-playing on Viewing via the button as per \n2.By default, the auto-play button is unchecked, meaning Videos won\u2019t be auto-played on viewing by default",
+    "scenarios": "Scenario: Configuring Auto-Play for Video Widget\nGiven the user has added a Video Widget\nWhen they open the Video Widget settings\nThen an Auto-Play button should be available\nAnd Given the Video Widget is newly added\nWhen the user has not changed the auto-play setting\nThen the auto-play button should be unchecked by default\nAnd the video should not auto-play when viewed\nAnd Given the user enables the auto-play button\nWhen they view the Video Widget\nThen the video should start playing automatically"
+  },
+  {
+    "id": 320,
+    "user_story": "[Ask AI Alpha] As a user I want to see the 'Ask AI' side panel header and see help tooltip there",
+    "requirements": "1. Search AI header of side-panel: \u2018Ask AI\u2019 \u00a0\n2.Help tooltip icon displays next to the name\n3.Text that displays on hover: 'Ask AI to summarize an answer from your documents. Enable 'Current view' to narrow your search to your current folder location and search only.\n",
+    "scenarios": "Scenario: Displaying \u2018Ask AI\u2019 Header and Help Tooltip in Side Panel\nGiven the user has opened the \u2018Ask AI\u2019 side panel\nWhen the panel is displayed\nThen the header should show \u2018Ask AI\u2019 at the top\nAnd Given the help tooltip icon is next to the header name\nWhen the user hovers over the tooltip icon\nThen a tooltip should appear with the text:\n\"Ask AI to summarize an answer from your documents. Enable 'Current view' to narrow your search to your current folder location and search only.\""
+  },
+  {
+    "id": 321,
+    "user_story": "[Ask AI Alpha] As a user I want to close the 'Ask AI' side panel",
+    "requirements": "1. Close icon displays top right of Ask AI side panel in header section\n2. User can click close icon which will close the side-panel\n",
+    "scenarios": "Scenario: Closing the \u2018Ask AI\u2019 Side Panel Using the Close Icon\nGiven the user has opened the \u2018Ask AI\u2019 side panel\nWhen the panel is displayed\nThen a close icon should be visible in the top-right corner of the header section\nAnd Given the user wants to close the side panel\nWhen they click the close icon\nThen the \u2018Ask AI\u2019 side panel should close"
+  },
+  {
+    "id": 323,
+    "user_story": "[Ask AI Alpha] As a user I can click 'Ask' button to trigger search AI (or can click enter)",
+    "requirements": "1 \u2018Ask\u2019 button displays under question field, is disabled by default when panel opens\n2. Hover text when enabled: \u2018Click or hit enter to ask your question.\u2019",
+    "scenarios": "Scenario: Displaying and Enabling the \u2018Ask\u2019 Button in the \u2018Ask AI\u2019 Side Panel\nGiven the user has opened the \u2018Ask AI\u2019 side panel\nWhen the panel is displayed\nThen an \u2018Ask\u2019 button should appear under the question field\nAnd the \u2018Ask\u2019 button should be disabled by default\nAnd Given the user has entered a valid question in the question field\nWhen the \u2018Ask\u2019 button becomes enabled\nThen hovering over the button should display the tooltip text:\n\"Click or hit enter to ask your question.\""
+  },
+  {
+    "id": 328,
+    "user_story": "[Ask AI Alpha] As a user I can see the answer (in scrollable field)",
+    "requirements": "1. \u00a0Answer field displays under Search bar (and other fields) when we have an answer to return\n2. Answer field height can expand as answer is incrementally built out to, but will hit a fixed height that is scrollable when that is reached/surpassed \n3. Answer component also includes the icon for Copying the answer - to be handled in a separate ticket in \n",
+    "scenarios": "Scenario: Displaying and Expanding Answer Field in \u2018Ask AI\u2019 Side Panel\nGiven the user has submitted a question in the \u2018Ask AI\u2019 field\nWhen the AI returns an answer\nThen an answer field should appear under the Search bar and other fields\nAnd Given the answer is being incrementally built out\nWhen the response length increases\nThen the answer field height should expand dynamically\nAnd Given the answer reaches a fixed height limit\nWhen the response continues to build beyond this limit\nThen the answer field should become scrollable\nAnd Given the answer is displayed\nThen an icon for Copying the answer should be included in the answer component (handled in a separate ticket)"
+  },
+  {
+    "id": 336,
+    "user_story": "PB - As a User, I want to see a Smart Page  template popup after click on V2 create",
+    "requirements": "1. Be able to go to V3 Page Builder and see a Page Template popup, after clicking on Smart Page from V2 Page creation popup, as per ",
+    "scenarios": "Scenario: Navigating to V3 Page Builder and Seeing the Page Template Popup\nGiven the user is in V2 Page Creation Popup\nWhen they click on \u2018Smart Page\u2019\nThen they should be redirected to V3 Page Builder\nAnd Given the user has arrived in V3 Page Builder\nThen a Page Template Popup should be displayed automatically\n\n\n\n\n\n\n"
+  },
+  {
+    "id": 342,
+    "user_story": "BP - (Misc) As a User, I want to see the Page Tree remain the same while switching Pages from Nav Panel",
+    "requirements": "1. Be able to see Page Tree remain the same while switching pages from Nav Panel during Viewing or Editing\n2. If the parent page is expanded with sub-pages displayed under it, the Tree view should remain the same while switching to any other pages",
+    "scenarios": "Scenario: Maintaining Page Tree Structure While Switching Pages\nGiven the user is in the V3 Page Builder\nAnd the Page Tree is displayed in the Nav Panel\nWhen the user switches between pages during Viewing or Editing\nThen the Page Tree structure should remain unchanged\nAnd Given the parent page is expanded with sub-pages displayed under it\nWhen the user navigates to a different page\nThen the expanded parent page and its visible sub-pages should remain unchanged in the Page Tree"
+  },
+  {
+    "id": 363,
+    "user_story": "PB - (FE components) As a User, I want to move a sub page to become a standalone Simple Page (Parent)",
+    "requirements": "1. Be able to move a sub-Page to become a standalone Page that doesn\u2019t contain any sub-Page, via drag-and-drop from Navigation Panel on editing mode in Page Builder\n2. Be able to see the updated order / hierarchy of Page list from Navigation Panel",
+    "scenarios": "Scenario: Moving a Sub-Page to Become a Standalone Page via Drag-and-Drop in Page Builder\nGiven the user is in editing mode within the Page Builder\nAnd the Navigation Panel displays a hierarchical list of pages, including sub-pages\nWhen the user drags a sub-page from its current parent page and drops it into the root level of the Navigation Panel\nThen the sub-page becomes a standalone page without any sub-pages\nAnd the Navigation Panel updates to reflect the new page hierarchy\nAnd the user can see the updated order and hierarchy of the page list in the Navigation Panel"
+  },
+  {
+    "id": 367,
+    "user_story": "Grouped Email Updates [existing designs]: Same Template Cross Folder Handling (different reviewers for different folders, but same template)",
+    "requirements": "1. If Cross Folder bulk edit involves resources from different folders that have workflows from the same Workflow Template, but where reviewers may be different per folder due to config (_as detailed in scenarios above, this could be a mix of Global+Local, or Global+Global but with different reviewers, or Local+Local with different reviewers_) ",
+    "scenarios": "Scenario: Cross-Folder Bulk Edit with Resources from Different Folders Sharing the Same Workflow Template but with Different Reviewers\nGiven multiple resources located in different folders\nAnd each folder has a workflow configured from the same workflow template\nAnd the reviewers assigned to each folder's workflow are different\nWhen a user initiates a bulk edit action that includes resources from these different folders\nThen the system identifies the distinct sets of reviewers based on each folder's configuration\nAnd the system sends separate workflow approval requests to each set of reviewers corresponding to their respective folders\nAnd each set of reviewers receives a notification detailing the resources from their specific folder that require approval\nAnd the bulk edit changes are applied to the resources only after the respective reviewers from each folder have approved the changes"
+  },
+  {
+    "id": 372,
+    "user_story": "PB - As a User, I want to re-order pages within the same parent/root via Nav - FE integration",
+    "requirements": "1. Be able to re-order Pages via drag-and-drop from Nav Panel during editing\n2. Sub-pages will be moved all together with Page if it contains any\n3. After drag-and-drop of Pages, Sub-pages will be *collapsed* under Page from Nav Panel",
+    "scenarios": "Scenario: Reordering Pages via Drag-and-Drop in Navigation Panel during Editing\nGiven the user is in editing mode within the Page Builder\nAnd the Navigation Panel displays a list of pages, some of which contain sub-pages\nWhen the user drags a page to a new position within the Navigation Panel\nThen the system moves the selected page to the new position\nAnd if the moved page contains sub-pages, all associated sub-pages move along with it\nAnd after the drag-and-drop action, any sub-pages under the moved page are collapsed in the Navigation Panel"
+  },
+  {
+    "id": 379,
+    "user_story": "PB - As a User, I want to be able to download the resources added to the page, if I have permission to do so - Video widget",
+    "requirements": "1. Be able to *ONLY* see the download button as per to download the added resources on Editing, Previewing & Viewing of Simple Page *by hovering on Widgets*:\n2. Video resource from Video Widget",
+    "scenarios": "Scenario: Display Download Button on Hover Over Video Widget in Simple Page\nGiven a user is viewing, previewing, or editing a Simple Page containing a Video Widget\nWhen the user hovers over the Video Widget\nThen a download button should appear on the Video Widget\nAnd clicking the download button should initiate the download of the video resource associated with the Video Widget"
+  },
+  {
+    "id": 381,
+    "user_story": "[QW 4/5] Requester Re-assign: Load group users(expand group > users) from workflow config - (v2 component approach)",
+    "requirements": "1.As per,  the below is not supported in the V2 Approvals List.\n2.This means in V2 List, that Requesters cannot re-assign to any request unless Workflow or Main Admins (=current handling) ",
+    "scenarios": "Scenario: Requester Reassignment Restrictions in V2 Approvals List\nGiven a requester has submitted an approval request in the V2 Approvals List\nWhen the requester attempts to reassign their own approval request\nThen the system should prevent the requester from reassigning the request\nAnd only Workflow Administrators or Main Administrators should have the ability to reassign approval requests in the V2 Approvals List"
+  },
+  {
+    "id": 397,
+    "user_story": "PB - (FE integration) As a User, I want to create a sub-page for an exisiting Simple Page via Nav",
+    "requirements": "1. Be able to click on setting button of a simple page from Nav as per \n2. Be able to see the sub-page popup as per ",
+    "scenarios": "Scenario: Access Sub-Page Settings via Navigation Panel\nGiven a user is in the Page Builder's editing mode\nWhen the user clicks on the settings button (represented by a gear icon) of a simple page from the Navigation Panel\nThen a popup should appear displaying the settings for that page\nAnd if the page has sub-pages, the popup should include options to manage these sub-pages, such as viewing, adding, or editing them\nAnd the user should be able to configure settings specific to the sub-pages within this popup"
+  },
+  {
+    "id": 399,
+    "user_story": "[Bulk Review] Same Template:  Needed until - cross date value handling",
+    "requirements": "1. For Resource Download Requests, as long as requests are tied to the same Template, they can be selected together for Bulk Review regardless of what Needed until/Approved until value setting is, or value is (including no value)",
+    "scenarios": "Scenario: Bulk Review of Resource Download Requests with Various 'Needed Until' or 'Approved Until' Values\nGiven multiple resource download requests exist that are associated with the same template\nAnd these requests have varying 'Needed Until' or 'Approved Until' values, including some with no specified value\nWhen a reviewer selects these requests for bulk review\nThen the system should allow the selection of all these requests together for bulk review\nAnd the system should process the bulk review without any errors, regardless of the individual 'Needed Until' or 'Approved Until' values"
+  },
+  {
+    "id": 400,
+    "user_story": "[RESTRICTIONS] Allow same Template Staged requests to be selected together if number of stages *in config* doesn't match (or conditional requests with different stages)",
+    "requirements": "1.For Staged Pending Requests, as long as requests are tied to the same Template, AND as long as the requests themselves are on the same current stage, they can be selected together for Bulk Review regardless of the total number of stages in the config,",
+    "scenarios": "Scenario: Bulk Review of Staged Pending Requests at the Same Current Stage\nGiven multiple staged pending requests associated with the same workflow template\nAnd all these requests are currently at the same stage in the workflow\nWhen a reviewer selects these requests for bulk review\nThen the system should allow the selection of all these requests together for bulk review\nAnd the system should process the bulk review without any errors, regardless of the total number of stages configured in the workflow"
+  },
+  {
+    "id": 401,
+    "user_story": "'Review Request' in footer should be plural  - change to 'Review Request(s)'",
+    "requirements": "1. In Bulk Action Footer update \u2018Review Request\u2019 to \u2018Review Request(s)\u2019",
+    "scenarios": "Scenario: Update 'Review Request' Button Text in Bulk Action Footer to 'Review Request(s)'\nGiven a user is viewing the bulk action footer in the application\nWhen the bulk action footer is displayed\nThen the 'Review Request' button text should be updated to 'Review Request(s)'"
+  },
+  {
+    "id": 420,
+    "user_story": "[RESTRICTIONS] Cross param handling of 'Hide Decline' (hide Decline if all share param,  ignore Bulk Apply of Decline to items that don't apply)",
+    "requirements": "1. When we can detect that the requests selected for Bulk Review feature a mix of items where Hide Decline is enabled and some that do not, then on the Bulk Review response panel we still display Decline as an option",
+    "scenarios": "Scenario: Displaying 'Decline' Option in Bulk Review Panel with Mixed 'Hide Decline' Settings\nGiven I am an Admin user (Main Admin or Workflow Admin) accessing the Bulk Review panel\nAnd I have selected multiple requests for Bulk Review, where some requests have the 'Hide Decline' setting enabled and others do not\nWhen I view the Bulk Review response panel\nThen the 'Decline' option should still be displayed as an available action"
+  },
+  {
+    "id": 423,
+    "user_story": "Bulk Approve Response UUID  {createdInBulkId} display column in Stats - Workflow Responses(to be used in condition)",
+    "requirements": "1.Using back end data captured in we will surface that information in a new Stats column ",
+    "scenarios": "Scenario: Display Backend Data in 'Stats' Column\nGiven I am an authorized user on the Approval List page\nWhen I view the list of requests\nThen I should see a 'Stats' column displayed\nAnd each row in the 'Stats' column should display the corresponding backend data captured for that request"
+  },
+  {
+    "id": 425,
+    "user_story": "Bulk Approve action Tracking surfacing in Review Request - Responses",
+    "requirements": "1. This ticket is to add some sort of UI indicator against the Request Status > Response(s) +to denote if response was submitted on the single view, or in bulk\n2. Current look:",
+    "scenarios": "Scenario: Indicating Submission Method for Request Responses\nGiven I am a user viewing the Request Status > Response(s) section\nWhen I look at the list of responses\nThen each response should have a UI indicator showing whether it was submitted via single view or bulk action\nAnd the indicator should be clear and distinguishable for both submission methods"
+  },
+  {
+    "id": 454,
+    "user_story": "As a user the Bulk Action Footer bar displays when one relevant item is selected",
+    "requirements": "1. When one item\u2019s checkbox is selected, the Bulk Action footer bar displays \n2. For Beta the \u2018Select All\u2019 action from existing footer bar will have to be hidden in this location ",
+    "scenarios": "Scenario: Display Bulk Action Footer and Hide 'Select All' in Beta\nGiven the user is on the items list page\nAnd there are multiple items displayed with checkboxes\nWhen the user selects a single item's checkbox\nThen the Bulk Action footer bar should be displayed\nAnd the 'Select All' action should be hidden in the footer for the Beta version"
+  },
+  {
+    "id": 460,
+    "user_story": "FE task: As a User, I want to Delete the name from resources across platform on Training Centre",
+    "requirements": "1. Be able to see \"Delete profile\" action icon for recognised faces from training centre as per \n2. Be able to see tooltips while hovering on the icon",
+    "scenarios": "Scenario: Display 'Delete Profile' Icon with Tooltip for Recognized Faces\nGiven the user is in the training center\nAnd there are recognized faces displayed\nWhen the user views a recognized face profile\nThen the \"Delete Profile\" action icon should be visible\nAnd when the user hovers over the icon, a tooltip should be displayed\n\n\n\n\n\n\n"
+  },
+  {
+    "id": 465,
+    "user_story": "PB - As a User, I want to see and access resource module via a lookup button to select & upload Resources into Page Builder",
+    "requirements": "1. Be able to see resource lookup button \u201cSelect\u201c from Side Panel as per ",
+    "scenarios": "Scenario: Display 'Select' Resource Lookup Button in Side Panel\nGiven the user is viewing the Side Panel\nWhen the panel contains a resource lookup option\nThen the \"Select\" button should be visible\nAnd the user should be able to interact with it as per the design"
+  },
+  {
+    "id": 466,
+    "user_story": "As a user in single view when I click previous/next, or Save & Next,  this takes into account my Search/Filtered results",
+    "requirements": "1. User can then change search to see more items\n2. If the single item is the last in the folder, then this will be handled in",
+    "scenarios": "Scenario: User Can Change Search to See More Items and Handle Last Item in Folder\nGiven the user has performed a search and sees a list of items\nWhen the user modifies the search criteria\nThen more items should be displayed based on the new search query\nAnd if only a single item remains in the folder, it should be handled according to the defined system behavior"
+  },
+  {
+    "id": 468,
+    "user_story": "PB - As a User, I want to report Edit Page action in the usage reporting",
+    "requirements": "1. Be able to see Simple Page reporting on Edit action\n2. User Usage Report",
+    "scenarios": "Scenario: Display Simple Page Reporting on Edit Action\nGiven the user has access to reporting features\nWhen the user performs an Edit action on a Simple Page\nThen the action should be recorded in the User Usage Report"
+  },
+  {
+    "id": 471,
+    "user_story": "PB - As a User, I want to report Resource Download (Original) action in Usage Reporting for Custom Page Module",
+    "requirements": "1.Be able to track the Smart Page usage reporting for resource download action (Original size type of Resource, aka \u201cBest\u201c quality)",
+    "scenarios": "Scenario: Track Smart Page Usage Reporting for Resource Download (Best Quality)\nGiven the user has access to a Smart Page\nAnd the page contains downloadable resources\nWhen the user downloads a resource in its Original size (\"Best\" quality)\nThen the action should be tracked in the Smart Page usage reporting"
+  },
+  {
+    "id": 473,
+    "user_story": "PB - As a User, I want to set Page/Section/Block/Widgets Colour in Opacity ",
+    "requirements": "1. Be able to set Page/Section/Block 's background, Colour Palette Widget 's Colour, Button Widget's Text & Background in opacity as per design\n2. Be bale to se the transparency / opacity via the opacity bar blow the hue bar as per ",
+    "scenarios": "Scenario: Set and Adjust Opacity for Page/Section/Block Background, Color Palette Widget, and Button Widget\nGiven the user is editing a Page, Section, or Block\nAnd the user has access to the Color Palette Widget and Button Widget settings\nWhen the user sets the background color, text color, or button background\nThen they should be able to adjust the transparency/opacity using the opacity bar below the hue bar as per the design\nAnd the selected opacity level should be applied accordingly\n\n\n\n\n\n\n"
+  },
+  {
+    "id": 475,
+    "user_story": "As a bulk edit user, I can see the Folder name for the resource in single view",
+    "requirements": "1. In Single view page add in the Folder name to the page name, like we do for same folder bulk edit > single view\n",
+    "scenarios": "Scenario: Display Folder Name in Single View Page Title\nGiven the user is on the Single View page\nAnd the file belongs to a specific folder\nWhen the page is displayed\nThen the Folder name should be included in the page title\nJust like it is displayed in Bulk Edit > Single View for the same folder"
+  },
+  {
+    "id": 487,
+    "user_story": "[FILTERS] As a user I can see the currently applied filter above the list / select between filters - on the fly filter support",
+    "requirements": "1.In Page toggle between Filters",
+    "scenarios": "Scenario: Toggle Between Filters on a Page\nGiven the user is on a page with multiple filter options\nWhen the user selects or toggles between different filters\nThen the displayed results should update accordingly\nAnd the active filter selection should be clearly indicated\n\n\n\n\n\n\n"
+  },
+  {
+    "id": 488,
+    "user_story": "[GDA] -  As a User if I don't have permission to download the item I have to request permission to download again (or cannot download) - Part 1/2 - grouped download button",
+    "requirements": "1. If user does not have permission to download +any+ selected items in the list, and bulk download is clicked, they will be taken to the existing Bulk Request Approval page, to again request or re-request permission to download\n",
+    "scenarios": "Scenario: Redirect to Bulk Request Approval Page if User Lacks Download Permission\nGiven the user has selected multiple items in a list\nAnd the user does not have permission to download any of the selected items\nWhen the user clicks on Bulk Download\nThen they should be redirected to the Bulk Request Approval page\nAnd they should be able to request or re-request permission to download"
+  },
+  {
+    "id": 489,
+    "user_story": "[GDA] -  As a User I want to be able to bulk download my items when able",
+    "requirements": "1.Requester needs to be able to bulk download files as they can currently do in V2 +when request is approved / within the approved timeframe",
+    "scenarios": "Scenario: Bulk Download Files After Request Approval\nGiven the requester has submitted a download request for multiple files\nAnd the request has been approved\nAnd the approval is within the approved timeframe\nWhen the requester initiates a Bulk Download\nThen they should be able to download the approved files\nAnd the functionality should match the existing behavior in V2"
+  },
+  {
+    "id": 490,
+    "user_story": "[GDA] -  Once user has responded, item will be ignored in bulk Apply + submit",
+    "requirements": "1. Once user responds, individual requests remain as selected on Grouped List page after Submit if passed validation. \n2. Once they have made a response, users can then only update their responses individually as per ",
+    "scenarios": "Scenario: Maintain Selection of Individual Requests After Submission and Restrict Further Updates\nGiven the user has selected multiple individual requests on the Grouped List page\nAnd the responses have passed validation\nWhen the user submits their responses\nThen the selected individual requests should remain selected on the Grouped List page\nAnd once a response has been submitted\nThen the user should only be able to update their responses individually as per the specified design"
+  },
+  {
+    "id": 497,
+    "user_story": "As a User, In the V2 Database Settings - I want to select a Feature Field Completion Value which will offer the approval statuses as options",
+    "requirements": "1.Field should only appear when a Multi Upload field has been selected as a Feature Field\n2. Values include: Approved, Cancelled, Completed, Declined, Pending",
+    "scenarios": "Scenario: Display Field Only When Multi Upload Field is Selected as a Feature Field\nGiven the user is configuring a form or settings\nWhen they select a Multi Upload field as a Feature Field\nThen a new field should appear\nAnd this field should include the following values:\nApproved\nCancelled\nCompleted\nDeclined\nPending\nBut if a Multi Upload field is not selected as a Feature Field\nThen this field should not be displayed"
+  },
+  {
+    "id": 498,
+    "user_story": "As a user I want to filter by number of revisions for Resource Publish Requests in Workflow Request Stats",
+    "requirements": "1. When the below are selected then new data condition option \u2018Markup Comments Revisions\u2019 is available for Workflow +Requests+:\n2. \u2018All Workflows\u2019 is selected",
+    "scenarios": "Scenario: Display \u2018Markup Comments Revisions\u2019 Data Condition When \u2018All Workflows\u2019 is Selected\nGiven the user is on the Workflow Requests page\nWhen they select \u2018All Workflows\u2019 from the available options\nThen a new data condition option \u2018Markup Comments Revisions\u2019 should be available for selection"
+  }
+]

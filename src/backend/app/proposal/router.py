@@ -172,8 +172,8 @@ async def list_proposals_by_story(
     if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
-        dto = service.list_sessions_proposals_by_story(conn_id, project_key, story_key)
-        return BasicResponse(data=dto)
+        dtos = service.get_proposals_by_story_key(conn_id, project_key, story_key)
+        return BasicResponse(data=dtos)
     except ValueError as e:
         traceback.print_exc()
         raise HTTPException(status_code=404, detail=str(e))

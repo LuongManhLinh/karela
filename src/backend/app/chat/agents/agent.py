@@ -1,4 +1,4 @@
-from llm.dynamic_agent import GenimiDynamicAgent
+from llm.gemini_dynamic_agent import GenimiDynamicAgent
 from langchain.agents.middleware import dynamic_prompt, ModelRequest
 from langchain_core.messages import BaseMessage, HumanMessage
 
@@ -8,7 +8,6 @@ from common.configs import LlmConfig
 from .prompts import SYSTEM_PROMPT, CHAT_TITLER_SYSTEM_PROMPT
 from .tools import tools
 from .context import Context
-
 
 # tool_selector_middleware = LLMToolSelectorMiddleware(
 #     model=ChatGoogleGenerativeAI(

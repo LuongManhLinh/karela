@@ -859,3 +859,19 @@ class ProposalService:
             self.db.add(check)
             self.db.commit()
         return checked
+
+    def get_proposals_by_story_key(
+        self, connection_id: str, project_key: str, story_key: str
+    ) -> list[ProposalDto]:
+        """Retrieves all proposals for a given story key."""
+        proposals = (
+            self.db.query(Proposal)
+            .join(ProposalContent)
+            .filter(
+                Proposal.connection_id == connection_id,
+                Proposal.project_key == project_key,
+                ProposalContent.story_key == story_key,
+            )
+            .all()
+        )
+        return [self._get_proposal_dto(proposal) for proposal in proposals]

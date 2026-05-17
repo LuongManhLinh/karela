@@ -488,17 +488,20 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
       {/* Section for chat input */}
       <Box
         sx={{
-          width: "60%",
-          p: 2,
+          width: "62%",
+
           ...(!isEmptyState
             ? {
                 zIndex: 10,
                 position: "absolute",
-                bottom: 16,
+                bottom: 0,
+                pb: 3,
+                bgcolor: "background.default",
               }
             : {
                 display: "flex",
                 flexDirection: "column",
+                p: 2,
               }),
           alignItems: "center",
           justifyContent: "center",

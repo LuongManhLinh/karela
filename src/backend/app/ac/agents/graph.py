@@ -1,11 +1,11 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Optional, Literal
 from langchain_core.messages import HumanMessage, AIMessage, BaseMessage
 from langgraph.graph import StateGraph, START, END
 from langgraph.runtime import Runtime
 from sqlalchemy.orm import Session
 
-from llm.dynamic_agent import GenimiDynamicAgent
+from llm.dynamic_agent import DynamicAgent
 from common.configs import LlmConfig
 from common.agents.schemas import LlmContext
 from langchain.agents.middleware import dynamic_prompt, ModelRequest
@@ -58,32 +58,52 @@ def get_dynamic_prompt_middleware_for_node(node_name: str) -> str:
     return user_context_prompt
 
 
-# Create agents for each node
-ac_generator_agent = GenimiDynamicAgent(
-    model_name=LlmConfig.GEMINI_DEFAULT_MODEL,
-    temperature=LlmConfig.LLM_DEFAULT_TEMPERATURE,
-    response_mime_type="application/json",
+def create_agent_for_node(
+    node_name: str,
+    response_schema,
+    temperature: float = LlmConfig.LLM_DEFECT_TEMPERATURE,
+    top_p: float = LlmConfig.LLM_DEFECT_TOP_P,
+    family: Literal["gemini", "openai"] = "openai",
+) -> DynamicAgent:
+    if family == "gemini":
+        model_name = LlmConfig.GEMINI_DEFECT_MODEL
+        api_keys = LlmConfig.GEMINI_API_KEYS
+    elif family == "openai":
+        model_name = LlmConfig.OPENAI_DEFECT_MODEL
+        api_keys = LlmConfig.OPENAI_API_KEYS
+
+    print(
+        f"Creating agent for node '{node_name}' with model '{model_name}' and temperature {temperature}"
+    )
+
+    return DynamicAgent(
+        family=family,
+        model_name=model_name,
+        temperature=temperature,
+        top_p=top_p,
+        response_mime_type="application/json",
+        response_schema=response_schema,
+        api_keys=api_keys,
+        middleware=[get_dynamic_prompt_middleware_for_node(node_name)],
+    )
+
+
+ac_generator_agent = create_agent_for_node(
+    node_name="ac_generator",
     response_schema=ACGeneratorOutput,
-    api_keys=LlmConfig.GEMINI_API_KEYS,
-    middleware=[get_dynamic_prompt_middleware_for_node("ac_generator")],
+    temperature=LlmConfig.LLM_DEFAULT_TEMPERATURE,
 )
 
-ac_reviewer_agent = GenimiDynamicAgent(
-    model_name=LlmConfig.GEMINI_CHAT_MODEL,
-    temperature=LlmConfig.LLM_DEFECT_TEMPERATURE,  # Use lower temp for critique
-    response_mime_type="application/json",
+ac_reviewer_agent = create_agent_for_node(
+    node_name="ac_reviewer",
     response_schema=ACReviewerOutput,
-    api_keys=LlmConfig.GEMINI_API_KEYS,
-    middleware=[get_dynamic_prompt_middleware_for_node("ac_reviewer")],
+    temperature=LlmConfig.LLM_DEFECT_TEMPERATURE,
 )
 
-ac_rewriter_agent = GenimiDynamicAgent(
-    model_name=LlmConfig.GEMINI_CHAT_MODEL,
+ac_rewriter_agent = create_agent_for_node(
+    node_name="ac_rewriter",
+    response_schema=ACGeneratorOutput,
     temperature=LlmConfig.LLM_CHAT_TEMPERATURE,
-    response_mime_type="application/json",
-    response_schema=ACGeneratorOutput,  # Re-use generator output schema
-    api_keys=LlmConfig.GEMINI_API_KEYS,
-    middleware=[get_dynamic_prompt_middleware_for_node("ac_rewriter")],
 )
 
 
@@ -108,7 +128,7 @@ class Context(LlmContext):
     description: str
     existing_ac: Optional[str] = None
     user_feedback: Optional[str] = None
-    initial_messages: Optional[list[BaseMessage]] = None
+    project_description: Optional[str] = None
     extra_instruction: Optional[str] = None
 
 
@@ -128,10 +148,6 @@ def ac_generator(state: State, runtime: Runtime[Context]) -> State:
             content=f"Here is the input for generating AC:\n{format_ac_generator_input(input_data)}"
         )
     ]
-
-    init_messages = runtime.context.initial_messages
-    if init_messages:
-        messages = init_messages + messages
 
     response = ac_generator_agent.invoke(messages=messages)
     structured_response = get_response_as_schema(response, ACGeneratorOutput)
@@ -156,10 +172,6 @@ def ac_reviewer(state: State, runtime: Runtime[Context]) -> State:
             content=f"Please review this AC:\n{format_ac_reviewer_input(input_data)}"
         )
     ]
-
-    init_messages = runtime.context.initial_messages
-    if init_messages:
-        messages = init_messages + messages
 
     response = ac_reviewer_agent.invoke(messages=messages)
     structured_response = response["structured_response"]
@@ -198,9 +210,6 @@ def ac_rewriter(state: State, runtime: Runtime[Context]) -> State:
     )
 
     messages = AC_REWRITER_FAKE_HISTORY + state.loop_history + [current_message]
-    init_messages = runtime.context.initial_messages
-    if init_messages:
-        messages = init_messages + messages
 
     response = ac_rewriter_agent.invoke(messages=messages)
     structured_response = response["structured_response"]
@@ -263,7 +272,7 @@ def generate_ac_from_story(
     feedback: Optional[str] = None,
     max_rewrite_attempts: int = 3,
     extra_instruction: Optional[str] = None,
-    initial_messages: Optional[list[BaseMessage]] = None,
+    project_description: Optional[str] = None,
 ) -> str:
     """
     Generates Gherkin Acceptance Criteria from a User Story title and description.
@@ -278,7 +287,7 @@ def generate_ac_from_story(
         connection_id=connection_id,
         project_key=project_key,
         db=db,
-        initial_messages=initial_messages,
+        project_description=project_description,
         extra_instruction=extra_instruction,
     )
 
