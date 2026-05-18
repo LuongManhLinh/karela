@@ -187,12 +187,43 @@ class ChatDataService:
         self.db.add(message)
         self.db.commit()
 
-    def delete_chat_session(self, session_id: str):
+    def delete_chat_session(self, session_id_or_key: str):
         session = (
-            self.db.query(ChatSession).filter(ChatSession.id == session_id).first()
+            self.db.query(ChatSession)
+            .filter(
+                or_(
+                    ChatSession.id == session_id_or_key,
+                    ChatSession.key == session_id_or_key,
+                )
+            )
+            .first()
         )
         if not session:
-            raise ValueError(f"Chat session {session_id} not found")
+            raise ValueError(f"Chat session {session_id_or_key} not found")
 
         self.db.delete(session)
+        self.db.commit()
+
+    def update_chat_session_title(
+        self,
+        connection_id: str,
+        session_id_or_key: str,
+        new_title: str,
+    ):
+        session = (
+            self.db.query(ChatSession)
+            .join(Connection, ChatSession.connection_id == Connection.id)
+            .filter(
+                Connection.id == connection_id,
+                or_(
+                    ChatSession.id == session_id_or_key,
+                    ChatSession.key == session_id_or_key,
+                ),
+            )
+            .first()
+        )
+        if not session:
+            raise ValueError(f"Chat session {session_id_or_key} not found")
+        
+        session.title = new_title
         self.db.commit()

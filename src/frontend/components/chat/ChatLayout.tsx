@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type { ChatSessionSummary } from "@/types/chat";
 import type { ProjectDto } from "@/types/connection";
@@ -28,9 +28,10 @@ import {
   Typography,
   Tooltip,
   IconButton,
+  TextField,
 } from "@mui/material";
 import { scrollBarSx } from "@/constants/scrollBarSx";
-import { Delete, MoreHoriz, Warning } from "@mui/icons-material";
+import { Delete, MoreHoriz, Warning, Edit } from "@mui/icons-material";
 import DeleteWarningDialog from "./DeleteWarningDialog";
 
 interface ChatLayoutProps {
@@ -55,20 +56,82 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
 
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const menuOpen = Boolean(menuAnchorEl);
-  const [chatToDelete, setChatToDelete] = useState<string | null>(null);
+  const [menuKey, setMenuKey] = useState<string | null>(null);
   const [deleteWarningOpen, setDeleteWarningOpen] = useState(false);
+  const [editingKey, setEditingKey] = useState<string | null>(null);
+  const [editTitleValue, setEditTitleValue] = useState("");
+  const editInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editingKey) {
+      // Delay to let the Menu finish its close animation before focusing
+      const id = setTimeout(() => editInputRef.current?.focus(), 50);
+      return () => clearTimeout(id);
+    }
+  }, [editingKey]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "F2" && selectedSessionKey && !editingKey && !menuOpen) {
+        const session = sessions.find((s) => s.key === selectedSessionKey);
+        setEditingKey(selectedSessionKey);
+        setEditTitleValue(session?.title || t("untitled"));
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedSessionKey, editingKey, menuOpen, sessions, t]);
 
   const handleMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
     key: string,
   ) => {
     event.stopPropagation();
-    setChatToDelete(key);
+    setMenuKey(key);
     setMenuAnchorEl(event.currentTarget);
   };
 
   const handleMenuClose = () => {
     setMenuAnchorEl(null);
+  };
+
+  const handleSaveTitle = async (key: string, newTitle: string) => {
+    console.log("Saving title for", key, "new title:", newTitle);
+    const session = sessions.find((s) => s.key === key);
+    if (!newTitle.trim() || session?.title === newTitle.trim()) {
+      if (editingKey === key) {
+        setEditingKey(null);
+      }
+      return;
+    }
+    try {
+      await chatService.updateChatSessionTitle(key, newTitle.trim());
+      handleTitleChange(key, newTitle.trim());
+    } catch (error) {
+      console.error("Failed to update chat title:", error);
+    }
+    if (editingKey === key) {
+      setEditingKey(null);
+    }
+  };
+
+  const handleEditClick = () => {
+    handleMenuClose();
+    setEditingKey(menuKey);
+    const session = sessions.find((s) => s.key === menuKey);
+    setEditTitleValue(session?.title || t("untitled"));
+  };
+
+  const handleEditKeyDown = (e: React.KeyboardEvent, key: string) => {
+    if (e.key === "Enter") {
+      console.log("Enter key pressed for", key, "new title:", editTitleValue);
+      e.stopPropagation();
+      handleSaveTitle(key, editTitleValue);
+    } else if (e.key === "Escape") {
+      console.log("Escape key pressed for", key, "new title:", editTitleValue);
+      e.stopPropagation();
+      setEditingKey(null);
+    }
   };
 
   const handleDeleteClick = (event: React.MouseEvent) => {
@@ -78,21 +141,21 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   };
 
   const handleConfirmDelete = async () => {
-    if (chatToDelete) {
+    if (menuKey) {
       try {
-        await chatService.deleteChatSession(chatToDelete);
+        await chatService.deleteChatSession(menuKey);
         await refetchSessions();
       } catch (error) {
         console.error("Failed to delete chat:", error);
       }
     }
     setDeleteWarningOpen(false);
-    setChatToDelete(null);
+    setMenuKey(null);
   };
 
   const handleCloseDeleteWarning = () => {
     setDeleteWarningOpen(false);
-    setChatToDelete(null);
+    setMenuKey(null);
   };
 
   const { setHeaderProjectKey, setHeaderStoryKey } = useWorkspaceStore();
@@ -257,6 +320,29 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
                     >
                       {isLoadingTitle ? (
                         <Skeleton variant="text" width="70%" />
+                      ) : editingKey === session.key ? (
+                        <TextField
+                          size="small"
+                          inputRef={editInputRef}
+                          value={editTitleValue}
+                          onChange={(e) => setEditTitleValue(e.target.value)}
+                          onKeyDown={(e) => handleEditKeyDown(e, session.key)}
+                          onClick={(e) => e.stopPropagation()}
+                          onFocus={(e) => e.stopPropagation()}
+                          variant="outlined"
+                          sx={{
+                            flex: 1,
+                            "& .MuiInputBase-root": {
+                              padding: 0,
+                            },
+                            "& .MuiInputBase-input": {
+                              fontSize: "0.875rem",
+                              fontWeight: 600,
+                              lineHeight: 1.3,
+                              padding: "2px 4px",
+                            },
+                          }}
+                        />
                       ) : (
                         <Typography
                           variant="body2"
@@ -358,6 +444,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
         anchorEl={menuAnchorEl}
         open={menuOpen}
         onClose={handleMenuClose}
+        disableRestoreFocus
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "right",
@@ -368,6 +455,19 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
         }}
         onClick={(e) => e.stopPropagation()}
       >
+        <MenuItem
+          onClick={(e) => {
+            if (menuKey) {
+              e.stopPropagation();
+              handleEditClick();
+            }
+          }}
+        >
+          <ListItemIcon>
+            <Edit fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>{t("rename")}</ListItemText>
+        </MenuItem>
         <MenuItem onClick={handleDeleteClick}>
           <ListItemIcon>
             <Delete fontSize="small" />

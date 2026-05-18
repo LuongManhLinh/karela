@@ -330,7 +330,8 @@
       "headerText": "Chat",
       "create": "Create",
       "untitled": "Untitled Session",
-      "delete": "Delete"
+      "delete": "Delete",
+      "rename": "Rename"
     },
     "ChatPage": {
       "gettingStarted": "Select or create a chat session to get started."

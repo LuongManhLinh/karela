@@ -72,14 +72,14 @@ class WebSocketManager:
         except json.JSONDecodeError:
             payload = json.dumps({"topic": topic, "data": message})
 
-        for connection, topics in self.active_connections.items():
+        for websocket, topics in self.active_connections.items():
             if topic in topics:
                 try:
-                    print(f"Sending to client on topic {topic}: {payload}")
-                    await connection.send_text(payload)
+                    # print(f"Sending to client on topic {topic}: {payload}")
+                    await websocket.send_text(payload)
                 except Exception as e:
                     print(f"Error sending to client: {e}")
-                    to_remove.append(connection)
+                    to_remove.append(websocket)
 
         for ws in to_remove:
             self.disconnect(ws)

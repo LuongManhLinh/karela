@@ -1,0 +1,6799 @@
+2026-05-17 21:00:49.804291: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-4559-7773-b8d5-bf34a84ffb8d",
+  "tool_calls": [
+    {
+      "name": "list_available_docs",
+      "args": {},
+      "id": "call_F5vqFE0nRbSJMOyGkhr7ChK2",
+      "type": "tool_call"
+    }
+  ],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [
+    {
+      "name": "list_available_docs",
+      "args": "",
+      "id": "call_F5vqFE0nRbSJMOyGkhr7ChK2",
+      "index": 0,
+      "type": "tool_call_chunk"
+    }
+  ],
+  "chunk_position": null
+}
+2026-05-17 21:00:49.807415: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-4559-7773-b8d5-bf34a84ffb8d",
+  "tool_calls": [
+    {
+      "name": "",
+      "args": {},
+      "id": null,
+      "type": "tool_call"
+    }
+  ],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [
+    {
+      "name": null,
+      "args": "{}",
+      "id": null,
+      "index": 0,
+      "type": "tool_call_chunk"
+    }
+  ],
+  "chunk_position": null
+}
+2026-05-17 21:00:49.808015: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "finish_reason": "tool_calls",
+    "model_name": "gpt-5-mini-2025-08-07",
+    "service_tier": "default",
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-4559-7773-b8d5-bf34a84ffb8d",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:49.808553: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-4559-7773-b8d5-bf34a84ffb8d",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": {
+    "input_tokens": 1354,
+    "output_tokens": 20,
+    "total_tokens": 1374,
+    "input_token_details": {
+      "audio": 0,
+      "cache_read": 0
+    },
+    "output_token_details": {
+      "audio": 0,
+      "reasoning": 0
+    }
+  },
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:49.809094: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-4559-7773-b8d5-bf34a84ffb8d",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": "last"
+}
+2026-05-17 21:00:52.355297: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.356649: Received AIMessageChunk: 
+{
+  "content": "I",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.357468: Received AIMessageChunk: 
+{
+  "content": " can",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.358214: Received AIMessageChunk: 
+{
+  "content": " search",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.358956: Received AIMessageChunk: 
+{
+  "content": " the",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.359788: Received AIMessageChunk: 
+{
+  "content": " following",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.360736: Received AIMessageChunk: 
+{
+  "content": " documents",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.361526: Received AIMessageChunk: 
+{
+  "content": ":\n\n",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.362268: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.377512: Received AIMessageChunk: 
+{
+  "content": " DOC",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.378502: Received AIMessageChunk: 
+{
+  "content": "-F",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.453452: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.454554: Received AIMessageChunk: 
+{
+  "content": "1",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.455410: Received AIMessageChunk: 
+{
+  "content": " —",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.456256: Received AIMessageChunk: 
+{
+  "content": " Product",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.464122: Received AIMessageChunk: 
+{
+  "content": "Scope",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.465076: Received AIMessageChunk: 
+{
+  "content": ".md",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.557859: Received AIMessageChunk: 
+{
+  "content": " (",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.558765: Received AIMessageChunk: 
+{
+  "content": "1",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.559370: Received AIMessageChunk: 
+{
+  "content": ",",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.559899: Received AIMessageChunk: 
+{
+  "content": "326",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.560436: Received AIMessageChunk: 
+{
+  "content": " tokens",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.561073: Received AIMessageChunk: 
+{
+  "content": ")",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.561620: Received AIMessageChunk: 
+{
+  "content": "  \n",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.562227: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.661763: Received AIMessageChunk: 
+{
+  "content": " DOC",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.662783: Received AIMessageChunk: 
+{
+  "content": "-F",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.663442: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.663975: Received AIMessageChunk: 
+{
+  "content": "2",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.664499: Received AIMessageChunk: 
+{
+  "content": " —",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.664997: Received AIMessageChunk: 
+{
+  "content": " Product",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.665514: Received AIMessageChunk: 
+{
+  "content": "Vision",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.666067: Received AIMessageChunk: 
+{
+  "content": ".md",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.669923: Received AIMessageChunk: 
+{
+  "content": " (",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.670516: Received AIMessageChunk: 
+{
+  "content": "1",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.690136: Received AIMessageChunk: 
+{
+  "content": ",",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.690924: Received AIMessageChunk: 
+{
+  "content": "036",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.762392: Received AIMessageChunk: 
+{
+  "content": " tokens",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.763362: Received AIMessageChunk: 
+{
+  "content": ")",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.763938: Received AIMessageChunk: 
+{
+  "content": "  \n",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.764475: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.765004: Received AIMessageChunk: 
+{
+  "content": " DOC",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.765539: Received AIMessageChunk: 
+{
+  "content": "-F",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.864585: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.866355: Received AIMessageChunk: 
+{
+  "content": "3",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.867187: Received AIMessageChunk: 
+{
+  "content": " —",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.867994: Received AIMessageChunk: 
+{
+  "content": " Product",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.868715: Received AIMessageChunk: 
+{
+  "content": "Road",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.869557: Received AIMessageChunk: 
+{
+  "content": "map",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.870383: Received AIMessageChunk: 
+{
+  "content": ".md",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.871166: Received AIMessageChunk: 
+{
+  "content": " (",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.871892: Received AIMessageChunk: 
+{
+  "content": "997",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:52.872598: Received AIMessageChunk: 
+{
+  "content": " tokens",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.070155: Received AIMessageChunk: 
+{
+  "content": ")",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.072487: Received AIMessageChunk: 
+{
+  "content": "  \n\n",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.073029: Received AIMessageChunk: 
+{
+  "content": "None",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.073590: Received AIMessageChunk: 
+{
+  "content": " of",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.074832: Received AIMessageChunk: 
+{
+  "content": " these",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.075340: Received AIMessageChunk: 
+{
+  "content": " entries",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.075859: Received AIMessageChunk: 
+{
+  "content": " include",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.076389: Received AIMessageChunk: 
+{
+  "content": " a",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.076934: Received AIMessageChunk: 
+{
+  "content": " stored",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.077510: Received AIMessageChunk: 
+{
+  "content": " description",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.078039: Received AIMessageChunk: 
+{
+  "content": ".",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.078535: Received AIMessageChunk: 
+{
+  "content": " Which",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.079059: Received AIMessageChunk: 
+{
+  "content": " document",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.079640: Received AIMessageChunk: 
+{
+  "content": "(s",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.080268: Received AIMessageChunk: 
+{
+  "content": ")",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.080843: Received AIMessageChunk: 
+{
+  "content": " would",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.081346: Received AIMessageChunk: 
+{
+  "content": " you",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.081849: Received AIMessageChunk: 
+{
+  "content": " like",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.082354: Received AIMessageChunk: 
+{
+  "content": " me",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.082849: Received AIMessageChunk: 
+{
+  "content": " to",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.171110: Received AIMessageChunk: 
+{
+  "content": " search",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.173465: Received AIMessageChunk: 
+{
+  "content": ",",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.174213: Received AIMessageChunk: 
+{
+  "content": " and",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.174969: Received AIMessageChunk: 
+{
+  "content": " what",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.175787: Received AIMessageChunk: 
+{
+  "content": " query",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.176762: Received AIMessageChunk: 
+{
+  "content": " should",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.177560: Received AIMessageChunk: 
+{
+  "content": " I",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.178319: Received AIMessageChunk: 
+{
+  "content": " use",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.182006: Received AIMessageChunk: 
+{
+  "content": "?",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.182954: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "finish_reason": "stop",
+    "model_name": "gpt-5-mini-2025-08-07",
+    "service_tier": "default",
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.183785: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": {
+    "input_tokens": 1503,
+    "output_tokens": 218,
+    "total_tokens": 1721,
+    "input_token_details": {
+      "audio": 0,
+      "cache_read": 0
+    },
+    "output_token_details": {
+      "audio": 0,
+      "reasoning": 128
+    }
+  },
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:00:53.184527: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e363d-55a9-7210-a081-5f0b952317e6",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": "last"
+}
+2026-05-17 21:05:38.571724: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-b81b-7531-99b9-bb212eb9a031",
+  "tool_calls": [
+    {
+      "name": "list_available_docs",
+      "args": {},
+      "id": "call_yhtV4dmHCLEQkzqlIrkVvhfg",
+      "type": "tool_call"
+    }
+  ],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [
+    {
+      "name": "list_available_docs",
+      "args": "",
+      "id": "call_yhtV4dmHCLEQkzqlIrkVvhfg",
+      "index": 0,
+      "type": "tool_call_chunk"
+    }
+  ],
+  "chunk_position": null
+}
+2026-05-17 21:05:38.573819: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-b81b-7531-99b9-bb212eb9a031",
+  "tool_calls": [
+    {
+      "name": "",
+      "args": {},
+      "id": null,
+      "type": "tool_call"
+    }
+  ],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [
+    {
+      "name": null,
+      "args": "{}",
+      "id": null,
+      "index": 0,
+      "type": "tool_call_chunk"
+    }
+  ],
+  "chunk_position": null
+}
+2026-05-17 21:05:38.574638: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "finish_reason": "tool_calls",
+    "model_name": "gpt-5-mini-2025-08-07",
+    "service_tier": "default",
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-b81b-7531-99b9-bb212eb9a031",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:38.575296: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-b81b-7531-99b9-bb212eb9a031",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": {
+    "input_tokens": 1354,
+    "output_tokens": 20,
+    "total_tokens": 1374,
+    "input_token_details": {
+      "audio": 0,
+      "cache_read": 0
+    },
+    "output_token_details": {
+      "audio": 0,
+      "reasoning": 0
+    }
+  },
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:38.575973: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-b81b-7531-99b9-bb212eb9a031",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": "last"
+}
+2026-05-17 21:05:41.139322: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:41.231212: Received AIMessageChunk: 
+{
+  "content": "Here",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:41.232316: Received AIMessageChunk: 
+{
+  "content": " are",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:41.431288: Received AIMessageChunk: 
+{
+  "content": " the",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:41.432350: Received AIMessageChunk: 
+{
+  "content": " documents",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:41.438217: Received AIMessageChunk: 
+{
+  "content": " available",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:41.439034: Received AIMessageChunk: 
+{
+  "content": " for",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:41.636165: Received AIMessageChunk: 
+{
+  "content": " search",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:41.637225: Received AIMessageChunk: 
+{
+  "content": ":\n\n",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:41.738925: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:41.739927: Received AIMessageChunk: 
+{
+  "content": " DOC",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:41.839458: Received AIMessageChunk: 
+{
+  "content": "-F",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:41.840460: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:42.148323: Received AIMessageChunk: 
+{
+  "content": "1",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:42.149311: Received AIMessageChunk: 
+{
+  "content": " —",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:42.153851: Received AIMessageChunk: 
+{
+  "content": " Product",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:42.154721: Received AIMessageChunk: 
+{
+  "content": "Scope",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:42.250392: Received AIMessageChunk: 
+{
+  "content": ".md",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:42.251442: Received AIMessageChunk: 
+{
+  "content": " (",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:42.558531: Received AIMessageChunk: 
+{
+  "content": "1",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:42.559783: Received AIMessageChunk: 
+{
+  "content": ",",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:42.560636: Received AIMessageChunk: 
+{
+  "content": "326",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:42.561370: Received AIMessageChunk: 
+{
+  "content": " tokens",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:42.864206: Received AIMessageChunk: 
+{
+  "content": ")",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:42.865229: Received AIMessageChunk: 
+{
+  "content": "  \n",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:42.966389: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:42.967552: Received AIMessageChunk: 
+{
+  "content": " DOC",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:43.172116: Received AIMessageChunk: 
+{
+  "content": "-F",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:43.173207: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:43.479912: Received AIMessageChunk: 
+{
+  "content": "2",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:43.480869: Received AIMessageChunk: 
+{
+  "content": " —",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:43.683838: Received AIMessageChunk: 
+{
+  "content": " Product",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:43.684820: Received AIMessageChunk: 
+{
+  "content": "Vision",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:43.688209: Received AIMessageChunk: 
+{
+  "content": ".md",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:43.688812: Received AIMessageChunk: 
+{
+  "content": " (",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:43.890811: Received AIMessageChunk: 
+{
+  "content": "1",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:43.892040: Received AIMessageChunk: 
+{
+  "content": ",",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:43.892898: Received AIMessageChunk: 
+{
+  "content": "036",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:43.893608: Received AIMessageChunk: 
+{
+  "content": " tokens",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.095552: Received AIMessageChunk: 
+{
+  "content": ")",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.096487: Received AIMessageChunk: 
+{
+  "content": "  \n",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.097173: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.097889: Received AIMessageChunk: 
+{
+  "content": " DOC",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.098586: Received AIMessageChunk: 
+{
+  "content": "-F",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.099211: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.099862: Received AIMessageChunk: 
+{
+  "content": "3",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.100429: Received AIMessageChunk: 
+{
+  "content": " —",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.101021: Received AIMessageChunk: 
+{
+  "content": " Product",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.101671: Received AIMessageChunk: 
+{
+  "content": "Road",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.104895: Received AIMessageChunk: 
+{
+  "content": "map",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.105534: Received AIMessageChunk: 
+{
+  "content": ".md",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.414085: Received AIMessageChunk: 
+{
+  "content": " (",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.415844: Received AIMessageChunk: 
+{
+  "content": "997",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.416569: Received AIMessageChunk: 
+{
+  "content": " tokens",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.417313: Received AIMessageChunk: 
+{
+  "content": ")\n\n",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.508919: Received AIMessageChunk: 
+{
+  "content": "Would",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.510099: Received AIMessageChunk: 
+{
+  "content": " you",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.722513: Received AIMessageChunk: 
+{
+  "content": " like",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.723569: Received AIMessageChunk: 
+{
+  "content": " me",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.724315: Received AIMessageChunk: 
+{
+  "content": " to",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.725001: Received AIMessageChunk: 
+{
+  "content": " search",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.777003: Received AIMessageChunk: 
+{
+  "content": " any",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.778107: Received AIMessageChunk: 
+{
+  "content": " of",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.915794: Received AIMessageChunk: 
+{
+  "content": " these",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.917622: Received AIMessageChunk: 
+{
+  "content": "?",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.918369: Received AIMessageChunk: 
+{
+  "content": " If",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.919127: Received AIMessageChunk: 
+{
+  "content": " so",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.919857: Received AIMessageChunk: 
+{
+  "content": ",",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.920758: Received AIMessageChunk: 
+{
+  "content": " tell",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.921465: Received AIMessageChunk: 
+{
+  "content": " me",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.922182: Received AIMessageChunk: 
+{
+  "content": " the",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.922880: Received AIMessageChunk: 
+{
+  "content": " query",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.923676: Received AIMessageChunk: 
+{
+  "content": " and",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.933372: Received AIMessageChunk: 
+{
+  "content": " (",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:44.934256: Received AIMessageChunk: 
+{
+  "content": "option",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:45.026083: Received AIMessageChunk: 
+{
+  "content": "ally",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:45.027133: Received AIMessageChunk: 
+{
+  "content": ")",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:45.027981: Received AIMessageChunk: 
+{
+  "content": " which",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:45.028742: Received AIMessageChunk: 
+{
+  "content": " document",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:45.029461: Received AIMessageChunk: 
+{
+  "content": " to",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:45.030165: Received AIMessageChunk: 
+{
+  "content": " limit",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:45.030922: Received AIMessageChunk: 
+{
+  "content": " the",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:45.031640: Received AIMessageChunk: 
+{
+  "content": " search",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:45.125558: Received AIMessageChunk: 
+{
+  "content": " to",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:45.127618: Received AIMessageChunk: 
+{
+  "content": ".",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:45.128325: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "finish_reason": "stop",
+    "model_name": "gpt-5-mini-2025-08-07",
+    "service_tier": "default",
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:45.129057: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": {
+    "input_tokens": 1503,
+    "output_tokens": 221,
+    "total_tokens": 1724,
+    "input_token_details": {
+      "audio": 0,
+      "cache_read": 0
+    },
+    "output_token_details": {
+      "audio": 0,
+      "reasoning": 128
+    }
+  },
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:05:45.129895: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e3641-bda7-7071-b6d3-4156c40a4cdf",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": "last"
+}
+2026-05-17 21:14:57.013294: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-3b47-7533-9ce1-4e1e486c76c5",
+  "tool_calls": [
+    {
+      "name": "list_available_docs",
+      "args": {},
+      "id": "call_4HH3roDbk2tbbwhgbXQKpHK3",
+      "type": "tool_call"
+    }
+  ],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [
+    {
+      "name": "list_available_docs",
+      "args": "",
+      "id": "call_4HH3roDbk2tbbwhgbXQKpHK3",
+      "index": 0,
+      "type": "tool_call_chunk"
+    }
+  ],
+  "chunk_position": null
+}
+2026-05-17 21:14:57.014456: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-3b47-7533-9ce1-4e1e486c76c5",
+  "tool_calls": [
+    {
+      "name": "",
+      "args": {},
+      "id": null,
+      "type": "tool_call"
+    }
+  ],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [
+    {
+      "name": null,
+      "args": "{}",
+      "id": null,
+      "index": 0,
+      "type": "tool_call_chunk"
+    }
+  ],
+  "chunk_position": null
+}
+2026-05-17 21:14:57.015164: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "finish_reason": "tool_calls",
+    "model_name": "gpt-5-mini-2025-08-07",
+    "service_tier": "default",
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-3b47-7533-9ce1-4e1e486c76c5",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:14:57.015845: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-3b47-7533-9ce1-4e1e486c76c5",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": {
+    "input_tokens": 1354,
+    "output_tokens": 84,
+    "total_tokens": 1438,
+    "input_token_details": {
+      "audio": 0,
+      "cache_read": 0
+    },
+    "output_token_details": {
+      "audio": 0,
+      "reasoning": 64
+    }
+  },
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:14:57.016434: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-3b47-7533-9ce1-4e1e486c76c5",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": "last"
+}
+2026-05-17 21:14:59.894913: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:14:59.985153: Received AIMessageChunk: 
+{
+  "content": "I",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:14:59.987946: Received AIMessageChunk: 
+{
+  "content": " can",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:14:59.988632: Received AIMessageChunk: 
+{
+  "content": " search",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:14:59.989193: Received AIMessageChunk: 
+{
+  "content": " the",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:14:59.989808: Received AIMessageChunk: 
+{
+  "content": " following",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:14:59.990402: Received AIMessageChunk: 
+{
+  "content": " documents",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:14:59.990945: Received AIMessageChunk: 
+{
+  "content": ":\n\n",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:14:59.991449: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:14:59.991982: Received AIMessageChunk: 
+{
+  "content": " DOC",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:14:59.992493: Received AIMessageChunk: 
+{
+  "content": "-F",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.081576: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.082485: Received AIMessageChunk: 
+{
+  "content": "1",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.083134: Received AIMessageChunk: 
+{
+  "content": " —",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.083942: Received AIMessageChunk: 
+{
+  "content": " Product",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.101266: Received AIMessageChunk: 
+{
+  "content": "Scope",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.102161: Received AIMessageChunk: 
+{
+  "content": ".md",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.181535: Received AIMessageChunk: 
+{
+  "content": " (",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.182629: Received AIMessageChunk: 
+{
+  "content": "1",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.183387: Received AIMessageChunk: 
+{
+  "content": ",",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.184123: Received AIMessageChunk: 
+{
+  "content": "326",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.184891: Received AIMessageChunk: 
+{
+  "content": " tokens",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.185666: Received AIMessageChunk: 
+{
+  "content": ")",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.202653: Received AIMessageChunk: 
+{
+  "content": "  \n",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.203583: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.204332: Received AIMessageChunk: 
+{
+  "content": " DOC",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.205123: Received AIMessageChunk: 
+{
+  "content": "-F",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.284904: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.286578: Received AIMessageChunk: 
+{
+  "content": "2",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.287411: Received AIMessageChunk: 
+{
+  "content": " —",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.288860: Received AIMessageChunk: 
+{
+  "content": " Product",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.289593: Received AIMessageChunk: 
+{
+  "content": "Vision",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.290415: Received AIMessageChunk: 
+{
+  "content": ".md",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.291208: Received AIMessageChunk: 
+{
+  "content": " (",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.292084: Received AIMessageChunk: 
+{
+  "content": "1",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.310644: Received AIMessageChunk: 
+{
+  "content": ",",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.311623: Received AIMessageChunk: 
+{
+  "content": "036",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.312445: Received AIMessageChunk: 
+{
+  "content": " tokens",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.313349: Received AIMessageChunk: 
+{
+  "content": ")",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.387016: Received AIMessageChunk: 
+{
+  "content": "  \n",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.388792: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.389678: Received AIMessageChunk: 
+{
+  "content": " DOC",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.390444: Received AIMessageChunk: 
+{
+  "content": "-F",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.391135: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.391895: Received AIMessageChunk: 
+{
+  "content": "3",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.392593: Received AIMessageChunk: 
+{
+  "content": " —",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.393392: Received AIMessageChunk: 
+{
+  "content": " Product",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.410363: Received AIMessageChunk: 
+{
+  "content": "Road",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.411475: Received AIMessageChunk: 
+{
+  "content": "map",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.428229: Received AIMessageChunk: 
+{
+  "content": ".md",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.429098: Received AIMessageChunk: 
+{
+  "content": " (",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.487650: Received AIMessageChunk: 
+{
+  "content": "997",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.488670: Received AIMessageChunk: 
+{
+  "content": " tokens",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.489542: Received AIMessageChunk: 
+{
+  "content": ")\n\n",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.490316: Received AIMessageChunk: 
+{
+  "content": "(No",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.491031: Received AIMessageChunk: 
+{
+  "content": " document",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.491789: Received AIMessageChunk: 
+{
+  "content": " descriptions",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.504361: Received AIMessageChunk: 
+{
+  "content": " are",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.505243: Received AIMessageChunk: 
+{
+  "content": " available",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.590792: Received AIMessageChunk: 
+{
+  "content": ".)\n\n",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.591902: Received AIMessageChunk: 
+{
+  "content": "Would",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.609451: Received AIMessageChunk: 
+{
+  "content": " you",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.610431: Received AIMessageChunk: 
+{
+  "content": " like",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.781531: Received AIMessageChunk: 
+{
+  "content": " me",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.782830: Received AIMessageChunk: 
+{
+  "content": " to",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.783745: Received AIMessageChunk: 
+{
+  "content": " search",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.784536: Received AIMessageChunk: 
+{
+  "content": " any",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.898054: Received AIMessageChunk: 
+{
+  "content": " of",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:00.899192: Received AIMessageChunk: 
+{
+  "content": " these",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.103386: Received AIMessageChunk: 
+{
+  "content": "?",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.104574: Received AIMessageChunk: 
+{
+  "content": " If",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.105321: Received AIMessageChunk: 
+{
+  "content": " so",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.106117: Received AIMessageChunk: 
+{
+  "content": ",",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.205308: Received AIMessageChunk: 
+{
+  "content": " tell",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.206496: Received AIMessageChunk: 
+{
+  "content": " me",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.224390: Received AIMessageChunk: 
+{
+  "content": " a",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.225596: Received AIMessageChunk: 
+{
+  "content": " search",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.239747: Received AIMessageChunk: 
+{
+  "content": " query",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.240658: Received AIMessageChunk: 
+{
+  "content": " (",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.243152: Received AIMessageChunk: 
+{
+  "content": "keywords",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.243797: Received AIMessageChunk: 
+{
+  "content": " or",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.248958: Received AIMessageChunk: 
+{
+  "content": " a",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.249665: Received AIMessageChunk: 
+{
+  "content": " short",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.261206: Received AIMessageChunk: 
+{
+  "content": " question",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.262050: Received AIMessageChunk: 
+{
+  "content": ")",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.267287: Received AIMessageChunk: 
+{
+  "content": " and",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.268166: Received AIMessageChunk: 
+{
+  "content": " which",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.290058: Received AIMessageChunk: 
+{
+  "content": " document",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.290987: Received AIMessageChunk: 
+{
+  "content": "(s",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.294186: Received AIMessageChunk: 
+{
+  "content": ")",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.295169: Received AIMessageChunk: 
+{
+  "content": " to",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.410826: Received AIMessageChunk: 
+{
+  "content": " search",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.413394: Received AIMessageChunk: 
+{
+  "content": ".",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.414172: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "finish_reason": "stop",
+    "model_name": "gpt-5-mini-2025-08-07",
+    "service_tier": "default",
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.414919: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": {
+    "input_tokens": 1503,
+    "output_tokens": 229,
+    "total_tokens": 1732,
+    "input_token_details": {
+      "audio": 0,
+      "cache_read": 0
+    },
+    "output_token_details": {
+      "audio": 0,
+      "reasoning": 128
+    }
+  },
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:15:01.415714: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364a-4312-78d2-b746-eba860c51056",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": "last"
+}
+2026-05-17 21:17:13.417660: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364c-5124-71b1-9ea7-d9d1e5551061",
+  "tool_calls": [
+    {
+      "name": "list_available_docs",
+      "args": {},
+      "id": "call_Fn6gxmjXcqYRxo90uwp3mnCK",
+      "type": "tool_call"
+    }
+  ],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [
+    {
+      "name": "list_available_docs",
+      "args": "",
+      "id": "call_Fn6gxmjXcqYRxo90uwp3mnCK",
+      "index": 0,
+      "type": "tool_call_chunk"
+    }
+  ],
+  "chunk_position": null
+}
+2026-05-17 21:18:32.907921: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-87f6-7393-af6a-94a3de22bc71",
+  "tool_calls": [
+    {
+      "name": "list_available_docs",
+      "args": {},
+      "id": "call_Q1WOE4T7WwvGYd5HFc7LN7sC",
+      "type": "tool_call"
+    }
+  ],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [
+    {
+      "name": "list_available_docs",
+      "args": "",
+      "id": "call_Q1WOE4T7WwvGYd5HFc7LN7sC",
+      "index": 0,
+      "type": "tool_call_chunk"
+    }
+  ],
+  "chunk_position": null
+}
+2026-05-17 21:18:32.932663: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-87f6-7393-af6a-94a3de22bc71",
+  "tool_calls": [
+    {
+      "name": "",
+      "args": {},
+      "id": null,
+      "type": "tool_call"
+    }
+  ],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [
+    {
+      "name": null,
+      "args": "{}",
+      "id": null,
+      "index": 0,
+      "type": "tool_call_chunk"
+    }
+  ],
+  "chunk_position": null
+}
+2026-05-17 21:18:32.933488: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "finish_reason": "tool_calls",
+    "model_name": "gpt-5-mini-2025-08-07",
+    "service_tier": "default",
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-87f6-7393-af6a-94a3de22bc71",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:32.942142: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-87f6-7393-af6a-94a3de22bc71",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": {
+    "input_tokens": 1354,
+    "output_tokens": 84,
+    "total_tokens": 1438,
+    "input_token_details": {
+      "audio": 0,
+      "cache_read": 0
+    },
+    "output_token_details": {
+      "audio": 0,
+      "reasoning": 64
+    }
+  },
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:32.942795: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-87f6-7393-af6a-94a3de22bc71",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": "last"
+}
+2026-05-17 21:18:35.435737: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.450867: Received AIMessageChunk: 
+{
+  "content": "I",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.451961: Received AIMessageChunk: 
+{
+  "content": " found",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.469816: Received AIMessageChunk: 
+{
+  "content": " these",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.470666: Received AIMessageChunk: 
+{
+  "content": " documents",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.493564: Received AIMessageChunk: 
+{
+  "content": " available",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.494771: Received AIMessageChunk: 
+{
+  "content": " for",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.537588: Received AIMessageChunk: 
+{
+  "content": " search",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.538530: Received AIMessageChunk: 
+{
+  "content": ":\n\n",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.539134: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.539776: Received AIMessageChunk: 
+{
+  "content": " DOC",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.642210: Received AIMessageChunk: 
+{
+  "content": "-F",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.643909: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.644859: Received AIMessageChunk: 
+{
+  "content": "1",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.645669: Received AIMessageChunk: 
+{
+  "content": " —",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.646474: Received AIMessageChunk: 
+{
+  "content": " Product",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.647232: Received AIMessageChunk: 
+{
+  "content": "Scope",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.648051: Received AIMessageChunk: 
+{
+  "content": ".md",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.648814: Received AIMessageChunk: 
+{
+  "content": " (",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.650086: Received AIMessageChunk: 
+{
+  "content": "tokens",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.650928: Received AIMessageChunk: 
+{
+  "content": ":",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.743823: Received AIMessageChunk: 
+{
+  "content": " ",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.744889: Received AIMessageChunk: 
+{
+  "content": "132",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.745503: Received AIMessageChunk: 
+{
+  "content": "6",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.746073: Received AIMessageChunk: 
+{
+  "content": ")",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.746650: Received AIMessageChunk: 
+{
+  "content": "  \n",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.747198: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.747722: Received AIMessageChunk: 
+{
+  "content": " DOC",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.748176: Received AIMessageChunk: 
+{
+  "content": "-F",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.759537: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.760326: Received AIMessageChunk: 
+{
+  "content": "2",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.778899: Received AIMessageChunk: 
+{
+  "content": " —",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.780231: Received AIMessageChunk: 
+{
+  "content": " Product",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.800562: Received AIMessageChunk: 
+{
+  "content": "Vision",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.801362: Received AIMessageChunk: 
+{
+  "content": ".md",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.810842: Received AIMessageChunk: 
+{
+  "content": " (",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.811606: Received AIMessageChunk: 
+{
+  "content": "tokens",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.950472: Received AIMessageChunk: 
+{
+  "content": ":",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.951910: Received AIMessageChunk: 
+{
+  "content": " ",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.952609: Received AIMessageChunk: 
+{
+  "content": "103",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.953325: Received AIMessageChunk: 
+{
+  "content": "6",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.953985: Received AIMessageChunk: 
+{
+  "content": ")",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.954534: Received AIMessageChunk: 
+{
+  "content": "  \n",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.955120: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.955668: Received AIMessageChunk: 
+{
+  "content": " DOC",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.956238: Received AIMessageChunk: 
+{
+  "content": "-F",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.956803: Received AIMessageChunk: 
+{
+  "content": "-",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.957324: Received AIMessageChunk: 
+{
+  "content": "3",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.957747: Received AIMessageChunk: 
+{
+  "content": " —",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.968733: Received AIMessageChunk: 
+{
+  "content": " Product",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.969604: Received AIMessageChunk: 
+{
+  "content": "Road",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.989539: Received AIMessageChunk: 
+{
+  "content": "map",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:35.990362: Received AIMessageChunk: 
+{
+  "content": ".md",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.002013: Received AIMessageChunk: 
+{
+  "content": " (",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.002859: Received AIMessageChunk: 
+{
+  "content": "tokens",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.049233: Received AIMessageChunk: 
+{
+  "content": ":",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.050310: Received AIMessageChunk: 
+{
+  "content": " ",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.058955: Received AIMessageChunk: 
+{
+  "content": "997",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.059866: Received AIMessageChunk: 
+{
+  "content": ")\n\n",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.153151: Received AIMessageChunk: 
+{
+  "content": "No",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.155194: Received AIMessageChunk: 
+{
+  "content": " descriptions",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.155914: Received AIMessageChunk: 
+{
+  "content": " are",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.156674: Received AIMessageChunk: 
+{
+  "content": " recorded",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.157382: Received AIMessageChunk: 
+{
+  "content": " for",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.158066: Received AIMessageChunk: 
+{
+  "content": " the",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.158734: Received AIMessageChunk: 
+{
+  "content": " files",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.159549: Received AIMessageChunk: 
+{
+  "content": ".\n\n",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.162959: Received AIMessageChunk: 
+{
+  "content": "Would",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.163846: Received AIMessageChunk: 
+{
+  "content": " you",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.184715: Received AIMessageChunk: 
+{
+  "content": " like",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.185567: Received AIMessageChunk: 
+{
+  "content": " me",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.204929: Received AIMessageChunk: 
+{
+  "content": " to",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.205802: Received AIMessageChunk: 
+{
+  "content": " search",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.225548: Received AIMessageChunk: 
+{
+  "content": " one",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.226388: Received AIMessageChunk: 
+{
+  "content": " of",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.358201: Received AIMessageChunk: 
+{
+  "content": " these",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.359916: Received AIMessageChunk: 
+{
+  "content": " documents",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.360768: Received AIMessageChunk: 
+{
+  "content": " or",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.361558: Received AIMessageChunk: 
+{
+  "content": " search",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.362319: Received AIMessageChunk: 
+{
+  "content": " across",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.363175: Received AIMessageChunk: 
+{
+  "content": " all",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.364006: Received AIMessageChunk: 
+{
+  "content": " of",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.364673: Received AIMessageChunk: 
+{
+  "content": " them",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.365478: Received AIMessageChunk: 
+{
+  "content": "?",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.366181: Received AIMessageChunk: 
+{
+  "content": " If",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.366877: Received AIMessageChunk: 
+{
+  "content": " yes",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.367587: Received AIMessageChunk: 
+{
+  "content": ",",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.374151: Received AIMessageChunk: 
+{
+  "content": " tell",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.374776: Received AIMessageChunk: 
+{
+  "content": " me",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.385393: Received AIMessageChunk: 
+{
+  "content": " the",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.386399: Received AIMessageChunk: 
+{
+  "content": " query",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.460644: Received AIMessageChunk: 
+{
+  "content": " and",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.462508: Received AIMessageChunk: 
+{
+  "content": " (",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.463258: Received AIMessageChunk: 
+{
+  "content": "option",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.463974: Received AIMessageChunk: 
+{
+  "content": "ally",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.464700: Received AIMessageChunk: 
+{
+  "content": ")",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.465441: Received AIMessageChunk: 
+{
+  "content": " which",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.481001: Received AIMessageChunk: 
+{
+  "content": " doc",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.481823: Received AIMessageChunk: 
+{
+  "content": " key",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.501654: Received AIMessageChunk: 
+{
+  "content": " to",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.502547: Received AIMessageChunk: 
+{
+  "content": " target",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.563423: Received AIMessageChunk: 
+{
+  "content": ".",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.564515: Received AIMessageChunk: 
+{
+  "content": " Example",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.565221: Received AIMessageChunk: 
+{
+  "content": " queries",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.565955: Received AIMessageChunk: 
+{
+  "content": ":",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.667132: Received AIMessageChunk: 
+{
+  "content": " \"",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.668405: Received AIMessageChunk: 
+{
+  "content": "payment",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.669124: Received AIMessageChunk: 
+{
+  "content": " scope",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.669807: Received AIMessageChunk: 
+{
+  "content": "\",",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.670581: Received AIMessageChunk: 
+{
+  "content": " \"",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.671301: Received AIMessageChunk: 
+{
+  "content": "release",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.672059: Received AIMessageChunk: 
+{
+  "content": " milestones",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.672754: Received AIMessageChunk: 
+{
+  "content": "\",",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.673536: Received AIMessageChunk: 
+{
+  "content": " \"",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.674830: Received AIMessageChunk: 
+{
+  "content": "target",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.675564: Received AIMessageChunk: 
+{
+  "content": " user",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.676327: Received AIMessageChunk: 
+{
+  "content": " personas",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.769319: Received AIMessageChunk: 
+{
+  "content": "\".",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.770433: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "finish_reason": "stop",
+    "model_name": "gpt-5-mini-2025-08-07",
+    "service_tier": "default",
+    "model_provider": "openai"
+  },
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.771192: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": {
+    "input_tokens": 1503,
+    "output_tokens": 254,
+    "total_tokens": 1757,
+    "input_token_details": {
+      "audio": 0,
+      "cache_read": 0
+    },
+    "output_token_details": {
+      "audio": 0,
+      "reasoning": 128
+    }
+  },
+  "tool_call_chunks": [],
+  "chunk_position": null
+}
+2026-05-17 21:18:36.772166: Received AIMessageChunk: 
+{
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "type": "AIMessageChunk",
+  "name": null,
+  "id": "lc_run--019e364d-8e94-7c01-9fd1-0bdb199ab23c",
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": null,
+  "tool_call_chunks": [],
+  "chunk_position": "last"
+}

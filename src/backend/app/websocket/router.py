@@ -55,7 +55,6 @@ async def websocket_endpoint(websocket: WebSocket):
                     session_id_or_key = message.get("session_id_or_key")
                     user_msg = message.get("message")
                     if session_id_or_key and user_msg:
-                        # Handle chat message in background to not block
                         from app.service_factory import get_chat_service
                         from common.database import SessionLocal
 
@@ -63,10 +62,18 @@ async def websocket_endpoint(websocket: WebSocket):
                             db = SessionLocal()
                             try:
                                 service = get_chat_service(db)
-                                # We need to await the stream publishing
-                                await service.publish_stream(
+                                topic = f"chat:{session_id_or_key}"
+                                async for chunk in service.stream(
                                     session_id_or_key, user_msg
-                                )
+                                ):
+                                    payload = {
+                                        "topic": topic,
+                                        "data": chunk,
+                                    }
+                                    print(
+                                        f"Broadcasting chat chunk to {topic}: {chunk}"
+                                    )
+                                    await websocket.send_text(json.dumps(payload))
                             except Exception as e:
                                 traceback.print_exc()
                                 print(f"Error processing chat: {e}")

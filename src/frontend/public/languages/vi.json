@@ -330,7 +330,8 @@
       "headerText": "Trò chuyện",
       "create": "Tạo",
       "untitled": "Chưa đặt tên",
-      "delete": "Xóa"
+      "delete": "Xóa",
+      "rename": "Đổi tên"
     },
     "ChatPage": {
       "gettingStarted": "Chọn hoặc tạo mới một phiên trò chuyện để bắt đầu."

@@ -8,6 +8,7 @@ from sqlalchemy import (
     DateTime,
 )
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.mysql import DATETIME
 from enum import Enum
 
 from common.database import Base, uuid_generator, utcnow
@@ -82,11 +83,13 @@ class Message(Base):
     content = Column(Text, nullable=False)
 
     created_at = Column(
-        DateTime(timezone=True),
+        DATETIME(timezone=True, fsp=6),
         default=utcnow,
         nullable=False,
         index=True,
     )
+
+    tool_call_id = Column(String(64), nullable=True)
 
     session = relationship("ChatSession", back_populates="messages")
 

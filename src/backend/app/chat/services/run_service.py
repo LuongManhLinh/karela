@@ -4,6 +4,7 @@ from langchain_core.messages import (
     HumanMessage,
     ToolMessage,
     AIMessageChunk,
+    ToolCall,
 )
 
 from app.documentation.services import DocumentationService
@@ -26,7 +27,6 @@ from datetime import datetime
 import inspect
 import json
 import traceback
-import asyncio
 
 
 class ChatService:
@@ -63,21 +63,48 @@ class ChatService:
         cache = {}
 
         try:
+            messages = (
+                self.db.query(Message)
+                .filter(Message.session_id == session.id)
+                .order_by(Message.created_at)
+                .all()
+            )
             history_messages = []
-            for msg in session.messages:
+            for msg in messages:
                 if msg.role == SenderRole.USER:
                     history_messages.append(HumanMessage(content=msg.content))
                 elif msg.role == SenderRole.AGENT:
                     history_messages.append(AIMessage(content=msg.content))
                 elif msg.role == SenderRole.TOOL:
                     history_messages.append(
-                        ToolMessage(content=msg.content, tool_call_id=msg.id)
+                        ToolMessage(content=msg.content, tool_call_id=msg.tool_call_id)
                     )
+                    print("Tool message created at", msg.created_at)
+                elif msg.role == SenderRole.AGENT_FUNCTION_CALL:
+                    content_dict = json.loads(msg.content)
+                    history_messages.append(
+                        AIMessageChunk(
+                            id=msg.id,
+                            content="",
+                            tool_calls=[
+                                ToolCall(
+                                    name=content_dict.get(
+                                        "function_name", "UNKNOWN_FUNCTION"
+                                    ),
+                                    args=content_dict.get("arguments", {}),
+                                    id=msg.tool_call_id or msg.id,
+                                )
+                            ],
+                        )
+                    )
+                    print("Agent function call message created at", msg.created_at)
             print(
                 f"Loaded {len(history_messages)} history messages for session {session.key}"
             )
+
             if not history_messages:
-                title = generate_chat_title(user_message)
+                # title = generate_chat_title(user_message)
+                title = "New Chat"
                 print(f"Generated title for session {session.key}: {title}")
                 session.title = title
                 self.db.commit()
@@ -112,17 +139,33 @@ class ChatService:
                     id=chunk.id,
                 )
 
-                yield_after = None
+                yield_after_tool = None
+                tool_call_id = None
 
                 if isinstance(chunk, AIMessageChunk):
                     fn_call = chunk.additional_kwargs.get("function_call")
+                    if not fn_call:
+                        tool_calls = chunk.tool_calls
+                        if tool_calls:
+                            fn_call = tool_calls[0]
                     if fn_call:
-                        print("Function call detected in chunk: ", fn_call)
+                        if not fn_call.get("id"):
+                            print("Dummy chunk for the function call, skipping...")
+                            continue
+                        tool_call_id = fn_call["id"]
+                        print(
+                            "Function call detected in chunk: ",
+                            fn_call,
+                            "at",
+                            datetime.now(),
+                        )
                         msg_chunk.role = "agent_function_call"
                         # fn_name = fn_call.get("name", "UNKNOWN_FUNCTION")
                         print("Function call content: ", fn_call)
                         fn_name = fn_call.get("name", "UNKNOWN_FUNCTION")
                         arg_dict = fn_call.get("arguments", {})
+                        if not arg_dict:
+                            arg_dict = fn_call.get("args", {})
                         if isinstance(arg_dict, str):
                             try:
                                 arg_dict = json.loads(arg_dict)
@@ -135,6 +178,7 @@ class ChatService:
                             },
                             indent=2,
                         )
+
                     else:
                         msg_chunk.role = "agent"
                         content = chunk.content
@@ -151,34 +195,42 @@ class ChatService:
                                     contents.append(str(c))
                             msg_chunk.content = "".join(contents)
                 else:
+                    print("Tool output detected in chunk at", datetime.now())
+                    chunk: ToolMessage = chunk
                     msg_chunk.role = "tool"
                     msg_chunk.content = chunk.content
-                    yield_after = ChatService._additional_from_tool_msg(chunk)
+                    tool_call_id = chunk.tool_call_id
+                    yield_after_tool = ChatService._additional_from_tool_msg(chunk)
 
                 yield {"type": "message", "data": msg_chunk.model_dump()}
 
-                if yield_after:
-                    data = yield_after[1]
+                if yield_after_tool:
+                    data = yield_after_tool[1]
                     if isinstance(data, MessageChunk):
                         data = data.model_dump()
-                    yield {"type": yield_after[0], "data": data}
+                    yield {"type": yield_after_tool[0], "data": data}
 
                 stored_chunk = cache.get(msg_chunk.id)
                 if stored_chunk:
                     stored_chunk["data"].content += msg_chunk.content
                 else:
+                    print(
+                        f"Caching new chunk with id {msg_chunk.id} and role {msg_chunk.role} at {datetime.now()}"
+                    )
                     cache[msg_chunk.id] = {
                         "data": msg_chunk,
                         "created_at": datetime.now(),
+                        "tool_call_id": tool_call_id,
                     }
 
-                if yield_after and yield_after[0] == "message":
-                    data = yield_after[1]
+                if yield_after_tool and yield_after_tool[0] == "message":
+                    data = yield_after_tool[1]
                     cache[data.id] = {
                         "data": data,
                         "created_at": datetime.now(),
                     }
 
+            yield {"type": "stream_end"}
         except Exception as e:
             print(f"An error occurred: {e}")
             traceback.print_exc()
@@ -195,13 +247,15 @@ class ChatService:
             }
 
         finally:
-            self._persist_messages(session, list(cache.values()))
+            msg_to_save = list(cache.values())
+            msg_to_save = sorted(msg_to_save, key=lambda x: x["created_at"])
+            self._persist_messages(session, msg_to_save)
 
     @staticmethod
     def _additional_from_tool_msg(tool_msg: ToolMessage):
         try:
             match tool_msg.name:
-                case "update_stories" | "create_stories" | "run_proposal_generation":
+                case "update_stories" | "create_stories":
                     payload = json.loads(tool_msg.content)
                     return "proposal", payload["proposal_keys"]
                 case "run_defect_analysis":
@@ -235,10 +289,13 @@ class ChatService:
                     orm_message.role = SenderRole.AGENT
                 elif msg_chunk.role == "agent_function_call":
                     orm_message.role = SenderRole.AGENT_FUNCTION_CALL
+                    orm_message.tool_call_id = msg.get("tool_call_id")
                 elif msg_chunk.role == "tool":
                     orm_message.role = SenderRole.TOOL
+                    orm_message.tool_call_id = msg.get("tool_call_id")
                 elif msg_chunk.role == "analysis_progress":
                     orm_message.role = SenderRole.ANALYSIS_PROGRESS
+
                 else:  # Default to error
                     orm_message.role = SenderRole.ERROR
 

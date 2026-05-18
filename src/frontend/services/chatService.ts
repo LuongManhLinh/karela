@@ -47,5 +47,16 @@ export const chatService = {
   deleteChatSession: async (sessionId: string): Promise<BasicResponse<void>> => {
     const response = await apiClient.delete<BasicResponse<void>>(`/chat/${sessionId}`);
     return response.data;
-  }
+  },
+
+  updateChatSessionTitle: async (
+    sessionIdOrKey: string,
+    title: string,
+  ): Promise<BasicResponse<boolean>> => {
+    const response = await apiClient.put<BasicResponse<boolean>>(
+      `/chat/${sessionIdOrKey}/title`,
+      { title },
+    );
+    return response.data;
+  },
 };

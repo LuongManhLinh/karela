@@ -26,7 +26,7 @@ def search_stories_by_keywords(keywords: str, runtime: ToolRuntime[Context]) -> 
     """
     print(f"""
 {"-"*100}
-| Retrieve Stories Tool Called
+| Retrieve Stories tool called with keywords: {keywords}
 {"-"*100}
 """)
     context = runtime.context
@@ -40,6 +40,9 @@ def search_stories_by_keywords(keywords: str, runtime: ToolRuntime[Context]) -> 
         min_similarity=0.25,
     )
 
+    print(
+        f"Found {len(stories)} stories similar to keywords '{keywords}' for connection_id={context.connection_id} and project_key={context.project_key}."
+    )
     return json.dumps({"stories": [story.model_dump() for story in stories]}, indent=2)
 
 
@@ -55,7 +58,7 @@ def get_story_details(story_key: str, runtime: ToolRuntime[Context]) -> str:
     """
     print(f"""
 {"-"*100}
-| Get Story Details Tool Called
+| Get Story Details Tool Called with Story Key: {story_key}
 {"-"*100}
 """)
 

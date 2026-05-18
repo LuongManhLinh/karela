@@ -10,7 +10,6 @@ import {
   Skeleton,
   CircularProgress,
   Stack,
-  Paper,
 } from "@mui/material";
 import { ExpandLess } from "@mui/icons-material";
 import { MessageBubble } from "@/components/chat/MessageBubble";
@@ -71,6 +70,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
   const displayedLengthRef = useRef<number>(0);
   const lastChunkTimeRef = useRef<number>(Date.now());
   const isCommittingRef = useRef<boolean>(false);
+  const streamEndedRef = useRef<boolean>(false);
 
   const { data: sessionData, isLoading: loadingSession } =
     useChatSessionQuery(idOrKey);
@@ -97,101 +97,6 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
   }, [sessionProposalsData]);
 
   // Smooth streaming animation effect
-  useEffect(() => {
-    if (!streamingId) {
-      return;
-    }
-
-    let frameId: number | null = null;
-
-    const animateStreaming = () => {
-      const buffer = streamingBufferRef.current;
-      const currentDisplayed = displayedLengthRef.current;
-
-      if (currentDisplayed < buffer.length) {
-        // Calculate how many characters to add
-        const now = Date.now();
-        const timeSinceLastChunk = now - lastChunkTimeRef.current;
-
-        // Adaptive speed: 3-20 chars per frame based on chunk arrival speed
-        const charsPerFrame = Math.min(
-          20,
-          Math.max(3, Math.floor(100 / Math.max(timeSinceLastChunk, 10))),
-        );
-
-        const newLength = Math.min(
-          buffer.length,
-          currentDisplayed + charsPerFrame,
-        );
-        const newContent = buffer.substring(0, newLength);
-
-        displayedLengthRef.current = newLength;
-        setStreamingContent(newContent);
-
-        // Continue animation only if there's more to display
-        frameId = requestAnimationFrame(animateStreaming);
-      } else {
-        // Caught up with buffer, stop animation
-        frameId = null;
-      }
-    };
-
-    // Start animation
-    frameId = requestAnimationFrame(animateStreaming);
-
-    return () => {
-      if (frameId) {
-        cancelAnimationFrame(frameId);
-      }
-    };
-  }, [streamingId, bufferUpdateTrigger]);
-
-  // Throttled scroll - only scroll once every 100ms during streaming
-  useEffect(() => {
-    if (scrollThrottleRef.current) {
-      clearTimeout(scrollThrottleRef.current);
-    }
-
-    scrollThrottleRef.current = setTimeout(() => {
-      scrollToBottom();
-    }, 100);
-
-    return () => {
-      if (scrollThrottleRef.current) {
-        clearTimeout(scrollThrottleRef.current);
-      }
-    };
-  }, [messages, streamingContent]);
-
-  const scrollToBottom = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTop =
-        scrollContainerRef.current.scrollHeight;
-    }
-  };
-
-  const handleIncomingProposals = useCallback(
-    async (proposalIds: string[]) => {
-      try {
-        const fetchedProposals: ProposalDto[] = [];
-        for (const proposalId of proposalIds) {
-          const response = await proposalService.getProposal(proposalId);
-          const proposal = response.data;
-          if (!proposal) {
-            continue;
-          }
-          if (proposal.session_id !== idOrKey) {
-            continue;
-          }
-          fetchedProposals.push(proposal);
-        }
-        setSessionProposals((prev) => [...prev, ...fetchedProposals]);
-      } catch (err) {
-        console.error("Failed to fetch proposal:", err);
-      }
-    },
-    [idOrKey],
-  );
 
   // Commit streaming message to history when stream ends
   const commitStreamingMessage = useCallback(() => {
@@ -243,6 +148,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
       streamingRoleRef.current = null;
       streamingBufferRef.current = "";
       displayedLengthRef.current = 0;
+      streamEndedRef.current = false;
 
       // // Reset commit flag after a short delay
       // setTimeout(() => {
@@ -251,6 +157,115 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
       isCommittingRef.current = false;
     }
   }, [streamingIdRef, streamingRoleRef]);
+  useEffect(() => {
+    if (!streamingId) {
+      return;
+    }
+
+    let frameId: number | null = null;
+
+    const animateStreaming = () => {
+      const buffer = streamingBufferRef.current;
+      const currentDisplayed = displayedLengthRef.current;
+
+      if (currentDisplayed < buffer.length) {
+        let newLength: number;
+
+        if (streamEndedRef.current) {
+          // Stream ended: flush all remaining content immediately
+          newLength = buffer.length;
+        } else {
+          // Calculate how many characters to add
+          const now = Date.now();
+          const timeSinceLastChunk = now - lastChunkTimeRef.current;
+
+          // Adaptive speed: 3-20 chars per frame based on chunk arrival speed
+          const charsPerFrame = Math.min(
+            20,
+            Math.max(3, Math.floor(100 / Math.max(timeSinceLastChunk, 10))),
+          );
+
+          newLength = Math.min(buffer.length, currentDisplayed + charsPerFrame);
+        }
+
+        const newContent = buffer.substring(0, newLength);
+        displayedLengthRef.current = newLength;
+        setStreamingContent(newContent);
+
+        if (streamEndedRef.current && newLength >= buffer.length) {
+          // Fully flushed after stream end: commit the message
+          frameId = null;
+          commitStreamingMessage();
+        } else {
+          // Continue animation
+          frameId = requestAnimationFrame(animateStreaming);
+        }
+      } else if (streamEndedRef.current) {
+        // Buffer already fully displayed and stream ended: commit
+        frameId = null;
+        commitStreamingMessage();
+      } else {
+        // Caught up with buffer, stop animation
+        frameId = null;
+      }
+    };
+
+    // Start animation
+    frameId = requestAnimationFrame(animateStreaming);
+
+    return () => {
+      if (frameId) {
+        cancelAnimationFrame(frameId);
+      }
+    };
+  }, [streamingId, bufferUpdateTrigger, commitStreamingMessage]);
+
+  // Throttled scroll - only scroll once every 100ms during streaming
+  useEffect(() => {
+    if (scrollThrottleRef.current) {
+      clearTimeout(scrollThrottleRef.current);
+    }
+
+    scrollThrottleRef.current = setTimeout(() => {
+      scrollToBottom();
+    }, 100);
+
+    return () => {
+      if (scrollThrottleRef.current) {
+        clearTimeout(scrollThrottleRef.current);
+      }
+    };
+  }, [messages, streamingContent]);
+
+  const scrollToBottom = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop =
+        scrollContainerRef.current.scrollHeight;
+    }
+  };
+
+  const handleIncomingProposals = useCallback(
+    async (proposalIds: string[]) => {
+      try {
+        const fetchedProposals: ProposalDto[] = [];
+        for (const proposalId of proposalIds) {
+          const response = await proposalService.getProposal(proposalId);
+          const proposal = response.data;
+          if (!proposal) {
+            continue;
+          }
+          if (proposal.session_id !== idOrKey) {
+            continue;
+          }
+          fetchedProposals.push(proposal);
+        }
+        setSessionProposals((prev) => [...prev, ...fetchedProposals]);
+      } catch (err) {
+        console.error("Failed to fetch proposal:", err);
+      }
+    },
+    [idOrKey],
+  );
 
   const handleMessageChunk = useCallback(
     (chunk: MessageChunk) => {
@@ -269,6 +284,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
         displayedLengthRef.current = 0;
         lastChunkTimeRef.current = Date.now();
         isCommittingRef.current = false;
+        streamEndedRef.current = false;
         setWaitingForResponse(false); // First chunk arrived, stop waiting
         setStreamingId(chunkId);
         setStreamingRole(chunkRole);
@@ -296,6 +312,10 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
         handleMessageChunk(chunkData);
       } else if (parsed.type === "proposal" && parsed.data) {
         handleIncomingProposals(parsed.data);
+      } else if (parsed.type === "stream_end") {
+        streamEndedRef.current = true;
+        // Trigger animation to flush remaining buffer and commit
+        setBufferUpdateTrigger((prev) => prev + 1);
       }
     },
     [handleMessageChunk, handleIncomingProposals],
@@ -438,7 +458,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
             </Typography>
           </Box>
         ) : (
-          <Stack gap={3}>
+          <Stack gap={2}>
             {messages.map((message) => renderMessage(message))}
             {streamingId && streamingRole ? (
               <MessageBubble
@@ -520,16 +540,8 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
               "&.Mui-expanded": {
                 marginY: "0",
                 marginX: "auto",
-                // borderRadius: 0,
-                // borderTopLeftRadius: 1,
-                // borderTopRightRadius: 1,
               },
 
-              // borderRadius: 0,
-              // The optional fix for the line/shadow:
-
-              // borderTopLeftRadius: 1,
-              // borderTopRightRadius: 1,
               "&:before": {
                 display: "none", // Hides the default MUI divider line
               },

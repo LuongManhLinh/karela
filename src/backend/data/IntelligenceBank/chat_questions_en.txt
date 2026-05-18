@@ -2,14 +2,14 @@ List the documents currently available in the system that you can search.
 According to the Product Vision, which user groups is IntelligenceBank V3 designed for?
 According to the Roadmap, which epics are the focus of Q2 2026?
 Find the user stories related to Smart Page Builder.
-Retrieve the details of story ID 53 and explain what requirements the Delete Smart Page API must satisfy.
-Compare story ID 299, 323, and 326. How are these three stories related in the Ask AI Alpha flow?
+Retrieve the details of story IBT-53 and explain what requirements the Delete Smart Page API must satisfy.
+Compare story IBT-299, 323, and 326. How are these three stories related in the Ask AI Alpha flow?
 According to the Product Roadmap, which quarter includes Azure AI Integration? Find the backlog stories related to Azure image tagging or MCP governance.
 Find all stories related to Guest Upload MVP and summarize the shared goal of this group of stories.
 Check the stories related to “Simple Page” and “Smart Page.” Are there any terminology inconsistencies?
-Compare story ID 80 and story ID 337. Do these two stories conflict regarding the behavior when no Master Template exists?
+Compare story IBT-80 and story IBT-337. Do these two stories conflict regarding the behavior when no Master Template exists?
 Find the stories related to Image Widget resizing/repositioning and identify which stories may be duplicated or conflicting.
-Check whether story ID 308 conflicts with story ID 116 or story ID 190. If yes, explain the specific conflict.
+Check whether story IBT-308 conflicts with story IBT-116 or story IBT-190. If yes, explain the specific conflict.
 Find the stories related to workflow staged requests, bulk review, and collaborator management, then explain how they support the “Intelligent Workflows” pillar.
 Identify which backlog stories appear to be outside the V3 scope according to the Product Scope, especially those related to native mobile apps, CMS integrations, custom LLM training, or on-premise deployment.
 Act as a Product Owner: based on the Q2–Q4 2026 roadmap, select 10 stories that should be prioritized for the first MVP, explain why, and identify stories that should be postponed because they are dependent or too complex.

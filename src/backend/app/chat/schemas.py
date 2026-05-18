@@ -48,3 +48,7 @@ class MessageChunk(BaseModel):
     id: str
     role: MessageRole = "agent"
     content: str = ""
+
+
+class ChatSessionUpdateTitleRequest(BaseModel):
+    title: str

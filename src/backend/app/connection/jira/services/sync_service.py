@@ -160,6 +160,7 @@ class JiraSyncService(JiraBaseService):
                     cloud_id=cloud_id,
                     jql=f'project = "{project_data.key}" AND issuetype in ("Story", "{AC_ISSUE_TYPE_NAME}")',
                     fields=["summary", "description", "issuetype", "parent", "created"],
+                    max_results=1000,  # Adjust as needed, consider pagination for large projects
                 )
                 issues = response.issues
 

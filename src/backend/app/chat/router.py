@@ -10,7 +10,7 @@ from app.service_factory import (
     get_chat_service,
 )
 from .services import ChatDataService, ChatService
-from .schemas import ChatSessionSummary, ChatSessionCreateRequest
+from .schemas import ChatSessionSummary, ChatSessionCreateRequest, ChatSessionUpdateTitleRequest
 from common.schemas import BasicResponse
 from utils.security_utils import verify_jwt
 
@@ -148,7 +148,25 @@ async def delete_chat_session(
     if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     service.delete_chat_session(
-        session_id=session_id,
+        session_id_or_key=session_id,
     )
 
+    return BasicResponse(data=True)
+
+
+@router.put("/{session_id_or_key}/title")
+async def update_chat_session_title(
+    session_id_or_key: str,
+    request_body: ChatSessionUpdateTitleRequest,
+    jwt_payload=Depends(get_jwt_payload),
+    service: ChatDataService = Depends(get_chat_data_service),
+):
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+    service.update_chat_session_title(
+        connection_id=conn_id,
+        session_id_or_key=session_id_or_key,
+        new_title=request_body.title,
+    )
     return BasicResponse(data=True)
