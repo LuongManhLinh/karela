@@ -1,0 +1,3 @@
+EASY: 5/5
+MEDIUM: 3/5
+HARD: 3/5

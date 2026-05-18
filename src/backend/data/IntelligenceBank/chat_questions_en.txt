@@ -2,7 +2,7 @@ List the documents currently available in the system that you can search.
 According to the Product Vision, which user groups is IntelligenceBank V3 designed for?
 According to the Roadmap, which epics are the focus of Q2 2026?
 Find the user stories related to Smart Page Builder.
-Retrieve the details of story IBT-53 and explain what requirements the Delete Smart Page API must satisfy.
+Retrieve the details of story IBT-53. What is it about?
 Compare story IBT-299, 323, and 326. How are these three stories related in the Ask AI Alpha flow?
 According to the Product Roadmap, which quarter includes Azure AI Integration? Find the backlog stories related to Azure image tagging or MCP governance.
 Find all stories related to Guest Upload MVP and summarize the shared goal of this group of stories.
