@@ -10,10 +10,10 @@ defect_count:
 
 NOT_VALUABLE: 
   - 107 # F
-  - 115 # F
+  - 115 #
   - 170 # F
   - 366 # F
-  - 447 # 
+  - 447 # F
 
 NOT_ESTIMABLE: 
   - 367 # F
@@ -24,8 +24,8 @@ NOT_ESTIMABLE:
 
 NOT_SMALL: 
   - 1   # F
-  - 383 # 
-  - 395 # 
+  - 383 # F
+  - 395 # F
   - 141 # F
   - 413 # F
 

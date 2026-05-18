@@ -2,35 +2,13 @@
   {
     "type": "CONFLICT",
     "story_keys": [
-      "IB2-108",
-      "IB2-215"
-    ],
-    "severity": "HIGH",
-    "explanation": "Target Story IB2-108 explicitly states it 'does not include drag-and-drop editing interactions' for defining and managing page display ordering rules. However, Related Story IB2-215 directly implements the ability to 're-order Pages via drag-and-drop from Nav Panel during editing'. This creates a direct contradiction regarding the allowed interaction method for page ordering.",
-    "confidence": 0.9,
-    "suggested_fix": "Clarify the intended user interaction for managing page order. If drag-and-drop is desired, remove the exclusion from IB2-108 or re-scope IB2-108 to focus solely on the backend logic for storing order, with IB2-215 implementing the UI. If drag-and-drop is not desired, IB2-215 should be re-evaluated or cancelled."
-  },
-  {
-    "type": "CONFLICT",
-    "story_keys": [
-      "IB2-108",
-      "IB2-385"
-    ],
-    "severity": "HIGH",
-    "explanation": "Target Story IB2-108 explicitly states it 'does not include drag-and-drop editing interactions' for defining and managing page display ordering rules. However, Related Story IB2-385 directly implements the ability to 'rearrange pages... through the Navigation panel UI' using 'drag-and-drop interactions'. This creates a direct contradiction regarding the allowed interaction method for page ordering.",
-    "confidence": 0.9,
-    "suggested_fix": "Clarify the intended user interaction for managing page order. If drag-and-drop is desired, remove the exclusion from IB2-108 or re-scope IB2-108 to focus solely on the backend logic for storing order, with IB2-385 implementing the UI. If drag-and-drop is not desired, IB2-385 should be re-evaluated or cancelled."
-  },
-  {
-    "type": "CONFLICT",
-    "story_keys": [
       "IB2-116",
       "IB2-308"
     ],
     "severity": "HIGH",
-    "explanation": "Story IB2-116 states that users should 'Be able to set the ratio of the Image to change the \u2018Block'\u2019s width for the combination of Image Widget from Nav Panel' and 'Be able to still see Image remain the same percentage of it\u2019s \u201cBlock\u201c horizontally'. In direct contradiction, Story IB2-308 states 'The Image Widget's width must not be changeable from the Nav Panel Width slider' and 'When the Image Widget is resized, the image should reset to the center of its Block instead of preserving the same horizontal percentage position'. These are mutually exclusive requirements for the same image widget resizing functionality and post-resize behavior.",
+    "explanation": "Story IB2-116 states that users should be able to resize the Image Widget using the 'Width slider from Nav Panel'. Story IB2-308 directly contradicts this by stating that 'The Image Widget's width must not be changeable from the Nav Panel Width slider' and that resizing should *only* be done by dragging the dotted outline directly on the page. These are mutually exclusive requirements for the same functionality.",
     "confidence": 1.0,
-    "suggested_fix": "Product Management needs to clarify the intended behavior for image widget resizing: whether the Nav Panel Width slider should be used, and whether the image should maintain its horizontal percentage or reset to the center of its block upon resize. One of these stories must be updated or removed."
+    "suggested_fix": "Product Management needs to decide on the single, intended method for resizing the Image Widget. Either the Nav Panel Width slider should be enabled (as per IB2-116) or disabled/removed for image widgets (as per IB2-308). The conflicting requirements must be resolved."
   },
   {
     "type": "CONFLICT",
@@ -39,31 +17,9 @@
       "IB2-308"
     ],
     "severity": "HIGH",
-    "explanation": "Story IB2-117 states that the image should maintain its percentage position within the block after resizing ('Be able to re-position and see the Image in the same percentage of \u2018Block\u2019 after resizing to smaller'). Story IB2-308 directly contradicts this by stating the image should reset to the center of its block instead of preserving the same horizontal percentage position after resizing ('When the Image Widget is resized, the image should reset to the center of its Block instead of preserving the same horizontal percentage position'). These are mutually exclusive behaviors for the same action.",
+    "explanation": "Story IB2-117 states that the image should maintain its proportional position within the block after resizing ('same percentage of \u2018Block\u2019'). In direct contradiction, Story IB2-308 explicitly states that 'the image should reset to the center of its Block instead of preserving the same horizontal percentage position' when resized.",
     "confidence": 1.0,
-    "suggested_fix": "Clarify the desired behavior for image positioning after resizing. Decide whether the image should maintain its percentage position or reset to the center, and update one of the stories to reflect the chosen behavior."
-  },
-  {
-    "type": "CONFLICT",
-    "story_keys": [
-      "IB2-158",
-      "IB2-479"
-    ],
-    "severity": "MEDIUM",
-    "explanation": "IB2-158 allows users to select 'Daily' as a frequency for digest emails including 'New Comments'. IB2-479 provides a specific control to 'turn on and apply only to daily, never' for 'New Comments' daily digest. These two stories describe potentially conflicting interaction models for managing the same specific notification setting (daily digest for new comments). IB2-158 implies frequency selection, while IB2-479 implies a specific on/off toggle for the daily frequency.",
-    "confidence": 0.8,
-    "suggested_fix": "Consolidate the user interface and underlying logic for managing digest email frequencies and specific content types (like New Comments). Determine if the control should be a single frequency selection (including 'never') or if specific content types require separate on/off toggles for each frequency."
-  },
-  {
-    "type": "CONFLICT",
-    "story_keys": [
-      "IB2-164",
-      "IB2-389"
-    ],
-    "severity": "HIGH",
-    "explanation": "Story IB2-164 states that the 'Drag & Drop Page limit' should be settable via 'Custom Page limit in MCP' or 'Restrictions tab in MCP or Custom Page'. Story IB2-389, however, explicitly states 'I want to set Page limits via MCP settings, not in Custom Page'. These two requirements directly contradict each other regarding whether the 'Custom Page' should be a location for setting page limits.",
-    "confidence": 0.9,
-    "suggested_fix": "Clarify the intended location for setting page limits. Either it should be exclusively in MCP settings, or Custom Page should also be an option. Reconcile the scope and location of the 'Page limit' setting."
+    "suggested_fix": "Product Management must clarify the desired behavior for image positioning within a block after resizing. Either the image maintains its proportional position (as per IB2-117) or it resets to the center (as per IB2-308). One of the stories needs to be updated or removed to resolve this logical contradiction."
   },
   {
     "type": "CONFLICT",
@@ -72,9 +28,9 @@
       "IB2-78"
     ],
     "severity": "HIGH",
-    "explanation": "Story IB2-78 states that upon failed server deletion, the dialog remains open and a snackbar appears. Story IB2-172 explicitly states that the confirmation dialog must close automatically and *no* snackbar error message should be displayed after a failed delete action. These are mutually exclusive requirements for the same event (failed server deletion).",
+    "explanation": "Story IB2-78 states that upon failed server deletion, the dialog remains open and a snackbar appears. Story IB2-172 directly contradicts this by requiring the confirmation dialog to close automatically and *no snackbar* to be displayed after a failed delete action. These are mutually exclusive requirements for the exact same scenario.",
     "confidence": 1.0,
-    "suggested_fix": "Clarify the desired error handling behavior for failed server deletion. Decide whether the dialog should close and no snackbar appears (IB2-172), or if the dialog remains open and a snackbar appears (IB2-78). Update one of the stories to align with the chosen behavior."
+    "suggested_fix": "Clarify the desired behavior for failed server deletion: should the dialog close or remain open, and should a snackbar be displayed or not? One of the stories needs to be updated or removed to resolve this direct contradiction."
   },
   {
     "type": "CONFLICT",
@@ -83,9 +39,9 @@
       "IB2-308"
     ],
     "severity": "HIGH",
-    "explanation": "Story IB2-189 requires the image position within its Block area to remain proportional after resizing. In direct contradiction, Story IB2-308 states that when the Image Widget is resized, the image should reset to the center of its Block *instead of preserving the same horizontal percentage position*. These are mutually exclusive behaviors for image positioning after a resize action.",
+    "explanation": "IB2-189 requires the image position within its block to 'remain proportional after resizing' and 'preserve that proportional placement'. In direct contradiction, IB2-308 states that 'When the Image Widget is resized, the image should reset to the center of its Block instead of preserving the same horizontal percentage position'. These are mutually exclusive behaviors for the same action (resizing an image widget).",
     "confidence": 1.0,
-    "suggested_fix": "Product Management needs to clarify the desired behavior for image positioning after resizing. Either the image should maintain its proportional placement (as per IB2-189) or reset to the center (as per IB2-308). One of these requirements must be removed or modified to align with the other."
+    "suggested_fix": "Product Management needs to clarify the desired behavior for image positioning after resizing. Either the image should maintain its proportional placement (as per IB2-189) or reset to the center (as per IB2-308). One of these requirements must be updated or removed."
   },
   {
     "type": "CONFLICT",
@@ -94,20 +50,9 @@
       "IB2-308"
     ],
     "severity": "HIGH",
-    "explanation": "Story IB2-190 states that after resizing/repositioning an image, its horizontal percentage position within the block should be preserved across responsive modes. Story IB2-308 directly contradicts this by stating that when an Image Widget is resized, the image should reset to the center of its Block instead of preserving the same horizontal percentage position.",
+    "explanation": "Story IB2-190 states that after resizing/repositioning an image, it should maintain the 'same percentage horizontally' within its block across responsive modes. In direct contradiction, Story IB2-308 specifies that 'When the Image Widget is resized, the image should reset to the center of its Block instead of preserving the same horizontal percentage position'. These are mutually exclusive behaviors for image positioning after resizing.",
     "confidence": 1.0,
-    "suggested_fix": "Clarify the desired behavior for image positioning after resizing. Determine whether the horizontal percentage position should be preserved or reset to the center of the block, and update one or both stories to reflect the agreed-upon logic."
-  },
-  {
-    "type": "CONFLICT",
-    "story_keys": [
-      "IB2-27",
-      "IB2-497"
-    ],
-    "severity": "MEDIUM",
-    "explanation": "Story IB2-27 defines workflow request status options as 'Pending, Approved, Declined, Reviewed, Cancelled'. Story IB2-497 defines approval statuses for a feature field as 'Approved, Cancelled, Completed, Declined, Pending'. These lists are inconsistent: IB2-27 includes 'Reviewed' which IB2-497 omits, and IB2-497 includes 'Completed' which IB2-27 omits. This creates a conflict in the canonical definition of workflow/approval statuses.",
-    "confidence": 0.9,
-    "suggested_fix": "Harmonize the list of valid workflow/approval statuses across all features. Define a single, comprehensive set of statuses and ensure both stories reference or implement this consistent list. Clarify if 'Reviewed' and 'Completed' are distinct statuses or if one should replace the other."
+    "suggested_fix": "Product Management must clarify the desired behavior for image positioning after resizing. Either the image should maintain its relative horizontal position (as per IB2-190) or reset to the center (as per IB2-308). One of the stories needs to be updated or removed to resolve this logical contradiction."
   },
   {
     "type": "CONFLICT",
@@ -116,20 +61,9 @@
       "IB2-80"
     ],
     "severity": "HIGH",
-    "explanation": "Story IB2-80 states that if no Master Templates exist, the user can select to 'Create a Blank Template'. Story IB2-337 directly contradicts this by stating that if no Master Templates are available, users must *not* be allowed to create a blank template and should instead be instructed to create a Master Template first. These are mutually exclusive requirements for the same scenario.",
+    "explanation": "Story IB2-80 states that if no Master Templates exist, the user 'can select to Create a Blank Template instead'. In direct contradiction, Story IB2-337 states that if no Master Templates are available, users 'must not be allowed to create a blank template' and should instead be instructed to create a Master Template first. These two stories propose mutually exclusive behaviors for the same scenario.",
     "confidence": 1.0,
-    "suggested_fix": "Product Management needs to clarify the desired behavior when no Master Templates are available. Decide whether users should be allowed to create a blank template or be forced to create a Master Template first, and update the conflicting stories accordingly."
-  },
-  {
-    "type": "CONFLICT",
-    "story_keys": [
-      "IB2-463",
-      "IB2-476"
-    ],
-    "severity": "HIGH",
-    "explanation": "IB2-476 explicitly states that 'Existing Unknown face flags must be preserved during clone handling'. IB2-463, titled 'FR: Clone MCP Site handling', describes a mechanism (e.g., a checkbox) to allow for the 'complete removal of existing facial data and related flags'. If this removal mechanism is offered as an option during the cloning process, it directly contradicts the mandatory preservation requirement of IB2-476.",
-    "confidence": 0.8,
-    "suggested_fix": "Clarify if the mechanism in IB2-463 is an optional step *during* the cloning process or a separate action *after* cloning. If it's during cloning, either IB2-476's 'must be preserved' needs to be rephrased to allow for an override, or IB2-463's scope needs to be limited to post-clone actions."
+    "suggested_fix": "Product Management must clarify the intended behavior when no Master Templates exist. Either allow users to create a blank template (as per IB2-80) or enforce the creation of a Master Template first (as per IB2-337). Update one of the stories to align with the chosen approach."
   },
   {
     "type": "DUPLICATION",
@@ -138,9 +72,42 @@
       "IB2-189"
     ],
     "severity": "HIGH",
-    "explanation": "Story IB2-117 and Story IB2-189 describe the exact same functionality: repositioning an Image Widget by dragging, including the visual feedback (dotted line/outline, bounding box, border visibility) and the behavior of maintaining proportional/percentage placement after resizing. The descriptions are nearly identical, indicating a complete overlap of effort.",
+    "explanation": "Story IB2-117 and Story IB2-189 have almost identical titles and their descriptions are nearly word-for-word identical in their three core requirements. Both stories describe the exact same user goal and detailed requirements for repositioning an Image Widget by dragging the image itself, including the visual feedback (dotted line, bounding box) and the proportional positioning logic.",
     "confidence": 1.0,
-    "suggested_fix": "Consolidate these two stories into a single story. Choose one story key (e.g., IB2-117) and merge the descriptions, then close the other story (IB2-189) as a duplicate."
+    "suggested_fix": "These two stories are a near-perfect duplication. Consolidate them into a single story, choosing one key (e.g., IB2-117) and merging any unique details (though none appear here) from the other. The duplicated story should be closed."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": [
+      "IB2-117",
+      "IB2-190"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "Story IB2-117 describes the core behavior of repositioning an image by dragging and maintaining its proportional position within a block ('same percentage of \u2018Block\u2019'). Story IB2-190 describes the exact same proportional positioning behavior ('same percentage horizontally of Image with the Block') but specifically in the context of responsive modes. The core logic for maintaining proportional positioning after resizing/repositioning is duplicated.",
+    "confidence": 0.9,
+    "suggested_fix": "Consolidate the core proportional positioning and dragging logic into a single story, likely IB2-117. Story IB2-190 could then be refined to focus solely on ensuring this behavior is correctly applied and tested across various responsive breakpoints, or its acceptance criteria could be merged into IB2-117."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": [
+      "IB2-189",
+      "IB2-190"
+    ],
+    "severity": "HIGH",
+    "explanation": "Both stories describe the requirement for an image's position to be maintained proportionally or by percentage within its block after user adjustments (resizing/repositioning). IB2-189 states 'preserve that proportional placement if the Block width later changes', which implies responsive behavior. IB2-190 explicitly states 'Be able to see the same percentage horizontally of Image with the Block in mobile, tablet, and desktop modes, after resizing... repositioning'. These are two distinct stories implementing the same core responsive positioning logic for image widgets.",
+    "confidence": 0.9,
+    "suggested_fix": "Consolidate these requirements into a single story. IB2-189 should be updated to explicitly include the responsive behavior across different modes, or IB2-190 should be merged into IB2-189 as a detailed NFR or acceptance criteria for responsive behavior."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": [
+      "IB2-2",
+      "IB2-3"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "Both stories describe the exact same pattern of creating a new feature flag/setting in the 'Development Use Only' area of the MCP, which acts as a toggle to enable/disable a set of related features. The core technical action of implementing such a generic toggle mechanism is highly duplicated across these two stories, differing only in the specific feature name it controls ('Auto-Focal' vs. 'GIF/Lottie Preview Support').",
+    "confidence": 0.8,
+    "suggested_fix": "Consolidate the requirement for generic feature flag management in MCP. Create a single story to implement the underlying mechanism for adding 'Development Use Only' feature toggles. Then, treat the addition of specific flags (like 'Auto-Focal' and 'GIF/Lottie Preview Support') as configuration tasks or sub-tasks under that generic story, or as separate, much smaller stories if the framework is already in place."
   },
   {
     "type": "DUPLICATION",
@@ -149,9 +116,9 @@
       "IB2-385"
     ],
     "severity": "HIGH",
-    "explanation": "Both stories describe the exact same core functionality: allowing users to re-order pages and sub-pages within the same parent/root using drag-and-drop in the Navigation panel during editing. If IB2-215 is completed, the effort for IB2-385 would be entirely redundant as it covers the identical requirements.",
+    "explanation": "Both stories describe the exact same core functionality: re-ordering pages and sub-pages using drag-and-drop within the Navigation panel. Both specify that sub-pages move with their parent and collapse after re-ordering. Implementing both would result in building the same feature twice.",
     "confidence": 1.0,
-    "suggested_fix": "Consolidate IB2-215 and IB2-385 into a single user story, or mark one as a duplicate of the other and close it. Ensure all specific requirements from both are captured in the remaining story."
+    "suggested_fix": "Consolidate IB2-385 into IB2-215 or mark IB2-385 as a duplicate of IB2-215. Ensure all requirements from both are captured in a single, comprehensive story."
   },
   {
     "type": "DUPLICATION",
@@ -160,9 +127,9 @@
       "IB2-396"
     ],
     "severity": "HIGH",
-    "explanation": "Story IB2-396, titled 'PB - (BE) As a User, I want to create a sub-page for an exisiting Simple Page via Nav', describes the initial UI steps (clicking setting button, seeing sub-page popup) for creating a sub-page. These exact steps are explicitly included in the target story IB2-225, which covers the full flow of sub-page creation. If IB2-225 is completed, the functionality described in IB2-396 would be entirely implemented.",
+    "explanation": "Both stories describe the user action of creating a sub-page for an existing Smart Page via the navigation panel. IB2-396's description covers the initial UI steps (clicking settings, seeing popup) which are fully encompassed and further detailed in IB2-225 (which also includes input, saving, validation, and display order). The '(BE)' tag in IB2-396's title is misleading given its UI-focused description, suggesting it's a duplicate of the UI functionality.",
     "confidence": 0.9,
-    "suggested_fix": "Consolidate IB2-396 into IB2-225. If IB2-396 was intended as a backend-specific story, its description needs to be rewritten to focus solely on backend implementation details without describing UI interactions, or it should be linked as a technical task to IB2-225."
+    "suggested_fix": "Consolidate IB2-396 into IB2-225, ensuring all requirements for creating a sub-page, including any backend considerations implied by '(BE)', are captured in a single story. If IB2-396 is truly a backend-only story, its description needs to be rewritten to reflect backend tasks, not UI steps."
   },
   {
     "type": "DUPLICATION",
@@ -171,9 +138,9 @@
       "IB2-415"
     ],
     "severity": "HIGH",
-    "explanation": "Story IB2-415, titled 'PB - (DND replace) As a User, I want to create a sub-page for an exisiting Smart Page via Nav', has an identical title to the target story IB2-225. Furthermore, its description (points 1, 2, and 3) is a direct subset of IB2-225's description. Implementing IB2-225 would fully satisfy all requirements of IB2-415, rendering IB2-415 completely redundant.",
+    "explanation": "These stories have identical titles and their descriptions are almost entirely overlapping. IB2-415's description is a direct subset of IB2-225's description, indicating they describe the exact same feature for creating a sub-page.",
     "confidence": 1.0,
-    "suggested_fix": "Archive or delete IB2-415 as it is a complete duplicate of IB2-225. Ensure all stakeholders are aware that IB2-225 covers this functionality."
+    "suggested_fix": "Consolidate IB2-415 into IB2-225. IB2-415 is entirely redundant and should be closed or merged."
   },
   {
     "type": "DUPLICATION",
@@ -182,20 +149,31 @@
       "IB2-429"
     ],
     "severity": "HIGH",
-    "explanation": "Story IB2-429's core requirements ('Be able to see the new extend / collapse button icon from the top left to open the Left Side Panel as Page Nav' and 'Be able to see all the saved Simple pages from the Left Side Panel against current user\u2019s permission') are identical to the first two requirements of the target story IB2-233. Implementing IB2-233 would completely fulfill IB2-429.",
+    "explanation": "Story IB2-429 is a direct subset of IB2-233. The first two requirements of both stories are identical, describing the ability to see the extend/collapse button for the Left Side Panel as Page Nav and to see all saved Simple pages within it. Completing IB2-233 would fully implement the functionality described in IB2-429.",
     "confidence": 1.0,
-    "suggested_fix": "Merge IB2-429 into IB2-233, or mark IB2-429 as a duplicate and close it, as IB2-233 already covers its functionality and adds further details."
+    "suggested_fix": "Consolidate IB2-429 into IB2-233, or mark IB2-429 as a duplicate and close it, ensuring all requirements are covered by IB2-233."
   },
   {
     "type": "DUPLICATION",
     "story_keys": [
-      "IB2-240",
-      "IB2-448"
+      "IB2-27",
+      "IB2-41"
     ],
     "severity": "HIGH",
-    "explanation": "Both stories describe the exact same 'Bulk Apply functionality for updates introduced through Grouped work'. Their descriptions are nearly identical, covering UI behavior (button counts, tooltips, snackbars), the core apply processing logic, additional validation checks, and the determination of 'Complete Request/Stage' actions. Implementing both would result in building the same feature twice.",
-    "confidence": 1.0,
-    "suggested_fix": "Consolidate IB2-240 and IB2-448 into a single user story to avoid redundant development effort and ensure a single source of truth for this feature."
+    "explanation": "Both stories require displaying the 'Request Status' for workflow items. IB2-27 specifies a 'Status column' with specific chip values (Pending, Approved, Declined, Reviewed, Cancelled), while IB2-41 specifies a 'Request Status section' that includes 'Request Status' and other related information. The core functionality of displaying the current status of a workflow request is duplicated, as IB2-41 would inherently cover the need to display the request status.",
+    "confidence": 0.9,
+    "suggested_fix": "Consolidate the requirements for displaying workflow request status into a single story. Define whether the status should be displayed as a column, a section, or both, and specify all necessary details (values, dynamic updates, related info) in one place to avoid redundant implementation."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": [
+      "IB2-27",
+      "IB2-497"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "Both stories define a very similar set of approval status values. IB2-27 lists 'Pending, Approved, Declined, Reviewed, Cancelled' as options for the 'Status column' chips, while IB2-497 lists 'Approved, Cancelled, Completed, Declined, Pending' as values for a 'Feature Field Completion Value'. This indicates a duplicated definition of core workflow status options, even if used in different UI contexts.",
+    "confidence": 0.8,
+    "suggested_fix": "Establish a single, canonical source for defining all possible workflow approval status values (e.g., an enum or shared constant). Reference this single definition in both stories, ensuring consistency and avoiding redundant specification. Clarify if 'Reviewed' and 'Completed' are distinct statuses or synonyms."
   },
   {
     "type": "DUPLICATION",
@@ -204,9 +182,9 @@
       "IB2-326"
     ],
     "severity": "MEDIUM",
-    "explanation": "Both stories describe the exact same UI behavior for the 'Ask' button's initial state and hover text. IB2-323 states 'Ask button displays under question field, is disabled by default when panel opens' and 'Hover text when enabled: 'Click or hit enter to ask your question.''. IB2-326 reiterates 'The Ask button is disabled by default when the Ask AI panel opens' and 'Hover text when enabled: 'Click or hit enter to ask your question.''. This is a direct duplication of the button's core UI definition.",
+    "explanation": "Both stories specify that the 'Ask' button is disabled by default when the panel opens and describe the exact same hover text ('Click or hit enter to ask your question.') when enabled. This is a direct overlap in UI behavior requirements.",
     "confidence": 0.9,
-    "suggested_fix": "Consolidate the common UI behavior for the 'Ask' button's default state and hover text into a single story (e.g., IB2-323) or a shared UI component specification. IB2-326 should then reference IB2-323 for these base UI details and focus solely on the additional permission and search-scope logic it introduces."
+    "suggested_fix": "Consolidate the common UX requirements for the 'Ask' button's initial state and hover text into a single story or a shared UX specification. IB2-326 can then focus on the permission, search-scope, and enabling logic, referencing the base button behavior defined elsewhere."
   },
   {
     "type": "DUPLICATION",
@@ -214,10 +192,10 @@
       "IB2-396",
       "IB2-415"
     ],
-    "severity": "MEDIUM",
-    "explanation": "Both stories describe the user's ability to initiate the creation of a sub-page via the navigation panel. Their descriptions contain identical steps 1 and 2: 'Be able to click on setting button of a simple page from Nav as per' and 'Be able to see the sub-page popup as per'. Story IB2-415's description even refers to a 'simple page' despite its title mentioning 'Smart Page', indicating a strong overlap or inconsistency in terminology and scope for the initial interaction.",
+    "severity": "HIGH",
+    "explanation": "Both stories describe the exact same core user interaction for creating a sub-page via the navigation panel: clicking a settings button on an existing page and seeing a sub-page popup. Story IB2-415 provides a slightly more complete flow by adding the input and save steps, but it fully encompasses the functionality described in IB2-396. The difference in 'Simple Page' vs 'Smart Page' in the titles likely refers to the same underlying page type or a naming inconsistency, especially given the identical steps.",
     "confidence": 0.9,
-    "suggested_fix": "Consolidate these two stories into a single, comprehensive story for creating sub-pages, clarifying the terminology (Simple Page vs. Smart Page) and ensuring all necessary steps are included. If 'Simple Page' and 'Smart Page' are distinct entities requiring different sub-page creation mechanisms, then the descriptions need to clearly differentiate the user interactions."
+    "suggested_fix": "Consolidate these stories. If 'Simple Page' and 'Smart Page' refer to the same entity, IB2-396 should be closed as a duplicate of IB2-415. If they are distinct, the descriptions need to clearly differentiate the unique implementation details for each, which is not evident from the current descriptions."
   },
   {
     "type": "NOT_ESTIMABLE",
@@ -225,9 +203,9 @@
       "IB2-141"
     ],
     "severity": "HIGH",
-    "explanation": "Point 4 of the description, 'Support historical data migration, multi-environment aggregation, backward compatibility, and automated export/report synchronization across reporting systems,' introduces significant ambiguity, technical complexity, and broad architectural uncertainty, making the story very difficult to estimate with reasonable confidence.",
+    "explanation": "The story bundles several large and complex technical tasks, including 'historical data migration, multi-environment aggregation, backward compatibility, and automated export/report synchronization across reporting systems.' These items introduce significant ambiguity and technical risk, making it very difficult to estimate with reasonable confidence.",
     "confidence": 0.95,
-    "suggested_fix": "Break down point 4 into separate, well-defined stories or an epic. Each aspect (data migration, aggregation, backward compatibility, synchronization) requires detailed analysis and planning. Refine the scope of the current story to focus only on the report update and cleanup, or create a separate epic for the complex data engineering tasks."
+    "suggested_fix": "Break down this story into multiple smaller, more focused stories. Each of the complex technical tasks (e.g., 'historical data migration,' 'multi-environment aggregation') should be a separate, estimable story or even an epic."
   },
   {
     "type": "NOT_ESTIMABLE",
@@ -235,59 +213,59 @@
       "IB2-148"
     ],
     "severity": "HIGH",
-    "explanation": "The story 'new Auth Screens + Success Page' is too broad and lacks specific details about the required screens, their functionality, and design. This ambiguity makes it challenging for the team to estimate the implementation effort with confidence.",
+    "explanation": "The contradictory statements in the description ('Add in Menu / Login Bar' vs. 'not the log-in or nav menu') create significant ambiguity regarding the scope and expected UI behavior. This lack of clarity makes it impossible for a team to estimate the effort with reasonable confidence.",
     "confidence": 0.9,
-    "suggested_fix": "Break down 'new Auth Screens + Success Page' into more granular stories, each focusing on a specific screen or a well-defined part of the authentication flow (e.g., 'As a user, I want a new login screen with X features'). Provide clear requirements and acceptance criteria for each."
+    "suggested_fix": "Resolve the conflicting requirements by clarifying the precise design and functionality for the new authentication screens and success page, especially concerning navigation elements."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-164"
+    ],
+    "severity": "HIGH",
+    "explanation": "The description contains ambiguous phrasing like 'Do it as it should be shown somewhere on Custom Page,' which makes the exact scope and implementation unclear.",
+    "confidence": 0.9,
+    "suggested_fix": "Specify precisely where and how the limit should be displayed on the Custom Page, providing design mockups or clearer textual descriptions."
   },
   {
     "type": "NOT_ESTIMABLE",
     "story_keys": [
       "IB2-186"
     ],
-    "severity": "MEDIUM",
-    "explanation": "The description is incomplete, ending with 'for each widgets:'. This creates ambiguity about whether the configuration applies to just Block and Text Widgets or all widgets, making the full scope unclear for estimation.",
-    "confidence": 0.8,
-    "suggested_fix": "Complete the description by specifying exactly which widgets' properties need to be configurable, or clarify if it applies universally and list all affected widgets."
+    "severity": "HIGH",
+    "explanation": "The description is vague about which 'previously defined Block and Widget's settings' are being combined and for 'each widgets:', implying a broader scope than just the Text Widget without specifying which ones.",
+    "confidence": 0.9,
+    "suggested_fix": "Clearly list the specific settings to be combined and explicitly state which widgets are affected by this change, or create separate stories for each widget if the scope is too broad."
   },
   {
     "type": "NOT_ESTIMABLE",
     "story_keys": [
       "IB2-213"
     ],
-    "severity": "MEDIUM",
-    "explanation": "The description explicitly states 'see detailed locations to rename the keyword as below: Location to rename' but these details are missing. Without the list of locations, the scope of the renaming task is unclear and difficult to estimate.",
-    "confidence": 0.8,
-    "suggested_fix": "Provide the complete list of all front-end locations where 'Simple Page' needs to be renamed to 'Smart Page'."
+    "severity": "HIGH",
+    "explanation": "The story refers to 'detailed locations to rename the keyword as below: Location to rename' but does not provide this list within the story. Without the list, the scope of the renaming task is unknown, making it impossible to estimate.",
+    "confidence": 0.95,
+    "suggested_fix": "Include the complete list of all front-end locations where 'Simple Page' needs to be renamed to 'Smart Page' directly in the story description or link to an accessible, definitive source."
   },
   {
     "type": "NOT_ESTIMABLE",
     "story_keys": [
       "IB2-240"
     ],
-    "severity": "MEDIUM",
-    "explanation": "The description contains vague phrases like 'Actual apply logic' and 'Behaviour here need extra check,' which suggest undefined or unclear aspects of the implementation, making it difficult to estimate with confidence.",
-    "confidence": 0.7,
-    "suggested_fix": "Clarify the 'Actual apply logic' and specify what 'extra checks' are required, detailing the conditions and expected outcomes."
-  },
-  {
-    "type": "NOT_ESTIMABLE",
-    "story_keys": [
-      "IB2-245"
-    ],
-    "severity": "MEDIUM",
-    "explanation": "The description refers to specific settings ('MCP development setting from is enabled', 'new setting enabled, as per') without fully defining them or providing the referenced details. This makes the conditions for conditionally displaying the checkbox column ambiguous and hard to estimate.",
-    "confidence": 0.8,
-    "suggested_fix": "Clearly define the 'MCP development setting' and the 'new setting in Admin > Templates', including their exact names and locations, to remove ambiguity."
+    "severity": "HIGH",
+    "explanation": "The description contains vague phrases like 'Actual apply logic' and 'Behaviour here need extra check,' which indicate a lack of clarity regarding the precise business rules and technical implementation required.",
+    "confidence": 0.9,
+    "suggested_fix": "Elaborate on the 'Actual apply logic' by detailing the specific rules and conditions for bulk application. Clarify what 'extra check' is needed and why, providing concrete examples or requirements."
   },
   {
     "type": "NOT_ESTIMABLE",
     "story_keys": [
       "IB2-305"
     ],
-    "severity": "MEDIUM",
-    "explanation": "The story title 'configure both Block and Button Widget properties' suggests a broader scope, but the description only details properties for the 'Button' widget. The 'Block' properties are not defined, leading to ambiguity about the full scope of work.",
-    "confidence": 0.7,
-    "suggested_fix": "Clarify whether this story is solely for the Button widget or if it also includes Block properties. If both, specify the Block properties. If only Button, update the title to reflect that."
+    "severity": "HIGH",
+    "explanation": "The story title mentions configuring 'Block and Button Widget properties,' but the description only details properties for the 'Button' widget. The properties for the 'Block' widget are completely undefined, making it impossible to estimate the full scope of the story.",
+    "confidence": 0.9,
+    "suggested_fix": "Clarify and explicitly list all the properties that need to be configured for the 'Block' widget, similar to how 'Button Text' and 'Button Link' are specified for the 'Button' widget."
   },
   {
     "type": "NOT_ESTIMABLE",
@@ -295,19 +273,19 @@
       "IB2-367"
     ],
     "severity": "HIGH",
-    "explanation": "The story describes a complex problem scenario involving 'Cross Folder bulk edit' and 'different reviewers for different folders' but fails to define the expected behavior or solution. It refers to 'scenarios above' which are not provided, making it impossible to understand what needs to be built or to estimate the effort.",
+    "explanation": "The story refers to 'scenarios above' for detailing reviewer configurations, but these scenarios are not provided within the story itself. This critical missing information makes the scope and complexity of the 'different reviewers per folder due to config' highly ambiguous, preventing accurate estimation.",
     "confidence": 0.9,
-    "suggested_fix": "Provide the missing 'scenarios' and clearly define the desired system behavior and outcome for each scenario. Specify how the system should handle the different reviewer configurations."
+    "suggested_fix": "Include the detailed scenarios and configurations directly within the story description, or ensure they are readily accessible and clearly referenced, so the team can understand the full scope of the logic required."
   },
   {
     "type": "NOT_ESTIMABLE",
     "story_keys": [
-      "IB2-389"
+      "IB2-383"
     ],
     "severity": "HIGH",
-    "explanation": "The story is too vague. 'Set Page limits' is not defined; it's unclear what kind of limits (e.g., number of pages, size, types) are being referred to, how they are applied, or their impact. This lack of detail makes it impossible to estimate the scope or complexity.",
+    "explanation": "The story bundles an extensive list of complex requirements, including 'automatically migrate all child references, linked content, permissions, and dependencies,' 'update page URLs, breadcrumbs, navigation paths, and SEO metadata,' 'support undo/redo and full page hierarchy version history,' 'add audit logging and activity tracking,' 'trigger notifications and update workflows,' 'support role-based permissions and approval workflows,' and 'ensure hierarchy updates remain synchronized across APIs, mobile clients, exports, and collaborative editing sessions.' The sheer volume and technical depth of these requirements make the story's scope highly ambiguous and impossible to estimate with reasonable confidence.",
     "confidence": 0.95,
-    "suggested_fix": "Clarify what 'Page limits' entail. Provide specific examples of limits, how they are configured in the MCP control panel, and what their effect is on client sites."
+    "suggested_fix": "Break this down into multiple, smaller, more focused stories. Each major aspect (e.g., core drag-and-drop move, content/permission migration, URL/SEO updates, versioning/audit, notifications/workflows, synchronization) should be a separate story or even an epic, allowing for clearer definition and estimation."
   },
   {
     "type": "NOT_ESTIMABLE",
@@ -315,19 +293,9 @@
       "IB2-395"
     ],
     "severity": "HIGH",
-    "explanation": "Point 3 of the description is extremely broad and ambiguous, encompassing 'hierarchical permission inheritance, multi-level propagation, approval workflows, audit history, and cross-platform synchronization'. This level of complexity and scope makes it impossible to estimate with reasonable confidence.",
+    "explanation": "The story's description, particularly point 3, includes a vast and complex set of requirements: 'Support hierarchical permission inheritance, multi-level propagation, approval workflows, audit history, and cross-platform synchronization for all sub-page permission updates.' This introduces significant ambiguity and technical risk, making it extremely difficult to estimate without extensive prior investigation and breakdown.",
     "confidence": 0.95,
-    "suggested_fix": "Break down this story into multiple smaller, more focused stories. Each aspect mentioned in point 3 (e.g., hierarchical inheritance, audit history, cross-platform sync) should be a separate, well-defined story or even an epic."
-  },
-  {
-    "type": "NOT_ESTIMABLE",
-    "story_keys": [
-      "IB2-396"
-    ],
-    "severity": "MEDIUM",
-    "explanation": "The description contains 'as per' references without providing the actual linked designs or mockups. This ambiguity regarding the expected UI/UX for the sub-page popup makes it difficult to accurately estimate the effort.",
-    "confidence": 0.7,
-    "suggested_fix": "Provide the missing 'as per' references (e.g., links to design documents, mockups, or existing UI examples) to clarify the expected behavior and appearance."
+    "suggested_fix": "Break this epic-sized story into multiple smaller, more focused user stories. Each aspect (e.g., basic sub-page permissions, hierarchical inheritance, audit history, cross-platform synchronization) should be a separate, estimable story. Conduct a spike or discovery phase to clarify the technical approach for these complex features."
   },
   {
     "type": "NOT_ESTIMABLE",
@@ -335,49 +303,19 @@
       "IB2-413"
     ],
     "severity": "HIGH",
-    "explanation": "Point 1 is vague ('additional (or could be unknown) Notification options may have some chances to appear'). Point 2 is extremely broad and complex, listing multiple large features like 'global template inheritance, multilingual email generation, tenant-level customization, real-time delivery tracking, approval workflows, and synchronization with external notification providers and legacy workflow systems'. This makes the story impossible to estimate.",
+    "explanation": "Point 1 mentions 'additional (or could be unknown) Notification options may have some chances to appear', indicating significant ambiguity. Point 2 lists an enormous scope of features ('global template inheritance, multilingual email generation, tenant-level customization, real-time delivery tracking, approval workflows, and synchronization with external notification providers and legacy workflow systems') which makes accurate estimation impossible without substantial clarification and breakdown.",
     "confidence": 0.95,
-    "suggested_fix": "Clarify the 'unknown' options in point 1. Break down point 2 into multiple, distinct, and estimable user stories, each focusing on a single aspect of notification settings (e.g., template inheritance, multilingual support, external sync)."
-  },
-  {
-    "type": "NOT_ESTIMABLE",
-    "story_keys": [
-      "IB2-415"
-    ],
-    "severity": "MEDIUM",
-    "explanation": "The description contains 'as per' references without providing the actual linked designs or mockups. This ambiguity regarding the expected UI/UX for the sub-page popup makes it difficult to accurately estimate the effort.",
-    "confidence": 0.7,
-    "suggested_fix": "Provide the missing 'as per' references (e.g., links to design documents, mockups, or existing UI examples) to clarify the expected behavior and appearance."
-  },
-  {
-    "type": "NOT_ESTIMABLE",
-    "story_keys": [
-      "IB2-429"
-    ],
-    "severity": "MEDIUM",
-    "explanation": "The description contains 'as per' references without providing the actual linked designs or mockups. This ambiguity regarding the expected UI/UX for the extend/collapse button and the content of the Left Side Panel makes it difficult to accurately estimate the effort.",
-    "confidence": 0.7,
-    "suggested_fix": "Provide the missing 'as per' references (e.g., links to design documents, mockups, or existing UI examples) to clarify the expected behavior and appearance."
+    "suggested_fix": "Clarify the 'unknown' notification options. Break down the extensive requirements in point 2 into individual, smaller user stories. Each listed capability (e.g., multilingual email, real-time tracking, synchronization) should be a separate story, potentially requiring spikes for technical feasibility."
   },
   {
     "type": "NOT_ESTIMABLE",
     "story_keys": [
       "IB2-448"
     ],
-    "severity": "HIGH",
-    "explanation": "Point 4, 'Determine Complete Request and Stage actions based on whether Requests are staged requests, their current stage status, or standalone requests', introduces significant complexity and potential ambiguity. This implies a complex decision-making logic that might not be fully understood or specified, making it hard to estimate.",
-    "confidence": 0.8,
-    "suggested_fix": "Break down point 4 into more specific, smaller stories or acceptance criteria. Clarify the exact logic and rules for determining actions based on different request types and statuses."
-  },
-  {
-    "type": "NOT_ESTIMABLE",
-    "story_keys": [
-      "IB2-465"
-    ],
     "severity": "MEDIUM",
-    "explanation": "The description contains 'as per' references without providing the actual linked designs or mockups. This ambiguity regarding the expected UI/UX for the resource lookup button makes it difficult to accurately estimate the effort.",
-    "confidence": 0.7,
-    "suggested_fix": "Provide the missing 'as per' references (e.g., links to design documents, mockups, or existing UI examples) to clarify the expected behavior and appearance."
+    "explanation": "While the story references existing behavior, points 3 ('Include additional validation checks specific to this workflow') and 4 ('Determine Complete Request and Stage actions based on whether Requests are staged requests, their current stage status, or standalone requests') introduce new, undefined complexity. The scope of these new validations and the logic for determining actions across different request types are unclear, making accurate estimation challenging.",
+    "confidence": 0.75,
+    "suggested_fix": "Clarify the specific 'additional validation checks' required. Detail the decision logic for 'Complete Request and Stage actions' for each request type (staged, standalone, current stage status). Consider splitting these complex logic implementations into separate stories if they prove too large or ambiguous."
   },
   {
     "type": "NOT_ESTIMABLE",
@@ -385,210 +323,64 @@
       "IB2-9"
     ],
     "severity": "MEDIUM",
-    "explanation": "The description uses ambiguous language such as 'should probably see', 'may show', 'may be hidden', and 'may autoplay'. This lack of definitive requirements makes it difficult to estimate the scope and effort with confidence.",
+    "explanation": "The description uses ambiguous language such as 'should probably see', 'may show', 'may be hidden', and 'may autoplay'. These 'may' statements indicate that key aspects of the user interface and behavior are not yet decided, making it difficult for the team to accurately estimate the effort required without further clarification.",
     "confidence": 0.7,
-    "suggested_fix": "Clarify the exact desired behavior for the preview, including whether controls should be visible, if autoplay is mandatory, and the precise conditions under which the preview appears. Remove 'may' and 'probably' statements."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-108",
-      "IB2-215",
-      "IB2-385"
-    ],
-    "severity": "MEDIUM",
-    "explanation": "[EXTREME_BOTTLENECK] Story IB2-108, which defines and manages page display ordering rules, is a prerequisite for IB2-215 and IB2-385, which implement the UI drag-and-drop interactions for reordering. Without the underlying configuration and persistence from IB2-108, the UI interactions in IB2-215 and IB2-385 would not deliver persistent value.",
-    "confidence": 0.9,
-    "suggested_fix": "Prioritize IB2-108 to establish the foundational ordering mechanism before implementing the UI interactions for reordering in IB2-215 and IB2-385."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-385",
-      "IB2-108"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-385 (rearrange pages via drag-and-drop) is a UI interaction feature that depends on the underlying configuration and persistence of page ordering rules defined in IB2-108. Without IB2-108, the reordering actions in IB2-385 would not be saved or applied.",
-    "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-108 (define/manage page display ordering rules) is completed before implementing IB2-385 (drag-and-drop reordering UI)."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-111",
-      "IB2-109"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-111 (Block background color in Text Widget) is a UI refinement that depends on the 'Widgets combining Block' feature setting provided by IB2-109. It cannot be implemented or tested independently without the core feature being enabled.",
-    "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-109 (MCP settings for D&D Pages) is completed, specifically the 'Widgets combining Block' setting, before implementing IB2-111."
+    "suggested_fix": "Clarify the exact desired behavior for the GIF/Lottie MP4 preview on the Share screen. Specifically, confirm whether controls should be visible/hidden, if the MP4 should autoplay, and any other specific UI/UX requirements."
   },
   {
     "type": "NOT_INDEPENDENT",
     "story_keys": [
       "IB2-109",
-      "IB2-111",
-      "IB2-115",
+      "IB2-105",
+      "IB2-107",
+      "IB2-108",
+      "IB2-286",
       "IB2-116",
       "IB2-117",
-      "IB2-186",
       "IB2-189",
       "IB2-190",
       "IB2-191",
-      "IB2-208",
-      "IB2-305",
       "IB2-308",
-      "IB2-337",
-      "IB2-286",
-      "IB2-395"
-    ],
-    "severity": "HIGH",
-    "explanation": "[EXTREME_BOTTLENECK] Story IB2-109, which introduces multiple MCP settings for Drag & Drop Page MVP features (Widgets combining Block, Image Resizing, Page Templates, Page Category), acts as a critical bottleneck. It directly blocks 14 other stories that implement specific functionalities or UI refinements related to these features. These dependent stories cannot deliver value or be fully tested without the enabling settings from IB2-109.",
-    "confidence": 0.95,
-    "suggested_fix": "Prioritize IB2-109 to establish the foundational feature flags. Consider breaking IB2-109 into smaller, independent setting stories if possible, or ensure its completion early in the development cycle."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-115",
-      "IB2-109"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-115 (clarifying Block and Button Widget properties) directly relates to the 'Widgets combining Block' feature setting provided by IB2-109. It cannot be implemented or tested independently without the core feature being enabled.",
-    "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-109 (MCP settings for D&D Pages) is completed, specifically the 'Widgets combining Block' setting, before implementing IB2-115."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-116",
-      "IB2-109"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-116 (resize Image Widget by Width slider) is a UI feature that depends on the 'Image Resizing' feature setting provided by IB2-109. It cannot be implemented or tested independently without the core feature being enabled.",
-    "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-109 (MCP settings for D&D Pages) is completed, specifically the 'Image Resizing' setting, before implementing IB2-116."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-117",
-      "IB2-109"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-117 (reposition Image Widget by dragging) is a UI feature that depends on the 'Image Resizing' feature setting provided by IB2-109. It cannot be implemented or tested independently without the core feature being enabled.",
-    "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-109 (MCP settings for D&D Pages) is completed, specifically the 'Image Resizing' setting, before implementing IB2-117."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-186",
-      "IB2-109"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-186 (configure Block and Text Widget properties) is a UI feature that depends on the 'Widgets combining Block' feature setting provided by IB2-109. It cannot be implemented or tested independently without the core feature being enabled.",
-    "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-109 (MCP settings for D&D Pages) is completed, specifically the 'Widgets combining Block' setting, before implementing IB2-186."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-189",
-      "IB2-109"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-189 (drag image directly to adjust position) is a UI feature that depends on the 'Image Resizing' feature setting provided by IB2-109. It cannot be implemented or tested independently without the core feature being enabled.",
-    "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-109 (MCP settings for D&D Pages) is completed, specifically the 'Image Resizing' setting, before implementing IB2-189."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-190",
-      "IB2-109"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-190 (responsive image position and size) is a UI feature that depends on the 'Image Resizing' feature setting provided by IB2-109. It cannot be implemented or tested independently without the core feature being enabled.",
-    "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-109 (MCP settings for D&D Pages) is completed, specifically the 'Image Resizing' setting, before implementing IB2-190."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-191",
-      "IB2-109"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-191 (Undo & Redo resizing & repositioning) is a UI feature that depends on the 'Image Resizing' feature setting provided by IB2-109. It cannot be implemented or tested independently without the core feature being enabled.",
-    "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-109 (MCP settings for D&D Pages) is completed, specifically the 'Image Resizing' setting, before implementing IB2-191."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
+      "IB2-192",
       "IB2-208",
-      "IB2-109"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-208 (select & see combo of Widget and Block) is a UI feature that depends on the 'Widgets combining Block' feature setting provided by IB2-109. It cannot be implemented or tested independently without the core feature being enabled.",
-    "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-109 (MCP settings for D&D Pages) is completed, specifically the 'Widgets combining Block' setting, before implementing IB2-208."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-286",
-      "IB2-109"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-286 (edit/rename an existing Page Category) is a UI feature that depends on the 'Drag & Drop Pages - Page Category' feature setting provided by IB2-109. It cannot be implemented or tested independently without the core feature being enabled.",
-    "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-109 (MCP settings for D&D Pages) is completed, specifically the 'Page Category' setting, before implementing IB2-286."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-305",
-      "IB2-109"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-305 (configure Block and Button Widget properties) is a UI feature that depends on the 'Widgets combining Block' feature setting provided by IB2-109. It cannot be implemented or tested independently without the core feature being enabled.",
-    "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-109 (MCP settings for D&D Pages) is completed, specifically the 'Widgets combining Block' setting, before implementing IB2-305."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-308",
-      "IB2-109"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-308 (Image Widget resizing by direct dragging only) is a refinement of image resizing behavior that depends on the 'Image Resizing' feature setting provided by IB2-109. It cannot be implemented or tested independently without the core feature being enabled.",
-    "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-109 (MCP settings for D&D Pages) is completed, specifically the 'Image Resizing' setting, before implementing IB2-308."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-337",
-      "IB2-109"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-337 (template selection requires existing Master Template) is a logic feature that depends on the 'Drag & Drop Pages: Page Templates' feature setting provided by IB2-109. It cannot be implemented or tested independently without the core feature being enabled.",
-    "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-109 (MCP settings for D&D Pages) is completed, specifically the 'Page Templates' setting, before implementing IB2-337."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
+      "IB2-215",
+      "IB2-225",
+      "IB2-233",
+      "IB2-248",
+      "IB2-256",
+      "IB2-281",
+      "IB2-347",
+      "IB2-383",
+      "IB2-385",
+      "IB2-387",
+      "IB2-388",
+      "IB2-394",
       "IB2-395",
-      "IB2-109"
+      "IB2-396",
+      "IB2-415",
+      "IB2-429",
+      "IB2-436",
+      "IB2-465",
+      "IB2-163",
+      "IB2-164",
+      "IB2-389",
+      "IB2-337"
     ],
     "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-395 (configure permissions of sub-pages) is a feature that depends on the 'Drag & Drop Pages - Page Category' feature setting provided by IB2-109, which enables the concept of page hierarchy and sub-pages. It cannot be implemented or tested independently without the core feature being enabled.",
+    "explanation": "[EXTREME_BOTTLENECK] Story IB2-109 introduces multiple MCP settings that act as feature flags for the entire \"Drag & Drop Page MVP\". Over 30 other stories directly depend on these settings being available and enabled. Any delay in IB2-109 will block a significant portion of the backlog related to Page Builder and Smart Pages.",
+    "confidence": 1.0,
+    "suggested_fix": "Prioritize IB2-109 as a foundational enabler. Consider breaking it down if possible, or ensure it is completed very early in the development cycle to unblock numerous dependent features."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": [
+      "IB2-111",
+      "IB2-186"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "[NOT_INDEPENDENT] Story IB2-111, which embeds a background color setting in the Text Widget toolbar, explicitly depends on the combination of Block and Text Widget properties being configured, as described in IB2-186. IB2-111 cannot be implemented or tested independently.",
     "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-109 (MCP settings for D&D Pages) is completed, specifically the 'Page Category' setting, before implementing IB2-395."
+    "suggested_fix": "Prioritize IB2-186 to establish the combined widget properties before implementing UI refinements like IB2-111."
   },
   {
     "type": "NOT_INDEPENDENT",
@@ -596,140 +388,125 @@
       "IB2-141",
       "IB2-167"
     ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-141 (Surface Question/Answer/Rating back end data in weekly report) cannot be fully implemented or deliver value until IB2-167 (Allow users to rate the answer with thumbs up/down) introduces the 'Rating' data that IB2-141 needs to report on.",
-    "confidence": 0.95,
-    "suggested_fix": "Prioritize IB2-167 (rating functionality) to ensure the necessary data is available for IB2-141 (reporting)."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-225",
-      "IB2-213"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-225 (create a sub-page for an existing Smart Page) uses the 'Simple Page' terminology in its description. It depends on IB2-213 (Rename 'Simple' Page to 'Smart' Page) for consistent terminology and user experience.",
+    "severity": "MEDIUM",
+    "explanation": "[NOT_INDEPENDENT] Story IB2-141, which reports on Question/Answer/Rating data, is blocked by IB2-167, which introduces the actual rating mechanism (thumbs up/down). IB2-141 cannot be tested or deliver value without the data being generated by IB2-167.",
     "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-213 (Rename 'Simple' to 'Smart' Page) is completed before implementing IB2-225 to maintain consistent terminology."
+    "suggested_fix": "Prioritize IB2-167 to enable data generation before implementing reporting in IB2-141."
   },
   {
     "type": "NOT_INDEPENDENT",
     "story_keys": [
-      "IB2-213",
-      "IB2-225",
-      "IB2-233",
-      "IB2-248",
-      "IB2-256",
-      "IB2-396"
-    ],
-    "severity": "HIGH",
-    "explanation": "[EXTREME_BOTTLENECK] Story IB2-213, which renames 'Simple Page' to 'Smart Page' across the frontend, is a critical prerequisite for terminology consistency. It blocks 5 other stories (IB2-225, IB2-233, IB2-248, IB2-256, IB2-396) that use the 'Simple Page' terminology. Implementing these dependents before IB2-213 would lead to inconsistent UI and potential confusion.",
-    "confidence": 0.95,
-    "suggested_fix": "Prioritize IB2-213 (Rename 'Simple' to 'Smart' Page) to ensure consistent terminology across the platform before implementing any stories that refer to 'Simple Pages'."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-233",
-      "IB2-213"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-233 (see Nav panel when viewing a Simple Page) uses the 'Simple Page' terminology in its description. It depends on IB2-213 (Rename 'Simple' Page to 'Smart' Page) for consistent terminology and user experience.",
-    "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-213 (Rename 'Simple' to 'Smart' Page) is completed before implementing IB2-233 to maintain consistent terminology."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-248",
-      "IB2-213"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-248 (report Create Page action in usage reporting) refers to 'Simple Page' reporting. It depends on IB2-213 (Rename 'Simple' Page to 'Smart' Page) for consistent terminology in reporting and user interfaces.",
-    "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-213 (Rename 'Simple' to 'Smart' Page) is completed before implementing IB2-248 to maintain consistent terminology in reporting."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-256",
-      "IB2-213"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-256 (custom fonts in SPB text widget) refers to 'Simple Page Builder'. It depends on IB2-213 (Rename 'Simple' Page to 'Smart' Page) for consistent terminology and user experience.",
-    "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-213 (Rename 'Simple' to 'Smart' Page) is completed before implementing IB2-256 to maintain consistent terminology."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-396",
-      "IB2-213"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-396 (backend for creating a sub-page) refers to 'Simple Page' in its description. It depends on IB2-213 (Rename 'Simple' Page to 'Smart' Page) for consistent terminology in its API and data models.",
-    "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-213 (Rename 'Simple' to 'Smart' Page) is completed before implementing IB2-396 to maintain consistent terminology in the backend."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-394",
-      "IB2-225"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-394 (see sub-pages in Custom Page v2 index list) cannot deliver value or be tested independently if sub-pages cannot be created in the first place, which is the functionality provided by IB2-225 (frontend for creating a sub-page).",
-    "confidence": 0.9,
-    "suggested_fix": "Prioritize IB2-225 (frontend for sub-page creation) to ensure sub-pages exist before implementing IB2-394 (displaying sub-pages in the index list)."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-396",
-      "IB2-225",
-      "IB2-394",
-      "IB2-395"
+      "IB2-190",
+      "IB2-189"
     ],
     "severity": "MEDIUM",
-    "explanation": "[EXTREME_BOTTLENECK] Story IB2-396, which provides the backend functionality for creating sub-pages, is a prerequisite for IB2-225 (frontend for sub-page creation), IB2-394 (displaying sub-pages in the index list), and IB2-395 (configuring sub-page permissions). Without the backend, these 3 stories cannot be fully implemented or deliver value.",
+    "explanation": "[NOT_INDEPENDENT] Story IB2-190, which ensures responsive image positioning and sizing, depends on the core functionality of resizing and repositioning images, such as dragging the image directly as described in IB2-189. IB2-190 cannot be tested without this prerequisite.",
     "confidence": 0.9,
-    "suggested_fix": "Prioritize IB2-396 (backend for sub-page creation) to unblock the dependent frontend and display functionalities."
+    "suggested_fix": "Ensure IB2-189 (or similar image manipulation stories like IB2-116, IB2-117) is completed before implementing IB2-190."
   },
   {
     "type": "NOT_INDEPENDENT",
     "story_keys": [
-      "IB2-395",
-      "IB2-225"
+      "IB2-191",
+      "IB2-189"
     ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-395 (configure permissions of sub-pages) cannot deliver value or be tested independently if sub-pages cannot be created in the first place, which is the functionality provided by IB2-225 (frontend for creating a sub-page).",
+    "severity": "MEDIUM",
+    "explanation": "[NOT_INDEPENDENT] Story IB2-191, which implements Undo/Redo for image resizing and repositioning, depends on the core image manipulation actions being available, such as dragging the image directly as described in IB2-189. IB2-191 cannot be tested without these actions.",
     "confidence": 0.9,
-    "suggested_fix": "Prioritize IB2-225 (frontend for sub-page creation) to ensure sub-pages exist before implementing IB2-395 (configuring sub-page permissions)."
+    "suggested_fix": "Ensure IB2-189 (or similar image manipulation stories like IB2-116, IB2-117) is completed before implementing IB2-191."
   },
   {
     "type": "NOT_INDEPENDENT",
     "story_keys": [
-      "IB2-225",
-      "IB2-396"
+      "IB2-21",
+      "IB2-240"
     ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-225 (frontend for creating a sub-page) is the user-facing component that relies on the backend functionality provided by IB2-396 (backend for creating a sub-page). IB2-225 cannot be fully implemented or tested without the backend support from IB2-396.",
-    "confidence": 0.95,
-    "suggested_fix": "Prioritize IB2-396 (backend for sub-page creation) to provide the necessary API and data persistence for IB2-225 (frontend sub-page creation)."
+    "severity": "MEDIUM",
+    "explanation": "[NOT_INDEPENDENT] Story IB2-21, which allows deselecting items for bulk changes, relies on the core \"Bulk Apply\" functionality defined in IB2-240. IB2-21 cannot be implemented or tested without the underlying bulk application mechanism.",
+    "confidence": 0.9,
+    "suggested_fix": "Ensure IB2-240 is completed before or concurrently with IB2-21, or merge IB2-21 into IB2-240 as a refinement."
   },
   {
     "type": "NOT_INDEPENDENT",
     "story_keys": [
-      "IB2-75",
-      "IB2-245",
-      "IB2-448",
+      "IB2-240",
+      "IB2-21",
+      "IB2-447",
       "IB2-450",
-      "IB2-455"
+      "IB2-455",
+      "IB2-420",
+      "IB2-445"
+    ],
+    "severity": "HIGH",
+    "explanation": "[EXTREME_BOTTLENECK] Story IB2-240 provides the core \"Bulk Apply\" functionality, which is a prerequisite for 6 other stories related to bulk actions, UI refinements, and restrictions. Delay in IB2-240 will block a significant portion of the bulk approval/review features.",
+    "confidence": 0.95,
+    "suggested_fix": "Prioritize IB2-240 as a foundational component for bulk actions. Consider if any of the dependent stories can be partially implemented with mocks or stubs, or if IB2-240 can be broken down."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": [
+      "IB2-211",
+      "IB2-387"
     ],
     "severity": "MEDIUM",
-    "explanation": "[EXTREME_BOTTLENECK] Story IB2-75, which adds an MCP setting for 'Approvals List Bulk Actions Updates', is a prerequisite for 4 other stories (IB2-245, IB2-448, IB2-450, IB2-455) that implement various aspects of bulk actions. These dependent stories cannot deliver value or be fully tested without the enabling setting from IB2-75.",
+    "explanation": "[NOT_INDEPENDENT] Story IB2-211, which reports on resource download actions, depends on the download functionality being available for resources like image widgets, as introduced in IB2-387. IB2-211 cannot be tested or deliver value without the action it reports on.",
     "confidence": 0.9,
-    "suggested_fix": "Prioritize IB2-75 (MCP setting for Bulk Actions) to unblock the dependent bulk action functionalities."
+    "suggested_fix": "Prioritize IB2-387 to enable resource download before implementing reporting in IB2-211."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": [
+      "IB2-420",
+      "IB2-240"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "[NOT_INDEPENDENT] Story IB2-420, which handles 'Hide Decline' restrictions in bulk review, explicitly depends on the \"Bulk Review feature\" provided by IB2-240. IB2-420 cannot be tested without the core bulk review functionality.",
+    "confidence": 0.9,
+    "suggested_fix": "Ensure IB2-240 is completed before or concurrently with IB2-420, or merge IB2-420 into IB2-240 as a refinement."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": [
+      "IB2-445",
+      "IB2-240"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "[NOT_INDEPENDENT] Story IB2-445, which describes the \"My Response\" section in the bulk review panel, depends on the core \"Bulk Apply\" functionality provided by IB2-240. This section cannot be displayed or function without the underlying bulk review context.",
+    "confidence": 0.9,
+    "suggested_fix": "Ensure IB2-240 is completed before or concurrently with IB2-445, or merge IB2-445 into IB2-240 as a UI component."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": [
+      "IB2-447",
+      "IB2-240"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "[NOT_INDEPENDENT] Story IB2-447, which defines the hover behavior for the 'Submit & Continue' button in bulk operations, depends on the core \"Bulk Apply\" functionality provided by IB2-240. IB2-447 cannot be tested without the button and its underlying logic being present.",
+    "confidence": 0.9,
+    "suggested_fix": "Ensure IB2-240 is completed before or concurrently with IB2-447, or merge IB2-447 into IB2-240 as a UI refinement."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": [
+      "IB2-450",
+      "IB2-240"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "[NOT_INDEPENDENT] Story IB2-450, which enables opening the Bulk Approve Review Page, is directly dependent on the core \"Bulk Apply\" functionality provided by IB2-240. The page cannot exist or function without the underlying bulk processing logic.",
+    "confidence": 0.9,
+    "suggested_fix": "Prioritize IB2-240 to establish the core bulk approval logic before implementing its dedicated review page in IB2-450."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": [
+      "IB2-455",
+      "IB2-240"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "[NOT_INDEPENDENT] Story IB2-455, which defines the selection logic for bulk approvable requests, depends on the core \"Bulk Apply\" functionality provided by IB2-240. IB2-455 cannot be tested without the underlying bulk approval mechanism.",
+    "confidence": 0.9,
+    "suggested_fix": "Ensure IB2-240 is completed before or concurrently with IB2-455, or merge IB2-455 into IB2-240 as a refinement."
   },
   {
     "type": "NOT_INDEPENDENT",
@@ -737,21 +514,23 @@
       "IB2-245",
       "IB2-75"
     ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-245 (checkbox column visibility for bulk actions) explicitly states that the column should display when an MCP development setting is enabled. IB2-75 provides this MCP setting for 'Approvals List Bulk Actions Updates', making it a direct prerequisite.",
-    "confidence": 0.95,
-    "suggested_fix": "Prioritize IB2-75 (MCP setting for Bulk Actions) to enable the underlying feature before implementing IB2-245 (checkbox column visibility)."
+    "severity": "MEDIUM",
+    "explanation": "[NOT_INDEPENDENT] Story IB2-245, which controls the visibility of the bulk actions checkbox column, is explicitly dependent on the MCP setting introduced in IB2-75. Without IB2-75, the control mechanism for IB2-245 will not exist, making it untestable.",
+    "confidence": 0.9,
+    "suggested_fix": "Prioritize IB2-75 to establish the MCP setting before implementing IB2-245."
   },
   {
     "type": "NOT_INDEPENDENT",
     "story_keys": [
       "IB2-326",
-      "IB2-299"
+      "IB2-299",
+      "IB2-318",
+      "IB2-323"
     ],
     "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-326 (Ask button to trigger AI search) explicitly states it 'must use the \u201cLimit to current view\u201d checkbox state to decide whether to search the current location or the whole platform', making IB2-299 (search scope control) a direct prerequisite.",
+    "explanation": "[NOT_INDEPENDENT] Story IB2-326, which triggers the AI search, is a core integration point that explicitly depends on the search scope control (IB2-299), Main Admin access restrictions (IB2-318), and the basic 'Ask' button display and enablement logic (IB2-323). It cannot be implemented or tested independently.",
     "confidence": 0.95,
-    "suggested_fix": "Prioritize IB2-299 (search scope control) to provide the necessary logic for IB2-326 (Ask button functionality)."
+    "suggested_fix": "Prioritize IB2-299, IB2-318, and IB2-323 to establish the foundational components and controls for the 'Ask AI' feature before implementing the trigger logic in IB2-326."
   },
   {
     "type": "NOT_INDEPENDENT",
@@ -759,32 +538,10 @@
       "IB2-9",
       "IB2-3"
     ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-9, which enables previewing GIF/Lottie files, cannot deliver value or be fully tested independently as it explicitly depends on the feature flag introduced by IB2-3 being enabled.",
-    "confidence": 0.95,
-    "suggested_fix": "Prioritize IB2-3 (MCP setting for GIF/Lottie) to enable the underlying feature before implementing IB2-9 (preview functionality)."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-326",
-      "IB2-318"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-326 (Ask button to trigger AI search) explicitly states 'The Ask button must only be displayed after the Alpha Main Admin access restriction has been implemented', making IB2-318 (Main Admin access restriction) a direct prerequisite.",
-    "confidence": 0.95,
-    "suggested_fix": "Prioritize IB2-318 (Main Admin access restriction) to provide the necessary permission control for IB2-326 (Ask button functionality)."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-326",
-      "IB2-323"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-326 (Ask button to trigger AI search) builds upon the basic 'Ask' button functionality and display defined in IB2-323. While IB2-323 can be implemented alone, IB2-326 cannot be fully realized without the foundational button behavior.",
+    "severity": "MEDIUM",
+    "explanation": "[NOT_INDEPENDENT] Story IB2-9, which enables GIF/Lottie file preview, explicitly depends on the MCP setting introduced in IB2-3. Without IB2-3, the feature flag controlling GIF/Lottie previews will not exist, making IB2-9 untestable and non-releasable.",
     "confidence": 0.9,
-    "suggested_fix": "Ensure IB2-323 (basic Ask button functionality) is completed before implementing the more complex logic in IB2-326."
+    "suggested_fix": "Prioritize IB2-3 to establish the feature flag before implementing IB2-9."
   },
   {
     "type": "NOT_INDEPENDENT",
@@ -792,65 +549,10 @@
       "IB2-366",
       "IB2-382"
     ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-366 (randomized success message style) explicitly states it 'should reuse the same public-user page header layout where the Database name and close icon have already been removed (should wait until IB-382 completed)'. This makes IB2-382 (hide UI elements for public users) a direct prerequisite.",
-    "confidence": 0.95,
-    "suggested_fix": "Prioritize IB2-382 (hide UI elements for public users) to establish the simplified header state before implementing IB2-366 (randomized success message styling)."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-394",
-      "IB2-396"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-394 (see sub-pages in Custom Page v2 index list) cannot deliver value or be tested independently if sub-pages cannot be created in the first place, which is the backend functionality provided by IB2-396 (backend for creating a sub-page).",
+    "severity": "MEDIUM",
+    "explanation": "[NOT_INDEPENDENT] Story IB2-366, which implements randomized success message styling, explicitly depends on the simplified public-user page header state introduced by IB2-382. IB2-366 cannot be completed or tested until IB2-382 is done.",
     "confidence": 0.9,
-    "suggested_fix": "Prioritize IB2-396 (backend for sub-page creation) to ensure sub-pages exist before implementing IB2-394 (displaying sub-pages in the index list)."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-395",
-      "IB2-396"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-395 (configure permissions of sub-pages) cannot deliver value or be tested independently if sub-pages cannot be created in the first place, which is the backend functionality provided by IB2-396 (backend for creating a sub-page).",
-    "confidence": 0.9,
-    "suggested_fix": "Prioritize IB2-396 (backend for sub-page creation) to ensure sub-pages exist before implementing IB2-395 (configuring sub-page permissions)."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-448",
-      "IB2-75"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-448 (Bulk Apply functionality) is a core feature that depends on the MCP development setting for 'Approvals - Request List (V3) - Bulk Action Updates' provided by IB2-75. It cannot deliver value or be fully tested without this setting being enabled.",
-    "confidence": 0.95,
-    "suggested_fix": "Prioritize IB2-75 (MCP setting for Bulk Actions) to enable the underlying feature before implementing IB2-448 (Bulk Apply functionality)."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-450",
-      "IB2-75"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-450 (open and view the Bulk Approve Review Page) is a core UI component that depends on the MCP development setting for 'Approvals - Request List (V3) - Bulk Action Updates' provided by IB2-75. It cannot deliver value or be fully tested without this setting being enabled.",
-    "confidence": 0.95,
-    "suggested_fix": "Prioritize IB2-75 (MCP setting for Bulk Actions) to enable the underlying feature before implementing IB2-450 (Bulk Approve Review Page)."
-  },
-  {
-    "type": "NOT_INDEPENDENT",
-    "story_keys": [
-      "IB2-455",
-      "IB2-75"
-    ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-455 (bulk approval selection logic) is a core feature that depends on the MCP development setting for 'Approvals - Request List (V3) - Bulk Action Updates' provided by IB2-75. It cannot deliver value or be fully tested without this setting being enabled.",
-    "confidence": 0.95,
-    "suggested_fix": "Prioritize IB2-75 (MCP setting for Bulk Actions) to enable the underlying feature before implementing IB2-455 (bulk approval selection logic)."
+    "suggested_fix": "Prioritize IB2-382 to establish the simplified header before implementing styling refinements in IB2-366."
   },
   {
     "type": "NOT_INDEPENDENT",
@@ -858,21 +560,22 @@
       "IB2-476",
       "IB2-463"
     ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-476 (Unknown People filters after cloning) explicitly states 'After cloning an MCP Site...' and 'Existing Unknown face flags must be preserved during clone handling'. This makes IB2-463 (Clone MCP Site handling) a direct prerequisite for IB2-476 to be testable and deliver value.",
-    "confidence": 0.95,
-    "suggested_fix": "Prioritize IB2-463 (Clone MCP Site handling) to establish the cloning mechanism before implementing IB2-476 (filter persistence after cloning)."
+    "severity": "MEDIUM",
+    "explanation": "[NOT_INDEPENDENT] Story IB2-476, which ensures \"Unknown People\" filters persist after cloning an MCP Site, explicitly depends on the \"Clone MCP Site handling\" functionality provided by IB2-463. IB2-476 cannot be tested without the ability to clone a site.",
+    "confidence": 0.9,
+    "suggested_fix": "Prioritize IB2-463 to implement site cloning before implementing specific post-cloning behaviors in IB2-476."
   },
   {
     "type": "NOT_INDEPENDENT",
     "story_keys": [
       "IB2-53",
+      "IB2-51",
       "IB2-52"
     ],
-    "severity": "HIGH",
-    "explanation": "[NOT_INDEPENDENT] Story IB2-53 (Delete a Smart Page via API) explicitly states it must accept the same identifier and structure returned by the Smart Page retrieval APIs, making IB2-52 (Get a Smart page via API) a prerequisite for its implementation and testing.",
-    "confidence": 0.95,
-    "suggested_fix": "Ensure IB2-52 (Get Smart Page API) is completed and stable before developing IB2-53 (Delete Smart Page API) to ensure consistent data structures."
+    "severity": "MEDIUM",
+    "explanation": "[NOT_INDEPENDENT] Story IB2-53 (Delete Smart Page API) explicitly depends on the Smart Page identifier and structure defined by the retrieval APIs in IB2-51 (Get list) and IB2-52 (Get details). IB2-53 cannot be developed or tested without these prerequisite APIs.",
+    "confidence": 0.9,
+    "suggested_fix": "Prioritize IB2-51 and IB2-52 to define the Smart Page API contract before implementing IB2-53."
   },
   {
     "type": "NOT_SMALL",
@@ -880,19 +583,9 @@
       "IB2-1"
     ],
     "severity": "HIGH",
-    "explanation": "This story bundles multiple large and distinct pieces of work, including creating new settings, migrating data, updating billing, adding analytics, and updating APIs/permissions. It's an epic disguised as a single story.",
-    "confidence": 1.0,
-    "suggested_fix": "Split this story into several smaller, independent user stories. For example: 'Enable Azure Image Tagging Setting', 'Migrate Imagga Data to Azure', 'Update Billing for Azure Image Tagging', 'Add Analytics for Azure Image Tagging', and 'Implement Notifications for Azure Image Tagging'."
-  },
-  {
-    "type": "NOT_SMALL",
-    "story_keys": [
-      "IB2-109"
-    ],
-    "severity": "MEDIUM",
-    "explanation": "The story bundles four distinct MCP (feature flag) settings for different features ('Widgets combining Block', 'Image Resizing', 'Page Templates', 'Page Category'). Each of these could be a separate, smaller story, making the current story too broad.",
-    "confidence": 0.85,
-    "suggested_fix": "Split this story into multiple smaller stories, each focusing on adding one specific MCP setting. For example, 'As an Internal User, I want a MCP setting to enable/disable 'Drag & Drop Pages: Widgets combining Block' for development use.'"
+    "explanation": "This story encompasses a very broad scope, including creating multiple new settings, migrating existing data and configurations from one provider (Imagga) to another (Azure), updating billing and quota tracking, adding analytics and reporting, implementing notifications, and updating APIs, permissions, and documentation. This is clearly an epic disguised as a story, containing multiple distinct and large efforts that cannot be completed within a single sprint.",
+    "confidence": 0.95,
+    "suggested_fix": "Split this story into several smaller, independent user stories. For example: 'Enable Azure Image Tagging Feature Flag', 'Migrate Imagga Image Tagging Data to Azure', 'Implement Azure Image Tagging Billing & Quota Tracking', 'Add Azure Image Tagging Analytics & Reporting', 'Implement Azure Image Tagging Notifications', and 'Update APIs & Documentation for Azure Image Tagging'."
   },
   {
     "type": "NOT_SMALL",
@@ -900,19 +593,19 @@
       "IB2-141"
     ],
     "severity": "HIGH",
-    "explanation": "Point 4 of the description, 'Support historical data migration, multi-environment aggregation, backward compatibility, and automated export/report synchronization across reporting systems,' encompasses multiple distinct, large-scale data engineering and architectural tasks. This is clearly an epic disguised as a story.",
+    "explanation": "This story encompasses multiple distinct and large tasks: updating a report, renaming it, removing dev entries, supporting historical data migration, multi-environment aggregation, backward compatibility, and automated export/report synchronization. Several of these items (e.g., data migration, multi-environment aggregation) are significant efforts that could be epics on their own, making the story far too broad for a single sprint.",
     "confidence": 0.95,
-    "suggested_fix": "Split this story into multiple smaller, independent stories. The report update and cleanup (points 1-3) can be one story, while point 4 should be broken down into an epic with several constituent stories for data migration, aggregation, etc."
+    "suggested_fix": "Split this into several smaller, independent user stories. For example, one story for 'Update report with Q/A/Rating data', another for 'Implement historical data migration for reports', and separate stories for other distinct technical challenges."
   },
   {
     "type": "NOT_SMALL",
     "story_keys": [
       "IB2-148"
     ],
-    "severity": "HIGH",
-    "explanation": "The scope 'new Auth Screens + Success Page' implies the design and implementation of multiple distinct UI screens and their underlying logic. This is too broad to be completed within a single sprint and could easily be split into several smaller, valuable stories.",
-    "confidence": 0.9,
-    "suggested_fix": "Split this story into multiple smaller, independent stories, such as 'As a user, I want a new login screen', 'As a user, I want a new registration screen', and 'As a user, I want a new authentication success page'. Each should have clear scope and acceptance criteria."
+    "severity": "MEDIUM",
+    "explanation": "The story mentions 'new Auth Screens + Success Page,' which could involve significant UI/UX design and backend integration for multiple screens. Combined with the ambiguity, this suggests the scope is likely too broad to be completed within a single sprint.",
+    "confidence": 0.7,
+    "suggested_fix": "Break down the story into smaller, more manageable pieces. For example, 'Implement new Login Screen UI,' 'Implement new Registration Screen UI,' and 'Implement new Success Page UI,' each delivering incremental value."
   },
   {
     "type": "NOT_SMALL",
@@ -920,19 +613,19 @@
       "IB2-215"
     ],
     "severity": "MEDIUM",
-    "explanation": "The story bundles several distinct re-ordering functionalities: re-ordering root pages, re-ordering sub-pages within a parent, and moving parent pages along with their sub-pages. These could be split into smaller, independently deliverable stories.",
-    "confidence": 0.7,
-    "suggested_fix": "Break this story down into smaller, more focused stories, such as 'As a User, I want to re-order root pages via drag-and-drop in the Nav Panel' and 'As a User, I want to re-order sub-pages within the same parent via drag-and-drop in the Nav Panel'."
+    "explanation": "The story bundles multiple distinct re-ordering functionalities: re-ordering root pages, re-ordering sub-pages within a parent, and moving sub-pages along with their parent. While related, these are separate user goals and implementation efforts.",
+    "confidence": 0.85,
+    "suggested_fix": "Split this into smaller, independent stories. For example: 'As a User, I want to re-order root pages via drag-and-drop in the Nav Panel,' and 'As a User, I want to re-order sub-pages within the same parent via drag-and-drop in the Nav Panel.'"
   },
   {
     "type": "NOT_SMALL",
     "story_keys": [
-      "IB2-326"
+      "IB2-367"
     ],
-    "severity": "MEDIUM",
-    "explanation": "This story bundles several distinct behaviors and dependencies for the 'Ask' button, including display conditions (based on admin access), search scope logic (based on a checkbox), default disabled state, enabled state based on input, and hover text. It integrates multiple features rather than focusing on a single, small piece of value.",
-    "confidence": 0.8,
-    "suggested_fix": "Split this story into smaller, more focused stories. For example, one story for the button's enabled/disabled state, and another for integrating the search scope logic."
+    "severity": "HIGH",
+    "explanation": "The story describes a highly complex and multi-faceted scenario involving 'Cross Folder bulk edit,' 'different reviewers for different folders,' and various configurations (Global+Local, Global+Global, Local+Local). This level of complexity suggests a large scope that would be difficult to complete within a single sprint.",
+    "confidence": 0.85,
+    "suggested_fix": "Break down this complex scenario into multiple smaller, independent user stories. Each story should focus on a specific aspect of the cross-folder/reviewer logic, making them individually estimable and small enough to be completed within an iteration."
   },
   {
     "type": "NOT_SMALL",
@@ -940,9 +633,9 @@
       "IB2-383"
     ],
     "severity": "HIGH",
-    "explanation": "This story is an epic disguised as a story. It encompasses a massive scope, including UI interaction (drag-and-drop), complex data migration (child references, linked content, permissions, dependencies), system-wide updates (URLs, breadcrumbs, SEO), advanced features (undo/redo, version history, audit logging), and integration with multiple other systems (notifications, workflows, APIs, mobile clients, collaborative editing). This is far too large for a single sprint.",
-    "confidence": 1.0,
-    "suggested_fix": "Break this epic down into multiple smaller, independent user stories. For example, separate stories for the UI drag-and-drop, data migration, URL/SEO updates, undo/redo, and integration aspects."
+    "explanation": "This story encompasses a massive amount of distinct functionality, including UI interaction, complex data migration, URL/SEO updates, versioning, auditing, notifications, workflow integration, permission management, and synchronization across multiple platforms (APIs, mobile, exports, collaborative editing). This is clearly an epic-level task, far too large to be completed within a single sprint.",
+    "confidence": 0.95,
+    "suggested_fix": "This story needs to be broken down into several smaller, independent user stories. Each new story should deliver a specific, valuable piece of functionality that can be completed and validated within an iteration."
   },
   {
     "type": "NOT_SMALL",
@@ -950,9 +643,9 @@
       "IB2-395"
     ],
     "severity": "HIGH",
-    "explanation": "Point 3 of the description bundles multiple distinct, large features (hierarchical permission inheritance, multi-level propagation, approval workflows, audit history, cross-platform synchronization) into a single story, making it far too large to be completed within a single sprint.",
+    "explanation": "The story bundles multiple distinct and complex functionalities into one: 'Support hierarchical permission inheritance, multi-level propagation, approval workflows, audit history, and cross-platform synchronization.' Each of these could be an epic or several user stories on its own, making the scope far too large for a single sprint.",
     "confidence": 0.95,
-    "suggested_fix": "Split this story into several smaller, independent user stories, each delivering a specific, valuable piece of functionality related to permission configuration, inheritance, or synchronization."
+    "suggested_fix": "Split this story into several smaller, independent user stories. For example: 'As an Admin, I want to configure basic permissions for sub-pages', 'As an Admin, I want sub-page permissions to inherit from parent pages', 'As an Admin, I want to view an audit history of sub-page permission changes'."
   },
   {
     "type": "NOT_SMALL",
@@ -960,9 +653,9 @@
       "IB2-413"
     ],
     "severity": "HIGH",
-    "explanation": "Point 2 of the description bundles numerous distinct and complex features (global template inheritance, multilingual email generation, tenant-level customization, real-time delivery tracking, approval workflows, and synchronization with external notification providers and legacy workflow systems) into a single story, making it far too large for a single sprint.",
+    "explanation": "The story encompasses a vast array of distinct and complex features, including 'global template inheritance, multilingual email generation, tenant-level customization, real-time delivery tracking, approval workflows, and synchronization with external notification providers and legacy workflow systems.' This is clearly an epic, containing multiple independent user goals that cannot be completed within a single sprint.",
     "confidence": 0.95,
-    "suggested_fix": "Split this story into several smaller, independent user stories, each delivering a specific, valuable piece of functionality related to grouped email notification settings."
+    "suggested_fix": "Decompose this story into multiple, smaller, vertically sliced user stories. For example, one story for basic grouped email notification settings, another for supporting multilingual emails, and separate stories for integration with external providers or real-time tracking."
   },
   {
     "type": "NOT_SMALL",
@@ -970,9 +663,9 @@
       "IB2-448"
     ],
     "severity": "MEDIUM",
-    "explanation": "The story combines replicating existing behavior, supporting processing logic, adding new validation, and then determining complex stage actions based on multiple request types and statuses. This scope is likely too large for a single sprint.",
-    "confidence": 0.8,
-    "suggested_fix": "Split this story into smaller, independent stories. For example, one story for 'Bulk Apply for standalone requests' and another for 'Bulk Apply for staged requests', or separate stories for validation and stage action determination."
+    "explanation": "The story, despite leveraging existing functionality, includes 'additional validation checks specific to this workflow' and 'Determine Complete Request and Stage actions based on whether Requests are staged requests, their current stage status, or standalone requests.' This implies significant new logic, complex decision-making, and testing across multiple request types, making it potentially too large for a single sprint.",
+    "confidence": 0.7,
+    "suggested_fix": "Split the story. One story could focus on implementing the basic Bulk Apply functionality by leveraging existing logic. Subsequent stories could address the 'additional validation checks' and the complex 'Determine Complete Request and Stage actions' for different request types, allowing for incremental delivery of value."
   },
   {
     "type": "NOT_VALUABLE",
@@ -980,9 +673,19 @@
       "IB2-107"
     ],
     "severity": "HIGH",
-    "explanation": "This story describes a UI behavior where the Page Category automatically deselects and reselects, and pages reload every time a page is viewed. This sounds like a bug or an undesirable user experience that actively harms usability rather than providing value.",
+    "explanation": "The described behavior ('Page Category to automatically deselect and reselect itself every time I view a Page' and 'briefly disappears and appears again') sounds like a detrimental user experience, not a valuable feature. It actively harms usability by causing unnecessary UI changes and reloads.",
     "confidence": 0.95,
-    "suggested_fix": "Re-evaluate if this is a desired feature or a bug. If it's a bug, it should be reported as such. If there's an underlying problem this behavior is trying to solve, rephrase it as a user goal that delivers positive value."
+    "suggested_fix": "Re-evaluate the desired behavior. If this is intended to fix a bug, rephrase it as a bug fix. If it's a new feature, clarify the problem it solves and how this specific interaction provides value to the user, as it currently appears counter-intuitive."
+  },
+  {
+    "type": "NOT_VALUABLE",
+    "story_keys": [
+      "IB2-109"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "This story describes adding 'development use only' settings. While feature flags can be useful for development, this story does not articulate any direct, measurable value or benefit to the end-user or business. It's a purely internal technical enabler without a clear outcome for the product's users.",
+    "confidence": 0.9,
+    "suggested_fix": "Rephrase this as a technical task or spike if it's purely for internal development. If these settings are meant to enable future user-facing features, link them to those features' value propositions or explain how they contribute to a measurable improvement (e.g., 'to enable A/B testing of feature X to improve conversion by Y%')."
   },
   {
     "type": "NOT_VALUABLE",
@@ -990,19 +693,39 @@
       "IB2-115"
     ],
     "severity": "HIGH",
-    "explanation": "The story title 'As a User, I'm doubting about what both Block and Button Widget properties are for' is a problem statement or a question, not a user story describing a desired feature or outcome. It lacks a clear user goal or tangible benefit.",
+    "explanation": "This is not a user story or a software requirement; it expresses a user's doubt or a question ('I'm doubting about what both Block and Button Widget properties are for'). It's feedback or a request for clarification, not a feature to be built.",
     "confidence": 0.95,
-    "suggested_fix": "Rephrase this as a proper user story that addresses the underlying confusion. For example, 'As a user, I want clear explanations or improved UI for Block and Button Widget properties so I can understand their purpose and use them effectively.'"
+    "suggested_fix": "Convert this feedback into an actionable user story by identifying the underlying problem. For example, 'As a user, I want clear labels and tooltips for Block and Button Widget properties so I understand their purpose and can use them effectively.'"
+  },
+  {
+    "type": "NOT_VALUABLE",
+    "story_keys": [
+      "IB2-141"
+    ],
+    "severity": "HIGH",
+    "explanation": "The story is heavily focused on technical implementation details (update script, rename, remove entries, data migration, aggregation, backward compatibility, synchronization) without clearly articulating the business outcome or user benefit of surfacing the Question/Answer/Rating data. The 'why' behind these changes is missing.",
+    "confidence": 0.9,
+    "suggested_fix": "Rephrase the story to focus on the business value. For example, 'As a marketing manager, I want Question/Answer/Rating data included in the weekly asset intelligence report so I can analyze content engagement and optimize our strategy.' Then, split the technical complexities (migration, aggregation, etc.) into separate, smaller stories or tasks."
+  },
+  {
+    "type": "NOT_VALUABLE",
+    "story_keys": [
+      "IB2-148"
+    ],
+    "severity": "HIGH",
+    "explanation": "The description contains contradictory information: 'Add in Menu / Login Bar' versus 'The tiger team consensus is to show a logo, but not the log-in or nav menu.' This ambiguity makes the desired outcome unclear, thus obscuring the value this story is supposed to deliver.",
+    "confidence": 0.8,
+    "suggested_fix": "Clarify the exact desired behavior for the new Auth Screens and Success Page, specifically regarding the presence or absence of the menu/login bar. Resolve the contradiction to ensure a clear, valuable outcome."
   },
   {
     "type": "NOT_VALUABLE",
     "story_keys": [
       "IB2-164"
     ],
-    "severity": "MEDIUM",
-    "explanation": "The story describes a configuration setting ('set Drag & Drop Page limit') but fails to explain the tangible business value or user benefit of setting this limit. It's a technical detail without a clear 'why' for the user.",
-    "confidence": 0.8,
-    "suggested_fix": "Clarify the specific problem this limit solves for the internal user or the business. For example, does it improve performance, prevent content overload, or simplify management? Rephrase to focus on the outcome."
+    "severity": "HIGH",
+    "explanation": "The story lacks a clear business outcome or user benefit for setting a 'Drag & Drop Page limit.' It states what to do but not why it's valuable to the user or business.",
+    "confidence": 0.95,
+    "suggested_fix": "Clarify the problem this limit solves. Why does a user need to set this limit? What benefit does it provide (e.g., performance, content governance, preventing accidental large pages)?"
   },
   {
     "type": "NOT_VALUABLE",
@@ -1010,39 +733,19 @@
       "IB2-170"
     ],
     "severity": "HIGH",
-    "explanation": "The story states 'I want integrated fields to briefly disappear and reappear whenever they are displayed.' This behavior is counter-intuitive and actively harms the user experience, providing no clear benefit. It sounds like a technical implementation detail or a bug, not a user-desired feature.",
+    "explanation": "The story describes a user experience where integrated fields briefly disappear and reappear. This behavior is generally undesirable and could actively harm usability without any stated benefit or justification. It sounds like a technical workaround rather than a user-desired feature.",
+    "confidence": 0.95,
+    "suggested_fix": "Re-evaluate the actual user need. If this is a technical solution to a problem, rephrase it as a technical task with a clear, measurable outcome (e.g., 'Improve field refresh performance to prevent visual glitches'). If it's an animation, explain the user benefit of such an animation."
+  },
+  {
+    "type": "NOT_VALUABLE",
+    "story_keys": [
+      "IB2-186"
+    ],
+    "severity": "HIGH",
+    "explanation": "The story states the user wants to configure 'both Block and Text Widget properties' but doesn't explain the underlying user need or business value for combining these settings. It's unclear why this combination is desired.",
     "confidence": 0.9,
-    "suggested_fix": "Clarify the actual user need or problem this story is trying to solve. If it's a technical refresh, rephrase it as a technical task with a clear performance or data integrity goal, not a user story about a disruptive UI behavior."
-  },
-  {
-    "type": "NOT_VALUABLE",
-    "story_keys": [
-      "IB2-2"
-    ],
-    "severity": "MEDIUM",
-    "explanation": "The story describes creating a 'Development Use Only' feature flag for an 'IB team member' without clearly articulating the direct business or end-user value this specific control provides. It's a mechanism, not a clear outcome.",
-    "confidence": 0.8,
-    "suggested_fix": "Rephrase the story to focus on the measurable outcome or benefit this feature flag enables for the business or end-user, or clarify its role as a technical enabler with a specific, measurable target (e.g., 'to safely roll out X feature to Y% of users')."
-  },
-  {
-    "type": "NOT_VALUABLE",
-    "story_keys": [
-      "IB2-281"
-    ],
-    "severity": "MEDIUM",
-    "explanation": "The story describes a technical implementation detail ('link the status') without clearly articulating the tangible user or business value. It's unclear why a user would 'want' this linking or what problem it solves for them.",
-    "confidence": 0.9,
-    "suggested_fix": "Rephrase the story to focus on the user's goal and the benefit derived from the status linking. For example, 'As a user, I want the status of a background image to reflect its source in the Resource Module so I can quickly identify its approval state.'"
-  },
-  {
-    "type": "NOT_VALUABLE",
-    "story_keys": [
-      "IB2-3"
-    ],
-    "severity": "MEDIUM",
-    "explanation": "Similar to IB2-2, this story describes creating a 'Development Use Only' feature flag for an 'IB team member' without clearly articulating the direct business or end-user value this specific control provides. It's a mechanism, not a clear outcome.",
-    "confidence": 0.8,
-    "suggested_fix": "Rephrase the story to focus on the measurable outcome or benefit this feature flag enables for the business or end-user, or clarify its role as a technical enabler with a specific, measurable target (e.g., 'to safely roll out GIF/Lottie preview support to Y% of users')."
+    "suggested_fix": "Clarify the user problem this solves. Does it simplify the configuration process, provide more granular control, or address a consistency issue? Explain the benefit of combining these settings."
   },
   {
     "type": "NOT_VALUABLE",
@@ -1050,9 +753,19 @@
       "IB2-366"
     ],
     "severity": "HIGH",
-    "explanation": "The requirement for the success message to 'randomly change its confirmation style' and for the 'tick icon displays in a different size each time' provides no clear user or business value. It could even detract from a consistent user experience and is a purely aesthetic, non-functional change without a stated benefit.",
+    "explanation": "The story proposes randomly changing the confirmation style, tick icon size, and wording position after submission. This introduces inconsistency and unpredictability into the user interface, which generally degrades the user experience and does not provide clear, tangible value to the user or business. Good UX prioritizes consistency and clarity.",
     "confidence": 0.95,
-    "suggested_fix": "Remove this requirement as it offers no tangible value. Focus on consistent and clear success messaging instead."
+    "suggested_fix": "Re-evaluate the actual user or business problem this 'randomization' is intended to solve. Focus on providing clear, consistent, and reassuring feedback to the user after submission, rather than introducing random aesthetic changes."
+  },
+  {
+    "type": "NOT_VALUABLE",
+    "story_keys": [
+      "IB2-367"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "The story describes a complex technical scenario ('Same Template Cross Folder Handling') without clearly stating the user persona, their goal, or the tangible business benefit. It reads more like a technical problem statement or a design challenge rather than a user story delivering value.",
+    "confidence": 0.8,
+    "suggested_fix": "Rephrase the story to clearly articulate the user (e.g., 'As a workflow administrator'), their specific goal, and the value they gain from this complex handling (e.g., 'so that approvals are correctly routed to different reviewers based on folder configurations')."
   },
   {
     "type": "NOT_VALUABLE",
@@ -1060,9 +773,9 @@
       "IB2-392"
     ],
     "severity": "MEDIUM",
-    "explanation": "The story describes a technical change to workflow configuration and re-assignment logic without clearly articulating the tangible value or benefit it delivers to the end-user or the business. The 'why' behind this change is missing.",
+    "explanation": "The story describes a technical change to exclude a V2 Approval List from new logic and restrict re-assignment. It lacks a clear 'As a User, I want...' statement and does not explicitly state the tangible business or user value this change delivers, making it sound like an internal system adjustment rather than a user-centric feature.",
     "confidence": 0.9,
-    "suggested_fix": "Rephrase the story to focus on the user or business outcome. Explain what problem this change solves or what new capability it enables for requesters, workflow admins, or the business."
+    "suggested_fix": "Rephrase the story to clearly articulate the user or business value. Explain why this restriction or exclusion is beneficial to the end-user or the overall system's goals, e.g., 'As a Workflow Admin, I want requesters to only re-assign requests under specific conditions to ensure compliance and prevent unauthorized changes.'"
   },
   {
     "type": "NOT_VALUABLE",
@@ -1070,59 +783,19 @@
       "IB2-420"
     ],
     "severity": "MEDIUM",
-    "explanation": "The story describes a technical detail about 'cross param handling' and displaying the 'Decline' option in a specific scenario. However, it fails to explain the user or business value of this specific behavior. The 'why' behind this rule is missing.",
-    "confidence": 0.9,
-    "suggested_fix": "Rephrase the story to clearly state the user or business benefit of this specific logic, e.g., 'As a user, I want the Decline option to always be visible in Bulk Review, even when some items are not applicable, so I can easily understand the available actions and avoid confusion.'"
-  },
-  {
-    "type": "NOT_VALUABLE",
-    "story_keys": [
-      "IB2-447"
-    ],
-    "severity": "MEDIUM",
-    "explanation": "This story describes a very specific UI interaction (hover to enable a button) without explaining the underlying user or business value. While it might be intended to prevent accidental submissions, the 'why' is not explicitly stated, making it a 'how' without a clear 'what for'.",
-    "confidence": 0.9,
-    "suggested_fix": "Rephrase the story to include the user benefit, e.g., 'As a user, I want to hover over the Submit & Continue button before submitting grouped work, to prevent accidental submissions and ensure I review my changes carefully.'"
+    "explanation": "The story describes a specific system behavior for 'Cross param handling of 'Hide Decline'' in a bulk review scenario. While it addresses a technical rule, it lacks a clear 'As a User, I want...' statement and does not explicitly articulate the direct user or business value of always displaying 'Decline' even when it might not apply to all selected items.",
+    "confidence": 0.7,
+    "suggested_fix": "Rephrase the story to clearly state the user benefit or the problem it solves from a user's perspective. For example, 'As a Reviewer, I want the 'Decline' option to always be visible in Bulk Review, even if it doesn't apply to all selected items, to ensure consistent UI behavior and prevent confusion.'"
   },
   {
     "type": "NOT_VALUABLE",
     "story_keys": [
       "IB2-463"
     ],
-    "severity": "MEDIUM",
-    "explanation": "The story describes a technical mechanism for 'complete removal of existing facial data and related flags' during 'Clone MCP Site handling'. However, it lacks a clear explanation of the user or business value this mechanism provides. Why would a user want to wipe this data when cloning a site?",
+    "severity": "HIGH",
+    "explanation": "The story is phrased as a technical requirement ('We need a mechanism... that allows for the complete removal of existing facial data'). It does not identify a user persona or explain the tangible benefit this mechanism provides to a user or the business, making it a technical task rather than a user story.",
     "confidence": 0.9,
-    "suggested_fix": "Rephrase the story to articulate the user or business benefit, e.g., 'As an admin, I want the option to remove existing facial data when cloning an MCP Site, to ensure data privacy compliance for the new site's context.'"
-  },
-  {
-    "type": "NOT_VALUABLE",
-    "story_keys": [
-      "IB2-74"
-    ],
-    "severity": "MEDIUM",
-    "explanation": "Similar to IB2-2, this story describes adding a 'Development Use Only' MCP setting without clearly articulating the direct business or end-user value this specific control provides. It's a mechanism, not a clear outcome.",
-    "confidence": 0.8,
-    "suggested_fix": "Rephrase the story to focus on the measurable outcome or benefit this setting enables for the business or end-user, or clarify its role as a technical enabler with a specific, measurable target."
-  },
-  {
-    "type": "NOT_VALUABLE",
-    "story_keys": [
-      "IB2-75"
-    ],
-    "severity": "MEDIUM",
-    "explanation": "Similar to IB2-2, this story describes adding a 'Development Use Only' MCP setting without clearly articulating the direct business or end-user value this specific control provides. It's a mechanism, not a clear outcome.",
-    "confidence": 0.8,
-    "suggested_fix": "Rephrase the story to focus on the measurable outcome or benefit this setting enables for the business or end-user, or clarify its role as a technical enabler with a specific, measurable target."
-  },
-  {
-    "type": "NOT_VALUABLE",
-    "story_keys": [
-      "IB2-82"
-    ],
-    "severity": "MEDIUM",
-    "explanation": "While the 'As a User' part implies value, the description focuses heavily on 'B.E. handling' and system actions ('a new Job should appear in job list/tab for that Template Resource'). It doesn't explicitly state the tangible benefit or outcome for the user from this specific story, beyond the system correctly performing an action.",
-    "confidence": 0.7,
-    "suggested_fix": "Rephrase the story to clearly articulate the user's benefit from seeing the job appear in the list/tab, e.g., 'so that I can track the progress of my template-based job' or 'so that I know my job has been successfully initiated'."
+    "suggested_fix": "Rephrase as a user story, clearly identifying the user and their goal. For example, 'As an Admin, I want to be able to completely remove all facial data and related flags from an MCP Site when cloning it, to ensure data privacy and a clean slate for the new site.'"
   },
   {
     "type": "NOT_VALUABLE",
@@ -1130,8 +803,8 @@
       "IB2-87"
     ],
     "severity": "MEDIUM",
-    "explanation": "The story describes removing a 'Stickers' option but fails to explain the 'why' or the tangible benefit this removal brings to the user or business. It reads as a technical instruction without a clear value proposition.",
+    "explanation": "The story describes removing a 'Stickers option' but fails to explain the 'why' or the tangible benefit this removal brings to the user or business. Without context, it's unclear if this is a valuable cleanup or a detrimental removal of functionality.",
     "confidence": 0.9,
-    "suggested_fix": "Clarify the business value of removing the 'Stickers' option. For example, 'As a user, I want the 'Stickers' option removed from the left menu because it is unused and clutters the interface, improving navigation clarity.'"
+    "suggested_fix": "Clarify the business value or user problem solved by removing the 'Stickers option'. For example, 'As a user, I want the unused 'Stickers' option removed from the menu to reduce clutter and simplify the interface.'"
   }
 ]

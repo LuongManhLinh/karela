@@ -20,7 +20,7 @@ MANIFEST
 
 # Virtual environments
 .env
-.venv
+.venv/
 venv/
 env/
 ENV/
@@ -124,3 +124,4 @@ neo4j_data/
 TASKS.md
 
 data/*.log
+chroma_data/
