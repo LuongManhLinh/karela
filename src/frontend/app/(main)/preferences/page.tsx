@@ -153,29 +153,16 @@ export default function PreferencesPage() {
       appBarTransparent
       basePath="/app"
     >
-      <Container maxWidth="md" sx={{ mt: 4, mb: 4, overflowY: "auto" }}>
-        <Paper
-          elevation={2}
-          sx={{
-            p: 3,
-            mb: 3,
-            borderRadius: 1,
-            bgcolor: "background.paper",
-          }}
-        >
-          <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
-            {t("connectionAndProjects")}
-          </Typography>
-          <SessionStartForm
-            projectOptions={{
-              options: projects,
-              selectedOption: selectedProject,
-              onChange: handleProjectKeyChange,
-            }}
-          />
-        </Paper>
-
-        {connection && selectedProject && (
+      <Box
+        sx={{
+          pt: 4,
+          pb: 12,
+          overflowY: "auto",
+          ...scrollBarSx,
+          width: "100%",
+        }}
+      >
+        <Container maxWidth="md">
           <Paper
             elevation={2}
             sx={{
@@ -186,144 +173,167 @@ export default function PreferencesPage() {
             }}
           >
             <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
-              {t("projectPreferences")}
+              {t("connectionAndProjects")}
             </Typography>
-            {preference && (
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ mb: 2, display: "block" }}
-              >
-                {t("lastUpdated", {
-                  date: new Date(preference.updated_at).toLocaleString(),
-                })}
-              </Typography>
-            )}
-            {isPreferenceLoading ? (
-              <LoadingSpinner />
-            ) : (
-              <Box component="form" onSubmit={handleSave}>
-                <Stack spacing={2}>
-                  <TextField
-                    fullWidth
-                    multiline
-                    label={t("analysisGuidelines")}
-                    value={runAnalysisGuidelines}
-                    onChange={(e) => setRunAnalysisGuidelines(e.target.value)}
-                    disabled={isCreating || isUpdating}
-                    placeholder={t("analysisGuidelinesPlaceholder")}
-                    minRows={MIN_TEXTFIELD_ROWS}
-                    maxRows={MAX_TEXTFIELD_ROWS}
-                    sx={{ ...scrollBarSx }}
-                  />
-                  <TextField
-                    fullWidth
-                    multiline
-                    label={t("proposalGenerationGuidelines")}
-                    value={genProposalGuidelines}
-                    onChange={(e) => setGenProposalGuidelines(e.target.value)}
-                    disabled={isCreating || isUpdating}
-                    placeholder={t("proposalGenerationGuidelinesPlaceholder")}
-                    minRows={MIN_TEXTFIELD_ROWS}
-                    maxRows={MAX_TEXTFIELD_ROWS}
-                    sx={{ ...scrollBarSx }}
-                  />
-                  <TextField
-                    fullWidth
-                    multiline
-                    label={t("chatGuidelines")}
-                    value={chatGuidelines}
-                    onChange={(e) => setChatGuidelines(e.target.value)}
-                    disabled={isCreating || isUpdating}
-                    placeholder={t("chatGuidelinesPlaceholder")}
-                    minRows={MIN_TEXTFIELD_ROWS}
-                    maxRows={MAX_TEXTFIELD_ROWS}
-                    sx={{ ...scrollBarSx }}
-                  />
-
-                  <TextField
-                    fullWidth
-                    multiline
-                    label={t("genAcGuidelines")}
-                    value={genAcGuidelines}
-                    onChange={(e) => setGenAcGuidelines(e.target.value)}
-                    disabled={isCreating || isUpdating}
-                    placeholder={t("genAcGuidelinesPlaceholder")}
-                    minRows={MIN_TEXTFIELD_ROWS}
-                    maxRows={MAX_TEXTFIELD_ROWS}
-                    sx={{ ...scrollBarSx }}
-                  />
-
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={genProposalAfterAnalysis}
-                        onChange={(e) =>
-                          setGenProposalAfterAnalysis(e.target.checked)
-                        }
-                        disabled={isCreating || isUpdating}
-                      />
-                    }
-                    label={t("autoGenerateProposalsAfterAnalysis")}
-                  />
-
-                  <FormControl fullWidth>
-                    <InputLabel>{t("proposalGenerationMode")}</InputLabel>
-                    <Select
-                      value={genProposalMode}
-                      label={t("proposalGenerationMode")}
-                      onChange={(e) => setGenProposalMode(e.target.value)}
-                      disabled={isCreating || isUpdating}
-                    >
-                      {PROPOSAL_MODES.map((mode) => (
-                        <MenuItem key={mode.value} value={mode.value}>
-                          {t(mode.labelKey)}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-
-                  <FormControl fullWidth>
-                    <InputLabel>{t("generationLanguage")}</InputLabel>
-                    <Select
-                      value={genLanguage}
-                      label={t("generationLanguage")}
-                      onChange={(e) => setGenLanguage(e.target.value)}
-                      disabled={isCreating || isUpdating}
-                    >
-                      {GEN_LANGUAGES.map((lang) => (
-                        <MenuItem key={lang.value} value={lang.value}>
-                          {t(lang.labelKey)}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    disabled={isCreating || isUpdating}
-                    fullWidth
-                  >
-                    {isCreating || isUpdating ? (
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <CircularProgress size={20} />
-                        <span>{t("saving")}</span>
-                      </Box>
-                    ) : preference ? (
-                      t("updatePreferences")
-                    ) : (
-                      t("createPreferences")
-                    )}
-                  </Button>
-                </Stack>
-              </Box>
-            )}
+            <SessionStartForm
+              projectOptions={{
+                options: projects,
+                selectedOption: selectedProject,
+                onChange: handleProjectKeyChange,
+              }}
+            />
           </Paper>
-        )}
-      </Container>
+
+          {connection && selectedProject && (
+            <Paper
+              elevation={2}
+              sx={{
+                p: 3,
+                mb: 3,
+                borderRadius: 1,
+                bgcolor: "background.paper",
+              }}
+            >
+              <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
+                {t("projectPreferences")}
+              </Typography>
+              {preference && (
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ mb: 2, display: "block" }}
+                >
+                  {t("lastUpdated", {
+                    date: new Date(preference.updated_at).toLocaleString(),
+                  })}
+                </Typography>
+              )}
+              {isPreferenceLoading ? (
+                <LoadingSpinner />
+              ) : (
+                <Box component="form" onSubmit={handleSave}>
+                  <Stack spacing={2}>
+                    <TextField
+                      fullWidth
+                      multiline
+                      label={t("analysisGuidelines")}
+                      value={runAnalysisGuidelines}
+                      onChange={(e) => setRunAnalysisGuidelines(e.target.value)}
+                      disabled={isCreating || isUpdating}
+                      placeholder={t("analysisGuidelinesPlaceholder")}
+                      minRows={MIN_TEXTFIELD_ROWS}
+                      maxRows={MAX_TEXTFIELD_ROWS}
+                      sx={{ ...scrollBarSx }}
+                    />
+                    <TextField
+                      fullWidth
+                      multiline
+                      label={t("proposalGenerationGuidelines")}
+                      value={genProposalGuidelines}
+                      onChange={(e) => setGenProposalGuidelines(e.target.value)}
+                      disabled={isCreating || isUpdating}
+                      placeholder={t("proposalGenerationGuidelinesPlaceholder")}
+                      minRows={MIN_TEXTFIELD_ROWS}
+                      maxRows={MAX_TEXTFIELD_ROWS}
+                      sx={{ ...scrollBarSx }}
+                    />
+                    <TextField
+                      fullWidth
+                      multiline
+                      label={t("chatGuidelines")}
+                      value={chatGuidelines}
+                      onChange={(e) => setChatGuidelines(e.target.value)}
+                      disabled={isCreating || isUpdating}
+                      placeholder={t("chatGuidelinesPlaceholder")}
+                      minRows={MIN_TEXTFIELD_ROWS}
+                      maxRows={MAX_TEXTFIELD_ROWS}
+                      sx={{ ...scrollBarSx }}
+                    />
+
+                    <TextField
+                      fullWidth
+                      multiline
+                      label={t("genAcGuidelines")}
+                      value={genAcGuidelines}
+                      onChange={(e) => setGenAcGuidelines(e.target.value)}
+                      disabled={isCreating || isUpdating}
+                      placeholder={t("genAcGuidelinesPlaceholder")}
+                      minRows={MIN_TEXTFIELD_ROWS}
+                      maxRows={MAX_TEXTFIELD_ROWS}
+                      sx={{ ...scrollBarSx }}
+                    />
+
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={genProposalAfterAnalysis}
+                          onChange={(e) =>
+                            setGenProposalAfterAnalysis(e.target.checked)
+                          }
+                          disabled={isCreating || isUpdating}
+                        />
+                      }
+                      label={t("autoGenerateProposalsAfterAnalysis")}
+                    />
+
+                    <FormControl fullWidth>
+                      <InputLabel>{t("proposalGenerationMode")}</InputLabel>
+                      <Select
+                        value={genProposalMode}
+                        label={t("proposalGenerationMode")}
+                        onChange={(e) => setGenProposalMode(e.target.value)}
+                        disabled={isCreating || isUpdating}
+                      >
+                        {PROPOSAL_MODES.map((mode) => (
+                          <MenuItem key={mode.value} value={mode.value}>
+                            {t(mode.labelKey)}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+
+                    <FormControl fullWidth>
+                      <InputLabel>{t("generationLanguage")}</InputLabel>
+                      <Select
+                        value={genLanguage}
+                        label={t("generationLanguage")}
+                        onChange={(e) => setGenLanguage(e.target.value)}
+                        disabled={isCreating || isUpdating}
+                      >
+                        {GEN_LANGUAGES.map((lang) => (
+                          <MenuItem key={lang.value} value={lang.value}>
+                            {t(lang.labelKey)}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      disabled={isCreating || isUpdating}
+                      fullWidth
+                    >
+                      {isCreating || isUpdating ? (
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <CircularProgress size={20} />
+                          <span>{t("saving")}</span>
+                        </Box>
+                      ) : preference ? (
+                        t("updatePreferences")
+                      ) : (
+                        t("createPreferences")
+                      )}
+                    </Button>
+                  </Stack>
+                </Box>
+              )}
+            </Paper>
+          )}
+        </Container>
+      </Box>
     </Layout>
   );
 }

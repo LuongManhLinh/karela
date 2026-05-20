@@ -24,7 +24,8 @@ export const Layout: React.FC<LayoutProps> = ({
       sx={{
         display: "flex",
         flexDirection: "column",
-        minHeight: "100vh",
+        maxHeight: "100vh",
+        overflow: "hidden",
       }}
     >
       <MyAppBar
@@ -32,7 +33,16 @@ export const Layout: React.FC<LayoutProps> = ({
         transparent={appBarTransparent}
         basePath={basePath}
       />
-      <Box component="main" sx={{ flexGrow: 1, overflow: "auto" }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         {children}
       </Box>
     </Box>

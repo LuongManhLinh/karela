@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Container, Paper, Typography, Divider } from "@mui/material";
+import { Container, Paper, Typography, Divider, Box } from "@mui/material";
 import { Layout } from "@/components/Layout";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import type { ProjectDto } from "@/types/connection";
@@ -15,6 +15,7 @@ import {
 import { ProjectDescriptionEditor } from "@/components/documentation/ProjectDescriptionEditor";
 import { useBulkUploadDocsMutation } from "@/hooks/queries/useDocumentationQueries";
 import { useNotificationContext } from "@/providers/NotificationProvider";
+import { scrollBarSx } from "@/constants/scrollBarSx";
 
 export default function DocumentationPage() {
   const { projects } = useWorkspaceStore();
@@ -69,52 +70,67 @@ export default function DocumentationPage() {
       appBarTransparent
       basePath={`/app/projects/${projectKey}`}
     >
-      <Container maxWidth="md" sx={{ py: 4, overflowY: "auto" }}>
-        <Paper
-          elevation={4}
-          sx={{ p: 3, mb: 3, borderRadius: 1, bgcolor: "background.paper" }}
-        >
-          <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
-            {t("projects")}
-          </Typography>
-          <SessionStartForm
-            projectOptions={{
-              options: projects,
-              selectedOption: selectedProject,
-              onChange: handleProjectKeyChange,
-            }}
-          />
-        </Paper>
-
-        {selectedProject && (
+      <Box
+        sx={{
+          pt: 4,
+          pb: 12,
+          overflowY: "auto",
+          ...scrollBarSx,
+          width: "100%",
+        }}
+      >
+        <Container maxWidth="md">
           <Paper
             elevation={4}
             sx={{
               p: 3,
+              mb: 3,
               borderRadius: 1,
               bgcolor: "background.paper",
-              minHeight: 600,
             }}
           >
-            <ProjectDescriptionEditor
-              projectKey={projectKey}
-              showHelperText={false}
-            />
-            <Typography variant="h6" gutterBottom>
-              {t("projectDocumentation")}
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
+              {t("projects")}
             </Typography>
-            <DocumentationManager
-              projectKey={projectKey}
-              pendingTextDocs={pendingTextDocs}
-              setPendingTextDocs={setPendingTextDocs}
-              pendingFileDocs={pendingFileDocs}
-              setPendingFileDocs={setPendingFileDocs}
-              onSavePending={handleSavePending}
-              isSavingPending={isSavingPending}
+            <SessionStartForm
+              projectOptions={{
+                options: projects,
+                selectedOption: selectedProject,
+                onChange: handleProjectKeyChange,
+              }}
             />
           </Paper>
-        )}
-      </Container>
+
+          {selectedProject && (
+            <Paper
+              elevation={4}
+              sx={{
+                p: 3,
+                borderRadius: 1,
+                bgcolor: "background.paper",
+                minHeight: 600,
+              }}
+            >
+              <ProjectDescriptionEditor
+                projectKey={projectKey}
+                showHelperText={false}
+              />
+              <Typography variant="h6" gutterBottom>
+                {t("projectDocumentation")}
+              </Typography>
+              <DocumentationManager
+                projectKey={projectKey}
+                pendingTextDocs={pendingTextDocs}
+                setPendingTextDocs={setPendingTextDocs}
+                pendingFileDocs={pendingFileDocs}
+                setPendingFileDocs={setPendingFileDocs}
+                onSavePending={handleSavePending}
+                isSavingPending={isSavingPending}
+              />
+            </Paper>
+          )}
+        </Container>
+      </Box>
     </Layout>
   );
 }
