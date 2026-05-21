@@ -1,0 +1,210 @@
+[
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-116", "IB2-308"],
+    "severity": "HIGH",
+    "explanation": "IB2-116 defines the 'slider-enabled' behaviour: a Nav Panel Width slider that changes Image Widget width in real-time, persists slider updates to page/block metadata, and keeps slider and drag-resize in sync. IB2-308 defines the opposite 'drag-only' behaviour (when PM decides drag-only): the Nav Panel Width slider is read-only or hidden, the slider must not change widget size, and resizing is only via dragging (with migration/clearing of stored slider values). These are mutually exclusive runtime behaviours for the same control and cannot both be implemented as written.",
+    "confidence": 0.9,
+    "suggested_fix": "Create/resolve the referenced PM Decision ('Canonical Image Widget Resize Mechanic') before scheduling either story. Then: (a) update both stories to explicitly reference the chosen outcome (slider-enabled OR drag-only), or (b) merge into a single parametrized story with clear ACs for each decision outcome and implementation notes for migrating stored slider values. Add a PM-decision ticket and mark the non-selected story as postponed or converted into a compatibility/migration subtask."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-117", "IB2-308"],
+    "severity": "HIGH",
+    "explanation": "IB2-117 requires that repositioning is stored as percentage offsets and is \u201cpreserved proportionally after resizing and when Block width changes.\u201d IB2-308 (drag-only acceptance criteria) mandates that \u201cWhen resized, image recenters horizontally in the Block.\u201d These are mutually exclusive on the same behavior: preserving proportional offsets after a resize vs. forcing the image to recenter horizontally cannot both be true for the same resize action.",
+    "confidence": 0.9,
+    "suggested_fix": "Clarify the canonical UX: either (A) preserve stored percentage offsets across all resize actions (IB2-117) or (B) apply automatic horizontal recentering on resize (IB2-308). If both behaviors are desired in different modes, explicitly define the modes and switching rules (e.g., drag-resize preserves offsets; slider-resize recenters) and add acceptance criteria showing which input triggers which rule. Record the PM decision and update both stories to refer to that decision (mark IB2-308 'blocked-by-PM-decision' or align IB2-117 accordingly)."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-215", "IB2-233"],
+    "severity": "HIGH",
+    "explanation": "IB2-215 requires user-driven drag-and-drop re-ordering that \"re-order persists across edit/view modes\" (i.e., a persisted manual order). IB2-233 mandates the Left Nav list of Simple Pages is \"ordered by Last Updated descending.\" These are mutually exclusive ordering rules for the same UI surface (the Left Navigation): the nav cannot both persist a manual order and simultaneously sort strictly by last-updated without additional precedence rules.",
+    "confidence": 0.9,
+    "suggested_fix": "Clarify ordering precedence between the stories. Options: (a) Make IB2-233 state that Last-Updated is the default only when no manual order exists, and that manual reorder (IB2-215) overrides Last-Updated; or (b) Restrict IB2-215 to only allow re-ordering within a distinct area separate from the Left Nav if Last-Updated must be authoritative; or (c) Add an acceptance criterion that the UI indicates which sort mode is active and provide a toggle. Update both stories' acceptance criteria to specify the final, single source-of-truth for page ordering and persistence behavior."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-233", "IB2-383"],
+    "severity": "MEDIUM",
+    "explanation": "IB2-233 mandates the Left Nav list of Simple Pages be ordered by 'Last Updated descending'. IB2-383 requires the Navigation Panel to reflect a persisted hierarchy and supports drag-and-drop moves that change the parent/root of pages. These two requirements are contradictory about the authoritative ordering model for the same Navigation Panel: a strict Last-Updated sort conflicts with a persisted, user-managed hierarchy that drag-and-drop implies.",
+    "confidence": 0.85,
+    "suggested_fix": "Clarify the Nav Panel ordering/behavior and state precedence in acceptance criteria. Options: (a) Define two modes \u2014 'View mode' shows Last-Updated sort while 'Edit mode' shows/edits persisted hierarchy (drag-and-drop) and persists that hierarchy; (b) Make persisted hierarchy authoritative and apply Last-Updated sorting only within a folder/parent node; or (c) expose a user/PM-configurable sort setting. Update IB2-233 and IB2-383 acceptance criteria to explicitly document the chosen model and how drag-and-drop edits interact with any sorting."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-299", "IB2-318"],
+    "severity": "MEDIUM",
+    "explanation": "IB2-299 states: 'UI disabled if user lacks AI Assist access.' IB2-318 states: 'UI only renders \"AI Assist\" button when this flag is true.' Those are contradictory on the same UI control: one requires rendering the control in a disabled state for users without access, the other requires the control not be rendered at all unless the server-side ai_assist_alpha_access flag is true. Implementing both as-written is logically impossible without changing at least one story.",
+    "confidence": 0.9,
+    "suggested_fix": "Decide a single visibility policy and update both stories. Options: (A) Follow IB2-318: enforce server-side ai_assist_alpha_access and do not render the AI Assist button for users without the flag \u2014 update IB2-299 to remove the 'UI disabled' clause and state 'control not rendered when access is false'; or (B) Allow the button to render but disabled when access is absent \u2014 update IB2-318 to accept showing a disabled control and adjust server/UI acceptance criteria accordingly. Document the chosen behaviour and ensure all dependent stories (IB2-323, IB2-326) reference the same rule."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-164", "IB2-389"],
+    "severity": "HIGH",
+    "explanation": "Both stories make the same single-source-of-truth change: move the Page limit setting to MCP > Restrictions and render the value read-only in Custom Page editors, including a migration plan. IB2-164: \"Page limit controls ... shall be administered from the MCP > Restrictions tab. A read-only display ... may be shown on Custom Page editors but must be non-editable.\" IB2-389: \"MCP is the authoritative place to set Page limits. Custom Page editors will display the MCP-set limit read-only.\" Implementing IB2-164 would fully satisfy IB2-389 with no new technical work.",
+    "confidence": 0.9,
+    "suggested_fix": "Consolidate IB2-389 into IB2-164 (or mark IB2-389 as duplicate). Keep any unique acceptance/test/migration details from IB2-389 as sub-tasks or acceptance-criteria in IB2-164 so no work is duplicated. Retain labels/migration plan artifacts by merging them into the target story."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-116"],
+    "severity": "MEDIUM",
+    "explanation": "The acceptance criteria and implementation behaviour are explicitly conditional on a PM decision (slider-enabled vs other). Until that PM decision is made the team cannot reliably estimate effort or scope for this story.",
+    "confidence": 0.9,
+    "suggested_fix": "Obtain and record the PM decision before sizing. Alternatively, split into two separate stories (one for slider-enabled behaviour, one for the alternative) and mark the non-applicable story Candidate/Blocked until the PM decision is final."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-172"],
+    "severity": "MEDIUM",
+    "explanation": "This story is marked as an alternative behaviour with a declared conflict with IB2-78 and is explicitly blocked by a PM decision. Without the decision about the desired UX (confirmation dialog behaviour, snackbars) the team cannot estimate implementation or testing scope.",
+    "confidence": 0.9,
+    "suggested_fix": "Surface the PM decision (resolve the conflict with IB2-78) and document the chosen behaviour; if both behaviours must be supported, split into two stories (primary + alternate) and mark the alternate as dependent/priority-lower. Include exact UI/UX rules in acceptance criteria after decision."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-308"],
+    "severity": "MEDIUM",
+    "explanation": "The story's implementation path depends on a PM decision (drag-only vs slider-enabled behaviour). Until that decision is made the scope, UI controls, and migration rules are ambiguous and the story cannot be estimated reliably.",
+    "confidence": 0.9,
+    "suggested_fix": "Obtain the PM decision and update the ticket with the definitive acceptance criteria for the chosen approach. Alternatively, create two small stories that capture each approach and mark the non-applicable one as blocked by the PM decision."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-337"],
+    "severity": "MEDIUM",
+    "explanation": "This story includes an alternate behaviour that depends on a PM decision (whether to block blank template creation when no Master Templates exist). Without that decision the implementation path, UX and messaging are undefined and estimations will be unreliable.",
+    "confidence": 0.85,
+    "suggested_fix": "Ask the PM to decide and record the decision in the ticket. If both behaviours might be required, split into two stories (one implementing the 'allow blank' flow and one implementing the 'block and show link' flow) and mark the non-selected one as blocked."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-389"],
+    "severity": "MEDIUM",
+    "explanation": "The story combines UI work (MCP-authoritative limits and read-only display in the Custom Page editor) with a requirement that a migration plan for existing local limit values be \"defined: auto-migrate or notify site-admins\" but does not choose which approach or provide criteria to select one. Without the migration strategy (and data/volume expectations), the team cannot reliably estimate effort or risk for the migration portion (which may be significant).",
+    "confidence": 0.8,
+    "suggested_fix": "Split or clarify the story: (a) Implement the MCP->UI surface changes as one story with concrete acceptance criteria and mock data; (b) Create a separate decision/implementation story for migration that specifies the chosen approach (auto-migrate vs notify), migration rules, rollback plan, and estimated data size/complexity. Provide sample existing-local-limit data and desired mapping rules so the devs can estimate migration effort."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-447"],
+    "severity": "MEDIUM",
+    "explanation": "Acceptance criteria require \"Tests demonstrating reduced accidental submissions\" and specify keyboard behaviour only at a high level. The success condition for \"reduced accidental submissions\" is undefined (no metric, baseline, or test method), and the keyboard activation semantics ('long-press or key confirmation') are ambiguous. These gaps prevent the team from scoping and estimating the testing and possibly product/analytics work required.",
+    "confidence": 0.8,
+    "suggested_fix": "Clarify and split concerns: (1) Define deterministic interaction details: exact hover duration default, where timeout is configurable (tenant/MCP/UI), and precise keyboard activation method (e.g., hold Space/Enter for 800ms or present a separate confirm key). (2) Remove/relocate the product-metric requirement: if a metric-based validation is required, create a follow-up analytics/experimentation story that defines baseline, target reduction percentage, data collection window, and acceptance criteria. (3) For the implementation story, require unit/integration tests that validate the interaction (hover timing, tooltip, keyboard accessibility) rather than statistical UX impact."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-505"],
+    "severity": "HIGH",
+    "explanation": "Acceptance criteria are high-level (dashboard with usage/error trends, provider activity log) but lack concrete metrics, event schema, retention, data volumes, dashboard scope, and performance/availability targets \u2014 leaving technical effort and feasibility unclear.",
+    "confidence": 0.86,
+    "suggested_fix": "Define the telemetry contract and non-functional constraints before estimation: list specific events/fields, expected ingestion rate/retention, required query latencies, sample dashboard mockups (which charts/filters/time-ranges), admin access rules, and required retention/aggregation windows. Once these are specified, split into instrumentation, storage/processing, and UI stories and then estimate."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-116", "IB2-501"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-116 contains an explicit leading note: 'DEPENDENCY: Implementation behaviour depends on PM Decision (see 'PM Decision: Canonical Image Widget Resize Mechanic'). Until decision is made, this story is not scheduled.' This is a strong blocking signal (explicitly blocked) \u2014 the story's implementation path and acceptance criteria change depending on the PM decision captured in IB2-501, so IB2-116 cannot be reasonably implemented, tested, or accepted independently.",
+    "confidence": 0.95,
+    "suggested_fix": "Complete IB2-501 (PM decision) before scheduling IB2-116; alternatively split IB2-116 into two independent stories (one implementing slider behavior, one implementing drag behavior) with clear acceptance criteria so at least one variant can be delivered independently."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-172", "IB2-78"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-172 is explicitly marked as an alternative behavior that 'CONFLICTS with IB2-78' and includes: 'Do not implement until PM decides whether confirmation dialogs should close on failure and whether snackbars are shown.' Because IB2-78 and IB2-172 describe mutually exclusive UX on failure, IB2-172 cannot be scheduled, implemented, or accepted until the product decision (which resolves the conflict) is made. IB2-78 therefore functions as the decision-anchor in this set.",
+    "confidence": 0.85,
+    "suggested_fix": "Resolve the PM decision between the two behaviors (document decision, or convert one path into a toggle/feature-flag) so only one behavior story is scheduled; alternatively split IB2-172 into an opt-in experimental spike with isolated acceptance criteria that don't collide with IB2-78."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-299", "IB2-318"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-299 explicitly states 'Add dependency on IB2-318: \"blocked_by: IB2-318 (AI alpha access control).\"' The acceptance criteria require UI behavior that is gated by the ai_assist_alpha_access flag delivered by IB2-318, so IB2-299 cannot be validated or released independently.",
+    "confidence": 0.95,
+    "suggested_fix": "Deliver IB2-318 (permission flag / server-side gating) before IB2-299, or add a temporary contract/mocked permission flag to allow front-end work and tests to proceed while the real server gating is completed."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-308", "IB2-501"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-308 contains the same explicit dependency note on the PM decision in IB2-501: 'DEPENDENCY: Implementation behaviour depends on PM Decision... Until decision is made, this story is not scheduled.' The acceptance criteria are conditional on the PM choosing 'Drag-only' behavior, so IB2-308 cannot be implemented, tested, or accepted on its own until IB2-501 is resolved.",
+    "confidence": 0.95,
+    "suggested_fix": "Prioritize and complete IB2-501, or split IB2-308 into a small preparatory story that implements non-decision-dependent parts (e.g., read-only/hidden slider handling or metadata migration) so work can progress without the final PM choice."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-323", "IB2-318"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-323's acceptance criteria explicitly depend on IB2-318 ('Add dependency on IB2-318. Acceptance Criteria: 'Ask' button present per IB2-318 access rules'). The UI rendering and enablement logic require the server-side permission flag from IB2-318, so IB2-323 cannot be accepted or tested fully without IB2-318.",
+    "confidence": 0.95,
+    "suggested_fix": "Prioritize IB2-318 or provide a stable mocked permission flag/API contract enabling IB2-323 tests to run until the server gating is delivered."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-326", "IB2-318"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-326 is explicitly marked 'blocked_by: IB2-318' and includes acceptance criteria that reference the Ask button and permission gating. Because both server-side permission and client rendering depend on IB2-318, IB2-326 cannot be meaningfully implemented, tested, or released independently.",
+    "confidence": 0.95,
+    "suggested_fix": "Deliver IB2-318 before IB2-326, or supply a temporary, testable permission-flag stub from the backend/API team so frontend work and QA can progress in the meantime."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-80", "IB2-337"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-80 includes 'CONFLICT: IB2-80 conflicts with IB2-337. Implementation must follow PM decision...' and is labelled 'blocked-by-PM-decision'. Because IB2-80 and IB2-337 represent mutually exclusive approaches to blank-template behavior when no Master Templates exist, IB2-80 cannot be implemented or accepted independently until the PM decides which approach to follow (the presence of IB2-337 documents the alternative).",
+    "confidence": 0.8,
+    "suggested_fix": "Have PM record a firm decision (or feature-flag) that resolves the conflict between IB2-80 and IB2-337, or split into two small stories where the non-conflicting parts can be implemented independently (e.g., UI copy vs. gating logic)."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-366", "IB2-382"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-366's new behavior explicitly applies only when 'IB2-382 header simplification is active' and the description/acceptance criteria state 'This behavior only applies after IB2-382 is implemented and active' and IB2-382 is labelled 'priority-blocker-for-IB2-366'. That is an explicit blocking dependency \u2014 IB2-366 cannot be accepted or delivered independently until IB2-382 is complete.",
+    "confidence": 0.95,
+    "suggested_fix": "Prioritize IB2-382, or reduce IB2-366 to two stories: (a) deterministic presentation selection logic independent of header mode, and (b) the UI change that only applies after IB2-382 \u2014 allowing partial progress and testing while IB2-382 is completed."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-53", "IB2-51", "IB2-52"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-53 is explicitly marked as blocked until IB2-51 and IB2-52 define their API schemas ('Mark IB2-53 as blocked until IB2-51 and IB2-52 define their API schemas'). The delete API acceptance criteria require identifiers and schema produced by IB2-51/IB2-52, so QA cannot validate the real behavior and the story delivers no standalone, testable API contract without those prerequisite stories.",
+    "confidence": 0.95,
+    "suggested_fix": "Deliver IB2-51 and IB2-52 (list/detail API schemas) first, or create a focused contract/spec stub story that defines the Page ID contract for delete so IB2-53 can implement against a stable contract/mocked endpoint."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-1"],
+    "severity": "HIGH",
+    "explanation": "The current ticket explicitly describes large, multi-area effort and asks to be converted into an Epic; it is therefore an Epic/monolithic scope and too large to be completed in a single sprint as a single story.",
+    "confidence": 0.9,
+    "suggested_fix": "Convert this ticket to an Epic and create smaller child stories that are vertical slices (each with clear acceptance criteria and DoD). List/link the child stories in the Epic and ensure each child is estimable and can be completed in an iteration (3\u20134 days preferable)."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-503"],
+    "severity": "HIGH",
+    "explanation": "The story describes a full data migration (configs + historical usage), plus staging testing, rollback plan, and a zero\u2011impact cutover. That scope typically involves multiple distinct deliverables (mapping scripts, backfill jobs, verification tests, cutover orchestration, monitoring) and is unlikely to be completed and validated within a single sprint.",
+    "confidence": 0.9,
+    "suggested_fix": "Split into smaller, testable stories (examples: 1) Migration design & mapping spec, 2) Config migration script + unit tests, 3) Usage-history backfill job with verification tests, 4) Cutover orchestration and runbook, 5) Rollback procedure + rehearsals). For each child story include data volume estimates, success criteria, staging test plan, and expected downtime/impact window."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-505"],
+    "severity": "MEDIUM",
+    "explanation": "The work spans multiple distinct concerns \u2014 instrumentation/telemetry schema, backend collection and storage/aggregation, analytics pipelines/reports, and dashboard UI \u2014 each of which can be delivered and validated independently. Bundling them as one story risks an oversized deliverable.",
+    "confidence": 0.8,
+    "suggested_fix": "Decompose into vertical slices that deliver value independently (e.g., Story A: emit and persist provider usage/error events with schema and tests; Story B: implement basic aggregated queries and alerts; Story C: admin dashboard UI for the key metrics). Attach acceptance criteria and performance targets to each child story."
+  },
+  {
+    "type": "NOT_VALUABLE",
+    "story_keys": ["IB2-1"],
+    "severity": "HIGH",
+    "explanation": "The ticket is a backlog/grooming instruction (ask to convert into an Epic and create child stories) rather than a user-centered story that describes who benefits and what business value is delivered. As written it doesn't state a user persona, user goal, or measurable outcome.",
+    "confidence": 0.95,
+    "suggested_fix": "Either convert this ticket into an Epic (with a clear Epic summary) and move the current text to its description, or rewrite as one or more user-focused stories that include the beneficiary (who), the outcome (what), and the measurable value (why). Attach the planned child-story links and acceptance criteria so each child is independently valuable and testable."
+  }
+]

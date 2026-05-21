@@ -1,0 +1,451 @@
+[
+  {
+    "type": "CONFLICT",
+    "story_keys": [
+      "IB2-116",
+      "IB2-189"
+    ],
+    "severity": "HIGH",
+    "explanation": "IB2-116 requires that when the Image Widget is resized the image resets to the center of its Block and does not preserve the same horizontal percentage position. IB2-189 explicitly requires that the image position within its Block remain proportional after resizing and that that proportional placement be preserved if the Block width later changes. These two behaviors are mutually exclusive for the same image-positioning rule and cannot both be implemented as-written.",
+    "confidence": 0.9,
+    "suggested_fix": "Clarify and choose a single canonical behavior for image positioning after resize. Options: (a) adopt IB2-116 behavior (always recenter image on resize), (b) adopt IB2-189 behavior (preserve proportional placement), or (c) add an explicit mode/setting (documented in acceptance criteria and MCP if global) that selects which behavior applies (and describe when each mode applies). Update both stories' acceptance criteria to state the chosen behavior and include UX examples for edge cases (downsize vs upsize, subsequent Block width change)."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": [
+      "IB2-189",
+      "IB2-308"
+    ],
+    "severity": "HIGH",
+    "explanation": "IB2-189 requires that when an Image Widget is resized to a smaller size the image position within its Block remain proportional and that proportional placement be preserved if the Block width later changes. IB2-308 explicitly requires that when the Image Widget is resized, the image should reset to the center of its Block instead of preserving the same horizontal percentage position. These statements are mutually exclusive for the same behavior (image positioning after a resize) and cannot both be implemented as written.",
+    "confidence": 0.9,
+    "suggested_fix": "Clarify and choose the intended post-resize positioning behavior in the design/acceptance criteria: either (A) always center the image in the Block after any user-driven resize, or (B) preserve the image's proportional position after resizing and when Block width changes. If both behaviors are needed in different contexts, specify the exact conditions (e.g., preserve proportional position for programmatic/responsive changes but center on direct user drag-resize), add UI/UX mockups, and update acceptance criteria accordingly. Also ensure the Nav Width slider behavior (read-only) is called out consistently."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": [
+      "IB2-323",
+      "IB2-326"
+    ],
+    "severity": "HIGH",
+    "explanation": "IB2-323 describes the Ask button as available to 'a user' (general users) with behavior: disabled by default and hover text 'Click or hit enter to ask your question.' IB2-326 requires the Ask button be displayed only to Main Admin users (Alpha access restriction) and describes the same disabled/default and hover-text behavior. These two stories make mutually exclusive claims about visibility/permission for the same UI control (Ask button) \u2014 they cannot both be implemented as written.",
+    "confidence": 0.9,
+    "suggested_fix": "Clarify and consolidate visibility/permission rules: either (A) update IB2-323 to specify Main Admin-only (matching IB2-326 and the product-level Ask AI Alpha gating), or (B) if Ask should be available to all users, remove or revise the Main Admin-only restriction in IB2-326. Prefer merging the shared UI behavior into one implementation story and make the visibility/gating (Main Admin Alpha) an explicit acceptance criterion or dependency. Ensure acceptance criteria reference the product doc rule that Ask AI (Alpha) is Main Admin-only if that is the intended policy."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": [
+      "IB2-116",
+      "IB2-308"
+    ],
+    "severity": "HIGH",
+    "explanation": "IB2-308 repeats the same requirements as IB2-116: Image Widget width not changeable from Nav Panel Width slider; resize only by dragging the dotted outline on the page; on resize the image recenters in the Block; any Width slider value is read-only and does not change widget size. Implementing one story would make the other redundant.",
+    "confidence": 0.95,
+    "suggested_fix": "Merge IB2-308 into IB2-116 (or mark one as duplicate) and consolidate acceptance criteria into a single story. Ensure the combined story references design system spacing and cross-browser NFRs and contains test cases verifying the Nav slider is read-only and does not affect widget size."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": [
+      "IB2-164",
+      "IB2-389"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "IB2-164 requires that Drag & Drop Page limits be configured exclusively in the MCP and displayed (read-only) on the Custom Page. IB2-389 requests the ability to set Page limits in the MCP control panel for client sites. Both stories mandate creating MCP-based page-limit configuration; implementing IB2-164 would largely satisfy IB2-389 unless IB2-389 intends a different/additional kind of page limit. The overlap means work on one will likely duplicate the other's core deliverable.",
+    "confidence": 0.8,
+    "suggested_fix": "Clarify and consolidate: decide whether IB2-389 is the same requirement (general 'Page limits') or a different limit type than 'Drag & Drop Page limits'. If they are the same, merge the stories into a single MCP-page-limits story with explicit acceptance criteria: MCP location, read-only display on Custom Page, and any Drag & Drop-specific behaviors. If they differ, update each story to explicitly state the distinct limit type, UI surface, and acceptance criteria to avoid overlap."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": [
+      "IB2-172",
+      "IB2-78"
+    ],
+    "severity": "HIGH",
+    "explanation": "Both stories specify identical failure behavior for server deletion: IB2-78 states 'After deleting a Server and it fails, the confirmation dialog must close automatically, and no snackbar error message should be displayed.' IB2-172 says 'When deletion fails, the confirmation dialog must close automatically' and 'No snackbar error message should be displayed after a failed delete action.' Implementing IB2-78 would fully satisfy IB2-172.",
+    "confidence": 0.9,
+    "suggested_fix": "Merge IB2-172 into IB2-78 (or mark one as duplicate). Consolidate acceptance criteria so delete-success and delete-failure behaviors are in a single story: include success removal from table and the failure dialog-close + no-snackbar requirements."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": [
+      "IB2-337",
+      "IB2-80"
+    ],
+    "severity": "HIGH",
+    "explanation": "IB2-337 requires the exact same UX gating: the \u201cStart with a blank template\u201d option must only be displayed when at least one Master Template exists; if none exist, users must not be allowed to create a blank template and must be instructed to create a Master Template first \u2014 the same acceptance criteria as IB2-80. Implementing both would duplicate the same UI/validation and messaging work.",
+    "confidence": 0.9,
+    "suggested_fix": "Merge IB2-337 into IB2-80 (or vice versa). Consolidate acceptance criteria into a single story that includes any additional UI details present in either (e.g., exact message text and any 'selected effect' UI note). Ensure one owner, update references, and remove the duplicate ticket to avoid duplicated implementation and QA effort."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": [
+      "IB2-395",
+      "IB2-526"
+    ],
+    "severity": "HIGH",
+    "explanation": "IB2-526: 'Implement support for hierarchical permission inheritance and multi-level propagation for sub-page permission updates, mirroring resource folder behavior.' IB2-395: 'Be able to see and configure sub-pages under parent pages in line with the resource folder/sub-folder design in Admin - Group - Permission. Be able to trigger permission propagation using the same logic as resource folder/sub-folders.' Both stories require the same capability (sub-page permission configuration and propagation using resource-folder logic) and would result in implementing identical permission-inheritance behavior twice.",
+    "confidence": 0.9,
+    "suggested_fix": "Merge IB2-526 and IB2-395 into a single story or epic. Consolidate acceptance criteria (UI admin configuration, propagation rules, multi-level inheritance, test cases) and explicitly assign ownership. Clarify where the permission controls live (Admin -> Group -> Permission) and add any MCP gating if product policy requires global toggles there."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-115"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "The story asks for 'clear and concise explanations for the new widget settings from Nav (combining previously defined Block and Widget's settings) for each widget' but does not list which widgets or settings are in-scope, nor where the help must appear (exactly which tooltips, docs pages, or UI locations). Without a concrete list of widgets/settings or example content, the team cannot reliably estimate effort because the number and complexity of items is unknown.",
+    "confidence": 0.7,
+    "suggested_fix": "Specify the exact scope: provide a definitive list of widgets and the specific settings that need explanations (or reference a canonical spec). For each item, state the required delivery target(s) (inline tooltip, contextual help panel, and/or docs page) and include at least one example copy entry or UX mock. Add acceptance criteria that verify presence of help text in the named UI locations and include any localization or accessibility requirements."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-141"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "The story requests adding Surface Q/A/Rating data to the weekly report, renaming it, and removing Dev Server entries, but the 'Remove Dev Server report entries (e.g., dcfprod, rtsprod, dev018, dev015, dpctest, dcftest, dev016, dev003, dev027, dev026, rtstest, macsprod, etc.)' uses 'etc.' and does not provide an authoritative list of dev servers to exclude. It also doesn't specify the exact schema/fields for Question/Answer/Rating to be included or mapping rules. Without explicit data-source mappings and the complete exclusion list, the team cannot estimate the work or QA effort.",
+    "confidence": 0.8,
+    "suggested_fix": "Provide the exact report schema changes: list the fields to be added (Question, Answer, Rating) and their source tables/columns and any aggregation rules. Provide the full, authoritative list of dev/test servers/environments to exclude (or a rule to identify non-prod records). Specify whether historical data must be migrated/retrofitted into past reports and include acceptance criteria and sample output for verification. Add required tests (data integrity checks, environment filtering) and documentation updates."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-389"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "The story says 'set Page limits on MCP control panel' but does not define which limits (per-site, per-user, per-template), how limits are measured, default values, scope (tenant vs site), or required MCP placement and permissions. Without those specifics the team cannot reliably estimate effort or design database/schema/API changes.",
+    "confidence": 0.8,
+    "suggested_fix": "Specify the exact limit(s) to be supported (e.g., max pages per site, max sub-pages per parent), the measurement period (if any), default values per plan, MCP UI location and permission model, expected API surface and NFRs (e.g., enforcement vs informational). Add acceptance criteria that the setting lives in MCP and is read-only in the end-user UI."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-413"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "The story requires showing 'specific, predefined Grouped Email Notification options' but does not list or define those options. The conditional triggers (MCP dev setting + Enable Grouped Requests) are clear, but the missing definition of which notification options must appear prevents accurate estimation and implementation.",
+    "confidence": 0.85,
+    "suggested_fix": "Include the exact list of predefined Grouped Email Notification options, their labels, default selections, translations required, and whether they inherit templates. Add acceptance criteria showing where each option appears in the Admin > Workflow UI and a sample payload/representation for API/docs."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-502"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "The story asks for multilingual generation but omits key decisions: which languages to support, where translations come from (templates vs translation service), fallback rules, user preference detection, and test coverage requirements. Without this, estimation is unreliable.",
+    "confidence": 0.8,
+    "suggested_fix": "Define the supported languages, translation source (managed templates vs external service), fallback/priority rules, how user language is determined, and performance/quotas for translation. Provide acceptance criteria and a sample localized email payload."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-503"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "Tenant-level customization for requester email settings implies per-tenant overrides, access control, storage, inheritance with global templates, and rendering changes. The story does not define the override model, conflict resolution, permissioning, or API implications, making effort estimation unreliable.",
+    "confidence": 0.8,
+    "suggested_fix": "Specify the override model (which fields can be overridden per tenant), permission model, inheritance/merge rules with global templates, required UI and API changes, and acceptance tests demonstrating override and fallback behavior."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-505"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "The story lacks details about the approval model (who can request changes, who approves, approval rules), how it integrates with the existing approval/workflow engine, and whether this is a new workflow or reuse of an existing one. Without these scope and role details the team cannot confidently estimate effort.",
+    "confidence": 0.8,
+    "suggested_fix": "Define acceptance criteria that specify approver roles, approval rules/steps, required audit trail, whether an existing approval engine is reused, and expected UI behavior. If multiple approval flavours are needed (single approver, multi-approver, conditional), split into separate stories."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-506"
+    ],
+    "severity": "HIGH",
+    "explanation": "\u2018Synchronize with external providers and legacy workflow systems\u2019 is vague: it does not list which external providers/legacy systems, the direction of synchronization (uni- or bi-directional), conflict resolution rules, expected latency/consistency, or required contracts/APIs. That missing scope prevents reliable estimation.",
+    "confidence": 0.8,
+    "suggested_fix": "List the target external providers and legacy systems, define sync direction and frequency (real-time vs batch), specify conflict resolution and error handling, and provide or request API contracts for each provider. If multiple integrations are required, split into per-provider/per-legacy-system stories."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-509"
+    ],
+    "severity": "HIGH",
+    "explanation": "A full migration of Imagga tagging data to Azure requires a mapping between Imagga and Azure tag models, transformation rules, success/failure criteria, and a rollback plan\u2014none of which are specified here.",
+    "confidence": 0.9,
+    "suggested_fix": "Provide a migration spec that includes field mappings, data transformation rules, volume estimates, validation checks, downtime/compatibility constraints, and a rollback strategy. Request the Imagga\u2192Azure mapping doc from Product/Backend before estimating."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-51"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "\u2018Response time should be mostly instant\u2019 is not a measurable performance target. The story also lacks API contract details (fields, pagination, filters, auth, caching) required to estimate implementation and testing effort against NFRs (e.g., UI sync expectations and scalability).",
+    "confidence": 0.9,
+    "suggested_fix": "Define the API contract (request/response schema), pagination and filtering semantics, auth/permissions, and a measurable performance SLA (e.g., 95th percentile < 200ms for cached requests). Add acceptance criteria for pagination and max page size, and update docs accordingly."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-514"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "The story asks to migrate historical Surface Q/A/Rating data but does not specify which environments to include/exclude (dev servers were called out in project docs), data volume, schema differences, or verification criteria\u2014these are necessary to estimate migration effort accurately.",
+    "confidence": 0.85,
+    "suggested_fix": "Specify source environments (and provide the canonical list of dev servers to exclude), provide data schema and volume estimates, define mapping/transformation rules, and include acceptance tests that verify data integrity in weekly_asset_intelligence_report."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-515"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "Aggregating Surface Q/A/Rating across multiple environments lacks required details: which environments, how to identify/normalize entities across environments, and how to handle duplicates or dev/test data. Without that the team cannot estimate the work.",
+    "confidence": 0.8,
+    "suggested_fix": "Clarify which environments must be included, define rules for normalizing identifiers across environments, specify exclusion rules for dev servers, and provide sample datasets or expected report outputs for acceptance tests."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-516"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "\u2018Ensure backward compatibility\u2019 is underspecified: it does not state which APIs/reports/consumers must remain compatible, what compatibility guarantees are required (schema, API contract, CSV formats), or how to validate compatibility.",
+    "confidence": 0.85,
+    "suggested_fix": "List the downstream consumers/APIs that must remain compatible, define compatibility constraints (e.g., field names, types, endpoint behavior), and add explicit acceptance tests (contract tests, regression checks) to validate backward compatibility."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-517"
+    ],
+    "severity": "HIGH",
+    "explanation": "Automated export and synchronization across reporting systems does not identify target systems, export formats, scheduling, error handling, or security/permission requirements. That missing scope prevents confident estimation.",
+    "confidence": 0.8,
+    "suggested_fix": "Enumerate target reporting systems, required export formats and schedules, authentication/authorization requirements, error/retry semantics, and define an acceptance checklist. Break work into smaller stories per target system if needed."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-524"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "The story is high-level: it doesn't define which 'restructuring' operations are in scope (move, rename, reorder, change parent), which roles and permission model to apply, or how the approval workflow should behave (single approver vs multi-step, notifications, MCP placement). Without these details the team cannot confidently estimate effort.",
+    "confidence": 0.8,
+    "suggested_fix": "Clarify scope and acceptance criteria: enumerate supported restructuring operations, list affected roles and exact permission rules, describe approval workflow flow (steps, approvers, notifications), and state where global toggles/config live (MCP). Add success criteria and edge cases (conflicts, rollback)."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-525"
+    ],
+    "severity": "HIGH",
+    "explanation": "\u2018Synchronized across all platforms\u2019 is ambiguous: it lacks the synchronization model (real-time vs eventual), conflict resolution rules for concurrent edits, API contract expectations, and which exports/clients require immediate consistency. The technical approach (push notifications, webhooks, polling, collaborative session protocol) is unspecified, preventing reliable estimation.",
+    "confidence": 0.9,
+    "suggested_fix": "Define the synchronization requirements: consistency guarantees (strong vs eventual), latency targets, conflict-resolution strategy, list of platforms/clients in scope, and expected APIs/events. Add acceptance tests that demonstrate expected behavior under concurrent edits."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-527"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "The story asks for 'approval workflows for sub-page permission updates' but does not specify workflow requirements (who can request, who can approve, single vs multi-stage approval, notification channels, tie-in with existing workflow engine, MCP gating). Without those details the team cannot size the work.",
+    "confidence": 0.75,
+    "suggested_fix": "Specify the approval workflow requirements: triggers, approver roles, routing rules, escalation behavior, notifications, audit/log requirements, and whether this re-uses an existing approval engine. Provide example flows and acceptance criteria."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-529"
+    ],
+    "severity": "HIGH",
+    "explanation": "The story requires cross-platform synchronization of permission updates but lacks details about required consistency semantics, propagation mechanisms, authorization checks across clients, and failure/retry behavior. These are crucial to estimate integration effort and risk.",
+    "confidence": 0.9,
+    "suggested_fix": "Define expected consistency (real-time vs eventual), propagation channels (events/webhooks/push), error handling and retries, security/permission checks on propagated updates, and a list of clients/systems in scope. Add concrete acceptance criteria and sample API/event contracts."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-53"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "The story requires delete semantics but omits critical details: whether delete is soft or hard, cascading effects on Sections/Blocks/Widgets, authorization rules, expected latency ('very short time' is vague), and rollback/consistency behavior. It also depends on other API stories but lacks the API contract to estimate safely.",
+    "confidence": 0.8,
+    "suggested_fix": "Clarify deletion semantics (soft vs hard), cascade rules for contained entities, required authorization checks, expected latency SLA, and error handling. Provide the Smart Page API contract and example requests/responses. Break out dependent API retrieval stories as prerequisites if needed."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": [
+      "IB2-9"
+    ],
+    "severity": "LOW",
+    "explanation": "The requirement 'MP4 must autoplay automatically' is ambiguous because modern browsers restrict autoplay (often requiring muted playback). The story does not specify whether the preview should be muted, how to handle browsers that prevent autoplay, or whether server-side conversion is required synchronously.",
+    "confidence": 0.65,
+    "suggested_fix": "Specify autoplay behavior explicitly (e.g., autoplay muted with fallback to show poster image), whether conversion is synchronous or asynchronous, max file size/timeouts, and cross-browser acceptance criteria. Add acceptance tests for autoplay behavior in supported browsers."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": [
+      "IB2-1",
+      "IB2-507",
+      "IB2-509",
+      "IB2-510",
+      "IB2-511",
+      "IB2-512",
+      "IB2-513"
+    ],
+    "severity": "HIGH",
+    "explanation": "[EXTREME_BOTTLENECK] IB2-1 explicitly states: 'All image tagging capabilities and categories must depend on this setting' and that enabling it switches provider behavior. Stories IB2-507 (Azure Image Processing Limit), IB2-509 (migrate Imagga to Azure), IB2-510 (billing/quota for Azure image processing), IB2-511 (analytics/reporting for Azure image-tagging), IB2-512 (notifications for Azure image processing limits/failures), and IB2-513 (APIs, permissions, docs for Azure image tagging) all implement or expose image-tagging capabilities or controls. Because IB2-1 is the gating MCP setting that must exist and be respected by image-tagging features, delay or absence of IB2-1 would block meaningful implementation, testing, and correct production behavior of these six stories. With six direct dependents, this meets the EXTREME_BOTTLENECK threshold (>=5) and would freeze a significant area of work if IB2-1 is delayed.",
+    "confidence": 0.9,
+    "suggested_fix": "Prioritize IB2-1 early (or split it): (a) deliver the minimal MCP setting and provider-switching flag first so dependent stories can be implemented and tested against the real gating behavior; or (b) if the full UI setting cannot be completed immediately, provide a temporary feature-flag/API toggle or test-only contract that exposes the same gating behavior for the dependent stories to build and validate. Coordinate a joint delivery plan and a clear rollout/feature-flag timeline so downstream stories can be scheduled without waiting for the entire IB2-1 scope."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": [
+      "IB2-41",
+      "IB2-44",
+      "IB2-27"
+    ],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-41 explicitly states it depends on IB2-44 and IB2-27: 'This story depends on IB2-44 and IB2-27 for stage navigation and status definition, and should be prioritized after them.' The acceptance criteria require a Request Status section that reflects stage navigation and status definitions; those behaviors are provided by IB2-44 (view pages/stages and staged-record navigation rules) and IB2-27 (Status column and status semantics). Without those stories completed, IB2-41 cannot display or validate the correct Request Status content per stage and thus cannot be accepted independently.",
+    "confidence": 0.9,
+    "suggested_fix": "Implement and deliver IB2-44 and IB2-27 first. If delivering IB2-41 earlier is required, reduce its scope to a placeholder Request Status UI that can be validated independently (e.g., static or mocked status content) and explicitly mark the feature as a stub until the underlying stage navigation and status logic are available."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": [
+      "IB2-326",
+      "IB2-318",
+      "IB2-299"
+    ],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-326 explicitly requires the Alpha Main Admin access restriction and the 'Limit to current view' search-scope logic to be available before it can be implemented: 'The Ask button must only be displayed after the Alpha Main Admin access restriction has been implemented' and 'This story should be implemented after the AI Assist visibility rules and the \u201cLimit to current view\u201d search-scope logic are available.' Those are exactly the capabilities provided by IB2-318 (Main Admin visibility for Ask AI in Alpha) and IB2-299 (the 'Limit to current view' checkbox behavior). Without those prerequisites, IB2-326 cannot meet its acceptance criteria (correct visibility/permission gating and correct search-scope behavior) and therefore cannot be tested or accepted independently.",
+    "confidence": 0.9,
+    "suggested_fix": "Schedule IB2-318 and IB2-299 before IB2-326, or split IB2-326 into two pieces: (1) implement the Ask-button interactions that do not depend on visibility/permission gating and search-scope (UI enable/disable/hover) and (2) implement the visibility/permitted-display and search-scope integration once IB2-318 and IB2-299 are done. Ensure clear acceptance criteria for the partial piece so QA can validate independently."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": [
+      "IB2-366",
+      "IB2-382"
+    ],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-366's description states the consistent confirmation presentation 'should wait until IB-382 completed' because IB2-366 must reuse the simplified public-user page header state (Database name and close icon removed). The acceptance criteria for IB2-366 require that the public upload page header has already been simplified (IB2-382). Without IB2-382, the UI state required by IB2-366 cannot be realized or validated, so IB2-366 cannot be accepted or tested as specified.",
+    "confidence": 0.9,
+    "suggested_fix": "Deliver IB2-382 first (simplified public upload header). Alternatively, split IB2-366 so the success-message styling work can be implemented and validated independently, but conditionally wired to the simplified header only after IB2-382 is completed."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": [
+      "IB2-448"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "This story bundles multiple behaviours: UI parity with Grouped Review page, server-side apply processing logic, additional validation rules, and decision logic for completing Requests vs Stages (including staged vs standalone cases). That spans UI, business rules, and backend processing and is broad enough to be multiple stories or an epic.",
+    "confidence": 0.8,
+    "suggested_fix": "Split into smaller stories: (a) UI parity (buttons, counts, tooltips, snackbars), (b) backend 'apply' processing implementation and API contract, (c) validation rules to be enforced and unit tests, and (d) logic for Complete Request/Complete Stage with acceptance tests for staged vs standalone scenarios."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": [
+      "IB2-501"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "Implementing global template inheritance for requester email notifications is a cross-cutting change affecting templates, rendering, admin UI, APIs, and possibly delivery flows. This is a broad capability rather than a single small story.",
+    "confidence": 0.8,
+    "suggested_fix": "Break into smaller stories: (a) define and document the inheritance model and priority rules, (b) implement storage/model changes and APIs, (c) update admin UI to configure inheritance, and (d) add tests and documentation for backward compatibility."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": [
+      "IB2-502"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "Supporting multilingual email generation impacts templates, storage, rendering pipeline, testing, and delivery systems across tenants\u2014this is a multi-part feature better split into focused stories (e.g., templating changes, translation integration, UI for translations, delivery test cases).",
+    "confidence": 0.8,
+    "suggested_fix": "Split into distinct stories: (a) template model changes to store translations, (b) UI for managing translations, (c) translation service integration (if required), and (d) tests and delivery verification per language."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": [
+      "IB2-503"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "Tenant-level customization touches multiple layers (data model, UI, API, docs, testing) and is broad enough to be decomposed. Implementing it as one story risks becoming an epic spanning multiple sprints.",
+    "confidence": 0.8,
+    "suggested_fix": "Break into smaller stories: (a) data model and API to support per-tenant overrides, (b) admin UI for tenant settings, (c) inheritance/merge logic with global templates, and (d) tests and documentation updates."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": [
+      "IB2-509"
+    ],
+    "severity": "HIGH",
+    "explanation": "Migrating all existing configurations and historical usage across tenants is likely a multi-step, cross-system effort (export, transform, import, validation, QA) that could span several sprints\u2014this reads like an epic rather than a single sprint story.",
+    "confidence": 0.9,
+    "suggested_fix": "Break the migration into smaller, incremental stories (e.g., mapping & validation prototype, pilot tenant migration, bulk historical data migration, post-migration verification and reporting). Include acceptance criteria for each slice."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": [
+      "IB2-517"
+    ],
+    "severity": "HIGH",
+    "explanation": "Synchronization and automated export across reporting systems commonly touches many systems (ETL, scheduling, monitoring, security) and is therefore broad; as written it is likely an epic requiring multiple independent deliverables.",
+    "confidence": 0.8,
+    "suggested_fix": "Split into smaller deliverables (e.g., build export pipeline for one target system, add scheduler/retry, add monitoring/alerts, then add additional targets). Provide acceptance criteria for each slice."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": [
+      "IB2-521"
+    ],
+    "severity": "HIGH",
+    "explanation": "Providing undo/redo plus full version history for all page hierarchy move operations implies persistent versioning, consistent revert semantics, and possible UI complexity. This is a broad, cross-cutting capability (data model + UI + possibly conflict resolution) and likely cannot be completed in a single sprint.",
+    "confidence": 0.9,
+    "suggested_fix": "Decompose into smaller stories: (1) record audit events for moves and basic rollback for a single recent change, (2) implement persistent version history storage and retrieval, (3) add UI undo/redo controls and long-history restores. Define retention rules and scope for versioning up front."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": [
+      "IB2-523"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "\u2018Notifications and workflow updates for page hierarchy changes\u2019 bundles multiple concerns (who to notify, notification channels, how workflows should update, grouping rules). Project docs warn notification requirements can be large and should be split; as written this is broad and likely multi-sprint.",
+    "confidence": 0.8,
+    "suggested_fix": "Clarify the required notification recipients, channels, grouping rules, and exact workflow updates. Break the work into focused stories (e.g., basic email notifications for owners, grouped notifications for folder-wide changes, and separate story for workflow adjustments)."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": [
+      "IB2-524"
+    ],
+    "severity": "MEDIUM",
+    "explanation": "The story combines two substantial, distinct capabilities \u2014 role-based permissions AND approval workflows for restructuring \u2014 each of which touches frontend, backend, audit, and possibly MCP configuration. This is likely an epic-sized scope that can\u2019t be completed and validated in a single sprint.",
+    "confidence": 0.75,
+    "suggested_fix": "Split into smaller stories (e.g., 1) Add role-based permissions for restructuring operations, 2) Add approval workflow engine integration for restructuring, 3) UI/UX for admins to request/approve restructures, 4) Audit/logging and MCP configuration). Ensure each vertical slice has clear acceptance criteria."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": [
+      "IB2-525"
+    ],
+    "severity": "HIGH",
+    "explanation": "The scope covers multiple distinct systems (APIs, mobile clients, exports, collaborative editing sessions) and likely many integration points. This breadth indicates an epic that will span multiple teams and sprints rather than a single sprint-sized story.",
+    "confidence": 0.9,
+    "suggested_fix": "Decompose into focused stories, for example: 1) API-level propagation of hierarchy changes, 2) Mobile client sync behavior, 3) Export/update pipeline consistency, 4) Collaborative editing conflict handling. Include cross-team integration acceptance criteria for each slice."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": [
+      "IB2-529"
+    ],
+    "severity": "HIGH",
+    "explanation": "Synchronizing permission updates across APIs, mobile, and integrated systems is broad and will touch multiple subsystems (authz, eventing, clients, exports). This is likely an epic requiring multiple integration stories and cannot be delivered in a single sprint.",
+    "confidence": 0.9,
+    "suggested_fix": "Break into smaller, testable stories (e.g., server-side propagation and guarantees; mobile client handling; API/webhook consumers; backward-compatibility testing). For each slice, include explicit acceptance criteria and integration tests."
+  }
+]

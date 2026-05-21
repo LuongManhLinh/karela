@@ -1,0 +1,437 @@
+[
+  {
+    "defect_ids": [
+      "IB2_DEF_0",
+      "IB2_DEF_1",
+      "IB2_DEF_10",
+      "IB2_DEF_11",
+      "IB2_DEF_12",
+      "IB2_DEF_13",
+      "IB2_DEF_14",
+      "IB2_DEF_15",
+      "IB2_DEF_16",
+      "IB2_DEF_17",
+      "IB2_DEF_18",
+      "IB2_DEF_19",
+      "IB2_DEF_2",
+      "IB2_DEF_20",
+      "IB2_DEF_21",
+      "IB2_DEF_22",
+      "IB2_DEF_23",
+      "IB2_DEF_24",
+      "IB2_DEF_25",
+      "IB2_DEF_26",
+      "IB2_DEF_27",
+      "IB2_DEF_28",
+      "IB2_DEF_3",
+      "IB2_DEF_4",
+      "IB2_DEF_5",
+      "IB2_DEF_6",
+      "IB2_DEF_7",
+      "IB2_DEF_8",
+      "IB2_DEF_9"
+    ],
+    "contents": [
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": null,
+        "summary": "PM Decision: Canonical Image Widget Resize Mechanic",
+        "description": "Create a short Product Management decision story to select the single, canonical resizing method for the Image Widget (either Nav Panel Width slider OR direct in-page dragging). The decision must include rationale, accessibility implications, performance impact, and a compatibility note for existing behavior.\n\nAcceptance Criteria:\n- Product Management documents one chosen approach (Slider OR Drag-only) in a decision doc attached to this story.\n- The doc includes UX rationale, technical constraints, regression risks, and a migration/compatibility plan for existing Width slider values (if disabling slider).\n- The doc states whether existing Width slider values should be preserved as read-only, migrated to a metadata field, or removed.\n- The decision is approved by Design, PM, and Engineering representatives.",
+        "explanation": "A single authoritative decision is required to resolve the direct contradiction between IB2-116 (enable Nav slider) and IB2-308 (disable Nav slider and enforce drag-only). This decision story is intentionally small and will drive subsequent implementation updates to the two conflicting stories."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "Enable Azure Image Tagging Setting (MCP)",
+        "description": "Create MCP control: 'Enable Image Tagging (Azure)'. When enabled, Azure becomes the active image-tagging provider and Imagga is disabled. Add 'Azure Image Processing Limit (Images)' numeric setting (per billing cycle) and rename existing 'Azure Video Processing Limit' to 'Azure Video Processing Limit (Minutes)'.\n\nAcceptance Criteria:\n- New MCP setting exists and toggles provider behavior.\n- Imagga calls are disabled when Azure is enabled.\n- Azure Image Processing Limit setting present and validated.\n- Azure Video Processing Limit renamed and displayed in minutes.",
+        "explanation": "Implements the core administrative toggle and quota settings separately from migration and analytics."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "Migrate Imagga Image-Tagging Config and Usage History to Azure",
+        "description": "Data migration job to transfer Imagga image-tagging configurations and historical usage records to Azure-compatible format. Include migration plan, rollback steps, and verification tests.\n\nAcceptance Criteria:\n- Migration scripts exist and are tested in staging.\n- Historical tags and usage mapped correctly to Azure fields.\n- Rollback plan documented.\n- Migration does not impact live tagging operations during cutover window.",
+        "explanation": "Separates the heavy data migration work so it can be scheduled and tested independently."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "Azure Image Tagging Billing & Quota Tracking",
+        "description": "Implement billing counters and quota tracking for Azure image processing (images per billing cycle) and ensure video processing is tracked in minutes. Add notifications for nearing limits and quota exhaustion.\n\nAcceptance Criteria:\n- Usage counters for Azure image processing increment correctly.\n- Billing exports include Azure image usage.\n- Notifications fire when thresholds (configurable) are reached.\n",
+        "explanation": "Addresses billing/quota separate from core provider enablement and migration."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "Azure Image-Tagging Analytics and Provider Activity Reporting",
+        "description": "Add telemetry and analytics dashboards showing provider usage, failure rates, and tag distribution. Include provider activity logs for troubleshooting.\n\nAcceptance Criteria:\n- Analytics dashboard with provider usage and error trends.\n- Provider activity log accessible to admin users.\n",
+        "explanation": "Keeps analytics separate; can be implemented after provider is active."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "APIs, Permissions, Documentation and Rollout Plan for Azure Tagging",
+        "description": "API enhancements to expose Azure tagging status/quotas, permission gating for who can enable provider, and documentation for customers and internal teams. Include feature rollout plan and feature flagging steps.\n\nAcceptance Criteria:\n- APIs expose provider status and quota usage.\n- Docs and permission matrix updated.\n- Rollout plan and feature flags defined.\n",
+        "explanation": "Separates documentation and API surface changes so they can be delivered alongside implementation."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-189",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "Reasoning: IB2-189 is a near-exact duplicate of IB2-117. The functionality and acceptance criteria are consolidated into IB2-117 to avoid duplicated work. All unique requirements from IB2-189 have been merged into the updated IB2-117."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-385",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "Reasoning: IB2-385 duplicates IB2-215. Consolidated requirements moved to IB2-215. Delete to prevent duplicated work."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-396",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "Reasoning: IB2-396 duplicates user-facing steps in IB2-225. The backend requirements have been merged into IB2-225 as sub-tasks; IB2-396 is deleted to avoid duplication."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-429",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "Reasoning: IB2-429 is a near-exact duplicate of IB2-233; its requirements have been merged into IB2-233. Delete to avoid duplication."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-448",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "Reasoning: IB2-448 duplicates IB2-240. Requirements consolidated into IB2-240 to avoid duplicate implementation."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-116",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Append a leading note: \"DEPENDENCY: Implementation behaviour depends on PM Decision (see 'PM Decision: Canonical Image Widget Resize Mechanic'). Until decision is made, this story is not scheduled.\" Then add: \"If PM chooses Slider-enabled behaviour: Implement Width slider in Nav as described below. Acceptance criteria:\"\n- Acceptance Criteria (new, if slider chosen):\n  - Nav Panel Width slider changes Image Widget width in real-time.\n  - Slider updates are persisted to the page definition and reflected in the Block width metadata.\n  - Slider accessibility: keyboard focusable, value label visible, step sizes documented.\n  - Regression: Existing drag resize behavior continues to work and both methods stay in sync.\n- Labels: add label \"blocked-by-PM-decision\".\n",
+        "explanation": "Preserves original intent of IB2-116 but makes it conditional on the PM decision and adds acceptance criteria for the slider option. This prevents parallel/conflicting implementation with IB2-308."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-308",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Append a leading note: \"DEPENDENCY: Implementation behaviour depends on PM Decision (see 'PM Decision: Canonical Image Widget Resize Mechanic'). Until decision is made, this story is not scheduled.\" Then add: \"If PM chooses Drag-only behaviour: Implement drag-only behaviour as described below. Acceptance criteria:\"\n- Acceptance Criteria (new, if drag-only chosen):\n  - Nav Panel Width slider is read-only or hidden as per PM decision.\n  - Users can resize Image Widget only by dragging the dotted outline on the page; slider control does not change widget size.\n  - When resized, image recenters horizontally in the Block (as IB2-308 requires).\n  - Any stored slider values are either migrated to read-only metadata or cleared per the PM decision.\n- Labels: add label \"blocked-by-PM-decision\".\n",
+        "explanation": "Preserves original intent of IB2-308 but makes it conditional on PM decision and adds acceptance criteria for the drag-only option. Prevents conflicting parallel work."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-164",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Replace vague placement text with a single authoritative location: \"Page limit controls (Drag & Drop Page limit) shall be administered from the MCP > Restrictions tab. A read-only display of the current limit may be shown on Custom Page editors but must be non-editable.\"\n- Acceptance Criteria (new):\n  - MCP > Restrictions contains a new numeric setting: 'Drag & Drop Page Limit' with explanation tooltip.\n  - The Custom Page editor shows the current value (read-only) and a tooltip linking to MCP settings.\n  - UI and docs updated to reflect single source-of-truth (MCP) for the limit.\n  - Backward compatibility: any Custom Page-specific limits are migrated to the MCP setting during rollout, following migration plan attached.\n- Add label: \"decision-mcp-centralized\".\n",
+        "explanation": "Clarifies the definitive location (MCP Restrictions tab) and adds details so the story is estimable. This aligns IB2-164 with IB2-389 (see below)."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-389",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Add explicit acceptance criteria and a short migration note: \"MCP is the authoritative place to set Page limits. Custom Page editors will display the MCP-set limit read-only.\" \n- Acceptance Criteria (new):\n  - Admins can set Page limits in MCP > Restrictions for client sites.\n  - Changes in MCP immediately reflect read-only displays in the Custom Page editor UI.\n  - Migration plan for any existing Custom Page-local limit values (if present) is defined: auto-migrate or notify site-admins.\n",
+        "explanation": "Concretely aligns IB2-389 with the MCP-centric approach and provides the detail required to estimate implementation."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-78",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Add a preface clarifying this story implements the behaviour: on failed create/edit/delete server actions, the dialog remains open and a snackbar error message is shown. Add exact UX flows.\n- Acceptance Criteria (new):\n  - Create: If create fails, create dialog remains open; snackbar with the error message appears; form fields remain editable.\n  - Edit: If edit fails, edit dialog remains open; snackbar appears; changes not persisted.\n  - Delete: If delete fails, confirmation dialog remains open; snackbar appears; item remains in table.\n- Add label: \"dialog-keeps-open-on-failure\".\n",
+        "explanation": "Defines the behaviour that shows snackbars and keeps dialogs open on failure, as per IB2-78."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-172",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Mark IB2-172 as the alternative behaviour option and add a dependency on a PM decision. Add: \"CONFLICT: This story conflicts with IB2-78. Do not implement until PM decides whether confirmation dialogs should close on failure and whether snackbars are shown.\"\n- Acceptance Criteria (if chosen by PM):\n  - On delete failure: confirmation dialog closes automatically; no snackbar is shown.\n  - The UI displays the failure inline on the Servers list when possible (e.g., an inline row error badge) \u2014 document exact mechanism before implementation.\n- Labels: add \"conflict-with-IB2-78\" and \"blocked-by-PM-decision\".\n",
+        "explanation": "Defers the conflicting behaviour until Product clarifies desired UX. Prevents divergent implementations in parallel."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-80",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Add a leading note: \"CONFLICT: IB2-80 conflicts with IB2-337. Implementation must follow PM decision whether blank templates are allowed when no Master Templates exist.\" Mark story as blocked by PM decision. \n- Acceptance Criteria (if PM chooses to allow blank templates):\n  - When no Master Templates exist, the UI shows message 'No Master Templates available' and provides a 'Create Blank Template' CTA which opens the normal blank-template creation flow.\n  - UX copy and flow match designs.\n- Labels: \"blocked-by-PM-decision\".\n",
+        "explanation": "Preserves IB2-80 intent but gates implementation pending PM decision so it won't conflict with IB2-337."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-337",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Add acceptance criteria for the alternate behaviour: \"If PM decides to block blank template creation when no Master Templates, show instructive message and link to 'Create Master Template' flow instead.\" Add migration/UX notes.\n- Acceptance Criteria (if PM chooses this behaviour):\n  - When there are zero Master Templates, 'Start with a blank template' option is hidden.\n  - A message is displayed: 'Please create a Master Template before creating Smart Pages', with a direct link to Master Template creation flow.\n- Labels: add \"blocked-by-PM-decision\".\n",
+        "explanation": "Preserves IB2-337's stricter behavior but makes it conditional on a PM decision so one consistent behavior will be implemented."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-463",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Change the requirement from a mandatory wipe to an optional wipe. Add explicit UI: during clone, provide a checkbox: 'Remove facial recognition data and Unknown/face flags (irreversible)'. Default: unchecked.\n- Acceptance Criteria:\n  - Clone flow shows checkbox with clear description and risk text.\n  - If checked, all facial data and flags are removed from the cloned site.\n  - If unchecked, facial flags and Unknown face markers are preserved.\n  - Audit log records the wipe action and responsible user.\n",
+        "explanation": "Converts mandatory removal to an opt-in wipe, which reconciles the conflict with IB2-476 by making data removal explicit and user-driven."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-476",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Clarify that Unknown People flags are preserved by default during clone unless the user chooses the explicit 'Remove facial data' checkbox in clone flow (see IB2-463). Add acceptance criteria.\n- Acceptance Criteria:\n  - By default (checkbox unchecked) Unknown People flags are preserved and searchable after clone.\n  - If the wipe option is selected in the clone flow, Unknown flags are removed and 'Unknown People' filter may return no results for those resources.\n- Add note: The clone UI must surface the wipe option and consequences clearly.\n",
+        "explanation": "Aligns IB2-476 with the optional-wipe approach so both stories are consistent: default preservation with opt-in deletion."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-117",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Consolidate IB2-189's details into IB2-117. Update to fully specify reposition-by-drag behavior:\n  - Visual dotted line and full widget bounding box with default 8px padding on placing Image Widget into a Section.\n  - Outer bounding box remains visible after resizing.\n  - Re-positioning preserves image's proportional placement within Block after resizing and when Block width changes.\n- Acceptance Criteria (merged):\n  - After dropping Image Widget, show dotted crop outline and full Widget boundary with 8px padding.\n  - Users can drag the image inside that boundary to reposition; position is stored as percentage offsets from top-left and preserved proportionally after resizing.\n  - Outer bounding box remains visible at all times when editing.\n",
+        "explanation": "Merges the duplicate functional requirements and preserves the original intent. This avoids duplicated engineering effort."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-215",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Consolidate IB2-385 specifics into IB2-215. Clarify acceptance criteria:\n  - Drag-and-drop re-ordering for Pages within same parent and for root pages.\n  - If Page has sub-pages, sub-pages move with the parent and collapse under it after the move.\n  - Re-order persists across edit/view modes.\n- Acceptance Criteria (merged):\n  - Re-order within same parent permitted; drag handle visible in edit mode only.\n  - Sub-pages follow parent move and are in collapsed state post-move.\n  - Undo/redo support for reorder (basic undo for single-step revert is sufficient for initial implementation).\n",
+        "explanation": "Keeps IB2-215 as the canonical story and merges IB2-385 requirements to avoid duplicate development."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-225",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Merge backend concerns from IB2-396 into IB2-225 and add explicit Backend sub-tasks or acceptance criteria for API/DB behavior.\n- Acceptance Criteria (merged):\n  - Frontend: Click settings button on a page, open sub-page creation popup, validate title, 'Done' relabeled to 'Save', placeholder text present.\n  - Backend: API endpoint exists to create sub-page under a parent; returns new sub-page id and default ordering metadata; validation errors returned with 4xx codes.\n  - The created sub-page is saved with default order 'last-updated descending'.\n- Labels: add \"backend-required\" and create associated backend sub-task ticket references.\n",
+        "explanation": "Consolidates the frontend and backend requirements into a single actionable story (IB2-225) and ensures the backend work is captured as acceptance criteria/sub-tasks rather than a duplicate user story."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-233",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Affirm IB2-233 as canonical; add exact acceptance criteria and ordering rules:\n  - Extend/collapse icon appears top-left; clicking opens Left Side Panel.\n  - Nav lists Simple Pages the current user has permission to view, ordered by Last Updated descending.\n  - Current opened page is visually highlighted (grey-100, bold) and clicking navigates.\n- Acceptance Criteria (new):\n  - Left Nav visible and functional on Simple Page views per designs.\n  - Keyboard accessibility supported for opening/closing and page navigation.\n",
+        "explanation": "Merges any missing detail and design confirmation from IB2-429 into IB2-233. This avoids duplicate work."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-240",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Consolidate IB2-448 content into IB2-240. Clarify Apply logic, UI behavior, and validation.\n- Acceptance Criteria (merged):\n  - Bulk Apply button shows item count, hover tooltips for enabled/disabled states, and snackbar on success/failure matching Grouped Review behavior.\n  - Apply processing uses same backend logic as Grouped Review; include extra validations specific to this page.\n  - Determine and document rules for 'Complete Request/Stage' based on whether requests are staged and their current stage.\n- Labels: add \"merged-IB2-448\".\n",
+        "explanation": "Consolidates duplicate Bulk Apply functionality into IB2-240 so the feature is implemented once with full acceptance criteria."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-367",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Rewrite Description into an estimable user story. New Description: \"As a Product Manager handling Cross-Folder Grouped Email Updates, I want the system to send reviewer notifications per-folder when the same Workflow Template applies across multiple folders with different reviewer sets, so that reviewers receive only relevant notifications for resources they need to action.\" \n- Acceptance Criteria:\n  - When a bulk edit spans resources in multiple folders using the same Workflow Template but different reviewer configurations, the notification engine sends distinct emails scoped to each folder's reviewer set.\n  - Notification templates are selected per-template; placeholders resolve correctly for each folder's reviewer set.\n  - No duplicate emails are sent to the same reviewer for the same resource.\n  - Add test cases for scenarios: Global+Local, Global+Global with different reviewers, Local+Local with different reviewers.\n",
+        "explanation": "Rephrases the ambiguous context into a testable, estimable user story with clear acceptance criteria and test cases."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-413",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Convert IB2-413 into an Epic and split the monolithic second point into scoped child stories. Update Description to list the child stories to be created (examples below).\n- Acceptance Criteria (epic-level):\n  - The ambiguous 'additional notification options' are clarified with a precise list prior to implementation.\n  - Child stories exist and are estimated for: multilingual requester emails, template inheritance support, tenant-level customization, delivery tracking (initial telemetry only), approval workflow integration, and external provider sync (integration contract only).\n- Create child-story placeholders (recorded as subtasks in this Epic but not created here):\n  1) IB2-413A: Configure 'Requester Emails' notification selector UI and option mapping when 'Enable Grouped Requests' is on.\n  2) IB2-413B: Implement multilingual email support for Requester Emails (template rendering engine enhancement).\n  3) IB2-413C: Implement basic delivery tracking telemetry for Requester Emails (event logging, not full third-party integration).\n  4) IB2-413D: Define integration contract for synchronization with external notification providers (spec only).\n- Add label: \"split-into-epic\".\n",
+        "explanation": "The original IB2-413 mixes many large features and is not estimable. Converting it to an Epic and defining smaller child work items and a clarifying task prevents under-scoping and reduces estimation risk."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-445",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Replace vague 'new fields' wording with an explicit field list and conditions. New Description: \"In the 'My Response' panel, ensure the following fields are displayed according to request parameters: Response Comment (rich text if enabled), Response Attachments (if allowed), Response Approval Choice (if present).\"\n- Acceptance Criteria:\n  - Response Comment appears when configured and supports rich text when enabled.\n  - Each field appears only under the same conditions used elsewhere for request displays.\n  - Unit tests and an example request configuration shown in the story for verification.\n",
+        "explanation": "Makes the story estimable by explicitly listing which fields are in scope and the display conditions."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-9",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Replace 'may' language with definitive behavior. New Description: \"On Share/Embed screen, for GIFs and Lottie files that are converted to MP4, show an inline MP4 preview with controls hidden, autoplay enabled (muted), and click-to-toggle controls. Provide a small caption/indicator 'Preview - autoplay muted'.\"\n- Acceptance Criteria:\n  - Converted MP4 preview appears in place of static thumbnail for GIF/Lottie.\n  - Preview autoplays muted when the Share screen opens.\n  - Controls are hidden by default; clicking the preview reveals basic controls (play/pause, volume). \n  - Playback does not start downloading the MP4 for users who cancel before confirming; use streaming playback.\n  - Accessibility: provide a keyboard-accessible control to toggle autoplay and unmute.\n",
+        "explanation": "Removes ambiguity and supplies clear acceptance criteria so the story can be estimated and implemented consistently."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-318",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Mark IB2-318 as top-priority and add explicit acceptance criteria for Alpha gating: \"Only Main Admin users see 'AI Assist' button in Alpha. Permission check must be enforced server-side and UI-side.\"\n- Acceptance Criteria:\n  - Server returns a boolean flag in the session/permissions API indicating 'ai_assist_alpha_access'.\n  - UI only renders 'AI Assist' button when this flag is true.\n  - Emulation/impersonation modes are restricted such that Main Admins emulating non-Main cannot see the button (document acceptable exceptions if any).\n  - This story is labelled \"blocking-ai-alpha\" and must be delivered prior to dependent stories.\n",
+        "explanation": "Promotes IB2-318 to explicit priority and defines the permission contract needed by dependent stories."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-299",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Add dependency on IB2-318: \"blocked_by: IB2-318 (AI alpha access control).\" Clarify acceptance: 'Limit to current view' checkbox appears and is enabled by default when Ask AI panel opens.\n- Acceptance Criteria: checkbox default true; value persisted only for current session; UI disabled if user lacks AI Assist access.\n",
+        "explanation": "Reflects the dependency: search-scope control must respect alpha access rules."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-323",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Add dependency on IB2-318. Acceptance Criteria: 'Ask' button present per IB2-318 access rules; disabled on open and becomes enabled when valid question is entered.\n",
+        "explanation": "Ensures the Ask button implementation respects the access control story."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-326",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Add dependency 'blocked_by: IB2-318'. Add acceptance criteria that the Ask button uses the 'Limit to current view' checkbox state and remains disabled until a valid question is provided.\n",
+        "explanation": "Ensures the Ask action implementation is gated by alpha access control and search-scope state."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-382",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Prioritize IB2-382 implementation. Ensure header simplification UI for Public users: remove Database name and hide 'x' close icon for public upload pages.\n- Acceptance Criteria:\n  - Public users see header 'Create {{Record}}' with no database name and no close icon.\n  - Non-public users retain full header.\n  - Audit log of header rendering mode is available for troubleshooting.\n- Labels: add \"priority-blocker-for-IB2-366\".\n",
+        "explanation": "IB2-382 must be implemented first to enable IB2-366's expected success state layout."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-366",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Remove hard-randomization instructions. Change to deterministic, limited-variation behavior that depends on a theme set. New Description: \"After public upload submission (and only when IB2-382 header simplification is active), show a success confirmation that uses one of three pre-approved presentation styles selected deterministically (e.g., cycling or per-tenant theme), not randomly. Icon sizes and layout variations must be consistent and accessible.\"\n- Acceptance Criteria:\n  - Success header text remains 'Your {{Record}} has been submitted'.\n  - One of three approved presentation variants is selected deterministically (no per-load randomness) and documented.\n  - Visual differences are subtle and accessible; icon sizes are within design constraints.\n  - This behavior only applies after IB2-382 is implemented and active.\n",
+        "explanation": "Eliminates non-deterministic randomness (usability risk) and enforces dependency on IB2-382. This reconciles the NOT_VALUABLE concern and the dependency."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-51",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Add API contract details and response schema for 'Get list of Smart Pages'. Include performance targets (sub-second typical). Document fields and identifiers to be used by downstream delete/detail APIs.\n- Acceptance Criteria:\n  - API returns list of pages with unique identifier, title, lastUpdated, permissions summary, and a minimal structure sufficient to identify pages for deletion.\n  - Response size and pagination strategy documented.\n  - Performance target: 95th percentile under 500ms for typical tenant sizes (adjustable per implementation).\n",
+        "explanation": "Defines the Smart Page list contract so delete and detail APIs can be implemented consistently."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-52",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Add detailed response schema for retrieving a single Smart Page including Page, Sections, Blocks, Widgets. Document identifiers and nested structures.\n- Acceptance Criteria:\n  - API returns page object with stable IDs for Page/Section/Block/Widget and content metadata.\n  - Response documented in API doc with example response.\n  - Performance target: return under 500ms for typically sized pages.\n",
+        "explanation": "Provides the contract required by the Delete API and UI clients."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-53",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Mark IB2-53 as blocked until IB2-51 and IB2-52 define their API schemas. Update Acceptance Criteria: Delete API accepts the same identifier returned by list/detail APIs, returns 204 on success, and responds with 404 if the page is already deleted.\n- Acceptance Criteria:\n  - Delete API accepts Page ID as specified by IB2-51/52 schema.\n  - Delete operation runs within documented time (fast UI response) and returns appropriate status codes.\n  - API documented in API docs with example request/response.\n",
+        "explanation": "Ensures the Delete API is implemented against the official retrieval contract and cannot be developed in isolation."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-44",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Add concrete acceptance criteria for viewing/navigating Pages and Stages in staged records. Define behavior for restricted views when pending (Stage 1 default, future stage names shown but disabled).\n- Acceptance Criteria:\n  - Single-record pages: navigation to any Page/Section available when permissions allow.\n  - Staged records in pending: default view is current Stage; future stage nav items visible but disabled.\n  - Navigation triggers events that IB2-41 consumes for dynamic status updates.\n",
+        "explanation": "Stabilizes the contract for staged navigation so IB2-41 can rely on it."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-27",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Clarify Status column contract, chip values, colors (reference design tokens), and behaviour for cancellations. Add acceptance criteria and note that chip color updates in other locations will be done in future tickets.\n- Acceptance Criteria:\n  - Status column added right of Request Details, left of Workflow Name/Type.\n  - Status chips display values: Pending, Approved, Declined, Reviewed, Cancelled.\n  - Chip colors use design tokens; document exact tokens and note future propagation work.\n  - Existing cancel logic is followed; provide test cases covering deletion-triggered auto-cancel and requester edits.\n",
+        "explanation": "Makes the Status column behaviour explicit so dependent stories can integrate consistently."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-41",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Add a dependency and fallback for IB2-44 and IB2-27. New behavior: IB2-41 will display static Request Status information if IB2-44/stage navigation is not yet available; once IB2-44 and IB2-27 are ready, IB2-41 will consume their dynamic contracts.\n- Acceptance Criteria:\n  - Request Status section presents Request Status, Approvals Still Required, Waiting On, matching IB2-27 chip semantics.\n  - For staged records, Request Status reflects currently viewed Stage and updates when user navigates between Stages (when IB2-44 implemented). If IB2-44 not implemented yet, show overall request status only.\n- Labels: add \"depends-on-IB2-44\" and \"depends-on-IB2-27\".\n",
+        "explanation": "Provides a practical path to independent testing: IB2-41 can initially show static info and later upgrade to dynamic stage-based behavior."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-1",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Convert IB2-1 into an Epic and split the current monolithic story into smaller, implementable child stories. Update Description to list and link the planned child stories.\n- New child stories to CREATE (examples listed below) will cover each major area so the work becomes estimable and iterative.\n",
+        "explanation": "IB2-1 bundles many independent deliverables; conversion into an Epic and splitting into focused child stories reduces risk and enables parallel development."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-141",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Convert IB2-141 into an Epic and split the large point 4 into focused child stories. Update description and add child-work placeholders.\n- Immediate Acceptance Criteria for refactor:\n  - Rename report to 'weekly_asset_intelligence_report' and include Question/Answer/Rating data in the weekly export.\n  - Remove dev server entries from the report as listed.\n- Child stories to be created (examples): historical data migration, multi-environment aggregation, backward compatibility layer, and export synchronization. Each child story will have its own acceptance criteria and migration plan.\n",
+        "explanation": "Breaking the large scope into multiple deliverables makes the work estimable and reduces regression risk."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-383",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Convert IB2-383 into an Epic. Update description to scope MVP: implement core move operation (move sub-page to root) and handle migration of child references and URLs minimally. Defer advanced features (undo/redo, full audit history, cross-client sync) to subsequent child stories.\n- Acceptance Criteria (MVP scope):\n  - Ability to move a sub-page to become standalone via drag-and-drop in Nav Panel edit mode.\n  - Child references and internal links within the moved subtree are updated to the new path for the move operation.\n  - Navigation Panel shows updated hierarchy and persists changes.\n  - Basic audit log entry created for the move action.\n- Create child stories for: permissions migration, URL/SEO updates, undo/redo, notifications, cross-client sync, and full audit/version history.\n",
+        "explanation": "Reduces an epic-sized story into a prioritized MVP plus follow-up work so progress can be delivered early and risks contained."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-395",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Convert IB2-395 into an Epic and break the functionality into smaller stories. Update description to focus first on 'View and set permissions for sub-pages in Admin -> Group' and basic propagation rules.\n- Acceptance Criteria (phase 1):\n  - Admin UI shows sub-pages nested under parent pages in Group permissions UI.\n  - Admins can assign permissions to a sub-page independently and choose to propagate permissions to children (explicit toggle).\n  - Changes create audit entries.\n- Create child stories for hierarchical inheritance engine, multi-level propagation automation, approval-workflow integration, and cross-platform sync.\n",
+        "explanation": "Splitting into an Epic with smaller, prioritized stories makes the work estimable and safer to implement."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-107",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Reframe to a valuable user outcome. New Description: \"As a User, I want the Page Category navigation to reliably reflect the active Page and to animate smoothly when changing pages so that navigation context is preserved without visual flicker.\" \n- Acceptance Criteria:\n  - Page Category label does not 'disappear' visually; instead, ensure a smooth selection animation (fade/slide) that avoids content layout shifts.\n  - Left-side nav updates reliably when opening a Page and does not cause disruptive reflows.\n  - Document root cause analysis if previous flicker was a technical bug, and fix underlying rendering issue.\n",
+        "explanation": "Converts a low-value/flaky requirement into a positive UX outcome and addresses the underlying problem rather than enforcing disruptive flicker."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-115",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Rephrase the story into an actionable UX/documentation task: \"As a user, I want clear inline help for Block and Button Widget properties so I can understand their purpose and configure them correctly.\" Add acceptance criteria for tooltips and docs.\n- Acceptance Criteria:\n  - Each Block and Button Widget property has an inline tooltip/help text explaining what it controls.\n  - A short 'Widget properties' help panel exists in the Nav with examples of common combinations.\n  - UX copy reviewed and approved by Design.\n",
+        "explanation": "Transforms a user doubt into a deliverable feature (in-UI help) that is implementable and valuable."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-170",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Replace 'briefly disappear and reappear' behavior with deterministic refresh semantics. New Description: \"Integrated fields should refresh their data when the page is opened or when a duplicable section is viewed, without causing visible flicker. Implement a smooth loading state instead of hiding content briefly.\" \n- Acceptance Criteria:\n  - Integrated fields display a stable skeleton/loading indicator while data is fetched, then render without layout jumps.\n  - For duplicable sections, integrated fields reload when the section is selected using the same smooth UX.\n  - Document performance targets for refresh time.\n",
+        "explanation": "Removes harmful flicker and replaces it with a proper loading UX; addresses the underlying technical need."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-447",
+        "original_story_key": null,
+        "summary": null,
+        "description": "Fields to change:\n- Description: Rephrase to include the user benefit: \"As a user, I want Bulk Submit to require a deliberate hover over the Submit & Continue button to reduce accidental submissions and encourage review.\" Add exact interaction details.\n- Acceptance Criteria:\n  - Submit & Continue is disabled until user hovers over it for 800ms (value configurable) and then the control becomes enabled.\n  - Tooltip appears on hover: 'Hover to confirm submission.'\n  - Keyboard accessibility: keyboard focus must emulate the same deliberate activation (e.g., long-press or key confirmation).\n  - Tests demonstrating reduced accidental submissions are included in acceptance checklist.\n",
+        "explanation": "Adds the 'why' and makes the interaction testable and accessible rather than an unexplained UI constraint."
+      }
+    ]
+  }
+]

@@ -1,0 +1,309 @@
+[
+  {
+    "defect_ids": [
+      "IB2_DEF_0",
+      "IB2_DEF_1",
+      "IB2_DEF_10",
+      "IB2_DEF_11",
+      "IB2_DEF_12",
+      "IB2_DEF_13",
+      "IB2_DEF_14",
+      "IB2_DEF_15",
+      "IB2_DEF_16",
+      "IB2_DEF_17",
+      "IB2_DEF_18",
+      "IB2_DEF_19",
+      "IB2_DEF_2",
+      "IB2_DEF_20",
+      "IB2_DEF_21",
+      "IB2_DEF_22",
+      "IB2_DEF_23",
+      "IB2_DEF_24",
+      "IB2_DEF_25",
+      "IB2_DEF_26",
+      "IB2_DEF_27",
+      "IB2_DEF_28",
+      "IB2_DEF_3",
+      "IB2_DEF_4",
+      "IB2_DEF_5",
+      "IB2_DEF_6",
+      "IB2_DEF_7",
+      "IB2_DEF_8",
+      "IB2_DEF_9"
+    ],
+    "contents": [
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As an Admin, I want to enable Azure Image Tagging in MCP settings",
+        "description": "Create a new MCP setting under Asset Intelligence called 'Enable Image Tagging (Azure)'. All image tagging capabilities and categories must depend on this setting. If enabled, the platform should disable Imagga and use Azure only.",
+        "explanation": "Extracted from IB2-1 to focus on the core setting and provider switch."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As an Admin, I want to configure Azure Image Processing Limits",
+        "description": "Add a new MCP setting: 'Azure Image Processing Limit (Images) (per billing cycle)'. Rename 'Azure Video Processing Limit' to use minutes instead of generic processing units.",
+        "explanation": "Extracted from IB2-1 to focus on configuring processing limits."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As a System, I want to migrate Imagga image tagging data to Azure",
+        "description": "Migrate existing Imagga image-tagging configurations and usage history to Azure. This includes all relevant metadata and historical data points.",
+        "explanation": "Extracted from IB2-1 to focus on the data migration aspect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As an Admin, I want to track Azure Image Tagging billing and quota",
+        "description": "Update billing and quota tracking mechanisms to accurately reflect Azure image processing usage.",
+        "explanation": "Extracted from IB2-1 to focus on billing and quota management."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As an Admin, I want analytics and notifications for Azure Image Tagging",
+        "description": "Add analytics and reporting for image-tagging usage and provider activity. Implement notifications for processing limits, quota exhaustion, and provider failures.",
+        "explanation": "Extracted from IB2-1 to focus on analytics and notifications."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As a Developer, I want updated APIs and documentation for Azure Image Tagging",
+        "description": "Update APIs, permissions, documentation, and rollout configuration for all Azure image-tagging functionality.",
+        "explanation": "Extracted from IB2-1 to focus on technical enablement and documentation."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-189",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "This story is a duplicate of IB2-117, which already covers the functionality of repositioning an Image Widget by dragging the image itself with identical requirements for visual feedback and proportional placement."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-385",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "This story is a duplicate of IB2-215, which already covers the functionality of re-ordering pages and sub-pages within the same parent/root using drag-and-drop in the Navigation panel, including moving sub-pages with their parent and collapsing them afterwards."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-396",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "This story is a duplicate of IB2-225, which already covers the user-facing functionality of creating a sub-page for an existing Smart Page via Nav, including UI interactions and input fields. Any backend aspects would be part of IB2-225's implementation."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-429",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "This story is a duplicate of IB2-233, which already covers the functionality of seeing the extend/collapse button to open the Left Side Panel as Page Nav and seeing all saved Simple pages within it."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-448",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "This story is a duplicate of IB2-240, which already covers the 'Bulk Apply' functionality for updates from Grouped work, including UI behavior, core apply logic, and validation checks."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-1",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "This story is too large and bundles 10 distinct tasks. It has been broken down into multiple smaller, independent user stories for better manageability and estimability."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-116",
+        "original_story_key": null,
+        "summary": "As a User, I want to resize Image Widget by direct dragging",
+        "description": "1. Be able to set the ratio of the Image to change the \u2018Block'\u2019s width for the combination of Image Widget from Nav Panel as per design (existing behaviour) - *This functionality will be removed as per IB2-308*. 2. Be able to still see Image remain the same percentage of it\u2019s \u201cBlock\u201c *horizontally*. 3. Be able to still resize the Widget by dragging the dot line.",
+        "explanation": "Resolves conflict with IB2-308 by removing the ability to resize the Image Widget via the Nav Panel Width slider, enforcing direct dragging as the sole method."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-164",
+        "original_story_key": null,
+        "summary": "As an internal User, I'd love to set Drag & Drop Page limit via MCP settings and display it on Custom Page",
+        "description": "1. The Drag & Drop limit should be set exclusively in the Restrictions tab in MCP settings. 2. The configured Drag & Drop limit should be clearly displayed on the Custom Page for user reference, as per design specifications.",
+        "explanation": "Resolves conflict by specifying that page limits are set in MCP settings, not Custom Page, and clarifies the display requirement on the Custom Page, making the story estimable."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-78",
+        "original_story_key": null,
+        "summary": "As a User, when I create, update and delete a Server and the action has failed, show a snackbar message to show the error",
+        "description": "1. After creating a Server and it fails, the page remains open and a snackbar appears with the error message. 2. After editing a Server and it fails, the page remains open and a snackbar appears with the error message. 3. After deleting a Server and it fails, the confirmation dialog must close automatically, and no snackbar error message should be displayed.",
+        "explanation": "Resolves conflict with IB2-172 by aligning the behavior for failed server deletions: the confirmation dialog closes automatically, and no snackbar error message is displayed."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-80",
+        "original_story_key": null,
+        "summary": "As a user who has selected Master Template option, if I can see none, I am directed to Create a Master Template first",
+        "description": "1. If no Master Templates exist, then the \u2018No Master Templates available\u2019 message displays, and the user is instructed to create a Master Template before being allowed to create a blank one, as per designs.",
+        "explanation": "Resolves conflict with IB2-337 by enforcing that users must create a Master Template first if none exist, rather than being allowed to create a blank template directly."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-463",
+        "original_story_key": null,
+        "summary": "FR: Clone MCP Site handling with optional facial data removal",
+        "description": "1. We need a mechanism within the MCP that allows for the complete removal of existing facial data and related flags as an *option* during site cloning. 2. This could be a checkbox to tick it and wipe existing data, otherwise, existing data is preserved by default.",
+        "explanation": "Resolves conflict with IB2-476 by making the removal of facial data an explicit, optional action during MCP site cloning, while preserving data by default."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-367",
+        "original_story_key": null,
+        "summary": "As an Admin, I want to manage grouped email updates for resources from different folders using the same workflow template, even if reviewers differ by folder",
+        "description": "When performing a bulk edit across folders that use the same workflow template, the system should correctly identify and apply reviewer assignments based on folder-specific configurations. This includes scenarios where reviewers are a mix of Global+Local, Global+Global with different reviewers, or Local+Local with different reviewers. The system should ensure that email notifications are sent to the correct reviewers for each resource, respecting the folder-level reviewer configurations.",
+        "explanation": "Rephrased the story to define a clear user action and expected system behavior for managing grouped email updates in complex cross-folder scenarios, making it estimable."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-413",
+        "original_story_key": null,
+        "summary": "Grouped Resource Publish - Grouped Email Notification Settings added to Resource Publish Templates",
+        "description": "1. When MCP development setting is enabled, and the new `Enable Grouped Requests` setting is enabled in Admin > Workflow for existing or new Resource Publish Workflow Templates, ensure that specific, defined Notification options appear when User Notifications is set to `Select`. These options should be clearly documented and designed. 2. `Requester Emails` notification settings should support global template inheritance and multilingual email generation. (Further complex requirements like real-time delivery tracking, approval workflows, and synchronization with external providers should be addressed in separate, dedicated stories or epics).",
+        "explanation": "Clarified ambiguous notification options and broke down the extensive, epic-level requirements in point 2 into a more manageable scope, making the story estimable."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-445",
+        "original_story_key": null,
+        "summary": "As a user, I can see 'My Response' section that shows editable 'Response Comment' field",
+        "description": "1. In the \u2018My Response\u2019 panel, the 'Response Comment' field should be displayed and editable, appearing based on request settings/params. 2. If any other editable fields are intended for this section, they must be explicitly defined.",
+        "explanation": "Clarified the scope of 'new fields' to explicitly mention 'Response Comment' and added a note for any other implied fields, making the story estimable."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-9",
+        "original_story_key": null,
+        "summary": "As a user, I want to be able to preview the GIF or Lottie File converted MP4 on the Share screen so that I can preview what the animation is like before share it",
+        "description": "1. Users must see a preview of the GIF or Lottie File converted MP4 on the Share screen to preview the animation before sharing. 2. As a user on the share/embed screen: 3. The preview must show the GIF or Lottie File converted MP4. 4. The controls must be hidden. 5. The MP4 must autoplay.",
+        "explanation": "Clarified ambiguous language to define exact expected behavior for the GIF/Lottie MP4 preview, making the story estimable."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-299",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. \u2018Limit to current view\u2019 checkbox field appears under question field. 2. This is always enabled by default when panel is opened. 3. User can deselect option before asking a question, meaning whole platform will be searched no matter their current location. (This feature is dependent on the 'Ask AI' Main Admin access control defined in IB2-318).",
+        "explanation": "Added explicit dependency on IB2-318 to clarify the prerequisite for this feature, improving traceability for the NOT_INDEPENDENT defect."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-323",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. \u2018Ask\u2019 button displays under question field, is disabled by default when panel opens. 2. Hover text when enabled: \u2018Click or hit enter to ask your question.\u2019 (This feature is dependent on the 'Ask AI' Main Admin access control defined in IB2-318).",
+        "explanation": "Added explicit dependency on IB2-318 to clarify the prerequisite for this feature, improving traceability for the NOT_INDEPENDENT defect."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-366",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. As per designs. 2. New tick icon displays in a consistent size each time the page loads. 3. Main text/page header remains `Your {{Record}} has been submitted`, but the wording position and presentation style remains consistent after each submission. 4. This success state should reuse the same public-user page header layout where the Database name and close icon have already been removed (should wait until IB-382 completed). 5. The consistent confirmation presentation should only be applied after the public upload page uses the simplified header state for Public users.",
+        "explanation": "Story IB2-366 already explicitly states its dependency on IB2-382 ('should wait until IB-382 completed'). Therefore, no modification to the user stories is required to clarify this dependency. The defect highlights a planning dependency that is already well-documented within the stories."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-53",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. Be able to delete a Smart page via a API call. 2. The delete request should accept the same Smart Page identifier and structure returned by the Smart Page retrieval APIs (from IB2-51 and IB2-52), processing in a very short time to ensure UI consistency. 3. The API should support deletion from both Smart Page list results and detailed Smart Page responses containing Page, Sections, Blocks, and Widgets information. 4. The call must be documented ideally in the API doc.",
+        "explanation": "Story IB2-53 already explicitly states its dependency on IB2-51 and IB2-52 ('The delete request should accept the same Smart Page identifier and structure returned by the Smart Page retrieval APIs'). Therefore, no modification to the user stories is required to clarify this dependency. The defect highlights a planning dependency that is already well-documented within the stories."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-41",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. Within the new Record Publish Approval review page, there should be a \u201cRequest Status\u201d section which includes the same information as appears for other request types. 2. This should include (though is not limited to): - Request Status (dependent on IB2-27 for status chip definitions) - Approval(s) Still Required - Waiting on. 3. For staged records, the Request Status section should dynamically reflect the currently viewed Stage and update when users navigate between available Stages (dependent on IB2-44 for stage navigation). 4. The displayed status information should only include details relevant to the currently visible Page or Stage context.",
+        "explanation": "Added explicit dependencies on IB2-44 and IB2-27 to clarify prerequisites for dynamic status reflection and status chip definitions, improving traceability for the NOT_INDEPENDENT defect."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-141",
+        "original_story_key": null,
+        "summary": "As a User, I want Surface Question/Answer/Rating back end data in weekly report / script",
+        "description": "1. Update the weekly `closed_captions_activation_report_` to include Question / Answer / Rating data. 2. Rename report to `weekly_asset_intelligence_report`. 3. Remove Dev Server report entries (e.g. dcfprod, rtsprod, dev018, dev015, dpctest, dcftest, dev016, dev003, dev027, dev026, rtstest, macsprod, etc.). (Complex requirements such as historical data migration, multi-environment aggregation, backward compatibility, and automated export/report synchronization should be addressed in separate, dedicated stories or epics).",
+        "explanation": "Broke down the massive scope in point 4 into a more manageable scope, suggesting complex requirements be handled in separate stories or epics, making the story estimable."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-383",
+        "original_story_key": null,
+        "summary": "PB - As a User, I want to move a sub page to become a standalone Smart Page (Parent)",
+        "description": "1. Be able to move a sub-Page to become a standalone Page via drag-and-drop from the Navigation Panel in editing mode in Page Builder. 2. Be able to see the updated order and hierarchy from the Navigation Panel after changes. 3. Reordered Navigation Panel structure must persist across editing and viewing until updated again. (Complex requirements such as automatic migration of child references/permissions, URL/SEO updates, undo/redo, version history, audit logging, notifications, workflow updates, role-based permissions, and cross-platform synchronization should be addressed in separate, dedicated stories or epics).",
+        "explanation": "Broke down the enormous, epic-level scope into a more manageable core functionality, suggesting complex cross-cutting concerns be handled in separate stories or epics, making the story estimable."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-395",
+        "original_story_key": null,
+        "summary": "PB - As a User, I want to configure permissions of sub-pages in Admin -> Group",
+        "description": "1. Be able to see and configure sub-pages under parent pages in line with the resource folder/sub-folder design in Admin - Group - Permission. 2. Be able to trigger permission propagation using the same logic as resource folder/sub-folders. (Complex requirements such as hierarchical permission inheritance, multi-level propagation, approval workflows, audit history, and cross-platform synchronization for all sub-page permission updates should be addressed in separate, dedicated stories or epics).",
+        "explanation": "Broke down the massive scope in point 3 into a more manageable scope, suggesting complex requirements be handled in separate stories or epics, making the story estimable."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-107",
+        "original_story_key": null,
+        "summary": "As a User, I want the Page Category to remain consistently displayed when viewing a Page assigned to one",
+        "description": "1. By default, the Page Category Name should remain consistently displayed when viewing a Page. It should not briefly disappear and reappear. 2. The pages under the navigation on the left side should not reload every time a Page is opened, but rather update efficiently if content changes.",
+        "explanation": "Re-evaluated the user's need and rephrased the story to describe a positive, stable user experience, removing undesirable UI behavior."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-115",
+        "original_story_key": null,
+        "summary": "As a User, I want clear explanations for Block and Button Widget properties",
+        "description": "1. Provide clear and concise explanations for the new widget settings from Nav (combining previously defined Block and Widget's settings) for each widget, so users can understand their purpose and use them effectively. This may involve UI tooltips, inline help, or updated documentation.",
+        "explanation": "Rephrased the story from a user's doubt into a clear, actionable software requirement for providing clarity and understanding of widget properties."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-170",
+        "original_story_key": null,
+        "summary": "As a user, I want integrated fields to display consistently without unnecessary refreshing",
+        "description": "1. When MCP is ON, display integrated fields according to design, ensuring they remain consistently visible without briefly hiding and showing again. 2. Inside a normal section (View, Edit, Update), integrated fields should load once and update only when their data changes, not every time the page is opened. 3. Inside a duplicable section (View, Edit, Update), integrated fields should also load once and update only when their data changes, not every time the section is viewed.",
+        "explanation": "Re-evaluated the necessity of the described behavior and rephrased the story to ensure a stable and consistent user experience, removing undesirable UI refreshing."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-366",
+        "original_story_key": null,
+        "summary": "Guest Upload MVP: Success message should display a consistent confirmation style after submission",
+        "description": "1. As per designs. 2. New tick icon displays in a consistent size each time the page loads. 3. Main text/page header remains `Your {{Record}} has been submitted`, but the wording position and presentation style remains consistent after each submission. 4. This success state should reuse the same public-user page header layout where the Database name and close icon have already been removed (should wait until IB-382 completed). 5. The consistent confirmation presentation should only be applied after the public upload page uses the simplified header state for Public users.",
+        "explanation": "Re-evaluated the design choice to remove random changes, ensuring a consistent and predictable user experience for success messages, which enhances usability and trust."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-447",
+        "original_story_key": null,
+        "summary": "As a user I want Bulk Submit to require me to hover over the Submit & Continue button before I can submit updates from Grouped work, to prevent accidental submissions",
+        "description": "1. Behaviour here should follow the same as it does in Grouped Review page. 2. Users must hover over the Submit & Continue button before Bulk Submit becomes available, to prevent accidental submissions. 3. Submit & Continue button hover tooltip text must appear before submission can proceed, providing clear guidance.",
+        "explanation": "Rephrased the story to explicitly include the user benefit (preventing accidental submissions), transforming a 'how' into a 'what for' with clear value."
+      }
+    ]
+  }
+]

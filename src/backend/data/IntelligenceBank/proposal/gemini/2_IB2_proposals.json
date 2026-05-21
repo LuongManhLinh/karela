@@ -1,0 +1,441 @@
+[
+  {
+    "defect_ids": [
+      "IB2_DEF_0",
+      "IB2_DEF_1",
+      "IB2_DEF_10",
+      "IB2_DEF_11",
+      "IB2_DEF_12",
+      "IB2_DEF_13",
+      "IB2_DEF_14",
+      "IB2_DEF_19",
+      "IB2_DEF_2",
+      "IB2_DEF_20",
+      "IB2_DEF_21",
+      "IB2_DEF_22",
+      "IB2_DEF_23",
+      "IB2_DEF_24",
+      "IB2_DEF_25",
+      "IB2_DEF_26",
+      "IB2_DEF_27",
+      "IB2_DEF_28",
+      "IB2_DEF_3",
+      "IB2_DEF_4",
+      "IB2_DEF_5",
+      "IB2_DEF_6",
+      "IB2_DEF_7",
+      "IB2_DEF_8",
+      "IB2_DEF_9"
+    ],
+    "contents": [
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-413",
+        "summary": "As an Admin, I want to configure multilingual email generation for Requester Emails",
+        "description": "1. The system should support generating requester emails in multiple languages based on user preferences or system locale settings. 2. This functionality should integrate seamlessly with existing email template management.",
+        "explanation": "Created a new story to address the 'multilingual email generation' aspect previously bundled in IB2-413, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-413",
+        "summary": "As an Admin, I want to track real-time delivery of Requester Emails",
+        "description": "1. Provide functionality to track the real-time delivery status of requester emails (e.g., sent, delivered, opened, bounced). 2. This tracking information should be accessible via an administrative interface or reporting dashboard.",
+        "explanation": "Created a new story to address the 'real-time delivery tracking' aspect previously bundled in IB2-413, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-413",
+        "summary": "As an Admin, I want to integrate Requester Email notifications with approval workflows",
+        "description": "1. Ensure that requester email notifications are seamlessly integrated with existing approval workflows, triggering emails at appropriate stages (e.g., submission, approval, decline). 2. The content and recipients of these emails should be configurable within the workflow settings.",
+        "explanation": "Created a new story to address the 'approval workflows' aspect previously bundled in IB2-413, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-413",
+        "summary": "As a developer, I want to synchronize Requester Email notifications with external providers and legacy systems",
+        "description": "1. Implement mechanisms to synchronize requester email notifications with external notification providers (e.g., CRM, marketing automation) and legacy workflow systems. 2. Ensure data consistency and reliable communication across integrated platforms.",
+        "explanation": "Created a new story to address the 'synchronization with external notification providers and legacy workflow systems' aspect previously bundled in IB2-413, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As an Admin, I want to rename Azure Video Processing Limit to use minutes",
+        "description": "1. Rename the existing 'Azure Video Processing Limit' setting to clearly indicate that the limit is measured in minutes, rather than generic processing units.",
+        "explanation": "Created a new story from point 5 of IB2-1 to address the renaming of the Azure Video Processing Limit, making it a smaller, independent task."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As a user, I want existing Imagga image-tagging configurations and usage history to be migrated to Azure",
+        "description": "1. Migrate all existing image-tagging configurations and historical usage data from Imagga to the new Azure image-tagging system. 2. Ensure data integrity and consistency during the migration process.",
+        "explanation": "Created a new story from point 6 of IB2-1 to address the migration of Imagga data to Azure, making it a smaller, independent task."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As an Admin, I want billing and quota tracking for Azure image processing usage to be updated",
+        "description": "1. Update the billing and quota tracking mechanisms to accurately reflect usage of Azure image processing. 2. Ensure that usage is correctly recorded and reported for billing purposes.",
+        "explanation": "Created a new story from point 7 of IB2-1 to address the update of billing and quota tracking for Azure image processing, making it a smaller, independent task."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As an Admin, I want analytics and reporting for image-tagging usage and provider activity",
+        "description": "1. Implement analytics and reporting dashboards to monitor image-tagging usage and activity across different providers (Azure, Imagga). 2. Provide insights into processing volumes, success rates, and potential issues.",
+        "explanation": "Created a new story from point 8 of IB2-1 to address the addition of analytics and reporting for image-tagging usage, making it a smaller, independent task."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As a user, I want notifications for Azure image processing limits, quota exhaustion, and provider failures",
+        "description": "1. Implement a notification system to alert users and administrators about approaching processing limits, quota exhaustion, and failures related to Azure image processing. 2. Notifications should be timely and informative.",
+        "explanation": "Created a new story from point 9 of IB2-1 to address the addition of notifications for Azure image processing, making it a smaller, independent task."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As a developer, I want APIs, permissions, documentation, and rollout configuration updated for Azure image-tagging",
+        "description": "1. Update all relevant APIs, permissions, documentation, and rollout configurations to support the new Azure image-tagging functionality. 2. Ensure comprehensive and accurate technical documentation.",
+        "explanation": "Created a new story from point 10 of IB2-1 to address the updates to APIs, permissions, documentation, and rollout configuration for Azure image-tagging, making it a smaller, independent task."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-141",
+        "summary": "As an Admin, I want historical data migration for the weekly asset intelligence report",
+        "description": "1. Implement a mechanism to migrate historical data for the weekly asset intelligence report, ensuring all past records are accurately reflected in the new report structure.",
+        "explanation": "Created a new story from point 4 of IB2-141 to address historical data migration, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-141",
+        "summary": "As an Admin, I want multi-environment aggregation for the weekly asset intelligence report",
+        "description": "1. Develop functionality to aggregate report data from multiple environments (e.g., production, staging) into a single, comprehensive weekly asset intelligence report.",
+        "explanation": "Created a new story from point 4 of IB2-141 to address multi-environment aggregation, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-141",
+        "summary": "As a developer, I want backward compatibility for the weekly asset intelligence report",
+        "description": "1. Ensure that changes to the weekly asset intelligence report maintain backward compatibility with existing systems and data consumers, preventing disruptions.",
+        "explanation": "Created a new story from point 4 of IB2-141 to address backward compatibility, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-141",
+        "summary": "As an Admin, I want automated export/report synchronization for the weekly asset intelligence report",
+        "description": "1. Implement automated processes for exporting the weekly asset intelligence report and synchronizing it across various reporting systems, ensuring timely and consistent data availability.",
+        "explanation": "Created a new story from point 4 of IB2-141 to address automated export/report synchronization, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-383",
+        "summary": "As a developer, I want child references, linked content, permissions, and dependencies to be migrated when a sub-Page becomes standalone",
+        "description": "1. Implement automatic migration of all child references, linked content, permissions, and dependencies when a sub-Page is moved to become a standalone Page. 2. Ensure data integrity and functional continuity post-migration.",
+        "explanation": "Created a new story from point 4 of IB2-383 to address the complex data migration requirements, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-383",
+        "summary": "As a developer, I want page URLs, breadcrumbs, navigation paths, and SEO metadata to be updated after page hierarchy changes",
+        "description": "1. Implement automatic updates for page URLs, breadcrumbs, navigation paths, and SEO metadata whenever page hierarchy changes occur. 2. Ensure search engine visibility and correct navigation post-change.",
+        "explanation": "Created a new story from point 5 of IB2-383 to address the updates to URLs, breadcrumbs, and SEO metadata, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-383",
+        "summary": "As a user, I want undo/redo and full page hierarchy version history for page move operations",
+        "description": "1. Provide undo/redo functionality for all page move operations within the Page Builder. 2. Implement a comprehensive version history for page hierarchy changes, allowing users to revert to previous states.",
+        "explanation": "Created a new story from point 6 of IB2-383 to address undo/redo and version history, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-383",
+        "summary": "As an Admin, I want audit logging and activity tracking for page hierarchy changes and movements",
+        "description": "1. Implement robust audit logging and activity tracking for all page hierarchy changes and movements. 2. Provide administrators with a clear record of who made what changes and when.",
+        "explanation": "Created a new story from point 7 of IB2-383 to address audit logging and activity tracking, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-383",
+        "summary": "As a user, I want notifications and workflow updates for impacted users when page hierarchy changes occur",
+        "description": "1. Implement a notification system to inform impacted users about changes in page hierarchy. 2. Ensure that relevant workflows are automatically updated or triggered based on these changes.",
+        "explanation": "Created a new story from point 8 of IB2-383 to address notifications and workflow updates, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-383",
+        "summary": "As an Admin, I want role-based permissions and approval workflows for page restructuring operations",
+        "description": "1. Implement role-based permissions to control who can perform page restructuring operations. 2. Integrate approval workflows for significant hierarchy changes to ensure proper oversight.",
+        "explanation": "Created a new story from point 9 of IB2-383 to address role-based permissions and approval workflows, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-383",
+        "summary": "As a developer, I want hierarchy updates to remain synchronized across APIs, mobile clients, exports, and collaborative editing sessions",
+        "description": "1. Ensure that all page hierarchy updates are synchronized consistently across APIs, mobile clients, data exports, and collaborative editing sessions. 2. Maintain real-time consistency across all platforms.",
+        "explanation": "Created a new story from point 10 of IB2-383 to address cross-platform synchronization, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-395",
+        "summary": "As an Admin, I want to configure hierarchical permission inheritance for sub-pages",
+        "description": "1. Implement hierarchical permission inheritance for sub-pages, allowing permissions to be inherited from parent pages and overridden where necessary. 2. Ensure consistency with existing resource folder permission models.",
+        "explanation": "Created a new story from point 3 of IB2-395 to address hierarchical permission inheritance, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-395",
+        "summary": "As an Admin, I want multi-level permission propagation for sub-pages",
+        "description": "1. Implement multi-level permission propagation for sub-pages, ensuring that permission changes at higher levels correctly cascade down to nested sub-pages. 2. Provide options for granular control over propagation.",
+        "explanation": "Created a new story from point 3 of IB2-395 to address multi-level permission propagation, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-395",
+        "summary": "As an Admin, I want approval workflows for sub-page permission updates",
+        "description": "1. Integrate approval workflows for significant sub-page permission updates, requiring review and approval before changes are applied. 2. Ensure auditability of permission changes.",
+        "explanation": "Created a new story from point 3 of IB2-395 to address approval workflows for permission updates, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-395",
+        "summary": "As an Admin, I want audit history for sub-page permission updates",
+        "description": "1. Implement a comprehensive audit history for all sub-page permission updates, recording who made changes, what changes were made, and when. 2. Provide an accessible log for compliance and review.",
+        "explanation": "Created a new story from point 3 of IB2-395 to address audit history for permission updates, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-395",
+        "summary": "As a developer, I want cross-platform synchronization for sub-page permission updates",
+        "description": "1. Ensure that sub-page permission updates are synchronized consistently across all platforms, including APIs, mobile clients, and integrated systems. 2. Maintain real-time consistency of permissions.",
+        "explanation": "Created a new story from point 3 of IB2-395 to address cross-platform synchronization for permission updates, making it a smaller, estimable unit of work."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-189",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "Deleted IB2-189 as it is a direct duplicate of IB2-117, which now encompasses all requirements for repositioning an Image Widget by dragging."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-385",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "Deleted IB2-385 as it is a direct duplicate of IB2-215, which now encompasses all requirements for re-ordering pages and sub-pages via drag-and-drop."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-396",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "Deleted IB2-396 as it is a duplicate of IB2-225, which already covers the user story for creating a sub-page for an existing Smart Page via Nav, including the necessary backend logic."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-429",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "Deleted IB2-429 as it is a direct duplicate of IB2-233, which already covers the functionality of seeing the Nav panel when viewing a Simple Page."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-240",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "Deleted IB2-240 as it is a direct duplicate of IB2-448, which already covers the 'Bulk Apply' functionality for updates from Grouped work with identical requirements."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-116",
+        "original_story_key": null,
+        "summary": "As a User, I want to resize Image Widget by direct dragging",
+        "description": "1. Be able to still see Image remain the same percentage of it\u2019s \u201cBlock\u201c *horizontally*. 2. Be able to still resize the Widget by dragging the dot line. The Image Widget's width must not be changeable from the Nav Panel Width slider, and users must resize the Image Widget only by dragging the dotted outline directly on the page.",
+        "explanation": "Updated IB2-116 to align with IB2-308, enforcing direct dragging for Image Widget resizing and removing the conflicting 'Width slider from Nav Panel' requirement."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-164",
+        "original_story_key": null,
+        "summary": "As an internal User, I'd love to set Drag & Drop Page limit via MCP settings",
+        "description": "1. Drag & Drop limit should be configurable in the Restrictions tab within MCP settings. 2. This setting should control the maximum number of pages a user can drag and drop within the Page Builder navigation panel, and it should be clearly displayed within the MCP settings interface.",
+        "explanation": "Resolved conflict by aligning IB2-164 with IB2-389, specifying that Page limits are set exclusively in MCP settings. Also clarified the exact location and display for the 'Drag & Drop limit' to address the NOT_ESTIMABLE defect."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-78",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. After creating a Server and it fails, the page remains open and a snackbar appears with the error message. 2. After editing a Server and it fails, the page remains open and a snackbar appears with the error message. 3. After deleting a Server and it fails, the confirmation dialog must close automatically, and no snackbar error message should be displayed.",
+        "explanation": "Updated IB2-78 to align with IB2-172, specifying that for failed server deletions, the confirmation dialog must close automatically and no snackbar error message should be displayed."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-80",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. If no Master Templates exist, the \u2018No Master Templates available\u2019 message displays, and the user is prompted to create a Master Template before being able to create a blank template, as per designs.",
+        "explanation": "Updated IB2-80 to align with IB2-337, ensuring that users are not allowed to create a blank template if no Master Templates exist, and are instead prompted to create one first."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-463",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. We need a mechanism within the MCP that allows for the optional complete removal of existing facial data and related flags during site cloning. 2. This could be a checkbox to tick it and wipe existing data, which, if selected, overrides the default preservation behavior for 'Unknown People' flags.",
+        "explanation": "Resolved conflict by modifying IB2-463 to offer the 'complete removal of existing facial data' as an optional checkbox during MCP Site handling, allowing for the preservation of 'Unknown People' filters by default as per IB2-476."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-117",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. Be able to see dotted line of the Image and bounding box for the entire Widget with a default 8px paddings as per design, after dragging an Image Widget into a Section. 2. Be able to always see the Image Widget\u2019s outer bounding box border line as per design, whenever the Image has been re-sized. 3. Be able to re-position and see the Image in the same percentage of \u2018Block\u2019 after resizing to smaller, and the percentage will obtain if the 'Block' width changes by. 4. Allow the image position within its Block area to remain proportional after resizing to a smaller size, and preserve that proportional placement if the Block width later changes.",
+        "explanation": "Consolidated requirements from IB2-189 into IB2-117, ensuring all details for repositioning an Image Widget by dragging are captured in a single story."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-215",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. Be able to re-order Pages via drag-and-drop from Nav Panel during editing. 2. Sub-pages will be moved all together with Page if it contains any. 3. After drag-and-drop of Pages, Sub-pages will be *collapsed* under Page from Nav Panel. 4. Be able to re-order sub-Pages via drag-and-drop within the *same* parent Page from Nav Panel during editing. 5. Be able to re-order root-Pages via drag-and-drop from Nav Panel during editing. This ticket does NOT include drag-and-drop across Parent. 6. Allow users to change the order of Pages by using drag-and-drop interactions within the Navigation panel while editing. 7. When a Page contains child pages, move all associated sub-pages together with the parent Page. 8. Once the Page reordering action is completed, ensure all Sub-pages are displayed in a collapsed state beneath their parent in the Navigation panel.",
+        "explanation": "Consolidated requirements from IB2-385 into IB2-215, ensuring all details for re-ordering pages and sub-pages via drag-and-drop are captured in a single story."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-367",
+        "original_story_key": null,
+        "summary": "As a user, I want Grouped Email Updates to correctly handle different reviewers for the same template across different folders",
+        "description": "1. When performing a Cross Folder bulk edit involving resources from different folders that use the same Workflow Template, the system must correctly identify and apply the appropriate reviewers for each folder, even if reviewers differ due to global, local, or mixed configurations. 2. The system should ensure that email notifications are sent to the correct reviewers based on the folder-specific configurations, maintaining consistency with existing workflow logic.",
+        "explanation": "Rephrased IB2-367 to be a clear, actionable user story by defining the desired functionality and expected system behavior for handling grouped email updates with different reviewers across folders."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-413",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. When MCP development setting is enabled, and the new `Enable Grouped Requests` setting is enabled in Admin > Workflow for existing or new Resource Publish Workflow Templates, additional Notification options for `Requester Emails` will appear when User Notifications is set to `Select`. These options will be clearly defined and not 'unknown'. 2. `Requester Emails` notification settings should support global template inheritance and tenant-level customization.",
+        "explanation": "Clarified the ambiguous notification options in point 1 and reduced the scope of point 2 in IB2-413 to address the NOT_ESTIMABLE and NOT_SMALL defects. The remaining complex functionalities from point 2 are split into new, independent stories."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-445",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. In the \u2018My Response\u2019 panel, the 'Response Comment' field (either rich text or not) should be displayed based on request settings/params. No other new fields are part of this story.",
+        "explanation": "Clarified the scope of IB2-445 to explicitly state that only the 'Response Comment' field is covered, resolving the ambiguity regarding 'new fields' and making the story estimable."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-9",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. Users must see a preview of the GIF or Lottie File converted MP4 on the Share screen to preview the animation before sharing. 2. As a user on the share/embed screen: 3. The preview must show the GIF or Lottie File converted MP4. 4. The controls must be hidden. 5. The MP4 must autoplay.",
+        "explanation": "Clarified the ambiguous language in IB2-9 by replacing 'should probably see' and 'may' with definitive 'must' statements for the GIF/Lottie MP4 preview behavior, making the story estimable."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-1",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. Create a new MCP setting under Asset Intelligence called **Enable Image Tagging (Azure)**. 2. All image tagging capabilities and categories must depend on this setting. 3. If enabled, the platform should disable Imagga and use Azure only. 4. Add a new setting: **Azure Image Processing Limit (Images) (per billing cycle)**.",
+        "explanation": "Reduced the scope of IB2-1 by extracting multiple distinct functionalities into new, smaller user stories. IB2-1 now focuses solely on the core Azure Image Tagging settings."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-141",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. Update the weekly `closed_captions_activation_report_` to include Question / Answer / Rating data. 2. Rename report to `weekly_asset_intelligence_report`. 3. Remove Dev Server report entries (e.g. dcfprod, rtsprod, dev018, dev015, dpctest, dcftest, dev016, dev003, dev027, dev026, rtstest, macsprod, etc.).",
+        "explanation": "Reduced the scope of IB2-141 by extracting the complex requirements from point 4 into new, smaller user stories. IB2-141 now focuses on the core report updates and renaming."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-383",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. Be able to move a sub-Page to become a standalone Page via drag-and-drop from the Navigation Panel in editing mode in Page Builder. 2. Be able to see the updated order and hierarchy from the Navigation Panel after changes. 3. Reordered Navigation Panel structure must persist across editing and viewing until updated again.",
+        "explanation": "Reduced the scope of IB2-383 by extracting numerous complex functionalities into new, smaller user stories. IB2-383 now focuses solely on the core drag-and-drop functionality for moving a sub-page to a standalone page."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-395",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. Be able to see and configure sub-pages under parent pages in line with the resource folder/sub-folder design in Admin - Group - Permission. 2. Be able to trigger permission propagation using the same logic as resource folder/sub-folders.",
+        "explanation": "Reduced the scope of IB2-395 by extracting the complex requirements from point 3 into new, smaller user stories. IB2-395 now focuses on the core visibility and basic propagation of sub-page permissions."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-107",
+        "original_story_key": null,
+        "summary": "As a User, I want the Page Category to remain stable when viewing a Page assigned to one",
+        "description": "1. By default, the Page Category Name should remain stable and visible when viewing a Page, without briefly disappearing and appearing again. 2. The pages under the navigation should not reload on the left side every time a Page is opened, maintaining a stable view.",
+        "explanation": "Updated IB2-107 to remove the undesirable and confusing behavior of the Page Category name disappearing/reappearing and navigation reloading, focusing on a stable and positive user experience."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-115",
+        "original_story_key": null,
+        "summary": "As a User, I want clear explanations for Block and Button Widget properties",
+        "description": "1. Provide clear and concise explanations for the new widget settings from Nav (combining previously defined Block and Widget's settings) for each widget, to help users understand their purpose and usage.",
+        "explanation": "Rephrased IB2-115 from a user's doubt into a clear, actionable user story focused on providing explanations for widget properties, making it a valuable requirement."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-170",
+        "original_story_key": null,
+        "summary": "As a user, I want integrated fields to display consistently without disappearing and reappearing",
+        "description": "1. When MCP is ON, display integrated fields according to design, ensuring they remain consistently visible without briefly hiding and showing them again. 2. Inside a normal section (View, Edit, Update), integrated fields should load once and remain stable when the page is opened. 3. Inside a duplicable section (View, Edit, Update), integrated fields should load once and remain stable whenever the section is viewed.",
+        "explanation": "Updated IB2-170 to remove the undesirable and harmful behavior of integrated fields briefly disappearing and reappearing, focusing on a stable and consistent user experience."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-366",
+        "original_story_key": null,
+        "summary": "Guest Upload MVP: Success message should have a consistent confirmation style after submission",
+        "description": "1. As per designs, the success message should display a consistent tick icon and main text/page header. 2. The tick icon should display in a consistent size each time the page loads. 3. The main text/page header should remain `Your {{Record}} has been submitted`, with consistent wording position and presentation style after each submission. 4. This success state should reuse the same public-user page header layout where the Database name and close icon have already been removed (should wait until IB-382 completed). 5. The consistent confirmation presentation should only be applied after the public upload page uses the simplified header state for Public users.",
+        "explanation": "Updated IB2-366 to remove the undesirable random changes in success message style, icon size, and wording, focusing on a consistent and predictable user experience which enhances usability and trust."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-447",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. Behaviour here should follow the same as it does in Grouped Review page. 2. Users must hover over the Submit & Continue button before Bulk Submit becomes available, to prevent accidental submissions. 3. Submit & Continue button hover tooltip text must appear before submission can proceed, providing guidance to the user.",
+        "explanation": "Updated IB2-447 to include the user benefit ('to prevent accidental submissions') for the hover-to-enable button interaction, transforming it from a 'how' into a 'what for' and making its value clear."
+      }
+    ]
+  }
+]

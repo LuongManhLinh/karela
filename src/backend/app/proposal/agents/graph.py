@@ -4,7 +4,7 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.runtime import Runtime
 from langchain.agents.middleware import dynamic_prompt, ModelRequest
 from sqlalchemy.orm import Session
-from pydantic import BaseModel, Field
+from natsort import natsorted
 
 from app.proposal.schemas import DefectForProposal
 from llm.dynamic_agent import DynamicAgent
@@ -51,7 +51,7 @@ def _build_agent(
     response_schema=ProposalOutput,
     temperature: float = LlmConfig.LLM_DEFECT_TEMPERATURE,
     top_p: float = LlmConfig.LLM_DEFECT_TOP_P,
-    family: Literal["gemini", "openai"] = "gemini",
+    family: Literal["gemini", "openai"] = "openai",
 ):
     @dynamic_prompt
     def user_context_prompt(request: ModelRequest) -> str:
@@ -576,6 +576,8 @@ def deep_validation_node(
 
         related_stories = []
         for related_key in related_keys:
+            if related_key == story.key:
+                continue
             pair = tuple(sorted([story.key, related_key]))
             if pair in checked_pairs:
                 continue
@@ -832,23 +834,27 @@ def build_deep_graph() -> StateGraph:
             "retry": "defect_router",
         },
     )
+
     return workflow.compile()
 
 
 def build_complex_graph() -> StateGraph:
     """Build the MEDIUM mode proposal generation graph."""
     workflow = _build_base_workflow()
-    workflow.add_node("validation_node", complex_validation_node)
-    workflow.add_edge("refiner_drafter", "validation_node")
+    # workflow.add_node("validation_node", complex_validation_node)
+    # workflow.add_edge("refiner_drafter", "validation_node")
 
-    workflow.add_conditional_edges(
-        "validation_node",
-        route_after_validation,
-        {
-            "synthesis": "synthesis_node",
-            "retry": "defect_router",
-        },
-    )
+    # workflow.add_conditional_edges(
+    #     "validation_node",
+    #     route_after_validation,
+    #     {
+    #         "synthesis": "synthesis_node",
+    #         "retry": "defect_router",
+    #     },
+    # )
+
+    # Remove validation step for testing
+    workflow.add_edge("refiner_drafter", "synthesis_node")
     return workflow.compile()
 
 
@@ -888,6 +894,10 @@ def run_proposal_generation(
         print("No user stories or defects provided. Returning empty proposal list.")
         return []
 
+    user_stories = natsorted(
+        user_stories, key=lambda s: s.key
+    )  # Ensure consistent ordering
+
     context = ProposalContext(
         user_stories=user_stories,
         defects=defects,
@@ -899,11 +909,7 @@ def run_proposal_generation(
         project_description=project_description,
     )
 
-    max_key = user_stories[0].key
-    for story in user_stories:
-        if story.key > max_key:
-            max_key = story.key
-    print(f"Max story key: {max_key}")
+    max_key = user_stories[-1].key
     highest_id = int(max_key.split("-")[-1]) + 10
 
     if mode in ("COMPLEX", "DEEP"):

@@ -1,0 +1,525 @@
+[
+  {
+    "defect_ids": [
+      "IB2_DEF_0",
+      "IB2_DEF_1",
+      "IB2_DEF_10",
+      "IB2_DEF_11",
+      "IB2_DEF_12",
+      "IB2_DEF_13",
+      "IB2_DEF_14",
+      "IB2_DEF_15",
+      "IB2_DEF_16",
+      "IB2_DEF_17",
+      "IB2_DEF_18",
+      "IB2_DEF_19",
+      "IB2_DEF_2",
+      "IB2_DEF_20",
+      "IB2_DEF_21",
+      "IB2_DEF_22",
+      "IB2_DEF_23",
+      "IB2_DEF_24",
+      "IB2_DEF_25",
+      "IB2_DEF_26",
+      "IB2_DEF_27",
+      "IB2_DEF_28",
+      "IB2_DEF_3",
+      "IB2_DEF_4",
+      "IB2_DEF_5",
+      "IB2_DEF_6",
+      "IB2_DEF_7",
+      "IB2_DEF_8",
+      "IB2_DEF_9"
+    ],
+    "contents": [
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-413",
+        "summary": "As an admin, I want requester email notification settings to support global template inheritance.",
+        "description": "Implement global template inheritance for requester email notification settings, allowing consistent branding and content across templates.",
+        "explanation": "Created from IB2-413.2 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-413",
+        "summary": "As an admin, I want requester email notifications to support multilingual generation.",
+        "description": "Enable multilingual email generation for requester notifications, allowing emails to be sent in the user's preferred language.",
+        "explanation": "Created from IB2-413.2 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-413",
+        "summary": "As an admin, I want requester email notification settings to support tenant-level customization.",
+        "description": "Provide tenant-level customization options for requester email notification settings, allowing each tenant to tailor their email communications.",
+        "explanation": "Created from IB2-413.2 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-413",
+        "summary": "As an admin, I want real-time delivery tracking for requester emails.",
+        "description": "Implement real-time delivery tracking for requester emails, providing visibility into email status (sent, delivered, opened, failed).",
+        "explanation": "Created from IB2-413.2 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-413",
+        "summary": "As an admin, I want approval workflows for requester email notification changes.",
+        "description": "Integrate approval workflows for changes to requester email notification settings, ensuring controlled and authorized modifications.",
+        "explanation": "Created from IB2-413.2 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-413",
+        "summary": "As a system, I want requester email notifications synchronized with external providers and legacy systems.",
+        "description": "Ensure synchronization of requester email notifications with external notification providers and legacy workflow systems.",
+        "explanation": "Created from IB2-413.2 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As an admin, I want to configure the Azure Image Processing Limit in MCP settings.",
+        "description": "Add a new MCP setting under Asset Intelligence called **Azure Image Processing Limit (Images) (per billing cycle)** to control the maximum number of images processed by Azure per billing cycle.",
+        "explanation": "Created from IB2-1.4 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As an admin, I want Azure Video Processing Limit to be measured in minutes.",
+        "description": "Rename the existing **Azure Video Processing Limit** setting to explicitly use \"minutes\" instead of generic processing units, ensuring clarity and consistency.",
+        "explanation": "Created from IB2-1.5 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As a system, I want to migrate existing Imagga image-tagging data to Azure.",
+        "description": "Migrate all existing Imagga image-tagging configurations and usage history to the new Azure image-tagging system, ensuring data continuity.",
+        "explanation": "Created from IB2-1.6 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As an admin, I want to track billing and quota for Azure image processing usage.",
+        "description": "Update the platform's billing and quota tracking mechanisms to accurately monitor and report usage specifically for Azure image processing.",
+        "explanation": "Created from IB2-1.7 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As an admin, I want to view analytics and reporting for Azure image-tagging usage.",
+        "description": "Add analytics and reporting capabilities to track image-tagging usage and provider activity specifically for Azure.",
+        "explanation": "Created from IB2-1.8 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As a user, I want to receive notifications for Azure image processing limits and failures.",
+        "description": "Implement notifications for processing limits, quota exhaustion, and provider failures related to Azure image tagging.",
+        "explanation": "Created from IB2-1.9 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-1",
+        "summary": "As a developer, I want APIs, permissions, and documentation updated for Azure image tagging.",
+        "description": "Update relevant APIs, permissions, documentation, and rollout configuration to support all new Azure image-tagging functionality.",
+        "explanation": "Created from IB2-1.10 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-141",
+        "summary": "As a system, I want to migrate historical Surface Q/A/Rating data for reporting.",
+        "description": "Implement historical data migration for Surface Question/Answer/Rating data to ensure its inclusion in the new `weekly_asset_intelligence_report`.",
+        "explanation": "Created from IB2-141.4 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-141",
+        "summary": "As an admin, I want to aggregate Surface Q/A/Rating data from multiple environments for reporting.",
+        "description": "Develop functionality to aggregate Surface Question/Answer/Rating data from multiple environments into the `weekly_asset_intelligence_report`.",
+        "explanation": "Created from IB2-141.4 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-141",
+        "summary": "As a system, I want to ensure backward compatibility for Surface Q/A/Rating reporting.",
+        "description": "Ensure backward compatibility for existing reporting systems and data structures when integrating Surface Question/Answer/Rating data.",
+        "explanation": "Created from IB2-141.4 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-141",
+        "summary": "As an admin, I want automated export and synchronization of Surface Q/A/Rating reports.",
+        "description": "Implement automated export and report synchronization across reporting systems for Surface Question/Answer/Rating data.",
+        "explanation": "Created from IB2-141.4 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-383",
+        "summary": "As a system, I want to migrate child references and content when a sub-page becomes standalone.",
+        "description": "Automatically migrate all child references and linked content when a sub-Page is moved to become standalone, ensuring data integrity and accessibility.",
+        "explanation": "Created from IB2-383.4 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-383",
+        "summary": "As a system, I want to migrate permissions and dependencies when a sub-page becomes standalone.",
+        "description": "Automatically migrate permissions and dependencies when a sub-Page is moved to become standalone, ensuring correct access control and functional integrity.",
+        "explanation": "Created from IB2-383.4 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-383",
+        "summary": "As a system, I want page URLs, breadcrumbs, and SEO metadata updated after hierarchy changes.",
+        "description": "Update page URLs, breadcrumbs, navigation paths, and SEO metadata automatically after a sub-page becomes standalone or any hierarchy changes occur.",
+        "explanation": "Created from IB2-383.5 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-383",
+        "summary": "As a user, I want undo/redo and version history for page hierarchy changes.",
+        "description": "Support undo/redo functionality and maintain full page hierarchy version history for all move operations, allowing users to revert changes.",
+        "explanation": "Created from IB2-383.6 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-383",
+        "summary": "As an admin, I want audit logging and activity tracking for page hierarchy changes.",
+        "description": "Add audit logging and activity tracking for all hierarchy changes and page movements, providing a clear record of modifications.",
+        "explanation": "Created from IB2-383.7 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-383",
+        "summary": "As a user, I want notifications and workflow updates for page hierarchy changes.",
+        "description": "Trigger notifications and update workflows for impacted users when page hierarchy changes occur, ensuring awareness and process continuity.",
+        "explanation": "Created from IB2-383.8 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-383",
+        "summary": "As an admin, I want role-based permissions and approval workflows for page restructuring.",
+        "description": "Support role-based permissions and approval workflows for restructuring operations, ensuring controlled and authorized hierarchy changes.",
+        "explanation": "Created from IB2-383.9 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-383",
+        "summary": "As a system, I want page hierarchy updates synchronized across all platforms.",
+        "description": "Ensure hierarchy updates remain synchronized across APIs, mobile clients, exports, and collaborative editing sessions.",
+        "explanation": "Created from IB2-383.10 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-395",
+        "summary": "As an admin, I want sub-page permissions to support hierarchical inheritance and multi-level propagation.",
+        "description": "Implement support for hierarchical permission inheritance and multi-level propagation for sub-page permission updates, mirroring resource folder behavior.",
+        "explanation": "Created from IB2-395.3 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-395",
+        "summary": "As an admin, I want approval workflows for sub-page permission updates.",
+        "description": "Integrate approval workflows for sub-page permission updates, ensuring controlled and authorized changes to access.",
+        "explanation": "Created from IB2-395.3 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-395",
+        "summary": "As an admin, I want audit history for sub-page permission updates.",
+        "description": "Add audit history for all sub-page permission updates, providing a clear record of who changed what and when.",
+        "explanation": "Created from IB2-395.3 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "CREATE",
+        "story_key": null,
+        "original_story_key": "IB2-395",
+        "summary": "As a system, I want sub-page permission updates synchronized across platforms.",
+        "description": "Ensure cross-platform synchronization for all sub-page permission updates, maintaining consistency across APIs, mobile clients, and other integrated systems.",
+        "explanation": "Created from IB2-395.3 to break down the NOT_SMALL defect."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-117",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "This story is a duplicate of IB2-189, describing the exact same functionality for repositioning an Image Widget by dragging. All requirements are covered in IB2-189."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-385",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "This story is a duplicate of IB2-215, describing the exact same functionality for re-ordering pages and sub-pages within the same parent/root using drag-and-drop. All requirements are covered in IB2-215."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-396",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "This story is a duplicate of IB2-225. Although tagged (BE), its description outlines user-facing steps for creating a sub-page that are fully covered by IB2-225. The backend implementation for sub-page creation should be part of IB2-225."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-429",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "This story is a near-exact duplicate of IB2-233, describing the same core functionality of seeing the extend/collapse button to open the Left Side Panel as Page Nav and viewing saved Simple pages. Implementing IB2-233 fully covers the requirements of IB2-429."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-240",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "This story is a duplicate of IB2-448, describing the exact same 'Bulk Apply' functionality with nearly identical requirements. All requirements are covered in IB2-448."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-107",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "This story describes an undesirable and confusing user experience that actively detracts from usability. The behavior of categories disappearing/reappearing and navigation reloading without clear user benefit is counterproductive. It is likely a workaround for an underlying issue or a misunderstanding of a desired stable UI."
+      },
+      {
+        "type": "DELETE",
+        "story_key": "IB2-170",
+        "original_story_key": null,
+        "summary": null,
+        "description": null,
+        "explanation": "This story describes a behavior that actively harms the user experience by causing integrated fields to \"briefly disappear and reappear.\" This inconsistency and visual instability detract from usability without any stated benefit. It is likely a technical workaround or a misunderstanding of a desired stable UI."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-116",
+        "original_story_key": null,
+        "summary": "As a User, I want to resize Image Widget by dragging its outline directly on the page.",
+        "description": "1. The Image Widget's width must not be changeable from the Nav Panel Width slider. 2. Users must resize the Image Widget only by dragging the dotted outline directly on the page. 3. When the Image Widget is resized, the image should reset to the center of its Block instead of preserving the same horizontal percentage position. 4. Any existing Width slider value in Nav should be read-only and should not update the Image Widget size.",
+        "explanation": "Aligns IB2-116 with the explicit requirements of IB2-308, resolving the conflict by enforcing direct dragging for resizing and disabling the Nav Panel Width slider."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-164",
+        "original_story_key": null,
+        "summary": "As an internal User, I want to set Drag & Drop Page limits via MCP settings.",
+        "description": "1. Drag & Drop Page limits must be configured exclusively within the MCP control panel under the Restrictions tab. 2. The configured Drag & Drop Page limit should be displayed on the Custom Page for informational purposes, but not editable there.",
+        "explanation": "Resolves the conflict by specifying that page limits are set in MCP settings, not Custom Page, aligning with IB2-389. Also clarifies the display location for estimability, addressing IB2_DEF_10."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-78",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. After creating a Server and it fails, the page remains open and a snackbar appears with the error message. 2. After editing a Server and it fails, the page remains open and a snackbar appears with the error message. 3. After deleting a Server and it fails, the confirmation dialog must close automatically, and no snackbar error message should be displayed.",
+        "explanation": "Resolves the conflict by updating the server deletion failure behavior in IB2-78 to align with the specific requirements in IB2-172 (dialog closes, no snackbar)."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-80",
+        "original_story_key": null,
+        "summary": "As a user, if no Master Templates exist, I am instructed to create one before creating a blank template.",
+        "description": "1. If no Master Templates are available, the \"Start with a blank template\" option must not be displayed. 2. Instead, display a message instructing users to create a Master Template before continuing.",
+        "explanation": "Resolves the conflict by updating IB2-80 to prevent creating a blank template if no Master Templates exist, aligning with the stricter requirement in IB2-337."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-463",
+        "original_story_key": null,
+        "summary": "FR: Clone MCP Site handling with optional facial data removal.",
+        "description": "1. Implement a mechanism within the MCP that allows for the *optional* complete removal of existing facial data and related flags during site cloning. 2. This mechanism should be presented as a clear option (e.g., a checkbox) during the cloning process to wipe existing data.",
+        "explanation": "Modifies IB2-463 to make facial data removal an explicit option during cloning, allowing it to coexist with preservation."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-476",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. After cloning an MCP Site, resources that previously contained Unknown faces must continue to be searchable through the \u201cUnknown People\u201d condition in the resource filter panel. 2. Existing Unknown face flags must be preserved during clone handling *by default, unless explicitly opted to be removed via the cloning options*. 3. Be able to always see the \u201cUnknown People\u201d condition below \u201cPeople\u201d as per design.",
+        "explanation": "Clarifies that facial data is preserved by default, but acknowledges the option for removal, resolving the conflict with IB2-463."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-189",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. After placing an Image Widget into a Section, display a visual outline around the image together with a full Widget boundary using the default 8px spacing defined in the design. 2. Keep the Image Widget\u2019s external border visible according to the design specifications even after the image dimensions are adjusted. 3. Allow the image position within its Block area to remain proportional after resizing to a smaller size, and preserve that proportional placement if the Block width later changes. 4. Ensure a dotted line of the Image is visible.",
+        "explanation": "Consolidates the requirements from IB2-117 into IB2-189, ensuring all aspects of the feature are captured in a single story."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-215",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. Be able to re-order Pages via drag-and-drop from Nav Panel during editing. 2. When a Page contains child pages, move all associated sub-pages together with the parent Page. 3. After drag-and-drop of Pages, Sub-pages will be *collapsed* under Page from Nav Panel. 4. Be able to re-order sub-Pages via drag-and-drop within the *same* parent Page from Nav Panel during editing. 5. Be able to re-order root-Pages via drag-and-drop from Nav Panel during editing. This ticket does NOT include drag-and-drop across Parent.",
+        "explanation": "Consolidates the requirements from IB2-385 into IB2-215, ensuring all aspects of the feature are captured in a single story."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-225",
+        "original_story_key": null,
+        "summary": "PB - As a User, I want to create a sub-page for an existing Smart Page via Nav.",
+        "description": "1. Be able to click on the setting button of a simple page from Nav as per design. 2. Be able to see the sub-page popup as per design. 3. Be able to input the sub page's title and save (change \"Done\" to \"Save\"). 4. Implement the same validation as Page title input with the same design/components. 5. Be able to see the field placeholder \u201cAdd page name\u201c before inputting a value as per design. 6. Be able to see the created sub-page name displayed under the parent Page. Order: by default, last updated descending (most recently updated to least).",
+        "explanation": "Consolidates the requirements from IB2-396 into IB2-225, ensuring all aspects of the feature are captured in a single story."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-448",
+        "original_story_key": null,
+        "summary": "As a User, I want to use Bulk Apply functionality for updates introduced through Grouped work.",
+        "description": "1. Ensure the experience follows the same behavior as the existing Grouped Review page, including Apply button item counts, tooltip text for enabled and disabled button states, and snackbar notifications. 2. Support the same apply processing logic used in the current implementation. 3. Include additional validation checks specific to this workflow. 4. Determine Complete Request and Stage actions based on whether Requests are staged requests, their current stage status, or standalone requests.",
+        "explanation": "Consolidates the requirements from IB2-240 into IB2-448, ensuring all aspects of the feature are captured in a single story."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-367",
+        "original_story_key": null,
+        "summary": "As a user, I want grouped email updates to correctly handle different reviewers for the same workflow template across multiple folders.",
+        "description": "1. When performing a Cross Folder bulk edit involving resources from different folders that use the same Workflow Template, ensure that email notifications are sent to the correct reviewers, even if reviewer assignments differ per folder (e.g., due to Global+Local, Global+Global with different reviewers, or Local+Local with different reviewers configurations). 2. The system should accurately identify and notify the specific reviewers configured for each folder's workflow, preventing incorrect or missed notifications.",
+        "explanation": "Rephrases the story to define a clear user action, outcome, and expected system behavior, making it estimable."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-413",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. When the MCP development setting is enabled, and the new `Enable Grouped Requests` setting is enabled in Admin > Workflow for existing or new Resource Publish Workflow Templates, ensure that specific, predefined Grouped Email Notification options appear when User Notifications is set to `Select`. These options must be clearly defined and documented. 2. The extensive requirements for `Requester Emails` notification settings (global template inheritance, multilingual email generation, tenant-level customization, real-time delivery tracking, approval workflows, and synchronization with external notification providers and legacy workflow systems) are too broad for this story and must be broken down into separate, smaller user stories or an epic. This story will only focus on the visibility of the initial notification options.",
+        "explanation": "Clarifies the ambiguity in point 1 and explicitly states that point 2 needs to be broken down, making the story estimable for its reduced scope. This also addresses the NOT_SMALL defect IB2_DEF_23 by preparing for breakdown."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-445",
+        "original_story_key": null,
+        "summary": "As a user, I can see the \"My Response\" section displaying the editable 'Response Comment' field.",
+        "description": "1. In the \u2018My Response\u2019 panel, ensure the 'Response Comment' field (either rich text or plain text, as configured) is displayed and its visibility is correctly handled based on request settings/parameters. This story focuses exclusively on the 'Response Comment' field.",
+        "explanation": "Clarifies the scope to explicitly focus on the 'Response Comment' field, making the story estimable."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-9",
+        "original_story_key": null,
+        "summary": null,
+        "description": "1. Users must see a preview of the GIF or Lottie File converted MP4 on the Share screen to preview the animation before sharing. 2. As a user on the share/embed screen: 3. The preview will show the GIF or Lottie File converted MP4. 4. The playback controls must be hidden. 5. The MP4 must autoplay automatically.",
+        "explanation": "Replaces ambiguous language with definitive statements to ensure clear requirements and estimability."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-318",
+        "original_story_key": null,
+        "summary": "As a Main Admin user, only I and other Main Admins can use 'Ask AI' in Alpha phase (Prioritization Note)",
+        "description": "1. In Alpha phase, only Main Admin users can see the \u2018AI Assist\u2019 button. 2. Users who are not Main Admins cannot see the \u2018AI Assist\u2019 button, and therefore cannot access this feature. 3. Main users emulating non Main Admin users should also not be able to see this button (but may be acceptable handling for alpha until we update permissions). This story is a foundational dependency for other 'Ask AI Alpha' features and should be prioritized accordingly.",
+        "explanation": "This defect highlights a prioritization issue rather than a content defect. The story itself is clear, but its foundational nature makes it a bottleneck. No content change is strictly required to fix the defect, but adding a note about its importance for prioritization can help."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-366",
+        "original_story_key": null,
+        "summary": "Guest Upload MVP: Success message should display a consistent confirmation style after submission (Prioritization Note)",
+        "description": "1. Display a consistent confirmation style for the success message after submission, as per designs. 2. The tick icon should display consistently. 3. The main text/page header `Your {{Record}} has been submitted` should maintain a consistent wording position and presentation style after each submission. 4. This success state should reuse the same public-user page header layout where the Database name and close icon have already been removed (should wait until IB-382 completed). 5. The consistent confirmation presentation should only be applied after the public upload page uses the simplified header state for Public users. This story has an explicit dependency on IB2-382, which should be prioritized first.",
+        "explanation": "This defect highlights a prioritization issue rather than a content defect. The story explicitly states its dependency on IB2-382, indicating a need for prioritization. No content change is strictly required to fix the defect, but adding a note about its dependency can help."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-53",
+        "original_story_key": null,
+        "summary": "As a User, I want to Delete a Smart Page via API (Prioritization Note)",
+        "description": "1. Be able to delete a Smart page via a API call. 2. The delete request should accept the same Smart Page identifier and structure returned by the Smart Page retrieval APIs, processing in a very short time to ensure UI consistency. 3. The API should support deletion from both Smart Page list results and detailed Smart Page responses containing Page, Sections, Blocks, and Widgets information. 4. The call must be documented ideally in the API doc. This story depends on IB2-51 and IB2-52 for defining the Smart Page API contract and should be prioritized after them.",
+        "explanation": "This defect highlights a prioritization issue rather than a content defect. The story explicitly states its dependency on IB2-51 and IB2-52, indicating a need for prioritization. No content change is strictly required to fix the defect, but adding a note about its dependency can help."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-41",
+        "original_story_key": null,
+        "summary": "As a User, I want to be able to view my Record's Request status in the same section that's available for other V3 Approval types (Prioritization Note)",
+        "description": "1. Within the new Record Publish Approval review page, there should be a \u201cRequest Status\u201d section which includes the same information as appears for other request types. 2. This should include (though is not limited to): - Request Status - Approval(s) Still Required - Waiting on. 3. For staged records, the Request Status section should dynamically reflect the currently viewed Stage and update when users navigate between available Stages. 4. The displayed status information should only include details relevant to the currently visible Page or Stage context. This story depends on IB2-44 and IB2-27 for stage navigation and status definition, and should be prioritized after them.",
+        "explanation": "This defect highlights a prioritization issue rather than a content defect. The story explicitly states its dependency on IB2-44 and IB2-27, indicating a need for prioritization. No content change is strictly required to fix the defect, but adding a note about its dependency can help."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-1",
+        "original_story_key": null,
+        "summary": "As a user, I want to enable Azure Image Tagging from the Asset Intelligence section in MCP settings.",
+        "description": "1. Create a new MCP setting under Asset Intelligence called **Enable Image Tagging (Azure)**. 2. All image tagging capabilities and categories must depend on this setting. 3. If enabled, the platform should disable Imagga and use Azure only for image tagging.",
+        "explanation": "Reduces the scope of IB2-1 to focus on the core enablement setting and the switch from Imagga to Azure, making it a manageable story."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-141",
+        "original_story_key": null,
+        "summary": "As a User, I want Surface Question/Answer/Rating backend data in the weekly asset intelligence report.",
+        "description": "1. Update the weekly `closed_captions_activation_report_` to include Question / Answer / Rating data. 2. Rename the report to `weekly_asset_intelligence_report`. 3. Remove Dev Server report entries (e.g., dcfprod, rtsprod, dev018, dev015, dpctest, dcftest, dev016, dev003, dev027, dev026, rtstest, macsprod, etc.).",
+        "explanation": "Reduces the scope of IB2-141 by removing the complex point 4, making it a manageable story focused on report content and cleanup."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-383",
+        "original_story_key": null,
+        "summary": "PB - As a User, I want to move a sub-page to become a standalone Smart Page (Parent).",
+        "description": "1. Be able to move a sub-Page to become a standalone Page via drag-and-drop from the Navigation Panel in editing mode in Page Builder. 2. Be able to see the updated order and hierarchy from the Navigation Panel after changes. 3. Reordered Navigation Panel structure must persist across editing and viewing until updated again.",
+        "explanation": "Reduces the scope of IB2-383 to focus on the core drag-and-drop functionality and immediate UI updates, making it a manageable story."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-395",
+        "original_story_key": null,
+        "summary": "PB - As a User, I want to configure permissions of sub-pages in Admin -> Group.",
+        "description": "1. Be able to see and configure sub-pages under parent pages in line with the resource folder/sub-folder design in Admin - Group - Permission. 2. Be able to trigger permission propagation using the same logic as resource folder/sub-folders.",
+        "explanation": "Reduces the scope of IB2-395 to focus on the core permission configuration and propagation, making it a manageable story."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-115",
+        "original_story_key": null,
+        "summary": "As a User, I want clear explanations for Block and Button Widget properties.",
+        "description": "1. Provide clear and concise explanations for the new widget settings from Nav (combining previously defined Block and Widget's settings) for each widget. This includes documentation, tooltips, or contextual help within the UI to clarify their purpose and usage.",
+        "explanation": "Rephrases the story from a user's doubt into a clear, actionable requirement for improved clarity and documentation, making it valuable."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-366",
+        "original_story_key": null,
+        "summary": "Guest Upload MVP: Success message should display a consistent confirmation style after submission.",
+        "description": "1. Display a consistent confirmation style for the success message after submission, as per designs. 2. The tick icon should display consistently. 3. The main text/page header `Your {{Record}} has been submitted` should maintain a consistent wording position and presentation style after each submission. 4. This success state should reuse the same public-user page header layout where the Database name and close icon have already been removed (should wait until IB-382 completed). 5. The consistent confirmation presentation should only be applied after the public upload page uses the simplified header state for Public users.",
+        "explanation": "Modifies the story to remove the problematic \"randomly change\" requirement, ensuring a consistent and predictable user experience, which is generally preferred for success messages."
+      },
+      {
+        "type": "UPDATE",
+        "story_key": "IB2-447",
+        "original_story_key": null,
+        "summary": "As a user, I want to hover over the Submit & Continue button before submitting grouped work, to prevent accidental submissions.",
+        "description": "1. The behavior here should follow the same as it does in the Grouped Review page. 2. Users must hover over the Submit & Continue button before Bulk Submit becomes available, to prevent accidental submissions. 3. A tooltip text for the Submit & Continue button must appear on hover before submission can proceed, providing guidance.",
+        "explanation": "Rephrases the story to explicitly include the user benefit (preventing accidental submissions), transforming it from a 'how' to a 'what for'."
+      }
+    ]
+  }
+]

@@ -1,0 +1,186 @@
+[
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-116", "IB2-308"],
+    "severity": "HIGH",
+    "explanation": "IB2-116 requires that when the Image Widget is resized the image \u201cremain the same percentage of its \u2018Block\u2019 horizontally\u201d (preserve horizontal percentage). IB2-308 explicitly requires the opposite: \u201cWhen the Image Widget is resized, the image should reset to the center of its Block instead of preserving the same horizontal percentage position.\u201d These are mutually exclusive behaviors for the same widget resize action. Additionally, IB2-116 still references the Nav Panel width behavior (point 1) but notes it will be removed per IB2-308, creating ambiguity about which story governs final behavior.",
+    "confidence": 0.9,
+    "suggested_fix": "Decide which post-resize positioning behavior is correct (preserve horizontal percentage vs. reset to center). Update both stories so only the chosen behavior remains in acceptance criteria: either remove the \u201cpreserve percentage\u201d requirement from IB2-116 or adjust IB2-308 to allow preserving percentage when required. Also remove or clearly mark the Nav-Panel width clause in IB2-116 as obsolete and add an explicit dependency/ordering note referencing IB2-308 to avoid ambiguity."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-117", "IB2-308"],
+    "severity": "HIGH",
+    "explanation": "IB2-117 requires that when the Image Widget is resized the image's position remains proportional: \"Be able to re-position and see the Image in the same percentage of \u2018Block' after resizing...\" and \"Allow the image position within its Block area to remain proportional after resizing... and preserve that proportional placement if the Block width later changes.\" IB2-308 explicitly requires the opposite behavior on resize: \"When the Image Widget is resized, the image should reset to the center of its Block instead of preserving the same horizontal percentage position.\" These are directly contradictory UX rules for the same feature (image positioning after widget resize) and cannot both be implemented as-written.",
+    "confidence": 0.9,
+    "suggested_fix": "Resolve the intended UX: choose either (A) preserve proportional placement on widget resize (as IB2-117) or (B) reset image to center on resize (as IB2-308). If both behaviours are needed in different contexts, specify explicit conditions (e.g., preserve percentage when resizing the image handle; center when resizing the containing Block, or add a per-widget 'Preserve position on resize' toggle). Update both stories' acceptance criteria to reflect the single agreed behavior and add automated UI tests for resize+block-width-change scenarios."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-215", "IB2-383"],
+    "severity": "HIGH",
+    "explanation": "IB2-215 explicitly states it does NOT include drag-and-drop across Parent and restricts re-ordering to within the same parent (\"This ticket does NOT include drag-and-drop across Parent\"). IB2-383 requires the ability to move a sub-Page to become a standalone Page via drag-and-drop (i.e., change its parent). These two requirements are mutually exclusive on the same Nav Panel drag-and-drop behavior and cannot both be implemented as-written.",
+    "confidence": 0.9,
+    "suggested_fix": "Clarify scope: either (A) keep IB2-215 limited to within-parent reordering and mark IB2-383 as a dependent/enhancement story that implements cross-parent moves (link IB2-383 as a follow-on epic), or (B) expand IB2-215 to include cross-parent drag-and-drop and remove/merge IB2-383 to avoid duplicate scope. Update acceptance criteria to state whether manual reordering persists across viewing mode and how child pages are handled when parent changes."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-172", "IB2-78"],
+    "severity": "MEDIUM",
+    "explanation": "Both stories specify identical UI behaviour for failed server deletion: IB2-78 states 'After deleting a Server and it fails, the confirmation dialog must close automatically, and no snackbar error message should be displayed.' IB2-172 includes the same acceptance criteria (points 3 and 4) for failed deletes. Implementing IB2-78 would fully satisfy IB2-172's delete-failure requirements.",
+    "confidence": 0.9,
+    "suggested_fix": "Consolidate the two tickets: either close IB2-172 as a duplicate of IB2-78 or merge IB2-172's unique intents (e.g., table removal on success) into IB2-78 so the delete flow's full behaviour is captured in one story. Update references and owners to avoid duplicated implementation."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-323", "IB2-326"],
+    "severity": "HIGH",
+    "explanation": "IB2-323 and IB2-326 specify the same Ask-button behavior: the Ask button is disabled by default when the Ask AI panel opens and uses the hover text 'Click or hit enter to ask your question.' IB2-326 additionally includes related scope checks (Alpha Main Admin visibility and 'Limit to current view' search-scope) but explicitly duplicates the exact UI states and hover text defined in IB2-323. Implementing IB2-326 would fully satisfy the UI behavior described in IB2-323, making IB2-323 redundant.",
+    "confidence": 0.9,
+    "suggested_fix": "Merge IB2-323 into IB2-326 (or close IB2-323 and add its acceptance criteria to IB2-326). If a separate story is still desired, convert IB2-323 into a subtask or QA acceptance item on IB2-326 and remove duplicated requirements from the standalone ticket."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-337", "IB2-80"],
+    "severity": "HIGH",
+    "explanation": "Both stories specify the same behavior for template selection: if no Master Templates exist, the 'Start with a blank template' / 'Master Template' flow must be disabled and the user must be instructed to create a Master Template first. IB2-80: 'If no Master Templates exist, then the \u2018No Master Templates available\u2019 message displays, and the user is instructed to create a Master Template before being allowed to create a blank one.' IB2-337: 'The \u201cStart with a blank template\u201d option must only be displayed when at least one Master Template exists... If no Master Templates are available, users must not be allowed to create a blank template... display a message instructing users to create a Master Template before continuing.' The core deliverable is identical.",
+    "confidence": 0.95,
+    "suggested_fix": "Merge the two stories into one canonical ticket (or mark one as duplicate) and unify acceptance criteria and design text. Assign a single owner and ensure any minor differences (exact messaging or UI placement) are captured as AC within the merged story."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-115"],
+    "severity": "MEDIUM",
+    "explanation": "The story asks to 'Provide clear and concise explanations for the new widget settings from Nav for each widget' but does not define the scope (which widgets are in-scope), nor the exact delivery mechanism (tooltips, inline help, docs) or acceptance standards. 'Each widget' could mean a small subset or the entire widget library (large unknown). Without a clear scope and concrete acceptance criteria the team cannot confidently estimate effort.",
+    "confidence": 0.75,
+    "suggested_fix": "Specify the exact set of widgets in scope (or a representative pattern to apply across all widgets), choose the preferred help mechanism(s) (tooltip, inline help, doc page) and provide at least one fully-specified example acceptance criterion (e.g., tooltip text length limit, where it appears, accessibility requirements). If this is intended as a template change to be applied across N widgets, list N or split into per-widget stories or a small set of templating tasks."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-116"],
+    "severity": "HIGH",
+    "explanation": "The acceptance criteria include behavior that is explicitly marked for removal in IB2-308, creating a direct contradiction (this story requests maintaining some Nav-based width behaviour while noting it will be removed). The conflict leaves the expected final behavior unclear and blocks confident estimation.",
+    "confidence": 0.85,
+    "suggested_fix": "Resolve the contradiction with IB2-308 before estimation: either remove the clauses that are being deprecated or clearly state this story is only to cover transitional behavior and detail the transition rules. Update acceptance criteria to reference the canonical source of truth (e.g., 'per IB2-308, the Nav slider will be disabled; this story only implements X/Y') or split into two stories: one for the transitional UI and one for the final behavior."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-240"],
+    "severity": "HIGH",
+    "explanation": "The story refers to 'Actual apply logic' and notes 'Behaviour here need extra check' without specifying the exact rules, edge cases, or how it should map to the existing Grouped Review behavior. The acceptance criteria are high-level and incomplete, leaving implementation details unspecified and blocking estimation.",
+    "confidence": 0.9,
+    "suggested_fix": "Provide explicit acceptance criteria describing the apply algorithm (when counts update, which requests/stages are eligible, transactional behavior, error handling), list required UI states (apply count, hover tooltip text, snackbars) and reference or attach the Grouped Review implementation/contract that this must match. If there are complex branches, split into smaller stories (e.g., UI parity, backend apply logic, edge-case handling)."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-389"],
+    "severity": "MEDIUM",
+    "explanation": "The story does not define what 'Page limits' means (per-site, per-page, per-user, per-template), how limits are enforced, where limits are displayed, default values, or the expected MCP UI/API contract. Without those scope details the team cannot confidently estimate implementation effort or required backend/billing changes.",
+    "confidence": 0.8,
+    "suggested_fix": "Clarify acceptance criteria: explicitly state the scope of limits (global per-client site vs per-template or per-user), limit types (count of pages, pages per site, or other), enforcement behavior (prevent creation, warn, soft-limit), default values and override rules, required MCP UI fields and validations, APIs or DB changes, and desired telemetry. Provide UI mock(s) and at least one example use-case so the team can estimate effort."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-413"],
+    "severity": "MEDIUM",
+    "explanation": "The story requires adding 'specific, defined Notification options' and multilingual email generation but does not enumerate the notification options, their per-template configuration surface, or the exact localization/inheritance behavior. The lack of concrete options and template/localization rules prevents confident estimation of UI, backend templating, and i18n effort.",
+    "confidence": 0.75,
+    "suggested_fix": "List the exact notification options to be added (e.g., grouped summary email, per-resource email, consolidated recipient list, requester emails toggle, send-per-language) and provide example email templates. Define template inheritance rules (what 'global template inheritance' means), localization strategy (how language is selected, fallback rules), and acceptance criteria for each option. Provide sample payloads and expected emails for at least two languages to allow scoping of UI, backend templating, and i18n work."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-503"],
+    "severity": "HIGH",
+    "explanation": "The story 'migrate Imagga image-tagging data to Azure' lacks scope details required for estimation: data volume, schema differences, mapping rules, migration window/downtime constraints, rollback strategy, verification/integrity checks, and whether historical usage needs transformation. Without a discovery/mapping outcome the team cannot reliably estimate effort.",
+    "confidence": 0.9,
+    "suggested_fix": "Split out a discovery/spike story that inventories Imagga data (schemas, volumes, retention), defines mapping/transformation rules, and produces a migration plan with verification and rollback steps. After discovery, write follow-up implementation stories with measurable acceptance criteria (e.g., data completeness %, acceptable downtime, sample size validations)."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-504"],
+    "severity": "MEDIUM",
+    "explanation": "The story to 'track Azure Image Tagging billing and quota' does not define which metrics to track (images processed, minutes, API calls), aggregation windows, per-tenant vs global quotas, data sources/endpoints, accuracy tolerances, or required UI/reporting surfaces. Those gaps make effort and design unclear.",
+    "confidence": 0.7,
+    "suggested_fix": "Clarify acceptance criteria: list exact metrics to record, quota units and scope (per-customer, per-MCP), aggregation/retention windows, tolerated accuracy/error, required reporting surfaces or API endpoints, and tests. If large, split into meter ingestion, quota calculation, and UI/reporting tasks."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-505"],
+    "severity": "HIGH",
+    "explanation": "Key details are missing for estimation: what analytics KPIs are required, the expected retention/aggregation, which notification channels and severity thresholds to support, and expected scale (events per minute). Without these, the team cannot size backend, storage, or UI work.",
+    "confidence": 0.8,
+    "suggested_fix": "Define acceptance criteria that specify required KPIs, dashboard mockups or API contracts, notification channels and exact trigger thresholds, expected event rates/retention, and success criteria (e.g., notifications delivered within X minutes, dashboard query performance)."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-506"],
+    "severity": "HIGH",
+    "explanation": "The request to 'update APIs, permissions, documentation, and rollout configuration' is vague about which endpoints change, backward-compatibility requirements, permission model changes, required docs (public API vs internal), and rollout strategy (feature flags, versioning). This ambiguity prevents reliable estimation.",
+    "confidence": 0.8,
+    "suggested_fix": "Specify exact API surface and contract changes, list permission model updates, document backwards-compatibility or versioning requirements, and provide a rollout plan (feature flags, MCP toggles, staged rollout). Create separate stories for API code changes, permission updates, docs, and rollout orchestration."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-299", "IB2-318"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-299's description explicitly states the feature is dependent on the 'Ask AI' Main Admin access control defined in IB2-318. The acceptance criteria (visibility and default state of the 'Limit to current view' checkbox in the Ask AI panel) cannot be validated or sensibly implemented while the Main Admin visibility rule is missing. This is an explicit blocking dependency: IB2-299 cannot be released, tested, or accepted independently before IB2-318 is implemented.",
+    "confidence": 0.9,
+    "suggested_fix": "Implement IB2-318 (AI Assist Main Admin access control) first, or decouple IB2-299 by limiting its scope to UI-only work behind a feature flag/mock so QA can validate the control independently."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-326", "IB2-318", "IB2-299"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-326 explicitly states it must be implemented after both the AI Assist visibility rules (IB2-318) and the 'Limit to current view' search-scope logic (IB2-299). Its acceptance criteria require both the permission gating and the search-scope control to exist to enable/disable and to decide search scope. This is an explicit, strong blocking dependency on both stories, preventing independent implementation and acceptance.",
+    "confidence": 0.95,
+    "suggested_fix": "Schedule IB2-318 and IB2-299 prior to IB2-326. Alternatively, split IB2-326 into a backend/contract-only story that can be implemented earlier and a final integration story that runs after the prerequisites are done (with the integration story explicitly dependent)."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-323", "IB2-318"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-323's description explicitly marks the Ask button/hover-text behavior as dependent on the 'Ask AI' Main Admin access control defined in IB2-318. The Ask-button visibility rules cannot be fully verified or accepted until IB2-318 is implemented, so IB2-323 is blocked by IB2-318.",
+    "confidence": 0.9,
+    "suggested_fix": "Prioritise IB2-318 before IB2-323, or scope IB2-323 to UI-only work behind a feature flag/mocks so acceptance tests can run without the production permission change."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-366", "IB2-382"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-366 requires reuse of a simplified public-user page header where Database name and close icon are removed and explicitly notes it should wait until IB2-382 is completed. Because the consistent confirmation presentation depends on the header state produced by IB2-382, IB2-366 cannot be validated or accepted independently.",
+    "confidence": 0.9,
+    "suggested_fix": "Deliver IB2-382 first (hide header elements for public users) or change IB2-366 to implement the confirmation UI behind a feature flag or use a test fixture to simulate the simplified header so QA can validate the confirmation behavior independently."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-53", "IB2-51", "IB2-52"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-53's acceptance criteria explicitly require that the delete API accept the same Smart Page identifier and structure returned by the retrieval APIs defined in IB2-51 and IB2-52. The contract and structure it must accept are defined by those retrieval endpoints, so IB2-53 cannot be implemented or tested against real responses until IB2-51 and IB2-52 exist (explicit blocking dependency).",
+    "confidence": 0.9,
+    "suggested_fix": "Prioritise IB2-51 and IB2-52 before IB2-53, or create a stable API contract/mock for the retrieval responses that IB2-53 can rely on so the delete endpoint can be developed and tested independently."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-503"],
+    "severity": "HIGH",
+    "explanation": "The task as written bundles multiple large activities (data export, schema mapping, transformation, bulk import, historical usage migration, verification/testing, and rollout) that together constitute an epic and are unlikely to be completed in a single sprint.",
+    "confidence": 0.9,
+    "suggested_fix": "Decompose into smaller stories: (a) discovery & mapping, (b) migrate configuration objects, (c) migrate historical usage/metrics, (d) migration automation and roll-back, (e) verification and acceptance tests, and (f) production cutover/runbook."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-505"],
+    "severity": "HIGH",
+    "explanation": "The story covers multiple distinct deliverables \u2014 analytics/reporting, provider activity tracking, and notification patterns for limits, exhaustion, and failures \u2014 each of which can be a sizable piece of work. Together they form an epic rather than a single sprint-sized story.",
+    "confidence": 0.9,
+    "suggested_fix": "Break into focused stories: (a) telemetry/ETL and storage for tagging usage/provider events, (b) analytics/dashboard UI and APIs, (c) notifications/alerting service with channels (email, MCP UI, webhooks), and (d) retention/SLA and test automation."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-506"],
+    "severity": "MEDIUM",
+    "explanation": "Updating APIs, permissions, documentation, and rollout/configuration bundles work across multiple concerns (code, security, docs, deployment) and likely spans several teams \u2014 making it too large for a single sprint-sized story.",
+    "confidence": 0.7,
+    "suggested_fix": "Decompose into smaller deliverables: API implementation & tests, permission schema changes & security review, documentation updates (OpenAPI, developer guides), and rollout/configuration tasks (feature flags, migration scripts, rollout checklist)."
+  }
+]

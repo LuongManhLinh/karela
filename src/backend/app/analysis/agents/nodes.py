@@ -51,7 +51,7 @@ def _build_agent(
     response_schema=None,
     tools=None,
     response_mime_type="text/plain",
-    family: Literal["gemini", "openai"] = "gemini",
+    family: Literal["gemini", "openai"] = "openai",
 ):
     """Helper to create a DynamicAgent with standard config."""
 

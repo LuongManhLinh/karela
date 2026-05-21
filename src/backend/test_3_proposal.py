@@ -40,25 +40,29 @@ stories = jira_service.fetch_stories(
     project_key=project_key,
     story_keys=list(related_stories),
 )
-
-
 print(f"Fetched {len(stories)} related stories")
-start_time = time.time()
-mode = "COMPLEX"
 
-proposals = run_proposal_generation(
-    mode=mode,
-    user_stories=stories,
-    defects=defects,
-    db=next(get_db()),
-    connection_id=conn_id,
-    project_key=project_key,
-    project_description=project_desc,
-)
+for i in range(1, 4):
+    print(f"Starting test {i}")
+    start_time = time.time()
+    mode = "SIMPLE"
 
-end_time = time.time()
-print(f"Generated {len(proposals)} proposals in {end_time - start_time:.2f} seconds")
-with open(
-    f"data/IntelligenceBank/proposal/gemini/{project_key}_{mode}_proposals.json", "w"
-) as f:
-    json.dump([p.model_dump() for p in proposals], f, indent=2)
+    proposals = run_proposal_generation(
+        mode=mode,
+        user_stories=stories,
+        defects=defects,
+        db=next(get_db()),
+        connection_id=conn_id,
+        project_key=project_key,
+        project_description=project_desc,
+    )
+
+    end_time = time.time()
+    print(
+        f"Generated {len(proposals)} proposals in {end_time - start_time:.2f} seconds"
+    )
+    with open(
+        f"data/IntelligenceBank/proposal/gpt/{i}_{project_key}_proposals.json",
+        "w",
+    ) as f:
+        json.dump([p.model_dump() for p in proposals], f, indent=2)

@@ -1,0 +1,194 @@
+[
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-215", "IB2-225"],
+    "severity": "MEDIUM",
+    "explanation": "IB2-215 requires that manual re-ordering persists the updated order (AC2: 'Re-ordering sub-pages within same parent updates the persisted order'). IB2-225's backend behavior says the Create Sub-Page API returns the updated page list 'ordered by last-updated descending' (Description: 'returns the updated page list ordered by last-updated descending'). If the Nav is always returned/sorted by last-updated, a manually persisted order would be overridden by the API ordering \u2014 conflicting rules about how Nav ordering is determined.",
+    "confidence": 0.85,
+    "suggested_fix": "Define canonical ordering precedence and API contract: require the backend API to return an explicit 'position' or 'order' field reflecting manual/persisted ordering when present, and only fall back to last-updated ordering when no manual order exists. Update IB2-225 acceptance criteria to state that the API returns the server-side order that respects manual re-ordering, and update IB2-215 to reference the API contract for persistence."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-215", "IB2-383"],
+    "severity": "HIGH",
+    "explanation": "IB2-215 explicitly states cross-parent drag-and-drop is not allowed (AC3: 'No cross-parent drag-and-drop is allowed (out of scope)'). IB2-383 requires the ability to move a sub-page to the root via drag-and-drop from the Nav Panel (Description: 'Allow a sub-page to be moved to the root ... via drag-and-drop'). These are mutually exclusive behaviors for the same Nav drag-and-drop capability.",
+    "confidence": 0.95,
+    "suggested_fix": "Clarify scope: either (A) expand IB2-215 to include cross-parent moves (update AC3 and acceptance criteria to permit moving sub-pages to root and define resulting collapsed/expanded state), or (B) keep IB2-215 restricted to same-parent reordering and mark IB2-383 as the separate story that enables cross-parent/root moves (remove the 'out of scope' statement from IB2-383 and ensure story dependencies are explicit). Update acceptance criteria and UX flows to show how these two actions interact (e.g., collapsed state after move, persisted ordering)."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-318", "IB2-323"],
+    "severity": "MEDIUM",
+    "explanation": "IB2-318 AC1 explicitly requires that non-Main-Admin users do not see the 'AI Assist' button while Alpha is enabled. IB2-323 describes 'As a user I can click 'Ask' button' and specifies the button UI/behavior without any Main Admin role restriction. These statements contradict each other about who may see/use the Ask/AI Assist button during Alpha.",
+    "confidence": 0.8,
+    "suggested_fix": "Clarify role-scope for IB2-323: either mark IB2-323 as Main-Admin-only during Alpha (add dependsOn IB2-318) or update IB2-323 acceptance criteria to state it applies only after IB2-318 is released (or after Alpha ends). Ensure Jira links/dependencies reflect the intended sequencing."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-323", "IB2-326"],
+    "severity": "HIGH",
+    "explanation": "IB2-323 describes the Ask button as available 'As a user' (generic) with the button shown/disabled by default and hover text. IB2-326 explicitly requires the Ask button to be displayed only to Main Admin users during the Alpha and to depend on Main Admin access/visibility rules and the 'Limit to current view' logic. These are contradictory visibility/permission requirements for the same UI element: the button cannot both be generally available to 'users' and restricted to Main Admins.",
+    "confidence": 0.8,
+    "suggested_fix": "Resolve by consolidating visibility & dependency rules into one canonical story. Options: (a) Update IB2-323 to state it is the generic UI behavior to be implemented only after IB2-326 (Main Admin gating) is completed, or (b) fold IB2-323 into IB2-326 and make IB2-326 the single source-of-truth for Ask-button behavior (including hover/enable text and 'Limit to current view' handling). Ensure acceptance criteria explicitly state role visibility (Main Admin during Alpha), feature-flag/MCP gating, and the dependency on search-scope logic."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-164", "IB2-389"],
+    "severity": "MEDIUM",
+    "explanation": "Both stories require moving Page-limit configuration into the MCP control panel. IB2-164 specifies the 'Drag & Drop Page limit' must be managed exclusively from MCP > Restrictions and adds UI behaviors (read-only display in the Custom Page editor, validation message, link to MCP). IB2-389 requests that Page limits be set via MCP for client sites. The core technical action \u2014 exposing page-limit configuration in MCP rather than per-Custom-Page \u2014 is the same, so implementing both as-is would duplicate work unless their scopes are explicitly separated.",
+    "confidence": 0.8,
+    "suggested_fix": "Clarify and merge scopes: either make IB2-389 the parent/epic (broad 'Page limits in MCP') and treat IB2-164 as the child story implementing the Drag & Drop-specific limit and editor UI, or update IB2-389 to explicitly exclude the Drag & Drop limit if it covers a different kind of page limit. Ensure one canonical story owns the MCP setting implementation to avoid duplicate implementation and QA."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-172", "IB2-78"],
+    "severity": "HIGH",
+    "explanation": "IB2-78 standardizes server create/edit/delete failure UX: the initiating dialog MUST close and a snackbar with an error and optional 'Details' link MUST be shown (ACs cover simulated create/edit/delete failure and Details panel). IB2-172 specifies the same behavior specifically for server delete failures (dialog closes and snackbar displays error). Because IB2-78 already mandates the identical delete-case behavior, implementing IB2-172 would duplicate the same deliverable.",
+    "confidence": 0.9,
+    "suggested_fix": "Merge or deprecate IB2-172: either (a) close IB2-172 and treat its acceptance criteria as the delete-specific test cases for IB2-78, or (b) convert IB2-172 into a child task / QA test that validates the delete scenario in IB2-78. Update references and test plans to avoid duplicate implementation work."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-337", "IB2-80"],
+    "severity": "HIGH",
+    "explanation": "IB2-80 and IB2-337 specify the same user-facing behavior when no Master Templates exist: present a 'no Master Templates' state and allow the user to create/start with a blank template (including a link/button to create a Master Template). The acceptance criteria in both stories describe the same functional outcome (offer a blank-template option and related UI hint/link). Implementing IB2-80 would fully deliver the functionality described in IB2-337, making one of them redundant.",
+    "confidence": 0.92,
+    "suggested_fix": "Merge IB2-337 into IB2-80 (or vice-versa). Consolidate acceptance criteria and design details into a single canonical story; mark the other as a duplicate and close it. If there are any additional MCP-configurable behaviors (e.g., enforcing Master Template creation) keep those as a separate story focused on the MCP toggle rather than duplicating the blank-template UI behavior."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-389"],
+    "severity": "MEDIUM",
+    "explanation": "The story statement is high-level and lacks measurable or testable acceptance criteria. It doesn't specify what 'Page limits' means (per-site vs global limits, what unit/metric), how limits are enforced or surfaced in the UI, who can change them, whether per-site overrides are allowed, or any MCP UI/validation details \u2014 making effort and scope unclear.",
+    "confidence": 0.85,
+    "suggested_fix": "Clarify scope and add acceptance criteria: define the exact limit type (e.g., max pages per site), default value and allowed ranges, who (role) can change the setting, whether per-site overrides exist, how limits are enforced in the product (prevent create vs warning), and MCP UI specifics (field labels, help text). Provide any RBAC, telemetry and API expectations needed to estimate and test the work."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-51"],
+    "severity": "MEDIUM",
+    "explanation": "The functional requirement (list Smart Pages via API) is clear, but the non-functional acceptance 'response time should be mostly instant' is ambiguous and not testable as written. Without a measurable SLA (latency percentiles, payload size/pagination limits), the team cannot reliably estimate effort required to meet performance expectations or design appropriate pagination/caching.",
+    "confidence": 0.75,
+    "suggested_fix": "Replace 'mostly instant' with measurable performance criteria (for example: median response time <200ms and 95th percentile <500ms for requests returning up to N items; or require pagination with page size up to 50 and API response <300ms for a page). Also specify expected payload shape, max items per call, authentication/authorization behavior, and any caching or indexing requirements so the work can be estimated and tested."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-510"],
+    "severity": "HIGH",
+    "explanation": "The scope 'aggregate multi-environment data into a canonical report store' is vague: sources/environments, transform rules, frequency, canonical schema, and failure modes are not defined, so the team cannot confidently estimate effort or approach.",
+    "confidence": 0.8,
+    "suggested_fix": "Clarify and limit scope before estimation: list source environments, expected data volume, canonical schema, frequency/latency needs, and success criteria. Prefer splitting into (a) design/definition story that produces integration spec and mapping, then (b) implementation POC story."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-511"],
+    "severity": "MEDIUM",
+    "explanation": "The acceptance references 'defined inheritance rules' but those rules are not included in the story. Without the precise inheritance/validation rules the team cannot estimate how permissions must be migrated or validated.",
+    "confidence": 0.8,
+    "suggested_fix": "Provide or link to concrete permission inheritance rules and examples (edge cases). Add expected behaviour for conflicts, overrides, and how to present migration decisions to admins so the team can estimate and implement deterministic migration logic."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-299", "IB2-318"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-318 is explicitly marked as a blocking prerequisite for Ask AI stories (text: \"Mark this story as a blocking prerequisite for IB2-299, IB2-323, and IB2-326; add explicit 'dependsOn' links in Jira\"). That makes IB2-299 dependent on IB2-318 for visibility/permission behavior: without the Main Admin visibility restriction implemented, the Ask AI panel behavior cannot be validated for correct role-based visibility and default enabled state.",
+    "confidence": 0.9,
+    "suggested_fix": "Either implement a temporary visibility contract/mode (e.g., a feature-flagged stub that simulates Main Admin visibility) to let IB2-299 be tested independently, or schedule IB2-318 before IB2-299. Add explicit acceptance-test stubs/mocks for role checks if decoupling is necessary."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-326", "IB2-318", "IB2-299"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-326 explicitly requires both the AI Assist visibility rules (IB2-318) and the 'Limit to current view' search-scope logic (IB2-299). The story text states the Ask button must only be displayed after the visibility restriction is implemented and must use the checkbox state from IB2-299. Because both behaviors are prerequisites of IB2-326's acceptance criteria, it cannot be implemented, tested, or accepted independently.",
+    "confidence": 0.9,
+    "suggested_fix": "Split IB2-326 into a purely-UI wiring story that can be tested with mocked permission and scope contracts, and a final integration story that requires IB2-318 and IB2-299. Alternatively, schedule IB2-318 and IB2-299 before IB2-326 and add explicit integration test cases once the prerequisites are complete."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-323", "IB2-318"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-318 is declared a blocking prerequisite for IB2-323. The Ask-button visibility is governed by the Main Admin role restriction in IB2-318, so IB2-323 cannot be accepted on its own because QA cannot validate whether the Ask button appears correctly for allowed/disallowed users until the visibility/permission rules exist.",
+    "confidence": 0.9,
+    "suggested_fix": "Either implement a test-mode or a mock permission service for IB2-323 so visibility behavior can be validated independently, or sequence IB2-318 before IB2-323 and explicitly link them in Jira. Update acceptance criteria to allow contract-based validation if stubbing is used."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-53", "IB2-51", "IB2-52"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-53 explicitly states it is blocked until the Smart Page list/detail APIs exist: \"IB2-53 requires the Smart Page identifier and structure returned by IB2-51/IB2-52 and therefore is blocked until those APIs exist.\" The Delete API's acceptance criteria (AC1) requires contracts from IB2-51 and IB2-52. Without those APIs/contracts, QA cannot validate real delete behavior and the story delivers no standalone API-value.",
+    "confidence": 0.95,
+    "suggested_fix": "Either re-scope IB2-53 to implement a backend delete endpoint with a clearly defined temporary contract (so QA can validate), add mocks/stubs and an integration test plan that will be replaced by IB2-51/IB2-52 later, or schedule IB2-51/IB2-52 before IB2-53 and link them in Jira. Document required contract fields so the delete implementation can be built against a stable API spec."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-395"],
+    "severity": "HIGH",
+    "explanation": "The story is explicitly an Epic (calls out multiple large areas: hierarchical inheritance, propagation, approval workflows, audit history, cross-platform sync) and is not a single, sprint-sized deliverable. It bundles multiple distinct user goals and cross-cutting concerns that must be split to be independently shippable and testable.",
+    "confidence": 0.95,
+    "suggested_fix": "Keep IB2-395 as an Epic container and create smaller child stories for each discrete capability (e.g., 'View sub-page permissions in Admin->Group', 'Inheritance rules for sub-page permissions', 'Permission propagation on move/clone', 'Audit logging for sub-page permission changes'). Each child story should include clear acceptance criteria, dependencies, and a Definition of Done so they can be estimated and delivered in a sprint."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-501"],
+    "severity": "HIGH",
+    "explanation": "This item is defined as an Epic (advanced requester email features covering multilingual, templating, tracking, tenant customization, provider sync). As written it contains many distinct, complex capabilities that cannot be completed within a single sprint.",
+    "confidence": 0.95,
+    "suggested_fix": "Decompose IB2-501 into focused child stories (e.g., 'Requester email templating basics', 'Multilingual email support - baseline', 'Delivery tracking telemetry', 'Tenant-level email customization', 'Provider sync integration'). Provide acceptance criteria and success metrics for each child so they can be estimated independently."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-505"],
+    "severity": "MEDIUM",
+    "explanation": "The story bundles UI changes (MCP setting + label rename) with backend billing/quota tracking and warning/notification functionality. That spans MCP UI, telemetry, billing reconciliation, and notification delivery \u2014 multiple distinct verticals that are likely too large for a single sprint-sized story.",
+    "confidence": 0.78,
+    "suggested_fix": "Split into smaller stories: (a) MCP setting + label change, (b) backend usage recording for Azure image processing, and (c) warning/notification UI and threshold behaviour. Explicitly list dependencies (billing system API, telemetry events) and acceptance criteria for each child story."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-507"],
+    "severity": "MEDIUM",
+    "explanation": "This story requires implementing an analytics dashboard, logging/usage-event plumbing for billing reconciliation, and notifications for quota/provider failures. Those are multiple sizable deliverables (data-pipeline/ETL, UI dashboard, alerting integration) and are unlikely to be completed as one sprint story.",
+    "confidence": 0.82,
+    "suggested_fix": "Decompose into separate stories: (a) event/usage logging and storage for billing reconciliation, (b) a minimal analytics/reporting API and POC dashboard, and (c) notifications/alerting for quota thresholds and provider failures. Define expected data retention, aggregation windows, and sample queries for the dashboard."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-508"],
+    "severity": "MEDIUM",
+    "explanation": "Updating APIs, permissions, and documentation plus rollout configuration touches API contracts, auth/authorization rules, and release processes. This is cross-cutting and likely contains multiple independent changes that should be validated separately rather than one large story.",
+    "confidence": 0.75,
+    "suggested_fix": "Split into focused stories: (a) API contract changes (with backwards-compatibility plan and migration notes), (b) permission checks & access control, and (c) docs/release notes + feature-flag rollout config. Include acceptance criteria for backward compatibility and required API schema changes."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-510"],
+    "severity": "MEDIUM",
+    "explanation": "Even with a defined design, the work implies building export connectors, aggregation logic, and integration documentation \u2014 multiple technical areas and integration points that are more than a single sprint-sized task.",
+    "confidence": 0.72,
+    "suggested_fix": "After clarifying requirements, decompose into smaller deliverables: e.g., connector for one environment + canonical store schema, an incremental aggregator job, and documentation/integration tests as separate stories."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-513"],
+    "severity": "MEDIUM",
+    "explanation": "Implementing undo/redo in the UI plus full version history and audit logging spans frontend state management, backend versioning/audit storage, and potential data model changes. This is multiple distinct capabilities and likely too large for one story.",
+    "confidence": 0.78,
+    "suggested_fix": "Break into smaller stories: (a) record hierarchy changes to audit logs, (b) expose a version/history view, and (c) implement undo/redo UI for recent moves (with clear limits). Define retention and performance expectations for history/audit data."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-514"],
+    "severity": "MEDIUM",
+    "explanation": "Implementing hierarchical permission inheritance and deterministic propagation impacts permission model, UI controls, and bulk propagation logic. This is a cross-cutting change that can be large and may require multiple validation and rollout steps.",
+    "confidence": 0.7,
+    "suggested_fix": "Split into: (a) design and documentation of propagation rules plus admin UI to enable/disable inheritance, and (b) implementation of propagation logic (with test cases and safety/preview mode). Include acceptance criteria for conflict resolution and performance for large hierarchies."
+  },
+  {
+    "type": "NOT_SMALL",
+    "story_keys": ["IB2-515"],
+    "severity": "MEDIUM",
+    "explanation": "This story combines audit/history capture with an approval workflow for permission propagation. Each is a distinct capability (immutable audit logs vs. workflow engine/state transitions) and together form a substantial scope.",
+    "confidence": 0.76,
+    "suggested_fix": "Divide into two stories: (a) audit history for permission changes (with required fields and queryability), and (b) a basic approval workflow for propagating permissions (define actors, states, and timeouts). Provide acceptance criteria and example flows for both."
+  }
+]

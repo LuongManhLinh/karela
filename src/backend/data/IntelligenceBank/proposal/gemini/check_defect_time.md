@@ -1,0 +1,3 @@
+- Result 1: 203.84 seconds
+- Result 2: 214.55 seconds
+- Result 3: 164.66 seconds

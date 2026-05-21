@@ -225,14 +225,6 @@
   },
   {
     "type": "NOT_VALUABLE",
-    "story_keys": ["IB2-413"],
-    "severity": "MEDIUM",
-    "explanation": "The story lacks a clear user persona and the 'so that' clause, making the tangible business or user value unclear. The first point is ambiguous about 'unknown notification options,' and the second point lists a massive set of technical features without explaining the user's goal or benefit.",
-    "confidence": 0.9,
-    "suggested_fix": "Rephrase as a user story (e.g., 'As an Admin, I want to configure advanced email notification settings for grouped resource publish templates, so that users receive relevant and timely updates.') and clarify the specific user needs for each feature listed."
-  },
-  {
-    "type": "NOT_VALUABLE",
     "story_keys": ["IB2-447"],
     "severity": "MEDIUM",
     "explanation": "This story describes a very specific UI interaction (hover to enable a button) without explaining the underlying user or business value. While it might be intended to prevent accidental submissions, the 'why' is not explicitly stated, making it a 'how' without a clear 'what for'.",

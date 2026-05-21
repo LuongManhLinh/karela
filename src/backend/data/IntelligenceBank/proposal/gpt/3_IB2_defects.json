@@ -1,0 +1,498 @@
+[
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-116", "IB2-308"],
+    "severity": "MEDIUM",
+    "explanation": "Both stories defer implementation to the same PM decision (slider-enabled vs drag-only) but assert opposite 'implement as currently written' behaviours. IB2-116: 'if PM selects slider-enabled approach, implement as currently written; if PM selects drag-only, this story will be deprecated or converted to a read-only slider spec.' IB2-308: 'if PM selects drag-only approach, implement as currently written; if PM selects slider-enabled approach, update this story to define read-only behaviour or be deprecated.' They therefore make mutually exclusive assumptions about the current/desired implementation for the same feature (slider vs drag), making it impossible to satisfy both stories exactly as written without a single aligned decision.",
+    "confidence": 0.9,
+    "suggested_fix": "Have PM publish the canonical decision ticket that both stories reference and then update both stories to explicitly state which variant they implement (e.g., IB2-116 implements Slider variant; IB2-308 implements Drag variant OR IB2-308 is deprecated). Merge or split responsibilities so only one story implements the chosen behaviour; mark the other as backlog/deprecated or convert it to a readonly/spec-only task. Ensure both stories include 'Blocked/Depends on' referencing the same decision ticket and update ACs accordingly."
+  },
+  {
+    "type": "CONFLICT",
+    "story_keys": ["IB2-215", "IB2-233"],
+    "severity": "MEDIUM",
+    "explanation": "IB2-215 requires manual reordering of root pages and that the new order is persisted across editing/viewing (\u201creorder root-pages, and persistence across editing/viewing\u201d). IB2-233 requires that ordering follow a Last Updated sort (\"ordering by Last Updated\"). These are mutually exclusive rules for the same navigation ordering behavior: a persisted manual order cannot be guaranteed if the UI enforces an automatic 'Last Updated' ordering.",
+    "confidence": 0.9,
+    "suggested_fix": "Clarify the canonical ordering behaviour in a single decision/AC: either (A) support manual drag/reorder with persisted order (IB2-215) or (B) enforce automatic ordering by Last Updated (IB2-233). If both are required, add ACs describing precedence (e.g., manual reorder overrides default Last Updated until an item is edited, or provide a user toggle in MCP) and reference the PM decision ticket that resolves ordering precedence."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-164", "IB2-389"],
+    "severity": "MEDIUM",
+    "explanation": "Both IB2-164 and IB2-389 request the same PM decision and implementation scope: whether Page limits are configured exclusively in the MCP or if Custom Pages may have local limits. IB2-164 explicitly says 'Pending PM decision: the Drag & Drop Page limit configuration location and Custom Page display...' and IB2-389 similarly 'requires the PM decision to confirm whether Page limits are exclusively set in MCP or if Custom Page should have local limits.' The two stories target the same configuration decision and UI placement, so implementing one as written would make the other redundant.",
+    "confidence": 0.85,
+    "suggested_fix": "Consolidate IB2-164 and IB2-389 into a single story (or clearly split responsibilities). If they must remain separate, update each to cover distinct, non-overlapping deliverables (e.g., IB2-164 = UI placement and display text for the Drag & Drop Page limit; IB2-389 = backend enforcement/validation and API contract for page-limit enforcement). Ensure the PM decision ticket is referenced and that each story's acceptance criteria reference different artifacts (MCP path/UI text vs API/ enforcement behavior)."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-189", "IB2-308"],
+    "severity": "HIGH",
+    "explanation": "Both stories require implementation of the same image widget resize/reposition UI behavior. IB2-189 explicitly requires: 'ability to drag the image to reposition' and UI ACs/tests for drag handles, dotted outline, bounding box, 8px padding and proportional placement persistence. IB2-308 states that if the PM selects the drag-only approach, it should 'implement as currently written' (i.e., drag-based behaviour) or otherwise be updated/deprecated. That means both stories, as currently written, would drive the same technical work to implement drag-based repositioning and related UI acceptance tests.",
+    "confidence": 0.8,
+    "suggested_fix": "Consolidate the two stories so the drag/resizing implementation is owned and specified in a single place. Options: (1) Make IB2-308 the decision/approach ticket (blocked on PM) and update IB2-189 to reference IB2-308 and only contain the detailed ACs to implement once the decision is made; OR (2) Merge IB2-308 into IB2-189 and keep IB2-308 as a lightweight decision spike that does not duplicate implementation ACs. Remove overlapping ACs to avoid duplicate engineering work."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-215", "IB2-225"],
+    "severity": "MEDIUM",
+    "explanation": "IB2-215 requests adding Acceptance Criteria including an \"API contract for persisting new order\" and backend persistence behaviour. IB2-225 asks to \"Add a Technical Sub-task list or 'Implementation Notes' ... describing backend responsibilities (API endpoints, payloads, validation)\" and to \"Update Acceptance Criteria to include backend contract expectations.\" Both items ask for the same backend API contract and implementation notes for persisting page order/hierarchy, causing overlapping work if implemented separately.",
+    "confidence": 0.7,
+    "suggested_fix": "Combine the BE contract work into a single story/task: either expand IB2-215 to include the full backend implementation notes and API contract (endpoints, payloads, status codes, validation) or mark IB2-225 as the canonical technical/BE task and add a 'Blocked/Depends on' from IB2-215 to IB2-225. Ensure clear ownership to avoid duplicated specification and implementation effort."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-240", "IB2-447"],
+    "severity": "MEDIUM",
+    "explanation": "IB2-240's requested AC expansion explicitly includes \"hover tooltip behavior for enable/disable states\" and \"Apply button item counts...snackbar messages, full apply logic\", which overlaps the core deliverable of IB2-447: requiring a hover state/tooltip to enable Bulk Submit (Submit & Continue) to prevent accidental submissions. Both stories would define and implement the same UI enablement + tooltip behavior for bulk-submit-like flows; completing IB2-240 as written would likely make IB2-447's work redundant.",
+    "confidence": 0.7,
+    "suggested_fix": "Consolidate the two tickets: either (A) fold IB2-447 into IB2-240 and make IB2-240 the canonical story for hover-to-enable tooltip behavior (update ACs to explicitly include the Submit & Continue/Bulk Submit case), or (B) narrow IB2-240 to exclude specific Submit & Continue/Bulk Submit hover behavior and instead reference IB2-447 for that pattern. Ensure a single owner and explicit ACs that name the exact buttons/pages affected to avoid duplicate implementation."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-383", "IB2-395"],
+    "severity": "MEDIUM",
+    "explanation": "IB2-383 (reclassified as an EPIC 'Sub-Page to Standalone Page: migration & governance') explicitly lists a child story: 'Permissions migration & propagation rules'. IB2-395 is being reclassified as an EPIC 'Sub-page permissions: inheritance & propagation' with its own child stories for permission UI, propagation engine, audit history, and workflow integration. Both items propose implementing permissions migration/propagation for sub-pages on the same resources \u2014 which risks building the same permission propagation engine and related work twice.",
+    "confidence": 0.8,
+    "suggested_fix": "Consolidate ownership and scope: either (A) make IB2-395 a child/linked epic under IB2-383 (so IB2-383 is the migration/governance umbrella and IB2-395 delivers the permission-engine work), or (B) remove the duplicate permissions child from IB2-383 and add a clear 'Depends on IB2-395' linkage plus explicit boundaries (e.g., IB2-383 handles orchestration/migration sequencing, IB2-395 implements propagation engine/API/UI). Update acceptance criteria to state which epic owns which deliverables and add cross-references to avoid duplicate implementation."
+  },
+  {
+    "type": "DUPLICATION",
+    "story_keys": ["IB2-463", "IB2-476"],
+    "severity": "HIGH",
+    "explanation": "Both stories specify the same MCP clone behavior for Unknown People / facial-data flags: IB2-463 requires an optional 'Wipe facial data and Unknown face flags' checkbox with behavior that when checked removes facial data and related flags and when not checked preserves them. IB2-476 restates that Unknown face flags are preserved by default during clone unless the optional wipe checkbox (from IB2-463) is selected and repeats the same ACs. Implementing IB2-463 would already deliver the exact Unknown People preservation/wipe behavior described in IB2-476, making IB2-476 redundant unless it is explicitly a child story or scoped to additional work.",
+    "confidence": 0.9,
+    "suggested_fix": "Merge IB2-476 into IB2-463 or convert IB2-476 to an explicit child/implementation task of IB2-463. If IB2-476 is intended to cover only verification/testing or a narrower subset, update its scope to reference IB2-463 as 'Blocked/Depends on' and list the specific non-duplicative acceptance tests or implementation details it will cover."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-116"],
+    "severity": "HIGH",
+    "explanation": "The story conflicts with another story (IB2-308) and is explicitly dependent on a PM decision. Without that decision the team cannot determine the intended behaviour (slider-enabled vs drag-only) and thus cannot estimate effort.",
+    "confidence": 0.85,
+    "suggested_fix": "Add a 'Blocked/Depends on' reference to the PM decision ticket, document both possible acceptance-criteria variants (slider vs drag-only) and include a note describing which variant to implement when the decision is made. Delay estimation until the decision is resolved or split into two spike/decision stories."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-164"],
+    "severity": "HIGH",
+    "explanation": "The story is explicitly blocked by a PM decision about Page limit configuration location and display. Until that decision and the required design assets/UI text are provided, scope and ACs remain undefined and the story cannot be estimated.",
+    "confidence": 0.8,
+    "suggested_fix": "Add 'Blocked/Depends on' to the decision ticket, include placeholder ACs that will be updated after the decision (MCP path, Restrictions tab placement, UI text), and do not schedule work until the decision and designs are attached."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-170"],
+    "severity": "MEDIUM",
+    "explanation": "Current ACs referenced ('briefly hide and show') are vague and describe visual behaviour ambiguously. Without concrete expected behaviour (loading state, no flicker thresholds) the team cannot estimate or validate implementation.",
+    "confidence": 0.7,
+    "suggested_fix": "Replace vague ACs with measurable acceptance criteria: define fallback loading state, describe 'no flicker' in testable terms, list exact triggers for refresh (page open, section toggle), and include visual/UX acceptance test steps."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-172"],
+    "severity": "HIGH",
+    "explanation": "This story is explicitly blocked by a PM decision and its ACs depend on that decision. Without the decision, behaviour is undefined and the story cannot be estimated.",
+    "confidence": 0.8,
+    "suggested_fix": "Add 'Blocked/Depends on' with the decision ticket, document expected behaviour options, and update ACs once the PM decision is published. Consider creating a short spike to enumerate technical implications of each option."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-189"],
+    "severity": "MEDIUM",
+    "explanation": "The story currently lacks the detailed UI acceptance criteria (dotted outline, bounding box, padding, drag behaviour, persistence) required to define scope and acceptance. Without those specifics the team cannot reliably estimate.",
+    "confidence": 0.75,
+    "suggested_fix": "Expand ACs to include the exact UI rules listed (8px padding, outline behaviour, drag handles, persistence rules) and attach design assets or screenshots. Add FE/BE contract notes if persistence requires API changes."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-215"],
+    "severity": "MEDIUM",
+    "explanation": "Acceptance criteria are underspecified \u2014 moving parent/child behaviour, collapse states, reordering and API contract for persistence are referenced but not defined. The missing API contract and UI rules prevent accurate estimation.",
+    "confidence": 0.7,
+    "suggested_fix": "Add full ACs covering UX animations, cursor states, collapse behaviour after move, and an API contract (endpoint, payload, status codes). If large, consider splitting into FE/BE slices or separate stories for reordering and persistence."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-225"],
+    "severity": "MEDIUM",
+    "explanation": "The story lacks explicit backend contract details (endpoints, payloads, status codes, validation) which are required to implement and estimate integration work.",
+    "confidence": 0.75,
+    "suggested_fix": "Add an Implementation Notes or Technical Sub-task list that defines BE responsibilities and API contracts (request/response shapes, validation rules, error codes). If API contracts are pending, mark the story blocked on the BE contract spike."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-233"],
+    "severity": "MEDIUM",
+    "explanation": "Display rules (extend/collapse location, ordering, highlight styles, permission visibility) are referenced but not defined in ACs. Without these explicit rules the team cannot estimate or validate the behavior.",
+    "confidence": 0.7,
+    "suggested_fix": "Expand ACs to include exact visual styles (e.g., grey-100 background + bold font), ordering rules (Last Updated), extend/collapse button placement, and permission mapping. Attach design specs and examples."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-240"],
+    "severity": "MEDIUM",
+    "explanation": "This story references complex logic (apply button counts, tooltip states, snackbar messages, mixed staged/non-staged rules) but lacks detailed ACs and edge-case definitions required for estimation and testing.",
+    "confidence": 0.75,
+    "suggested_fix": "Add explicit ACs covering item counts, hover/tooltip behaviour, snackbar copy, full apply logic, validation rules and mixed staged/non-staged handling. Include implementation notes for automated tests and any BE contract needs for determining request/stage completeness."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-27"],
+    "severity": "HIGH",
+    "explanation": "The story is blocked by the Status Section contract spike and lacks exact chip text, colors and cancellation scenarios; without the spike results the required UI/behavior cannot be defined or estimated.",
+    "confidence": 0.8,
+    "suggested_fix": "Add 'Blocked/Depends on' referencing the Status Section contract spike, and update the story with concrete chip text, color tokens, and all scenarios for status transitions once the spike is complete. Consider postponing estimation until the spike produces the contract."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-299"],
+    "severity": "HIGH",
+    "explanation": "This item is dependent on IB2-318 for access control; the note states implementation must wait for access control to be in place. Without that dependency resolved, scope and rollout cannot be accurately estimated.",
+    "confidence": 0.8,
+    "suggested_fix": "Mark the story 'Blocked/Depends on' IB2-318, document expected default behaviour (Limit to current view enabled) and the access-control gating requirements. Defer estimation until IB2-318 is resolved or split UI work that is independent of access control."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-308"],
+    "severity": "HIGH",
+    "explanation": "The story conflicts with other stories and is explicitly dependent on a PM decision (slider vs drag-only). Without the decision the intended behaviour is undefined and the team cannot estimate work.",
+    "confidence": 0.85,
+    "suggested_fix": "Add 'Blocked/Depends on' to the decision ticket, include acceptance criteria for both outcomes (slider vs drag-only), and update or split the story after the PM decision. Consider a small spike to assess implementation impact of each option."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-323"],
+    "severity": "MEDIUM",
+    "explanation": "This story depends on IB2-318 (Ask AI access control). Without the dependency resolved the team cannot be sure who should see/act on the feature and therefore cannot fully estimate work or QA impacts.",
+    "confidence": 0.75,
+    "suggested_fix": "Mark 'Blocked/Depends on' IB2-318, and include the full ACs (disable rules, hover text, keyboard behaviour). If any UI can be implemented safely without access-control logic, split that work out and estimate separately."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-326"],
+    "severity": "HIGH",
+    "explanation": "This story depends on both IB2-318 and IB2-299 (access control and scope control). With these upstream dependencies unresolved, core behaviour (Limit to current view state, default disabled/enabled) is undefined and the story cannot be estimated.",
+    "confidence": 0.85,
+    "suggested_fix": "Add 'Blocked/Depends on' references to IB2-318 and IB2-299, document expected default states and interactions with Limit-to-view, and only estimate after the dependencies are resolved. Consider decomposing into UI-only vs access-control tasks."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-337"],
+    "severity": "HIGH",
+    "explanation": "The story is explicitly blocked by a PM decision and contains no concrete acceptance criteria beyond deferring to that decision. Until the PM decision is available the behaviour cannot be defined or estimated.",
+    "confidence": 0.8,
+    "suggested_fix": "Add 'Blocked/Depends on' with the decision ticket, document the potential behaviour options and their acceptance criteria, and create a small spike to outline technical impacts so the team can estimate after the decision."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-389"],
+    "severity": "MEDIUM",
+    "explanation": "The story's implementation depends on a PM decision about where Page limits are set (MCP vs Custom Page). Without that decision the scope and acceptance criteria are ambiguous and the team cannot estimate reliably.",
+    "confidence": 0.86,
+    "suggested_fix": "Add 'Blocked/Depends on' linking to the PM decision ticket and defer estimation until the PM decision is recorded. Once decided, update the Description and ACs to reflect the chosen limit location and exact behavior."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-41"],
+    "severity": "MEDIUM",
+    "explanation": "The Request Status behaviour depends on the Status Section contract spike (Stage navigation & contract). Without that contract the dynamic Stage behaviour and corresponding API/BE expectations are undefined, preventing reliable estimation.",
+    "confidence": 0.8,
+    "suggested_fix": "Add 'Blocked/Depends on' to the Status Section contract spike. Update Description/ACs after the spike to include exact fields, expected BE contract (endpoints/payloads/status codes) and fallback behaviour for when Stage navigation is unavailable."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-44"],
+    "severity": "MEDIUM",
+    "explanation": "Stage navigation rules and what stages are viewable/disabled while pending depend on the Status Section contract spike. Without that contract the exact behaviors and edge cases are undefined, making estimation unreliable.",
+    "confidence": 0.82,
+    "suggested_fix": "Mark the story 'Blocked/Depends on' the Status Section contract spike, and update the ACs to reference the spike's contract and explicit rules for stage visibility/disabled state. Re-estimate after the spike completes."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-463"],
+    "severity": "MEDIUM",
+    "explanation": "This story introduces GDPR-sensitive behaviour (optional wipe of facial data) and audit logging requirements but as written lacks full implementation details and compliance acceptance criteria needed for reliable estimation and test planning.",
+    "confidence": 0.78,
+    "suggested_fix": "Add explicit ACs (as proposed), reference compliance/GDPR guidance, define required audit log fields, and include any backend/DB/migration steps. If additional legal/compliance sign-off is required, mark the story blocked until obtained."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-476"],
+    "severity": "MEDIUM",
+    "explanation": "Behavior during MCP site clone depends on the checkbox and wipe semantics defined in IB2-463. Without that linked decision/ACs the preservation vs wipe rules for Unknown People flags are ambiguous and the story cannot be reliably estimated.",
+    "confidence": 0.78,
+    "suggested_fix": "Mark IB2-476 as blocked on IB2-463, then update its ACs to reference the exact semantics (default preserve, optional wipe) and include API/data validation and acceptance test steps."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-51"],
+    "severity": "HIGH",
+    "explanation": "The Smart Page API contract spike is required to define the JSON schema and endpoints. Without the contract (IB2-512) the list/detail API expectations are undefined and the team cannot estimate backend or frontend effort.",
+    "confidence": 0.95,
+    "suggested_fix": "Add 'Blocked/Depends on' -> IB2-512 (Smart Page API contract spike). After the spike, update Description and ACs to include the canonical JSON schema, endpoints, response codes and expected latencies to enable estimation."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-52"],
+    "severity": "HIGH",
+    "explanation": "This story is dependent on the Smart Page API contract (schema and endpoints). Without the contract, payloads and validation expectations are undefined and estimation is unreliable.",
+    "confidence": 0.94,
+    "suggested_fix": "Mark as blocked on IB2-512 and update ACs once the Smart Page API schema is published. Include expected status codes and response shapes in the story so FE/BE can estimate work."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-53"],
+    "severity": "HIGH",
+    "explanation": "Delete operation requirements reference canonical identifiers and response-time SLAs from the Smart Page API contract. Without the contract there is no authoritative payload/response definition to implement or estimate against.",
+    "confidence": 0.95,
+    "suggested_fix": "Block on IB2-512 (Smart Page API contract spike). Once the contract is available, add exact endpoint, identifier format, expected status codes and response-time requirements to the ACs before estimating."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-78"],
+    "severity": "MEDIUM",
+    "explanation": "The story explicitly depends on a PM decision; until that decision is made the expected behaviour is undefined and ACs cannot be finalised, preventing reliable estimation.",
+    "confidence": 0.8,
+    "suggested_fix": "Add 'Blocked/Depends on' link to the PM decision ticket and include a note that implementation must follow that decision. After PM decision, update ACs and re-estimate."
+  },
+  {
+    "type": "NOT_ESTIMABLE",
+    "story_keys": ["IB2-80"],
+    "severity": "MEDIUM",
+    "explanation": "Like IB2-78, this story is awaiting a PM decision. Without that decision the Acceptance Criteria are incomplete and the team cannot estimate implementation risk or effort.",
+    "confidence": 0.8,
+    "suggested_fix": "Mark the story blocked on the PM decision ticket, and only estimate after ACs are updated to match the PM decision."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-116", "IB2-501"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-116 explicitly states it conflicts with IB2-308 and 'awaits PM decision' (the decision task is IB2-501 which is defined to choose the canonical Image Widget resizing approach and to instruct how IB2-116/IB2-308 should be handled). The story's acceptance criteria and implementation branch depend on which option PM selects, so it cannot be implemented, tested, or accepted independently until IB2-501 records the decision.",
+    "confidence": 0.95,
+    "suggested_fix": "Complete IB2-501 (PM decision) before scheduling IB2-116, or split IB2-116 into a small, testable vertical slice that can be delivered regardless of the decision (e.g., UI/placeholder + feature-flagged behavior) and add clear ACs that allow QA to validate without the final decision."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-164", "IB2-502"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-164 explicitly states it is 'Pending PM decision: the Drag & Drop Page limit configuration location and Custom Page display are to be finalized by the decision ticket.' IB2-502 is the PM decision that determines where Page limits live and what must be shown. The core ACs for IB2-164 (exact MCP path, Restrictions tab placement, UI text) require IB2-502, so IB2-164 cannot be fully implemented or accepted without that decision.",
+    "confidence": 0.93,
+    "suggested_fix": "Defer IB2-164 until IB2-502 completes, or limit IB2-164 to discovery/placeholder UI with mocks and add acceptance criteria that allow QA to validate against the decision outputs (wireframes/schema) rather than a final production integration."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-513", "IB2-27", "IB2-41", "IB2-44"],
+    "severity": "MEDIUM",
+    "explanation": "[EXTREME_BOTTLENECK] IB2-513 (Status Section contract & Stage navigation spike) directly blocks IB2-27, IB2-41, and IB2-44. Those three stories all require the contract and sample payloads that IB2-513 will deliver; hence IB2-513 is a bottleneck for the Request Status / Stage navigation work.",
+    "confidence": 0.92,
+    "suggested_fix": "Prioritize IB2-513 (quick spike) to provide the contract and sample payloads. If immediate implementation is needed, provide a temporary, well-documented mock contract so dependent stories can progress and be validated later against the final contract."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-27", "IB2-513"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-27 is explicitly blocked by the Status Section contract spike IB2-513. The story's ACs require exact chip text, colors and logic that IB2-513 must define. Without that contract, IB2-27 cannot be implemented or accepted reliably.",
+    "confidence": 0.92,
+    "suggested_fix": "Run IB2-513 to provide the status contract and mapping, or implement IB2-27 with a temporary style and a formal acceptance gate that revalidates visuals once IB2-513 is complete."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-299", "IB2-318"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-299 explicitly adds 'Blocked/Depends on -> IB2-318 (via new epic)' and notes 'implement only after access control is in place.' IB2-318 implements the 'AI Assist' access control. Because IB2-299's default behaviors and gating rely on that access control, it cannot be delivered or accepted independently.",
+    "confidence": 0.95,
+    "suggested_fix": "Deliver IB2-318 (access control) first, or implement IB2-299 behind feature flags with mocks of the access-check plus ACs that permit QA to validate safe fallback behavior when access is unavailable."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-326", "IB2-318", "IB2-299"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-326 explicitly lists two dependencies: IB2-318 (access control) and IB2-299 (scope/Limit-to-current-view logic). Both are prerequisites for its ACs (Ask button respects Limit to current view and access state). Without those prerequisites the story cannot be implemented or acceptance-tested meaningfully.",
+    "confidence": 0.95,
+    "suggested_fix": "Schedule IB2-318 and IB2-299 before IB2-326, or scope IB2-326 to a backend/API contract and UI placeholders with mocks/feature flags to allow isolated validation until prerequisites are completed."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-308", "IB2-501"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-308 explicitly records 'Implementation to follow PM decision' and references the same decision ticket (IB2-501) that decides between drag-only vs slider-enabled behavior. The story's acceptance criteria change depending on the decision; therefore it cannot be accepted or released independently until IB2-501 is complete.",
+    "confidence": 0.95,
+    "suggested_fix": "Resolve IB2-501 before implementing IB2-308 or convert IB2-308 to a gated/feature-flagged implementation with clear ACs for the 'chosen' and 'fallback/deprecated' behaviors so it can be tested in isolation."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-323", "IB2-318"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-323 is explicitly blocked by IB2-318 (permission gating for Ask AI). Its ACs (Ask button visibility/behavior for Main Admins) cannot be validated without the access-control implemented in IB2-318, so it cannot be accepted alone.",
+    "confidence": 0.95,
+    "suggested_fix": "Implement IB2-318 first, or add a test-mode of the permission check (test flag or stub) that allows IB2-323 to be validated independently while ensuring real gating is added later."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-337", "IB2-504"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-337 is explicitly tied to the same PM decision as IB2-80 (IB2-504) per the decision description. The story states 'Do not implement until decision is recorded.' That is a direct blocking dependency preventing independent implementation and acceptance.",
+    "confidence": 0.9,
+    "suggested_fix": "Delay IB2-337 until IB2-504 completes or split into a non-decision-dependent incremental task (documentation, telemetry, migration plan) that can be validated without the final PM choice."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-366", "IB2-382", "IB2-511"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-366 explicitly declares it is blocked by IB2-382 (simplified public header) and the UX Review spike (IB2-511). The story's ACs change based on the UX decisions; it cannot be implemented, tested, or accepted independently without the UX/PM outputs from IB2-511 and the header spec IB2-382.",
+    "confidence": 0.92,
+    "suggested_fix": "Complete IB2-511 and IB2-382 prior to implementing IB2-366, or limit IB2-366 to implementing a small deterministic subset of presentation variants behind a feature flag with explicit ACs referring to the UX outputs."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-367", "IB2-505"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-367 declares it 'Blocked/Depends on' the Cross-Folder Bulk Edit clarification spike (IB2-505). The story must follow the spike's decision matrix for Cross Folder scenarios, so it cannot be implemented or accepted until IB2-505 provides the matrix and rules.",
+    "confidence": 0.9,
+    "suggested_fix": "Deliver IB2-505 first, or reduce IB2-367 to implement only non-cross-folder behavior with ACs that explicitly exclude cases requiring the spike's decisions."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-382", "IB2-511"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-382 declares it is 'Blocked/Depends on' the UX Review spike IB2-511. Its ACs (exact header elements to hide and design assets) come from IB2-511, so IB2-382 cannot be accepted independently until the UX/PM spike delivers those artifacts.",
+    "confidence": 0.92,
+    "suggested_fix": "Run IB2-511 quickly to produce the assets and rules IB2-382 needs, or scope IB2-382 to add an implementation that reads a config produced by IB2-511 with a test harness for QA."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-389", "IB2-502"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-389 explicitly depends on the PM decision to confirm whether Page limits are exclusively set in MCP or can be local on Custom Page; that is exactly what IB2-502 will decide. Without that decision the story's description and ACs are incomplete and cannot be accepted.",
+    "confidence": 0.93,
+    "suggested_fix": "Complete IB2-502 first, or split IB2-389 into a safe-first increment (e.g., UI that reads an explicit API/config flag with clear contract and feature flag gating) so QA can validate behavior prior to the final decision."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-41", "IB2-513"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-41 depends on the Status Section contract (IB2-513) for the exact fields and dynamic behavior across Stages. The ACs call for dynamic stage reflection which cannot be validated until IB2-513 defines the API/interaction model.",
+    "confidence": 0.92,
+    "suggested_fix": "Complete IB2-513 before implementing IB2-41, or limit IB2-41 to a static fallback UI with explicit ACs for later replacement when the contract is available."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-44", "IB2-513"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-44 is blocked by the Status Section contract spike IB2-513 for the same reasons as IB2-27 and IB2-41: it needs the contract to determine Stage navigation rules and how pending stages are presented. The ACs cannot be fully tested without IB2-513.",
+    "confidence": 0.92,
+    "suggested_fix": "Prioritize IB2-513 and then implement IB2-44, or constrain IB2-44 to cover only behaviors that do not require the contract and add a follow-up integration task."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-445", "IB2-508"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-445 is explicitly blocked by the clarification ticket IB2-508 which is needed to list the fields for the 'My Response' panel. Since IB2-445's scope was narrowed to implement those fields, QA cannot validate acceptance until IB2-508 defines the payload and visibility rules.",
+    "confidence": 0.9,
+    "suggested_fix": "Complete IB2-508 before implementing IB2-445, or implement IB2-445 with a clear AC that accepts a mock payload and include a follow-up task to replace mocks with the production contract once IB2-508 completes."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-80", "IB2-504"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-80 is explicitly marked 'Blocked/Depends on' the PM decision ticket; IB2-504 is the decision that chooses whether creating a blank template is allowed or a Master Template is required. The story's flow and ACs depend directly on that choice, so it cannot be accepted independently before IB2-504.",
+    "confidence": 0.9,
+    "suggested_fix": "Wait for IB2-504, or convert IB2-80 to an implementation that supports both behaviors behind a feature flag and add deterministic ACs for each mode to allow isolated testing."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-9", "IB2-509"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-9 is explicitly blocked by a clarification/decision ticket; IB2-509 is the listed decision/clarification about GIF/Lottie -> MP4 preview behavior. The acceptance criteria and expected UI behavior for IB2-9 are undefined until IB2-509 provides the decisions, so IB2-9 cannot be accepted independently.",
+    "confidence": 0.9,
+    "suggested_fix": "Complete IB2-509 prior to implementing IB2-9, or constrain IB2-9 to implement a single agreed-upon preview behavior with feature flags and explicit ACs that allow QA validation."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-51", "IB2-512"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-51 (Smart Page list API) is explicitly blocked by the 'Define Smart Page API contract' spike IB2-512. The story's AC placeholders reference the final JSON schema produced by IB2-512, so it cannot be implemented, tested against the final contract, or accepted independently.",
+    "confidence": 0.95,
+    "suggested_fix": "Run IB2-512 to produce the JSON schema and API contract before implementing IB2-51, or implement IB2-51 against a stable mocked contract with an explicit acceptance step to validate against IB2-512's final schema once available."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-512", "IB2-51", "IB2-52", "IB2-53"],
+    "severity": "MEDIUM",
+    "explanation": "[EXTREME_BOTTLENECK] IB2-512 (Smart Page API contract spike) is a single prerequisite for at least three direct stories (IB2-51, IB2-52, IB2-53). Those three cannot be implemented or acceptance-tested against the real contract until IB2-512 defines the JSON schema and delete/list/detail behavior. With three dependents, this creates a noticeable bottleneck for Smart Pages work.",
+    "confidence": 0.95,
+    "suggested_fix": "Prioritize IB2-512 early (spike in the next sprint) and produce a stable contract or a testable contract artifact. Alternatively, provide a provisional API contract (backwards-compatible) and use feature flags/mocks so dependent stories can progress in parallel while the contract is finalized."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-52", "IB2-512"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-52 (Smart Page detail API) similarly depends on IB2-512 for the JSON schema and identifier rules. The acceptance criteria are placeholders referencing the contract, so the story can't be validated or accepted until the contract exists.",
+    "confidence": 0.95,
+    "suggested_fix": "Complete IB2-512 first, or implement IB2-52 using a well-defined mock contract and include a required validation step to reconcile with IB2-512's final schema."
+  },
+  {
+    "type": "NOT_INDEPENDENT",
+    "story_keys": ["IB2-53", "IB2-512"],
+    "severity": "HIGH",
+    "explanation": "[NOT_INDEPENDENT] IB2-53 (Smart Page delete) depends on IB2-512 because its ACs require the canonical identifier(s) defined by the contract and defined response codes. Without IB2-512 the delete operation's contract is undefined and cannot be acceptance-tested.",
+    "confidence": 0.95,
+    "suggested_fix": "Deliver IB2-512 first, or scope IB2-53 to implement delete against a provisional contract with explicit reconciliation to be performed when IB2-512 finalizes the API contract."
+  },
+  {
+    "type": "NOT_VALUABLE",
+    "story_keys": ["IB2-1"],
+    "severity": "HIGH",
+    "explanation": "The item has no user-facing summary or clear business outcome and is presented as a set of editorial changes (reclassification into an epic and child story list) rather than an epic-level description of value. In its current form it does not state who benefits or what tangible business outcome will be delivered.",
+    "confidence": 0.9,
+    "suggested_fix": "Reword as an epic-level value statement (e.g., 'As a product owner, I want Azure Image Tagging split into focused child capabilities so we can migrate to Azure and track usage/quota') and include: a short epic summary, explicit acceptance criteria that require each child story to include rollout/migration plans and API contracts, the child-story list (as provided), and any blocking decision/spike links. Ensure the epic-level ACs map to the product pillars and NFRs (billing/quota, telemetry, migration verification)."
+  },
+  {
+    "type": "NOT_VALUABLE",
+    "story_keys": ["IB2-107"],
+    "severity": "MEDIUM",
+    "explanation": "The story lacks a clear user-facing summary and measurable acceptance criteria; the provided note requests rewording and replacing vague ACs but the current artifact does not explain who benefits and what outcome is expected.",
+    "confidence": 0.75,
+    "suggested_fix": "Rewrite as a user-centric story (e.g., 'As a user I want stable Page Category navigation so I can reliably find pages'), add concrete, testable ACs (no flicker, visual state expectations, acceptance test steps), and reference any design/spec decisions or performance NFRs needed for validation."
+  },
+  {
+    "type": "NOT_VALUABLE",
+    "story_keys": ["IB2-115"],
+    "severity": "MEDIUM",
+    "explanation": "The note instructs to rephrase into a user outcome and add ACs; the current story text (as provided) lacks a user persona, explicit value statement and testable acceptance criteria.",
+    "confidence": 0.75,
+    "suggested_fix": "Replace with a clear user story (who, what, why) and add precise ACs: list tooltip texts or link targets, document the in-app help panel content, expected locations and examples, and include design copy. Add DoR items (design assets, copy reviewed) before scheduling."
+  },
+  {
+    "type": "NOT_VALUABLE",
+    "story_keys": ["IB2-141"],
+    "severity": "HIGH",
+    "explanation": "Presented as an instruction to reclassify to an EPIC and to break out child stories, but the item lacks an epic-level value statement describing business outcomes or success criteria.",
+    "confidence": 0.85,
+    "suggested_fix": "Provide an epic summary that ties to business objectives (e.g., 'Improve weekly Asset Intelligence reporting to provide actionable trends across environments'), list child stories and include epic-level acceptance criteria requiring migration plans, compatibility tests, and verification steps for each child story."
+  },
+  {
+    "type": "NOT_VALUABLE",
+    "story_keys": ["IB2-318"],
+    "severity": "MEDIUM",
+    "explanation": "The provided change list adds priority and an epic link and a single AC, but the item as shown lacks a user-facing summary explaining the business outcome, acceptance criteria beyond access control, and implementation or telemetry expectations required by V3 readiness (observability, rollout, testability).",
+    "confidence": 0.65,
+    "suggested_fix": "Rewrite as a clear user story (who benefits and why), attach the Ask AI Alpha epic link, specify access-control rules, telemetry/observability requirements, rollout/feature-flag plan, and any BE contract or audit logging requirements so the story is Ready."
+  },
+  {
+    "type": "NOT_VALUABLE",
+    "story_keys": ["IB2-367"],
+    "severity": "MEDIUM",
+    "explanation": "The ticket is a refinement instruction to add a dependency and reference a spike decision matrix but contains no user persona, outcome or testable acceptance criteria. It reads as an editorial note rather than a user story delivering value.",
+    "confidence": 0.85,
+    "suggested_fix": "Convert into a user\u2011facing story or a clear refinement task: state who benefits and what behaviour must follow the spike decision matrix. Add 'Blocked/Depends on' link to the spike and include explicit ACs describing Cross Folder behaviour derived from the spike."
+  },
+  {
+    "type": "NOT_VALUABLE",
+    "story_keys": ["IB2-382"],
+    "severity": "MEDIUM",
+    "explanation": "Current content is a set of 'fields to change' instructions (set priority, add dependency, add ACs) and lacks a clear user story summary or explicit user/business outcome and acceptance criteria required for implementation.",
+    "confidence": 0.86,
+    "suggested_fix": "Rephrase into a user story (e.g., 'As a public visitor, I want a simplified header so public pages are less distracting'), attach design assets, explicit ACs naming elements to hide, and link the UX Review spike. Mark as blocked until UX assets are attached."
+  }
+]
