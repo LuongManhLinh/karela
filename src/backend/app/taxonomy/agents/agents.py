@@ -23,23 +23,23 @@ from .prompts import (
 def _build_agent(
     system_prompt: str,
     response_schema: type,
-    family: Literal["gemini", "openai"] = "openai",
+    provider: Literal["gemini", "openai"] = LlmConfig.LLM_PROVIDER,
 ):
-    if family == "gemini":
+    if provider == "gemini":
         model_name = LlmConfig.GEMINI_TAXONOMY_MODEL
         api_keys = LlmConfig.GEMINI_API_KEYS
-    elif family == "openai":
+    elif provider == "openai":
         model_name = LlmConfig.OPENAI_TAXONOMY_MODEL
         api_keys = LlmConfig.OPENAI_API_KEYS
     else:
-        raise ValueError(f"Unsupported LLM family: {family}")
+        raise ValueError(f"Unsupported LLM family: {provider}")
 
     print(
-        f"Building {family} agent with model {model_name} and response schema {response_schema.__name__}"
+        f"Building {provider} agent with model {model_name} and response schema {response_schema.__name__}"
     )
 
     return DynamicAgent(
-        family=family,
+        model_provider=provider,
         model_name=model_name,
         api_keys=api_keys,
         system_prompt=system_prompt,

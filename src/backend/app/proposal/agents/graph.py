@@ -51,7 +51,7 @@ def _build_agent(
     response_schema=ProposalOutput,
     temperature: float = LlmConfig.LLM_DEFECT_TEMPERATURE,
     top_p: float = LlmConfig.LLM_DEFECT_TOP_P,
-    family: Literal["gemini", "openai"] = "openai",
+    provider: Literal["gemini", "openai"] = LlmConfig.LLM_PROVIDER,
 ):
     @dynamic_prompt
     def user_context_prompt(request: ModelRequest) -> str:
@@ -61,22 +61,22 @@ def _build_agent(
         except Exception:
             return system_prompt
 
-    if family == "gemini":
+    if provider == "gemini":
         model_name = LlmConfig.GEMINI_DEFECT_MODEL
         api_keys = LlmConfig.GEMINI_API_KEYS
         max_retries = LlmConfig.GEMINI_API_MAX_RETRY
-    elif family == "openai":
+    elif provider == "openai":
         model_name = LlmConfig.OPENAI_DEFECT_MODEL
         api_keys = LlmConfig.OPENAI_API_KEYS
         max_retries = LlmConfig.OPENAI_API_MAX_RETRY
     else:
-        raise ValueError(f"Unsupported LLM family: {family}")
+        raise ValueError(f"Unsupported LLM family: {provider}")
 
     print(
-        f"Building {family} agent with model {model_name} and response schema {response_schema.__name__ if response_schema else 'None'}"
+        f"Building {provider} agent with model {model_name} and response schema {response_schema.__name__ if response_schema else 'None'}"
     )
     return DynamicAgent(
-        family=family,
+        model_provider=provider,
         model_name=model_name,
         response_mime_type="application/json",
         response_schema=response_schema,

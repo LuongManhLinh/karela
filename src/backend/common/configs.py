@@ -21,6 +21,7 @@ class DatabaseConfig:
 
 
 class LlmConfig:
+    LLM_PROVIDER = os.getenv("LLM_PROVIDER", "openai")  # or "gemini"
     LLM_DEFECT_TEMPERATURE = float(os.getenv("LLM_DEFECT_TEMPERATURE", "0"))
     LLM_CHAT_TEMPERATURE = float(os.getenv("LLM_CHAT_TEMPERATURE", "0.7"))
     LLM_DEFAULT_TEMPERATURE = float(os.getenv("LLM_DEFAULT_TEMPERATURE", "0.3"))

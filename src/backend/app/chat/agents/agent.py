@@ -30,21 +30,21 @@ def user_context_prompt(request: ModelRequest) -> str:
     )
 
 
-family = "openai"
+provider = LlmConfig.LLM_PROVIDER
 
-if family == "gemini":
+if provider == "gemini":
     model_name = LlmConfig.GEMINI_CHAT_MODEL
     api_keys = LlmConfig.GEMINI_API_KEYS
     max_retries = LlmConfig.GEMINI_API_MAX_RETRY
-elif family == "openai":
+elif provider == "openai":
     model_name = LlmConfig.OPENAI_CHAT_MODEL
     api_keys = LlmConfig.OPENAI_API_KEYS
     max_retries = LlmConfig.OPENAI_API_MAX_RETRY
 else:
-    raise ValueError(f"Unsupported LLM family: {family}")
+    raise ValueError(f"Unsupported LLM family: {provider}")
 
 chat_agent = DynamicAgent(
-    family=family,
+    model_provider=provider,
     model_name=model_name,
     temperature=LlmConfig.LLM_CHAT_TEMPERATURE,
     tools=tools,
@@ -54,7 +54,7 @@ chat_agent = DynamicAgent(
 )
 
 titler_agent = DynamicAgent(
-    family=family,
+    model_provider=provider,
     model_name=model_name,
     temperature=LlmConfig.LLM_CHAT_TEMPERATURE,
     system_prompt=CHAT_TITLER_SYSTEM_PROMPT,

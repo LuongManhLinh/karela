@@ -1,49 +1,152 @@
 # Karela
 
-Scrum Requirement Engineering Assistance
+Ứng dụng hỗ trợ Scrum Team.
 
-## Current issues
+## Hướng dẫn cài đặt
 
-Today’s tools (Jira + Xray/Zephyr + Cucumber + Camunda + Stately):
+### Tổng quan
 
-- Handle pieces of the chain (stories, acceptance tests, rules, states, tasks).
-- But do not unify them in a structured, validated, human-in-the-loop workflow.
-- They also lack guardrails: Gherkin is free text, DMN is external, and statecharts are isolated diagrams.
+Trước khi chạy ứng dụng, bạn cần hoàn thành 3 việc sau:
 
-## What we do
+1. Cấu hình file môi trường cho backend.
+2. Tạo và liên kết Jira app nếu bạn dùng tính năng Jira.
+3. Chạy backend và frontend.
 
-- Unify the pieces in a structured, validated, human-in-the-loop workflow.
-- Provide guardrails: Gherkin is structured, DMN is integrated, and statecharts are executable.
+Các bước dưới đây được tách riêng để bạn có thể làm lần lượt.
 
-### 1. DSL-first approach
+### 1. Tạo file `.env` cho backend
 
-- One schema connects Story → Acceptance Criteria → DMN rules → Statecharts → Tasks.
-- Each artifact is generated from the previous one, ensuring consistency and traceability.
+Mở terminal và chuyển vào thư mục backend:
 
-### 2. Assistive AI
+```bash
+cd src/backend
+```
 
-- LLMs propose (stories, ACs, DMN skeletons, tasks).
-- DSLs + validators check.
-- Humans approve.
+Tạo file `.env` từ file mẫu:
 
-Desire: AI-assisted but human-in-the-loop, mitigating LLM hallucinations.
+```bash
+cp .env.example .env
+```
 
-### 3. Cross-artifact validation
+Sau đó mở file [src/backend/.env](src/backend/.env) và điền giá trị vào đúng dòng, ngay sau dấu `=`.
 
-- DMN overlap/gap detection (decision analysis).
+Các biến cần chú ý:
 
-- Story ↔ AC coverage checks (no Story without AC).
+- `LLM_PROVIDER`: chọn `gemini` hoặc `openai`.
+- `GEMINI_API_KEYS`: chỉ điền khi `LLM_PROVIDER=gemini`.
+- `OPENAI_API_KEYS`: chỉ điền khi `LLM_PROVIDER=openai`.
+- `MINERU_TOKEN`: cần nếu bạn dùng tính năng liên quan đến MinerU.
 
-- AC ↔ Statechart mapping (no missing state).
+Bạn lấy các giá trị này ở đâu:
 
-- This provides quality gates across RE, not just within one artifact.
+- `GEMINI_API_KEYS`: lấy tại https://aistudio.google.com/. Có thể nhập nhiều key, ngăn cách bằng dấu phẩy.
+- `OPENAI_API_KEYS`: lấy tại https://platform.openai.com/. Có thể nhập nhiều key, ngăn cách bằng dấu phẩy.
+- `MINERU_TOKEN`: lấy tại http://mineru.net/.
 
-## What we want to help
+Ví dụ:
 
-- For Product Owners: reduces ambiguity and enforces consistency in User Stories and Acceptance Criteria.
+```dotenv
+LLM_PROVIDER=gemini
+GEMINI_API_KEYS=key_1,key_2
+MINERU_TOKEN=your_token_here
+```
 
-- For Dev Teams: generates executable tests (Cucumber), decision logic (DMN), and tasks — speeding refinement.
+### 2. Cấu hình Jira app
 
-- For Researchers: offers a framework to study AI-assisted RE with formal validation.
+Phần này chỉ cần làm nếu bạn muốn dùng tính năng Jira.
 
-- For Industry: integrates with Jira (already ubiquitous) but adds rigor that current Jira plugins lack.
+#### 2.1. Tạo app Jira và lấy Client ID / Secret
+
+1. Vào https://developer.atlassian.com/console/myapps.
+2. Tạo một Jira app mới.
+3. Chọn app vừa tạo.
+4. Mở mục **Settings**.
+5. Copy `client id` và `secret` vào đúng hai biến dưới đây trong file [src/backend/.env](src/backend/.env):
+
+```dotenv
+JIRA_CLIENT_ID=
+JIRA_CLIENT_SECRET=
+```
+
+#### 2.2. Cấu hình OAuth callback và webhook URL
+
+Bạn cần một **public domain** để Jira có thể gọi vào backend. Ví dụ, nếu backend của bạn chạy ở `https://api.example.com`, thì các URL phải dùng đúng domain đó.
+
+Điền hai biến dưới đây trong file [src/backend/.env](src/backend/.env) bằng domain thật của bạn:
+
+```dotenv
+JIRA_OAUTH_URL=https://your-backend-domain/api/v1/integrations/jira/oauth/callback
+JIRA_WEBHOOK_URL=https://your-backend-domain/api/v1/integrations/jira/webhook
+```
+
+Sau đó quay lại https://developer.atlassian.com/console/myapps và làm tiếp:
+
+1. Chọn app vừa tạo.
+2. Mở mục **Authorization**.
+3. Chọn **Configure**.
+4. Dán cả 2 URL trên vào trường **Callback URLs**.
+
+### 3. Chạy backend
+
+Bạn có thể chọn **một trong hai cách** dưới đây.
+
+#### Cách 1: Chỉ dùng Docker
+
+Đây là cách đơn giản nhất nếu bạn chỉ cần chạy ứng dụng.
+
+```bash
+cd src/backend
+docker compose up --build
+```
+
+#### Cách 2: Chạy thủ công để linh hoạt hơn, bao gồm test
+
+Cách này phù hợp nếu bạn muốn debug hoặc chạy test.
+
+1. Tạo môi trường ảo Python.
+2. Kích hoạt môi trường ảo.
+3. Cài dependencies.
+4. Chạy các service phụ trợ mà backend cần.
+5. Chạy backend bằng `python main.py`.
+
+```bash
+cd src/backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+docker compose -f docker-compose-services.yml up -d
+python main.py
+```
+
+**Lưu ý:** trên Windows, cách này có thể gặp lỗi với Redis vì terminal không fork được như trên Linux.
+
+### 4. Chạy frontend
+
+#### Cách 1: Dùng Docker
+
+```bash
+cd src/frontend
+docker compose up --build
+```
+
+#### Cách 2: Chạy thủ công
+
+**Máy cần có Node.js.**
+
+Nếu bạn muốn chạy bản production:
+
+```bash
+cd src/frontend
+npm run build
+npm run start
+```
+
+Nếu bạn muốn vừa chạy vừa chỉnh code:
+
+```bash
+npm run dev
+```
+
+### 5. Truy cập ứng dụng
+
+Mở trình duyệt tại http://localhost:3000 để sử dụng ứng dụng.

@@ -16,7 +16,7 @@ class DynamicAgent:
         self,
         model_name: str,
         api_keys: list[str],
-        family: Literal["gemini", "openai"] = "gemini",
+        model_provider: Literal["gemini", "openai"] = "gemini",
         system_prompt: str | Callable = None,
         temperature: float = 0.7,
         response_mime_type: Literal[
@@ -33,7 +33,7 @@ class DynamicAgent:
         top_p: float = 1.0,
         alternative_model_names: list[str] = [],
     ):
-        if family == "openai":
+        if model_provider == "openai":
             self._delegate = OpenAIDynamicAgent(
                 model_name=model_name,
                 api_keys=api_keys,
