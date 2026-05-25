@@ -30,20 +30,24 @@ class DefectService:
         self.db.add(defect)
         self.db.commit()
 
-    def get_defects_by_story_key(
-        self, connection_id: str, project_key: str, story_key: str
+    def get_defects_by_project_or_story(
+        self, connection_id: str, project_key: str, story_key: str | None = None
     ) -> list[DefectDto]:
-        defects = (
+
+        query = (
             self.db.query(Defect)
             .join(DefectStoryKey, Defect.id == DefectStoryKey.defect_id)
             .join(Analysis, Defect.analysis_id == Analysis.id)
-            .filter(DefectStoryKey.story_key == story_key)
             .filter(
                 Analysis.connection_id == connection_id,
                 Analysis.project_key == project_key,
             )
-            .all()
         )
+
+        if story_key:
+            query.filter(DefectStoryKey.story_key == story_key)
+
+        defects = query.all()
 
         return [
             DefectDto(

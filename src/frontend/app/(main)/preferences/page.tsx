@@ -155,7 +155,7 @@ export default function PreferencesPage() {
     >
       <Box
         sx={{
-          pt: 4,
+          pt: 2,
           pb: 12,
           overflowY: "auto",
           ...scrollBarSx,

@@ -21,19 +21,17 @@ python-dotenv
 minio
 langchain_text_splitters
 markitdown[docx]
-
-# unstructured
-# unstructured[md]
-# unstructred[docx]
-# unstructured[txt]
-# litellm
-# pymupdf
-# PyPDF2
-# python-dotenv
-# pyyaml
-
-graphrag
 neo4j
 pyarrow
 langchain-neo4j
 natsort
+graphrag
+unstructured
+unstructured[md]
+unstructured[docx]
+unstructured[txt]
+litellm
+pymupdf
+PyPDF2
+python-dotenv
+pyyaml

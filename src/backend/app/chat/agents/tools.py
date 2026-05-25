@@ -15,7 +15,7 @@ from app.xgraphrag.search.llm_tools import graphrag_search_tools
 
 @tool
 def search_stories_by_keywords(keywords: str, runtime: ToolRuntime[Context]) -> str:
-    """Retrieve user stories based on keywords.
+    """Retrieve user stories based on keywords using vector similarity.
 
     Args:
         keywords (str): Keywords to search for user stories. For example: "authentication", "payment gateway", "user profile".
@@ -83,12 +83,12 @@ def get_story_details(story_key: str, runtime: ToolRuntime[Context]) -> str:
 
 
 @tool
-def get_defects_for_story(story_key: str, runtime: ToolRuntime[Context]) -> str:
+def get_defects(story_key: Optional[str], runtime: ToolRuntime[Context]) -> str:
     """Fetch defects for a User Story by its key.
 
     Args:
-        story_key (str):
-            The key of the User Story to fetch defects for.
+        story_key (Optional[str]):
+            The key of the User Story to fetch defects for. If null, fetch defects for the current project.
 
     Returns:
         str: A JSON string containing: the list of defects or an error message.
@@ -99,14 +99,9 @@ def get_defects_for_story(story_key: str, runtime: ToolRuntime[Context]) -> str:
 {"-"*100}
 """)
 
-    if not story_key:
-        return json.dumps(
-            {"error": "Story Key not provided. Cannot retrieve defects."},
-            indent=2,
-        )
     context = runtime.context
     service = DefectService(db=context.db)
-    defects = service.get_defects_by_story_key(
+    defects = service.get_defects_by_project_or_story(
         connection_id=context.connection_id,
         project_key=context.project_key,
         story_key=story_key,
@@ -118,11 +113,13 @@ def get_defects_for_story(story_key: str, runtime: ToolRuntime[Context]) -> str:
 
 
 @tool
-def run_defect_analysis(story_key: Optional[str], runtime: ToolRuntime[Context]) -> str:
-    """Run a defect analysis for a User Story.
+def run_defect_detection_pipeline(
+    story_key: Optional[str], runtime: ToolRuntime[Context]
+) -> str:
+    """Run a defect detection pipeline for the current project or for a User Story
 
     Args:
-        story_key (str): The key of the Story to run defect analysis for.
+        story_key (Optional[str]): The key of the Story to run defect detection for. If null, run for the current project
 
     Returns:
         str: A JSON string containing: the analysis ID and status, or an error message.
@@ -193,6 +190,7 @@ def run_proposal_generation(
         project_key=context.project_key,
         input_defects=defects,
         clarifications=clarifying_info,
+        mode="SIMPLE",
     )
 
     return json.dumps(
@@ -345,7 +343,7 @@ def create_stories(
 tools = [
     search_stories_by_keywords,
     get_story_details,
-    get_defects_for_story,
+    get_defects,
     update_stories,
     create_stories,
 ]

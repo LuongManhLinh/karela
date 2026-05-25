@@ -21,7 +21,10 @@ Use the `DocumentationVectorSearch` tool to find:
 3. Synthesize findings into a structured summary.
 
 ## OUTPUT RULES
-Return a clear, structured summary of the project context organized by category. Be thorough but concise. If no documentation is found for a category, state "No documentation available."
+- Return a clear, structured summary of the project context organized by category. 
+- Be thorough but concise. 
+- If no documentation is found for a category, state "No documentation available."
+- No follow up questions
 """
 
 

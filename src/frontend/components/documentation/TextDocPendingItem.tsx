@@ -34,9 +34,13 @@ export const TextDocItem: React.FC<{
               <Chip size="small" label={t("pendingLabel")} color="warning" />
             )}
           </Stack>
-          {description && (
+          {description ? (
             <Typography variant="body2" color="text.secondary">
               {description}
+            </Typography>
+          ) : (
+            <Typography variant="caption" color="text.disabled">
+              {t("noDescription")}
             </Typography>
           )}
         </Box>

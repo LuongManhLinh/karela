@@ -14,7 +14,6 @@ from .services import DocumentationService
 
 router = APIRouter()
 
-# ── Bulk Documentation ───────────────────────────────────────────────
 
 @router.post("/projects/{project_key}/bulk-docs")
 def bulk_upload_docs(
@@ -28,7 +27,7 @@ def bulk_upload_docs(
     conn_id = jwt_payload.get("sub")
     if not conn_id:
         raise HTTPException(status_code=401, detail="Invalid JWT payload")
-    
+
     try:
         text_docs = json.loads(text_docs_json)
         file_docs_meta = json.loads(file_docs_meta_json)
@@ -43,14 +42,12 @@ def bulk_upload_docs(
             files=files,
             file_docs_meta=file_docs_meta,
         )
-        return BasicResponse(detail="Bulk documentation uploaded successfully", data=result)
+        return BasicResponse(
+            detail="Bulk documentation uploaded successfully", data=result
+        )
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
-
-
-
-# ── Text Documentation ───────────────────────────────────────────────
 
 
 @router.get("/projects/{project_key}/text-docs")
@@ -95,7 +92,7 @@ def update_text_doc(
     if not conn_id:
         raise HTTPException(status_code=401, detail="Invalid JWT payload")
     try:
-        doc = service.update_text_doc(doc_id, request)
+        doc = service.update_text_doc(conn_id, doc_id, request)
         return BasicResponse(detail="Text documentation updated", data=doc)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -117,9 +114,6 @@ def delete_text_doc(
         return BasicResponse(detail="Text documentation deleted")
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
-
-
-# ── File Documentation ───────────────────────────────────────────────
 
 
 @router.get("/projects/{project_key}/file-docs")

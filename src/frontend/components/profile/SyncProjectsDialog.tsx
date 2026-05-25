@@ -288,7 +288,6 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
   totalProjectsCount,
   onSync,
   onClose,
-
 }) => {
   const t = useTranslations("profile.SyncProjectsDialog");
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
@@ -414,6 +413,7 @@ export const SyncProjectsDialog: React.FC<SyncProjectsDialogProps> = ({
           }
         }
       }
+
       await connectionService.syncProjects(projectsToSync);
       queryClient.invalidateQueries({ queryKey: ["connections", "projects"] });
     } finally {

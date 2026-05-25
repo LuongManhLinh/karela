@@ -24,8 +24,11 @@ from .context import Context
 @dynamic_prompt
 def user_context_prompt(request: ModelRequest) -> str:
     """Generate system prompt based on user role."""
-    extra_instruction = request.runtime.context.extra_instruction or ""
+    context: Context = request.runtime.context
+    project_description = context.project_description
+    extra_instruction = context.extra_instruction or ""
     return SYSTEM_PROMPT.format(
+        project_description=project_description,
         extra_instruction=extra_instruction,
     )
 
@@ -69,6 +72,7 @@ def chat_with_agent(
     session_id: str,
     db: Session,
     project_key: str,
+    project_description: str = None,
     extra_instruction: str = None,
 ) -> dict:
     """Chat with the resolver agent.
@@ -90,6 +94,7 @@ def chat_with_agent(
             connection_id=connection_id,
             project_key=project_key,
             db=db,
+            project_description=project_description,
             extra_instruction=extra_instruction,
         ),
     )
@@ -103,6 +108,7 @@ def stream_with_agent(
     session_id: str,
     db: Session,
     project_key: str,
+    project_description: str = None,
     extra_instruction: str = None,
 ):
     """Chat with the resolver agent with streaming response.
@@ -124,6 +130,7 @@ def stream_with_agent(
             connection_id=connection_id,
             project_key=project_key,
             db=db,
+            project_description=project_description,
             extra_instruction=extra_instruction,
         ),
         stream_mode="messages",

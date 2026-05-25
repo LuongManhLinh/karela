@@ -180,7 +180,8 @@
     "pendingLabel": "Đang chờ",
     "editPendingEntry": "Chỉnh sửa mục đang chờ",
     "selectFile": "Chọn tệp",
-    "editEntry": "Chỉnh sửa mục"
+    "editEntry": "Chỉnh sửa mục",
+    "noDescription": "Không có mô tả"
   },
   "PreferencesPage": {
     "title": "Cài đặt",

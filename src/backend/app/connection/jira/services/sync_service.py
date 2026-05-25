@@ -88,16 +88,10 @@ class JiraSyncService(JiraBaseService):
 
     def sync_projects(
         self,
-        connection_id: str,
+        connection: Connection,
         project_keys: list[str],
         project_context_map: dict[str, str],
     ):
-        connection = (
-            self.db.query(Connection).filter(Connection.id == connection_id).first()
-        )
-        if not connection:
-            raise ValueError("Connection not found")
-
         self._sync_projects(
             connection,
             project_keys=project_keys,

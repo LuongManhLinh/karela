@@ -4,6 +4,7 @@ import { FilterAltOutlined as Filter } from "@mui/icons-material";
 import { Layout } from "@/components/Layout";
 import { UrlInformation } from "@/components/UrlInformation";
 import { DefaultSessionFilterDialog } from "@/components/SessionDialog";
+import { scrollBarSx } from "@/constants/scrollBarSx";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -46,42 +47,52 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       appBarTransparent={appBarTransparent}
       basePath={basePath}
     >
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4, overflowY: "auto" }}>
-        {/* Filter Section */}
-        <Paper
-          elevation={2}
-          sx={{
-            p: 3,
-            mb: 3,
-            borderRadius: 1,
-          }}
-        >
-          <Box
+      <Box
+        sx={{
+          pt: 2,
+          pb: 12,
+          overflowY: "auto",
+          ...scrollBarSx,
+          width: "100%",
+        }}
+      >
+        <Container maxWidth="lg">
+          {/* Filter Section */}
+          <Paper
+            elevation={2}
             sx={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "space-between",
-              alignItems: "center",
+              p: 3,
+              mb: 3,
+              borderRadius: 1,
             }}
           >
-            <Typography variant="h6" fontWeight={600}>
-              {filterSectionTitle}
-            </Typography>
-            <IconButton onClick={() => setFilterDialogOpen(true)}>
-              <Filter />
-            </IconButton>
-          </Box>
-          <UrlInformation />
-        </Paper>
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Typography variant="h6" fontWeight={600}>
+                {filterSectionTitle}
+              </Typography>
+              <IconButton onClick={() => setFilterDialogOpen(true)}>
+                <Filter />
+              </IconButton>
+            </Box>
+            <UrlInformation />
+          </Paper>
 
-        {/* Dashboard Content */}
-        {children}
+          {/* Dashboard Content */}
+          {children}
 
-        <DefaultSessionFilterDialog
-          open={filterDialogOpen}
-          onClose={() => setFilterDialogOpen(false)}
-        />
-      </Container>
+          <DefaultSessionFilterDialog
+            open={filterDialogOpen}
+            onClose={() => setFilterDialogOpen(false)}
+          />
+        </Container>
+      </Box>
     </Layout>
   );
 };

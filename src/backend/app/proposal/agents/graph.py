@@ -944,7 +944,7 @@ def run_proposal_generation(
             f"{_format_raw_defects(defects)}"
         )
         if clarifications:
-            msg += f"\n\nClarifications:\n{clarifications}"
+            msg += f"\n\n## User Clarifications to follow:\n{clarifications}"
 
         messages = [HumanMessage(content=msg)]
 

@@ -213,7 +213,7 @@ async def get_defect_by_story(
     if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
-        defects = service.get_defects_by_story_key(
+        defects = service.get_defects_by_project_or_story(
             connection_id=conn_id,
             project_key=project_key,
             story_key=story_key,

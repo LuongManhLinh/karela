@@ -50,7 +50,6 @@ import { useThemeMode } from "@/providers/ThemeProvider";
 import { setLanguage } from "@/utils/languageUtils";
 import { useWebSocketContext } from "@/providers/WebSocketProvider";
 import { jiraService } from "@/services/jiraService";
-import { set } from "ace-builds-internal/config";
 
 type ThemeOption = {
   name: string;

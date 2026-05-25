@@ -7,17 +7,8 @@ load_dotenv(dotenv_path=".env")
 
 class ServerConfig:
     HOST = os.getenv("SERVER_HOST", "localhost")
-    PORT = os.getenv("SERVER_PORT", "8000")
+    PORT = os.getenv("SERVER_PORT", "8888")
     WORKER_PER_QUEUE = int(os.getenv("WORKER_PER_QUEUE", "1"))
-
-
-class DatabaseConfig:
-    HOST = os.getenv("DB_HOST", "localhost")
-    PORT = os.getenv("DB_PORT", "3306")
-    USER = os.getenv("DB_USER", "root")
-    PASSWORD = os.getenv("DB_PASSWORD", "root")
-    DATABASE = os.getenv("DB_NAME", "karela")
-    DATA_SOURCE = f"mysql+pymysql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
 
 
 class LlmConfig:
@@ -46,6 +37,11 @@ class LlmConfig:
     OPENAI_API_RETRY_DELAY_MS = int(os.getenv("OPENAI_API_RETRY_DELAY_MS", "1000"))
 
 
+class AuthConfig:
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "")
+    AES_KEY = base64.b64decode(os.getenv("AES_KEY", ""))
+
+
 class OpenRouterConfig:
     OPENROUTER_API_KEYS = os.getenv("OPENROUTER_API_KEYS", "").split(",")
     OPENROUTER_API_MODEL = os.getenv("OPENROUTER_API_MODEL", "gpt-4o")
@@ -60,15 +56,19 @@ class JiraConfig:
     WEBHOOK_URL = os.getenv("JIRA_WEBHOOK_URL", "")
 
 
+class DatabaseConfig:
+    HOST = os.getenv("DB_HOST", "localhost")
+    PORT = os.getenv("DB_PORT", "3306")
+    USER = os.getenv("DB_USER", "root")
+    PASSWORD = os.getenv("DB_PASSWORD", "root")
+    DATABASE = os.getenv("DB_NAME", "karela")
+    DATA_SOURCE = f"mysql+pymysql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
+
+
 class RedisConfig:
     REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
     REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
     REDIS_DB = int(os.getenv("REDIS_DB", "0"))
-
-
-class AuthConfig:
-    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "")
-    AES_KEY = base64.b64decode(os.getenv("AES_KEY", ""))
 
 
 class VectorStoreConfig:
@@ -77,7 +77,7 @@ class VectorStoreConfig:
     )
     COLLECTION_NAME = os.getenv("VECTORSTORE_COLLECTION_NAME", "karela_collection")
     HOST = os.getenv("VECTORSTORE_HOST", "localhost")
-    PORT = int(os.getenv("VECTORSTORE_PORT", "8888"))
+    PORT = int(os.getenv("VECTORSTORE_PORT", "8000"))
 
 
 class MinioConfig:
@@ -86,6 +86,12 @@ class MinioConfig:
     SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minioadmin")
     BUCKET_NAME = os.getenv("MINIO_BUCKET_NAME", "karela-files")
     SECURE = os.getenv("MINIO_SECURE", "false").lower() == "true"
+
+
+class Neo4jConfig:
+    NEO4J_URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
+    NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
+    NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "password")
 
 
 class UnstructuredConfig:
@@ -98,12 +104,6 @@ class GraphRAGConfig:
     TOKENIZER_MODEL_ID = os.getenv("GRAPHRAG_MODEL_ID", "gemini/gemini-2.5-flash-lite")
     CHAT_MODEL = os.getenv("GRAPHRAG_CHAT_MODEL", "gemini/gemini-2.5-flash-lite")
     EMBEDDING_MODEL = os.getenv("GRAPHRAG_EMBEDDING_MODEL", "gemini-embedding-001")
-
-
-class Neo4jConfig:
-    NEO4J_URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
-    NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
-    NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "password")
 
 
 class MineruConfig:

@@ -24,6 +24,7 @@ import {
   useStoryProposalsQuery,
   useActOnProposalMutation,
   useActOnProposalContentMutation,
+  useProposalDtosByStoryQuery,
 } from "@/hooks/queries/useProposalQueries";
 import { useACsByStoryQuery } from "@/hooks/queries/useACQueries";
 import { acService } from "@/services/acService";
@@ -71,7 +72,7 @@ const WorkspacePage: React.FC<WorkspacePageProps> = ({
 
   // Get sessions that have proposals for this story
   const { data: proposalsData, isLoading: isProposalsLoading } =
-    useStoryProposalsQuery(projectKey, storyKey);
+    useProposalDtosByStoryQuery(projectKey, storyKey);
 
   const { data: acsData, isLoading: isAcsLoading } = useACsByStoryQuery(
     projectKey,

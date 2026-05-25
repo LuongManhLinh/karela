@@ -47,7 +47,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
     const wsUrl =
-      process.env.NEXT_PUBLIC_WEBSOCKET_URL || "ws://localhost:8000/api/v1/ws/";
+      process.env.NEXT_PUBLIC_WEBSOCKET_URL || "ws://localhost:8888/api/v1/ws/";
 
     const ws = new WebSocket(wsUrl);
 

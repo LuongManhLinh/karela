@@ -2,7 +2,7 @@ import { getToken, removeToken } from "@/utils/jwtUtils";
 import axios, { AxiosInstance } from "axios";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8888/api/v1";
 
 // Create axios instance with default config
 const apiClient: AxiosInstance = axios.create({
@@ -25,7 +25,7 @@ apiClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Add response interceptor for error handling
@@ -40,7 +40,7 @@ apiClient.interceptors.response.use(
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;

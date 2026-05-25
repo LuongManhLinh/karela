@@ -28,14 +28,14 @@ Create `.env` from the example file:
 cp .env.example .env
 ```
 
-Now open [src/backend/.env](src/backend/.env) and fill in the value after each `=` on the correct line.
+Now open [src/backend/.env](src/backend/.env) and fill in the value.
 
 Pay attention to these variables:
 
 - `LLM_PROVIDER`: choose `gemini` or `openai`.
-- `GEMINI_API_KEYS`: fill this only when `LLM_PROVIDER=gemini`.
-- `OPENAI_API_KEYS`: fill this only when `LLM_PROVIDER=openai`.
-- `MINERU_TOKEN`: needed if you use MinerU-related features.
+- `GEMINI_API_KEYS`: fill this when `LLM_PROVIDER=gemini`.
+- `OPENAI_API_KEYS`: fill this when `LLM_PROVIDER=openai`.
+- `MINERU_TOKEN`: required for converting PDF to Markdown.
 
 Where to get them:
 
@@ -90,13 +90,13 @@ Then go back to https://developer.atlassian.com/console/myapps and do the follow
 
 You can choose **one** of the two options below.
 
-#### Option 1: Docker only
+#### Option 1: Use Docker to build the backend yourself
 
-This is the simplest way if you only need to run the app.
+This is suitable if you want to edit the backend code and run it, but still want to take advantage of Docker to avoid installing many things on your machine.
 
 ```bash
 cd src/backend
-docker compose up --build
+docker compose -f docker-compose-dev.yml up --build -d
 ```
 
 #### Option 2: Run manually for more flexibility, including tests

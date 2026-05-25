@@ -663,10 +663,6 @@ class ProposalService:
             .all()
         )
 
-        # A story is not linked to chat sessions,
-        # so we return an empty list for chat sessions
-        chat_sessions = []
-
         return SessionsWithProposals(
             analysis_sessions=[
                 ProposalSessionSummary(
@@ -678,17 +674,7 @@ class ProposalService:
                 )
                 for analysis, num_proposals in analysis_sessions
             ],
-            chat_sessions=[
-                ProposalSessionSummary(
-                    id=chat.id,
-                    key=chat.key,
-                    project_key=chat.project_key,
-                    story_key=chat.story_key,
-                    created_at=chat.created_at.isoformat(),
-                    num_proposals=num_proposals,
-                )
-                for chat, num_proposals in chat_sessions
-            ],
+            chat_sessions=[],
         )
 
     def _revert_applied_proposal_contents(

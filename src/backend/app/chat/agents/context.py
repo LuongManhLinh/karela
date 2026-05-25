@@ -6,3 +6,4 @@ from common.agents.schemas import LlmContext
 class Context(LlmContext):
     session_id: str
     extra_instruction: Optional[str] = None
+    project_description: Optional[str] = None

@@ -9,6 +9,7 @@ from langchain_core.messages import (
 
 from app.documentation.services import DocumentationService
 from app.preference.services import PreferenceService
+from app.connection.jira.services import JiraService
 
 from ..agents.agent import stream_with_agent, generate_chat_title
 
@@ -34,6 +35,7 @@ class ChatService:
         self.db = db
         self.doc_service = DocumentationService(db=db)
         self.preference_service = PreferenceService(db=db)
+        self.jira_service = JiraService(db=db)
         self.redis_client = redis_client
 
     async def publish_stream(self, session_id_or_key: str, user_message: str):
@@ -103,8 +105,8 @@ class ChatService:
             )
 
             if not history_messages:
-                # title = generate_chat_title(user_message)
-                title = "New Chat"
+                title = generate_chat_title(user_message)
+                # title = "New Chat"
                 print(f"Generated title for session {session.key}: {title}")
                 session.title = title
                 self.db.commit()
@@ -122,11 +124,17 @@ class ChatService:
             self.db.commit()
 
             history_messages.append(HumanMessage(content=user_message))
-            project_key = session.project_key
             connection_id = session.connection_id
+            project_key = session.project_key
+
             preference = self.preference_service.get_chat_preference(
                 connection_id=connection_id, project_key=project_key
             )
+
+            project_desc = self.jira_service.get_project_description(
+                connection_id=connection_id, project_key=project_key
+            )
+
             for chunk, _ in stream_with_agent(
                 messages=history_messages,
                 session_id=session.id,
@@ -134,6 +142,7 @@ class ChatService:
                 db=self.db,
                 project_key=project_key,
                 extra_instruction=preference.chat_guidelines if preference else None,
+                project_description=project_desc,
             ):
                 msg_chunk = MessageChunk(
                     id=chunk.id,

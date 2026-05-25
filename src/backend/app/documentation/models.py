@@ -4,7 +4,6 @@ from sqlalchemy import (
     String,
     ForeignKey,
     Text,
-    JSON,
     DateTime,
 )
 
@@ -21,7 +20,11 @@ class TextDocumentation(Base):
         nullable=False,
         index=True,
     )
-    project_key = Column(String(32), index=True, nullable=False)
+    project_key = Column(
+        String(32),
+        index=True,
+        nullable=False,
+    )
     key = Column(String(64), index=True, nullable=False)
     name = Column(String(256), nullable=False)
     description = Column(Text, nullable=True)
@@ -46,11 +49,16 @@ class FileDocumentation(Base):
         nullable=False,
         index=True,
     )
-    project_key = Column(String(32), index=True, nullable=False)
+    project_key = Column(
+        String(32),
+        index=True,
+        nullable=False,
+    )
     key = Column(String(64), index=True, nullable=False)
     name = Column(String(256), nullable=False)
     url = Column(String(512), nullable=False)
     description = Column(Text, nullable=True)
+    content = Column(Text, nullable=True)
     token_count = Column(Integer, nullable=True, default=0)
 
     created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)

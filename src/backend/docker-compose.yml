@@ -1,4 +1,15 @@
 services:
+  backend:
+    build: .
+    container_name: karela_backend
+    ports:
+      - "8888:8888"
+    depends_on:
+      - mysql
+      - redis
+      - chroma
+      - minio
+      - neo4j
   mysql:
     image: mysql:latest
     container_name: karela_mysql
@@ -22,7 +33,7 @@ services:
     image: chromadb/chroma:latest
     container_name: karela_chroma
     ports:
-      - "8888:8000"
+      - "8000:8000"
     environment:
       - CHROMA_DB_IMPL=duckdb+parquet
       - CHROMA_SERVER_ALLOW_RESET=True

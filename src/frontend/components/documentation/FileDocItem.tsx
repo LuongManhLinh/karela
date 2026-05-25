@@ -34,7 +34,7 @@ export const FileDocItem: React.FC<{
   chipLabel,
   chipColor,
 }) => {
-  const t = useTranslations("DocumentationManager");
+  const t = useTranslations("DocumentationPage");
   return (
     <Paper
       elevation={2}
@@ -51,9 +51,14 @@ export const FileDocItem: React.FC<{
 
               <Chip size="small" label={chipLabel} color={chipColor} />
             </Stack>
-            {description && (
-              <Typography variant="caption" color="text.secondary">
+
+            {description ? (
+              <Typography variant="body2" color="text.secondary">
                 {description}
+              </Typography>
+            ) : (
+              <Typography variant="caption" color="text.disabled">
+                {t("noDescription")}
               </Typography>
             )}
           </Box>

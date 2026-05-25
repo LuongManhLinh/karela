@@ -36,6 +36,9 @@ def search_in_docs(
     k: int = 5,
 ) -> str:
     """Searches for relevant information in the documentation. This function should be called after calling list_available_docs to get the list of available documentation keys and optionally specify a doc_key to search in a specific documentation.
+
+    NOTE: This function should be called sequentially. DO NOT call this function many times at the same time as it may cause issues with the vector store. You should wait for the response of this function before calling it again.
+
     Args:
         query (str): The search query
         doc_key (str, optional): The key of the documentation to search in.
@@ -79,7 +82,38 @@ def search_in_docs(
     return json.dumps({"results": results}, indent=2)
 
 
-doc_tools = [
-    list_available_docs,
-    search_in_docs,
-]
+@tool
+def get_doc_details(runtime: ToolRuntime[LlmContext], doc_key: str) -> str:
+    """Gets the details of a specific documentation by its key. This function can be used to get more information about a specific documentation before searching in it.
+    Args:
+        doc_key (str): The key of the documentation to get details for.
+    Returns:
+        str: A JSON string containing the details of the documentation
+    """
+    print(f"| Tool: get_doc_details called with doc_key='{doc_key}'")
+
+    context = runtime.context
+
+    db = SessionLocal()
+    try:
+        service = DocumentationService(db=db)
+        details = service.get_doc_details(
+            connection_id=context.connection_id,
+            project_key=context.project_key,
+            doc_key=doc_key,
+        )
+
+    finally:
+        db.close()
+
+    if not details:
+        return json.dumps(
+            {"error": f"Documentation with key '{doc_key}' not found"}, indent=2
+        )
+
+    print(f"| Tool: get_doc_details retrieved details for doc_key='{doc_key}'")
+
+    return json.dumps(details, indent=2)
+
+
+doc_tools = [list_available_docs, search_in_docs, get_doc_details]

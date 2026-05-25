@@ -82,6 +82,7 @@ class ProposalRunService:
         clarifications: str = None,
         max_rewrite_attempts: int = 3,
         project_description: str | None = None,
+        mode: Literal["SIMPLE", "COMPLEX", "DEEP"] | None = None,
     ) -> list:
         inputs = self._get_proposal_generation_inputs(
             connection_id=connection_id,
@@ -94,11 +95,17 @@ class ProposalRunService:
 
         user_stories, defects, preference, defect_key_id_map = inputs
 
+        run_mode = "SIMPLE"
+        if mode:
+            run_mode = mode
+        elif preference.gen_proposal_mode:
+            run_mode = preference.gen_proposal_mode
+
         proposals = run_proposal_generation(
             connection_id=connection_id,
             project_key=project_key,
             db=self.db,
-            mode=preference.gen_proposal_mode if preference else "SIMPLE",
+            mode=run_mode,
             defects=defects,
             user_stories=user_stories,
             max_rewrite_attempts=max_rewrite_attempts,

@@ -22,7 +22,7 @@ services:
     image: chromadb/chroma:latest
     container_name: karela_chroma
     ports:
-      - "8888:8000"
+      - "8000:8000"
     environment:
       - CHROMA_DB_IMPL=duckdb+parquet
       - CHROMA_SERVER_ALLOW_RESET=True

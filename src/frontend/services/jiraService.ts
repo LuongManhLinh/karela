@@ -1,11 +1,10 @@
-import { getToken } from "@/utils/jwtUtils";
 import apiClient from "./api";
 import { BasicResponse } from "@/types";
 
 export const jiraService = {
   startOAuth: async (): Promise<void> => {
     const apiBaseUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
+      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8888/api/v1";
 
     // Use fetch with redirect: "manual" to intercept the redirect response
     // The backend will return a 302/307 redirect with Location header

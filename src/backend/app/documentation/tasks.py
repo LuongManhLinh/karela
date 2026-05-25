@@ -1,6 +1,6 @@
 import traceback
 
-from common.database import SessionLocal
+from common.database import SessionLocal, uuid_generator
 from common.configs import MineruConfig
 from sqlalchemy.orm import Session
 from .models import TextDocumentation, FileDocumentation
@@ -96,6 +96,7 @@ def _process_and_save_file_doc(
         )
 
         doc.token_count = token_count
+        doc.content = markdown
         db.add(doc)
         if chunks:
             vectorstore.add_chunks(
@@ -124,6 +125,7 @@ def _process_and_save_file_doc(
             token_count = _count_tokens(markdown)
 
             doc.token_count = token_count
+            doc.content = markdown
             db.add(doc)
             print(
                 f"Processed PDF doc {doc.name} with {token_count} tokens and {len(chunks)} chunks"
@@ -138,8 +140,14 @@ def _process_and_save_file_doc(
     db.commit()
 
 
+def create_doc_task(connection_id: str):
+    task_id = uuid_generator()
+    redis_client.sadd(f"doc_{connection_id}", task_id)
+    return task_id
+
+
 @job("doc", timeout=3600, connection=redis_client)
-def process_document_task(doc_id: str, type: str):
+def process_document_task(connection_id: str, doc_id: str, type: str, task_id: str):
     db = SessionLocal()
     vectorsore = DocumentationVectorStore()
     if type == "text":
@@ -152,7 +160,7 @@ def process_document_task(doc_id: str, type: str):
             docs=[doc],
             vectorstore=vectorsore,
         )
-    elif type == "file":
+    else:
         doc = db.query(FileDocumentation).filter(FileDocumentation.id == doc_id).first()
         if not doc:
             raise ValueError(f"File documentation {doc_id} not found")
@@ -161,12 +169,12 @@ def process_document_task(doc_id: str, type: str):
             docs=[doc],
             vectorstore=vectorsore,
         )
-    else:
-        raise ValueError(f"Unknown documentation type: {type}")
+
+    redis_client.srem(f"doc_{connection_id}", task_id)
 
 
 @job("doc", timeout=7200, connection=redis_client)
-def process_bulk_docs_task(doc_tasks: list[dict]):
+def process_bulk_docs_task(connection_id: str, doc_tasks: list[dict], task_id: str):
     print(
         f"Starting bulk documentation processing task with {len(doc_tasks)} documents..."
     )
@@ -200,3 +208,5 @@ def process_bulk_docs_task(doc_tasks: list[dict]):
     _process_and_save_text_doc(db=db, docs=text_docs, vectorstore=vectorsore)
     _process_and_save_file_doc(db=db, docs=file_docs, vectorstore=vectorsore)
     print("Bulk documentation processing task completed successfully")
+
+    redis_client.srem(f"doc_{connection_id}", task_id)

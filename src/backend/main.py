@@ -17,7 +17,16 @@ for queue_type in queue_types:
         time.sleep(0.1)  # Stagger worker startups
 
 uvicorn_process = subprocess.Popen(
-    ["uvicorn", "app:app", "--port", ServerConfig.PORT, "--loop", "asyncio"]
+    [
+        "uvicorn",
+        "app:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        ServerConfig.PORT,
+        "--loop",
+        "asyncio",
+    ]
 )
 
 try:

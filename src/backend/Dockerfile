@@ -4,20 +4,26 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y \
+#     gcc \
+#     g++ \
+#     && rm -rf /var/lib/apt/lists/*
 
 
-# Copy application code
-COPY . .
+COPY requirements.txt .
 
-# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+COPY . .
+
+ENV DB_HOST=mysql
+ENV REDIS_HOST=redis
+ENV VECTORSTORE_HOST=chroma
+ENV MINIO_ENDPOINT=minio:9000
+ENV NEO4J_URI=bolt://neo4j:7687
+
 # Expose port
-EXPOSE 8000
+EXPOSE 8888
 
 # Run the application using run.py
 CMD ["python", "main.py"]

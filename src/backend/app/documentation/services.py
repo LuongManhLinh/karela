@@ -17,7 +17,7 @@ from .schemas import (
     UpdateFileDocumentationRequest,
 )
 from .vectorstore import DocumentationVectorStore
-from .tasks import process_document_task, process_bulk_docs_task
+from .tasks import process_document_task, process_bulk_docs_task, create_doc_task
 from uuid import uuid4
 
 
@@ -127,12 +127,15 @@ class DocumentationService:
         self.db.refresh(doc)
 
         if request.content:
-            process_document_task.delay(doc_id=doc.id, type="text")
+            task_id = create_doc_task(connection_id)
+            process_document_task.delay(
+                connection_id, doc_id=doc.id, type="text", task_id=task_id
+            )
 
         return _text_doc_to_dto(doc)
 
     def update_text_doc(
-        self, doc_id: str, request: UpdateTextDocumentationRequest
+        self, connection_id: str, doc_id: str, request: UpdateTextDocumentationRequest
     ) -> TextDocumentationDto:
         doc = (
             self.db.query(TextDocumentation)
@@ -154,7 +157,10 @@ class DocumentationService:
         self.db.refresh(doc)
 
         if request.content is not None and request.content != doc.content:
-            process_document_task.delay(doc_id=doc.id, type="text")
+            task_id = create_doc_task(connection_id)
+            process_document_task.delay(
+                connection_id, doc_id=doc.id, type="text", task_id=task_id
+            )
 
         return _text_doc_to_dto(doc)
 
@@ -229,7 +235,10 @@ class DocumentationService:
         self.db.commit()
         self.db.refresh(doc)
 
-        process_document_task.delay(doc_id=doc.id, type="file")
+        task_id = create_doc_task(connection_id)
+        process_document_task.delay(
+            connection_id, doc_id=doc.id, type="file", task_id=task_id
+        )
 
         return _file_doc_to_dto(doc)
 
@@ -327,7 +336,10 @@ class DocumentationService:
         # Trigger background processing
         print(f"Dispatching background tasks for {len(doc_tasks)} documents")
         if doc_tasks:
-            process_bulk_docs_task.delay(doc_tasks=doc_tasks)
+            task_id = create_doc_task(connection_id)
+            process_bulk_docs_task.delay(
+                connection_id, doc_tasks=doc_tasks, task_id=task_id
+            )
 
         return {
             "text_docs": [_text_doc_to_dto(d) for d in created_text_docs],
@@ -496,3 +508,43 @@ class DocumentationService:
             self.db.delete(doc)
 
         self.db.commit()
+
+    def get_doc_details(
+        self, connection_id: str, project_key: str, doc_key: str
+    ) -> Optional[dict]:
+        text_doc = (
+            self.db.query(TextDocumentation)
+            .filter(
+                TextDocumentation.connection_id == connection_id,
+                TextDocumentation.project_key == project_key,
+                TextDocumentation.key == doc_key,
+            )
+            .first()
+        )
+
+        if text_doc:
+            return {
+                "key": text_doc.key,
+                "name": text_doc.name,
+                "description": text_doc.description,
+                "content": text_doc.content,
+            }
+
+        file_doc = (
+            self.db.query(FileDocumentation)
+            .filter(
+                FileDocumentation.connection_id == connection_id,
+                FileDocumentation.project_key == project_key,
+                FileDocumentation.key == doc_key,
+            )
+            .first()
+        )
+        if file_doc:
+            return {
+                "key": file_doc.key,
+                "name": file_doc.name,
+                "description": file_doc.description,
+                "content": file_doc.content,
+            }
+
+        return None

@@ -72,7 +72,7 @@ export default function DocumentationPage() {
     >
       <Box
         sx={{
-          pt: 4,
+          pt: 2,
           pb: 12,
           overflowY: "auto",
           ...scrollBarSx,

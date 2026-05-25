@@ -9,8 +9,6 @@ import type {
 } from "@/types/documentation";
 
 export const documentationService = {
-  // ── Bulk Documentation ──────────────────────────────────────
-
   bulkUploadDocs: async (
     projectKey: string,
     textDocs: { name: string; content: string; description?: string }[],
@@ -45,8 +43,6 @@ export const documentationService = {
     });
     return response.data;
   },
-
-  // ── Text Documentation ──────────────────────────────────────
 
   listTextDocs: async (
     projectKey: string,
@@ -85,8 +81,6 @@ export const documentationService = {
     );
     return response.data;
   },
-
-  // ── File Documentation ──────────────────────────────────────
 
   listFileDocs: async (
     projectKey: string,

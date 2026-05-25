@@ -5,7 +5,7 @@ from typing import Optional
 from utils.markdown_adf_bridge.markdown_adf_bridge import md_to_adf, adf_to_md
 from utils.security_utils import encrypt_token, generate_jwt
 from common.configs import JiraConfig
-from common.vectorstore import default_vectorstore
+from common.vectorstore import chroma_vectorstore
 from common.neo4j_app import delete_bucket_safe
 from .base_service import JiraBaseService
 from ..client import JiraClient
@@ -911,7 +911,7 @@ class JiraService(JiraBaseService):
 
         # Delete from vector store
         print("Deleting connection from vector store:", connection_id)
-        default_vectorstore.delete(
+        chroma_vectorstore.delete(
             where={"connection_id": connection_id},
         )
 
@@ -939,8 +939,6 @@ class JiraService(JiraBaseService):
         payload: WebhookCallbackPayload,
     ):
         """Handle incoming Jira webhook payloads"""
-        import json
-
         try:
             issue = payload.issue
             fields = issue.get("fields", {}) or {}

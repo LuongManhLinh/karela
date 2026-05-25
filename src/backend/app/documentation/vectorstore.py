@@ -1,13 +1,12 @@
-import concurrent.futures
 from langchain_core.documents import Document
 
-from common.vectorstore import create_vectorstore
+from common.vectorstore import create_chroma_vectorstore
 
 import httpx
 
 
 class DocumentationVectorStore:
-    def __init__(self, vector_store=create_vectorstore()):
+    def __init__(self, vector_store=create_chroma_vectorstore()):
         self.vector_store = vector_store
 
     def add_chunks(

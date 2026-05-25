@@ -121,3 +121,18 @@ export const useStoryProposalsQuery = (
     enabled: !!projectKey && !!storyKey,
   });
 };
+
+export const useProposalDtosByStoryQuery = (
+  projectKey: string | undefined,
+  storyKey: string | undefined,
+) => {
+  return useQuery({
+    queryKey: [
+      ...PROPOSAL_KEYS.byStory(projectKey || "", storyKey || ""),
+      "dtos",
+    ] as const,
+    queryFn: () =>
+      proposalService.getProposalDtosByStory(projectKey!, storyKey!),
+    enabled: !!projectKey && !!storyKey,
+  });
+};

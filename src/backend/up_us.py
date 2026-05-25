@@ -2,6 +2,7 @@ from app.connection.jira.schemas import CreateStoryRequest
 from app.connection.jira.services import JiraService
 import json
 from common.database import get_db
+import random
 
 print("Reading data")
 
@@ -17,10 +18,13 @@ for issue in data:
         )
     )
 
+# Randomly select 20 stories to upload
+stories = random.sample(stories, 20)
+
 print("Uploading...")
 res = JiraService(next(get_db())).create_stories(
     connection_id="515b536d-ab6f-4c9c-9e8e-caf2147d0aed",
-    project_key="IBT",
+    project_key="IBD2",
     stories=stories,
 )
 print("Results:", res)

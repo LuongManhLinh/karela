@@ -140,7 +140,6 @@ export const DocumentationManager: React.FC<DocumentationManagerProps> = ({
   const [editTextDesc, setEditTextDesc] = useState("");
 
   // --- UI States for File Documentation ---
-  const [uploadDesc, setUploadDesc] = useState("");
 
   const [editingFileId, setEditingFileId] = useState<string | null>(null);
   const [editFileDesc, setEditFileDesc] = useState("");
@@ -267,27 +266,36 @@ export const DocumentationManager: React.FC<DocumentationManagerProps> = ({
 
   // --- File Actions ---
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !projectKey) return;
+    const files = e.target.files;
+    if (!files || files.length === 0 || !projectKey) return;
 
-    const extension = file.name.split(".").pop()?.toLowerCase() || "";
-    if (!ALLOWED_UPLOAD_EXTENSIONS.includes(extension)) {
-      notify(t("invalidFileExtension"), { severity: "warning" });
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      return;
-    }
+    const newPendingFiles: PendingFileDoc[] = [];
+    let hasInvalidFile = false;
 
-    setPendingFileDocs((prev) => [
-      ...prev,
-      {
-        id: `pending-file-${Date.now()}`,
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const extension = file.name.split(".").pop()?.toLowerCase() || "";
+      if (!ALLOWED_UPLOAD_EXTENSIONS.includes(extension)) {
+        hasInvalidFile = true;
+        continue;
+      }
+      newPendingFiles.push({
+        id: `pending-file-${Date.now()}-${i}`,
         file,
         name: file.name,
-        description: uploadDesc,
-      },
-    ]);
-    notify(t("fileAddedToPending"), { severity: "success" });
-    setUploadDesc("");
+        description: undefined,
+      });
+    }
+
+    if (hasInvalidFile) {
+      notify(t("invalidFileExtension"), { severity: "warning" });
+    }
+
+    if (newPendingFiles.length > 0) {
+      setPendingFileDocs((prev) => [...prev, ...newPendingFiles]);
+      notify(t("fileAddedToPending"), { severity: "success" });
+    }
+
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -505,10 +513,6 @@ export const DocumentationManager: React.FC<DocumentationManagerProps> = ({
 
   const fileTab = () => (
     <Box>
-      <Typography variant="body2" color="text.secondary" mb={2}>
-        {t("allowedFileExtensions")}
-      </Typography>
-
       <Stack
         direction={{ xs: "column", sm: "row" }}
         spacing={2}
@@ -525,18 +529,15 @@ export const DocumentationManager: React.FC<DocumentationManagerProps> = ({
         </Button>
         <input
           type="file"
+          multiple
           ref={fileInputRef}
           accept={ACCEPTED_UPLOAD_FILE_TYPES}
           onChange={handleFileUpload}
           style={{ display: "none" }}
         />
-        <TextField
-          size="small"
-          fullWidth
-          label={t("uploadDescriptionOptional")}
-          value={uploadDesc}
-          onChange={(e) => setUploadDesc(e.target.value)}
-        />
+        <Typography variant="body2" color="text.secondary" mb={2}>
+          {t("allowedFileExtensions")}
+        </Typography>
       </Stack>
 
       {isLoadingFileDocs ? (

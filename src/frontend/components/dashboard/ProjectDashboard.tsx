@@ -19,7 +19,7 @@ import {
   Code,
   MenuBook,
   KeyboardArrowDown,
-  BookmarkBorderTwoTone,
+  FmdBadOutlined,
 } from "@mui/icons-material";
 import { useParams, useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
@@ -103,7 +103,7 @@ export const StoryCard: React.FC<{
             size="small"
           />
           <Chip
-            icon={<Code fontSize="small" />}
+            icon={<FmdBadOutlined fontSize="small" />}
             label={story.defect_count}
             size="small"
           />

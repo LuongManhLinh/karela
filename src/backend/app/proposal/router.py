@@ -1,6 +1,5 @@
 import traceback
 from fastapi import APIRouter, HTTPException, Depends
-from typing import List
 
 from app.auth_factory import get_jwt_payload
 from app.service_factory import get_proposal_service
@@ -8,7 +7,6 @@ from app.service_factory import get_proposal_service
 from common.schemas import BasicResponse
 from .schemas import ProposalContentEditRequest, ProposalDto
 from .services import ProposalService
-
 router = APIRouter()
 
 
@@ -162,6 +160,27 @@ async def list_proposals_by_project(
 
 @router.get("/projects/{project_key}/stories/{story_key}")
 async def list_proposals_by_story(
+    project_key: str,
+    story_key: str,
+    jwt_payload=Depends(get_jwt_payload),
+    service: ProposalService = Depends(get_proposal_service),
+):
+    """Get all proposals for a story."""
+    conn_id = jwt_payload.get("sub")
+    if conn_id is None:
+        raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
+    try:
+        dto = service.list_sessions_proposals_by_story(conn_id, project_key, story_key)
+        return BasicResponse(data=dto)
+    except ValueError as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/projects/{project_key}/stories/{story_key}/dtos")
+async def get_proposal_dtos_by_story(
     project_key: str,
     story_key: str,
     jwt_payload=Depends(get_jwt_payload),

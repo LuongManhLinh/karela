@@ -180,7 +180,8 @@
     "pendingLabel": "Pending",
     "editPendingEntry": "Edit Pending Entry",
     "selectFile": "Select File",
-    "editEntry": "Edit Entry"
+    "editEntry": "Edit Entry",
+    "noDescription": "No description"
   },
   "PreferencesPage": {
     "title": "Preferences",

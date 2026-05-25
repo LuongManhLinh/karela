@@ -10,6 +10,7 @@ import {
   atomOneDark,
   atomOneLight,
 } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { MarkdownMessage } from "./MarkdownMessage";
 
 interface MessageBubbleProps {
   message: ChatMessageDto;
@@ -180,7 +181,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
             },
           }}
         >
-          <ReactMarkdown
+          {/* <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
               code({ inline, className, children }: any) {
@@ -197,7 +198,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
             }}
           >
             {content}
-          </ReactMarkdown>
+          </ReactMarkdown> */}
+          <MarkdownMessage content={content} />
         </Box>
       </Box>
     );

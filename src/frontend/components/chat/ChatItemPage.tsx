@@ -270,7 +270,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
   const handleMessageChunk = useCallback(
     (chunk: MessageChunk) => {
       const chunkId = chunk.id;
-      const chunkRole = (chunk.role || "agent") as MessageRole;
+      const chunkRole: MessageRole = chunk.role;
       const chunkContent = chunk.content || "";
 
       // Check if this is a NEW message (different ID from current streaming message)
