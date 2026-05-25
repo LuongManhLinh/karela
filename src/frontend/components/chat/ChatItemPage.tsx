@@ -96,9 +96,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
     setSessionProposals(sessionProposalsData?.data || []);
   }, [sessionProposalsData]);
 
-  // Smooth streaming animation effect
 
-  // Commit streaming message to history when stream ends
   const commitStreamingMessage = useCallback(() => {
     // Prevent multiple commits
     if (isCommittingRef.current) {
@@ -150,10 +148,6 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
       displayedLengthRef.current = 0;
       streamEndedRef.current = false;
 
-      // // Reset commit flag after a short delay
-      // setTimeout(() => {
-      //   isCommittingRef.current = false;
-      // }, 100);
       isCommittingRef.current = false;
     }
   }, [streamingIdRef, streamingRoleRef]);
@@ -483,7 +477,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
             )}
 
             <div ref={messagesEndRef} />
-            {/* <Box sx={{ height: 200 }} /> */}
+    
           </Stack>
         )}
       </Box>
@@ -543,7 +537,7 @@ const ChatItemPage: React.FC<ChatItemPageProps> = ({
               },
 
               "&:before": {
-                display: "none", // Hides the default MUI divider line
+                display: "none",
               },
               boxShadow: "none",
             }}

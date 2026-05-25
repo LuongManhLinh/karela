@@ -27,8 +27,6 @@ export const jiraService = {
       const redirectUrl = data.data;
       console.log("Redirect URL:", redirectUrl);
       if (redirectUrl) {
-        // window.open(redirectUrl, "_blank", "noopener,noreferrer");
-        // Open in the current tab, not a new one
         window.location.href = redirectUrl;
         return;
       } else {

@@ -139,7 +139,6 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
   const { subscribe, unsubscribe } = useWebSocketContext();
   const queryClient = useQueryClient();
 
-  // Use effect to update isGenerating based on selectedAnalysisDetail changes
   useEffect(() => {
     if (selectedAnalysisDetail) {
       setIsGenerating(selectedAnalysisDetail.generating_proposals || false);
@@ -152,7 +151,6 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
 
     const handleMessage = (data: any) => {
       if (data.id === analysisId) {
-        // Invalidate details query to refresh status and defects
         queryClient.invalidateQueries({
           queryKey: ["analysis", "details", idOrKey],
         });
@@ -163,7 +161,7 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
           data.status === "PROPOSAL_GENERATION_FAILED"
         ) {
           setIsGenerating(false);
-          // Invalidate proposals query to fetch new proposals
+
           queryClient.invalidateQueries({
             queryKey: ["proposals", "session", selectedAnalysisDetail.key],
           });
@@ -293,8 +291,6 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
     const destination = `${pathname}${query ? `?${query}` : ""}${hash}`;
     router.push(destination);
 
-    // Next.js router updates history state, which may not trigger hashchange.
-    // Apply switch-and-scroll immediately so ctrl-click works without reload.
     if (target === "proposal") {
       switchToProposalAndScroll(id);
       return;
@@ -402,7 +398,7 @@ const AnalysisItemPage: React.FC<AnalysisItemPageProps> = ({
   const handleRerunAnalysis = async () => {
     const analysisId = selectedAnalysisDetail?.id;
     if (!analysisId) return;
-    // If this is an ALL analysis, warn the user first
+
     if (selectedAnalysisDetail?.type === "ALL") {
       setRunAlertOpen(true);
       return;
