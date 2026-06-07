@@ -1,0 +1,20 @@
+IBD3-1: {'Page Builder', 'Performance & Scalability', 'APIs & Integrations'}
+IBD3-2: {'Master Control Panel (MCP)'}
+IBD3-3: {'Workflows & Approvals', 'Permissions & Access Control'}
+IBD3-4: {'Asset Intelligence & AI', 'Security, Privacy & Compliance', 'Master Control Panel (MCP)'}
+IBD3-5: {'Page Builder', 'Master Control Panel (MCP)'}
+IBD3-6: {'Page Builder', 'Performance & Scalability', 'Master Control Panel (MCP)'}
+IBD3-7: {'Components & Widgets'}
+IBD3-8: {'Page Builder'}
+IBD3-9: {'Workflows & Approvals'}
+IBD3-10: {'Page Builder'}
+IBD3-11: {'Page Builder'}
+IBD3-12: {'Page Builder'}
+IBD3-13: {'Workflows & Approvals', 'Page Builder', 'Audit, Versioning & Traceability', 'Permissions & Access Control', 'APIs & Integrations'}
+IBD3-14: {'Assets & Resource Management'}
+IBD3-15: {'Workflows & Approvals'}
+IBD3-16: {'Asset Intelligence & AI'}
+IBD3-17: {'Page Builder'}
+IBD3-18: {'Page Builder'}
+IBD3-19: {'Components & Widgets'}
+IBD3-20: {'Page Builder'}

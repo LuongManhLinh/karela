@@ -28,7 +28,7 @@ class ProposalContent(BaseModel):
     )
     description: Optional[str] = Field(
         default=None,
-        description="A detailed description of the User Story. Only valid for CREATE or UPDATE actions. ",
+        description="A detailed description of the User Story. Only valid for CREATE or UPDATE actions.",
     )
     explanation: Optional[str] = Field(
         default=None,

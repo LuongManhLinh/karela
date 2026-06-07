@@ -50,7 +50,7 @@
   "MyAppBar": {
     "profile": "Profile",
     "changeTheme": "Change Theme",
-    "logout": "Logout",
+    "logout": "Log out",
     "language": "Language",
     "analysis": "Analysis",
     "chat": "Chat",
@@ -494,9 +494,9 @@
         "passwordChanged": "Password changed successfully",
         "changePasswordFailed": "Failed to change password"
       },
-      "logout": "Logout",
+      "logout": "Log out",
       "confirmLogout": "Confirm Logout",
-      "areYouSureYouWantToLogout": "Are you sure you want to logout?",
+      "areYouSureYouWantToLogout": "Are you sure you want to log out?",
       "cancel": "Cancel",
       "documentation": "Documentation",
       "preferences": "Project Preferences",
@@ -612,7 +612,7 @@
     "noDescription": "No description",
     "noStoriesFound": "No stories found",
     "failedToLoadStoryDetails": "Failed to load story details",
-    "close": "CloseMyAppBar"
+    "close": "Close"
   },
   "workspace": {
     "WorkspaceLayout": {

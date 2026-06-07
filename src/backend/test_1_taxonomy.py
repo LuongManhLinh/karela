@@ -1,12 +1,10 @@
 from app.taxonomy.services import TaxonomyService
 from app.connection.jira.services import JiraService
-from app.analysis.agents.schemas import StoryMinimal
 from common.database import get_db
-import time
 from natsort import natsorted
 
 conn_id = "515b536d-ab6f-4c9c-9e8e-caf2147d0aed"
-project_key = "IB2"
+project_key = "IBD3"
 
 print("Preparing to initialize taxonomy buckets...")
 service = TaxonomyService(db=next(get_db()))
@@ -16,18 +14,18 @@ jira_service = JiraService(db=next(get_db()))
 stories = jira_service.fetch_stories(connection_id=conn_id, project_key=project_key)
 stories = natsorted(stories, key=lambda s: s.key)  # Sort stories by key
 
-project_desc = jira_service.get_project_description(
-    connection_id=conn_id, project_key=project_key
-)
-start_time = time.time()
-service.initialize_buckets(
-    connection_id=conn_id,
-    project_key=project_key,
-    stories=[StoryMinimal(key=story.key, summary=story.summary) for story in stories],
-    project_description=project_desc,
-)
-end_time = time.time()
-print(f"Time taken to initialize buckets: {end_time - start_time:.2f} seconds")
+# project_desc = jira_service.get_project_description(
+#     connection_id=conn_id, project_key=project_key
+# )
+# start_time = time.time()
+# service.initialize_buckets(
+#     connection_id=conn_id,
+#     project_key=project_key,
+#     stories=[StoryMinimal(key=story.key, summary=story.summary) for story in stories],
+#     project_description=project_desc,
+# )
+# end_time = time.time()
+# print(f"Time taken to initialize buckets: {end_time - start_time:.2f} seconds")
 
 story_to_tags, tag_to_stories = service.get_project_stories_tags(
     connection_id=conn_id, project_key=project_key

@@ -24,7 +24,7 @@ stories = random.sample(stories, 20)
 print("Uploading...")
 res = JiraService(next(get_db())).create_stories(
     connection_id="515b536d-ab6f-4c9c-9e8e-caf2147d0aed",
-    project_key="IBD2",
+    project_key="IBD3",
     stories=stories,
 )
 print("Results:", res)

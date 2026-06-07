@@ -37,6 +37,8 @@ def format_ac_rewriter_input(data: ACRewriterInput) -> str:
     if data.user_feedback:
         parts.append(f"## **User Feedback:**\n{data.user_feedback}")
     parts.append(f"## **Current Generated Acceptance Criteria:**\n{data.current_ac}")
+    if data.lint_errors:
+        parts.append(f"## **Lint Errors (MUST FIX):**\n{data.lint_errors}")
     parts.append(f"## **Reviewer Feedback:**\n{data.reviewer_feedback}")
     if data.project_description:
         parts.append(f"## **Project Description:**\n{data.project_description}")

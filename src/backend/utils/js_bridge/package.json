@@ -5,6 +5,7 @@
   "dependencies": {
     "adf-to-md": "^1.2.1",
     "extended-markdown-adf-parser": "^2.3.2",
+    "gherkin-lint": "^4.2.4",
     "md-to-adf": "^0.5.0"
   }
 }

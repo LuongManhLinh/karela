@@ -78,9 +78,6 @@ MAX_SEED_ITERATIONS = 3
 MAX_EXTENSION_ITERATIONS = 6
 
 
-# ─── Helpers ──────────────────────────────────────────────────────────────────
-
-
 def _format_taxonomy_new_bucket(taxonomy: list[NewBucket]) -> str:
     if not taxonomy:
         return "No taxonomy exists yet."
@@ -118,9 +115,6 @@ def _merge_draft_into_taxonomy(current: list[NewBucket], drafts: list[TaxonomyDr
                 tax[bu.name] = f"{tax[bu.name]}\n[UPDATED] {bu.updated_description}"
 
     return [NewBucket(name=k, description=v) for k, v in tax.items()]
-
-
-# ─── Nodes ────────────────────────────────────────────────────────────────────
 
 
 def context_gatherer_node(state: TaxonomyState, runtime: Runtime[TaxonomyContext]):
@@ -259,7 +253,7 @@ def seed_validation_node(state: TaxonomyState):
     # INVALID
     print(f"| Seed validation: INVALID - {output.reasoning}")
     return {
-        "errors": [f"Validator rejected seed taxonomy: {output.reasoning}"],
+        "errors": [f"Validator rejected previous seed taxonomy: {output.reasoning}"],
         "iterations": state.get("iterations", 0) + 1,
     }
 

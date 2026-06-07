@@ -949,6 +949,8 @@ def run_proposal_generation(
         messages = [HumanMessage(content=msg)]
 
         response = simple_agent.invoke(messages=messages, context=context)
+
+        print(f"| Done invoking simple agent")
         result: ProposalOutput = get_response_as_schema(response, ProposalOutput)
         if not result:
             print("Failed to parse response into ProposalOutput schema.")

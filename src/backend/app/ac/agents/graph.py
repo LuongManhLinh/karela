@@ -10,6 +10,8 @@ from common.configs import LlmConfig
 from common.agents.schemas import LlmContext
 from langchain.agents.middleware import dynamic_prompt, ModelRequest
 
+from utils.js_bridge import lint_gherkin
+
 from .prompts import (
     AC_GENERATOR_SYSTEM_PROMPT,
     AC_REVIEWER_SYSTEM_PROMPT,
@@ -114,6 +116,7 @@ class State:
     generated_ac: Optional[str] = None
     reasoning: Optional[str] = None
     review: Optional[ACReview] = None
+    lint_errors: Optional[str] = None
     rewrite_attempt: int = 0
     max_rewrite_attempts: int = 3
     is_complete: bool = False
@@ -132,6 +135,16 @@ class Context(LlmContext):
     extra_instruction: Optional[str] = None
 
 
+def _format_lint_errors(errors: list[dict]) -> str:
+    """Format lint error dicts into a readable string for the rewriter."""
+    lines = []
+    for e in errors:
+        lines.append(
+            f"- Line {e.get('line', '?')}: {e.get('rule', 'unknown')} - {e.get('message', '')}"
+        )
+    return "\n".join(lines)
+
+
 def ac_generator(state: State, runtime: Runtime[Context]) -> State:
     """Node: Generate initial AC."""
     print("Executing AC Generator Node")
@@ -141,6 +154,7 @@ def ac_generator(state: State, runtime: Runtime[Context]) -> State:
         description=runtime.context.description,
         existing_ac=runtime.context.existing_ac,
         user_feedback=runtime.context.user_feedback,
+        project_description=runtime.context.project_description,
     )
 
     messages = AC_GENERATOR_FAKE_HISTORY + [
@@ -157,6 +171,22 @@ def ac_generator(state: State, runtime: Runtime[Context]) -> State:
     return state
 
 
+def ac_linter(state: State, runtime: Runtime[Context]) -> State:
+    """Node: Lint the generated Gherkin AC."""
+    print("Executing AC Linter Node")
+
+    errors = lint_gherkin(state.generated_ac)
+
+    if errors:
+        state.lint_errors = _format_lint_errors(errors)
+        print(f"Lint found {len(errors)} error(s):\n{state.lint_errors}")
+    else:
+        state.lint_errors = None
+        print("Lint passed — no errors.")
+
+    return state
+
+
 def ac_reviewer(state: State, runtime: Runtime[Context]) -> State:
     """Node: Review the generated AC."""
     print("Executing AC Reviewer Node")
@@ -165,6 +195,7 @@ def ac_reviewer(state: State, runtime: Runtime[Context]) -> State:
         user_story_title=runtime.context.summary,
         user_story_description=runtime.context.description,
         generated_ac=state.generated_ac,
+        project_description=runtime.context.project_description,
     )
 
     messages = AC_REVIEWER_FAKE_HISTORY + [
@@ -193,7 +224,7 @@ def ac_reviewer(state: State, runtime: Runtime[Context]) -> State:
 
 
 def ac_rewriter(state: State, runtime: Runtime[Context]) -> State:
-    """Node: Rewrite AC based on feedback."""
+    """Node: Rewrite AC based on lint errors and/or reviewer feedback."""
     print("Executing AC Rewriter Node")
 
     input_data = ACRewriterInput(
@@ -202,7 +233,10 @@ def ac_rewriter(state: State, runtime: Runtime[Context]) -> State:
         existing_ac=runtime.context.existing_ac,
         user_feedback=runtime.context.user_feedback,
         current_ac=state.generated_ac,
-        reviewer_feedback=state.review.feedback or "Please improve the AC.",
+        reviewer_feedback=(state.review.feedback if state.review else "")
+        or "Please improve the AC.",
+        lint_errors=state.lint_errors,
+        project_description=runtime.context.project_description,
     )
 
     current_message = HumanMessage(
@@ -228,33 +262,59 @@ def ac_rewriter(state: State, runtime: Runtime[Context]) -> State:
     return state
 
 
-def should_continue(state: State) -> str:
+def should_continue_after_lint(state: State) -> str:
+    """Conditional edge from linter."""
+    if state.lint_errors:
+        if state.rewrite_attempt >= state.max_rewrite_attempts:
+            print(
+                f"Lint failed but max rewrite attempts reached. Proceeding to reviewer."
+            )
+            return "reviewer"
+        return "rewriter"
+    return "reviewer"
+
+
+def should_continue_after_review(state: State) -> str:
     """Conditional edge from reviewer."""
     if state.is_complete:
         return "end"
-    else:
-        return "rewriter"
+    return "rewriter"
 
 
 def build_graph() -> StateGraph:
-    """Build the LangGraph workflow."""
+    """Build the LangGraph workflow.
+
+    Flow:
+        START → ac_generator → ac_linter
+            → (lint pass)  → ac_reviewer → (APPROVE) → END
+            → (lint fail)  → ac_rewriter ↗
+            → (REWRITE)    → ac_rewriter ↗
+        ac_rewriter → ac_linter (loop back)
+    """
     workflow = StateGraph(State, context=Context)
 
     workflow.add_node("ac_generator", ac_generator)
-    # workflow.add_node("ac_reviewer", ac_reviewer)
-    # workflow.add_node("ac_rewriter", ac_rewriter)
+    workflow.add_node("ac_linter", ac_linter)
+    workflow.add_node("ac_reviewer", ac_reviewer)
+    workflow.add_node("ac_rewriter", ac_rewriter)
 
     workflow.add_edge(START, "ac_generator")
-    workflow.add_edge("ac_generator", END)
-    # workflow.add_edge("ac_generator", "ac_reviewer")
+    workflow.add_edge("ac_generator", "ac_linter")
 
-    # workflow.add_conditional_edges(
-    #     "ac_reviewer",
-    #     should_continue,
-    #     {"end": END, "rewriter": "ac_rewriter"},
-    # )
+    workflow.add_conditional_edges(
+        "ac_linter",
+        should_continue_after_lint,
+        {"reviewer": "ac_reviewer", "rewriter": "ac_rewriter"},
+    )
 
-    # workflow.add_edge("ac_rewriter", "ac_reviewer")
+    workflow.add_conditional_edges(
+        "ac_reviewer",
+        should_continue_after_review,
+        {"end": END, "rewriter": "ac_rewriter"},
+    )
+
+    # After rewrite, always re-lint
+    workflow.add_edge("ac_rewriter", "ac_linter")
 
     return workflow.compile()
 

@@ -68,6 +68,10 @@ class ACRewriterInput(ACGeneratorInput):
     reviewer_feedback: str = Field(
         description="Feedback from the reviewer that needs to be addressed."
     )
+    lint_errors: Optional[str] = Field(
+        None,
+        description="Lint errors found in the current AC that must be fixed.",
+    )
     project_description: Optional[str] = Field(
         None,
         description="Description of the project, which may provide additional context for generating AC.",

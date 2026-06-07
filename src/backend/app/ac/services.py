@@ -16,7 +16,7 @@ from app.connection.jira.services import JiraService
 from app.connection.jira.services.base_service import AC_ISSUE_TYPE_NAME
 from app.connection.jira.schemas import IssueUpdate, StoryDto
 from common.configs import LlmConfig
-from utils.markdown_adf_bridge import md_to_adf
+from utils.js_bridge import md_to_adf
 
 from llm.gemini_dynamic_agent import GenimiDynamicAgent
 from langchain_core.messages import SystemMessage, HumanMessage
@@ -84,6 +84,8 @@ class ACService:
             .filter(
                 Connection.id == connection_id,
             )
+            # Order by project key, then story key, then AC creation time
+            .order_by(Project.key, Story.key, desc(GherkinAC.created_at))
             .all()
         )
 
@@ -110,6 +112,7 @@ class ACService:
                 Connection.id == connection_id,
                 Project.key == project_key,
             )
+            .order_by(Story.key, desc(GherkinAC.created_at))
             .all()
         )
 
@@ -137,6 +140,7 @@ class ACService:
                 Project.key == project_key,
                 Story.key == story_key,
             )
+            .order_by(desc(GherkinAC.created_at))
             .all()
         )
 
@@ -229,16 +233,18 @@ class ACService:
             description=content,
             story_id=story.id,
         )
-        self.db.add(new_ac)
+
         print(f"Creating AC with ID {ac_id} on Jira for story {story.key}...")
         jira_issue_key = self._create_on_jira(
             connection_id, project_key, story_key, new_ac
         )
 
         print(f"Created AC with ID {ac_id} on Jira with key {jira_issue_key}")
+
         if jira_issue_key:
             new_ac.key = jira_issue_key
 
+        self.db.add(new_ac)
         self.db.commit()
 
         return jira_issue_key if jira_issue_key else ac_id
@@ -326,19 +332,23 @@ class ACService:
         print(f"Generated new content for AC {ac_id}:\n{new_content}")
         ac.description = f"```gherkin\n{new_content}\n```"
         ac.summary = new_content.splitlines()[0]
-        self.db.add(ac)
-        self.db.commit()
+
+        # Also don't update database because we have Webhook to sync from Jira to local db
+        # self.db.add(ac)
+        # self.db.commit()
 
         print("Updated AC in database, now updating on Jira...")
         self._update_on_jira(connection_id, project_key, ac)
         print("Regeneration completed.")
+
+        return ac.description
 
     def update_ac(
         self,
         ac_id: str,
         content: str,
     ):
-        ac, story, project = self._get_ac_and_related(ac_id)
+        ac, _, project = self._get_ac_and_related(ac_id)
         connection_id = project.connection_id
         project_key = project.key
         if not ac:

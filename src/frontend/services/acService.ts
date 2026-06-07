@@ -39,12 +39,8 @@ export const acService = {
     return response.data;
   },
 
-  listACsByConnection: async (
-
-  ): Promise<BasicResponse<ACSummary[]>> => {
-    const response = await api.get<BasicResponse<ACSummary[]>>(
-      `/acs/`,
-    );
+  listACsByConnection: async (): Promise<BasicResponse<ACSummary[]>> => {
+    const response = await api.get<BasicResponse<ACSummary[]>>(`/acs/`);
     return response.data;
   },
 
@@ -59,9 +55,7 @@ export const acService = {
     );
     return response.data;
   },
-  getAC: async (
-    acIdOrKey: string,
-  ): Promise<BasicResponse<ACDto>> => {
+  getAC: async (acIdOrKey: string): Promise<BasicResponse<ACDto>> => {
     const response = await api.get<BasicResponse<ACDto>>(
       `/acs/items/${acIdOrKey}`,
     );
@@ -71,8 +65,12 @@ export const acService = {
     acId: string,
     gherkin: string,
     feedback: string,
-  ): Promise<void> => {
-    await api.post(`/acs/${acId}/regenerate`, { content: gherkin, feedback });
+  ): Promise<BasicResponse<string>> => {
+    const response = await api.post<BasicResponse<string>>(
+      `/acs/${acId}/regenerate`,
+      { content: gherkin, feedback },
+    );
+    return response.data;
   },
   updateAC: async (acId: string, newContent: string): Promise<void> => {
     await api.put(`/acs/${acId}`, { content: newContent });
@@ -86,5 +84,4 @@ export const acService = {
     );
     return response.data;
   },
-  
 };

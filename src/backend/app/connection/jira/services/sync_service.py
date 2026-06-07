@@ -8,7 +8,7 @@ from app.connection.jira.services.base_service import (
     AI_TRANSACTION_ID_FIELD_NAME,
 )
 from common.database import uuid_generator
-from utils.markdown_adf_bridge.markdown_adf_bridge import adf_to_md
+from utils.js_bridge.markdown_adf_bridge import adf_to_md
 from common.configs import JiraConfig
 from .base_service import JiraBaseService
 from ..client import JiraClient

@@ -142,7 +142,7 @@ class ProposalService:
         print(
             f"Accepting proposal contents for connection {connection_id} and project {project_key}"
         )
-        return  # Return to test
+
         try:
             create_contents = []
             update_keys = []
@@ -158,7 +158,7 @@ class ProposalService:
                 elif content.type == ProposalType.DELETE:
                     delete_keys.append(key)
                     content_lookup[key] = content
-                    # Query the latest version
+            # Query the latest version
             sub = (
                 self.db.query(
                     StoryVersion.key,

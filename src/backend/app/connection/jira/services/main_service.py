@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import Optional
+from natsort import natsorted
 
-from utils.markdown_adf_bridge.markdown_adf_bridge import md_to_adf, adf_to_md
+from utils.js_bridge.markdown_adf_bridge import md_to_adf, adf_to_md
 from utils.security_utils import encrypt_token, generate_jwt
 from common.configs import JiraConfig
 from common.vectorstore import chroma_vectorstore
@@ -16,7 +17,6 @@ from ..schemas import (
     ProjectDto,
     ProjectDtoSync,
     StoryDto,
-    CreateIssuesRequest,
     StorySummary,
     UpdateStoryRequest,
     IssueUpdate,
@@ -560,15 +560,18 @@ class JiraService(JiraBaseService):
 
         if local:
             stories = (
-                self.db.query(Story)
-                .filter(Story.project_id == project.id)
-                .order_by(Story.key)
+                self.db.query(Story).filter(Story.project_id == project.id)
+                # .order_by(Story.key)
                 .all()
             )
-            return [
+            summaries = [
                 StorySummary(id=story.id_, key=story.key, summary=story.summary)
                 for story in stories
             ]
+
+            # Sort by natsorted instead
+            summaries = natsorted(summaries, key=lambda s: s.key)
+            return summaries
 
         return [
             StorySummary(id=dto.id, key=dto.key, summary=dto.summary)
@@ -1031,6 +1034,24 @@ class JiraService(JiraBaseService):
         description: str,
     ):
         """Handle AC creation: save to local DB and vector store"""
+        # If ac already exists with the same key, skip creation
+        existing_ac = (
+            self.db.query(GherkinAC)
+            .join(Story, GherkinAC.story_id == Story.id)
+            .join(Project, Story.project_id == Project.id)
+            .join(Connection, Project.connection_id == Connection.id)
+            .filter(
+                Connection.id == connection_id,
+                Project.key == project_key,
+                Story.key == story_key,
+                GherkinAC.key == ac_key,
+            )
+            .first()
+        )
+        if existing_ac:
+            print(f"AC with key {ac_key} already exists, skipping creation")
+            return
+
         story = (
             self.db.query(Story)
             .join(Project, Story.project_id == Project.id)
@@ -1044,6 +1065,7 @@ class JiraService(JiraBaseService):
         )
         if not story:
             raise ValueError("Story not found")
+
         ac = GherkinAC(
             id_=ac_id_,
             key=ac_key,

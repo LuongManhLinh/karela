@@ -7,7 +7,7 @@ import {
   useACRegenerateMutation,
   useStoryByACQuery,
 } from "@/hooks/queries/useACQueries";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { acService } from "@/services/acService";
 import { scrollBarSx } from "@/constants/scrollBarSx";
 import { StoryDialog } from "../StoryDialog";
@@ -34,10 +34,22 @@ const AcEditorItemPage: React.FC<AcEditorItemPageProps> = ({ idOrKey }) => {
     return storyData?.data || null;
   }, [storyData]);
 
-  const initialGherkin = useMemo(() => {
-    const gherkin = currentAC?.description || "";
-    // Remove ````gherkin` and ``` markers if present and trim whitespace
-    return gherkin.replace(/^```gherkin\s*/, "").replace(/```$/, "");
+  // const gherkin = useMemo(() => {
+  //   const gherkin = currentAC?.description || "";
+  //   // Remove ````gherkin` and ``` markers if present and trim whitespace
+  //   return gherkin.replace(/^```gherkin\s*/, "").replace(/```$/, "");
+  // }, [currentAC]);
+
+  const [gherkin, setGherkin] = useState("");
+
+  useEffect(() => {
+    if (currentAC) {
+      const gherkinContent = currentAC.description || "";
+      const cleanedGherkin = gherkinContent
+        .replace(/^```gherkin\s*/, "")
+        .replace(/```$/, "");
+      setGherkin(cleanedGherkin);
+    }
   }, [currentAC]);
 
   const [editorReadOnly, setEditorReadOnly] = useState(false);
@@ -58,8 +70,20 @@ const AcEditorItemPage: React.FC<AcEditorItemPageProps> = ({ idOrKey }) => {
       try {
         setEditorReadOnly(true);
         setRegenerating(true);
-        await acService.regenerateAC(currentAC.id, gherkin, feedback);
-        refetch();
+        const resp = await acService.regenerateAC(
+          currentAC.id,
+          gherkin,
+          feedback,
+        );
+        let newGherkin = resp.data;
+        if (newGherkin) {
+          // Remove ```gherkin markers if present and trim whitespace
+          newGherkin = newGherkin
+            .replace(/^```gherkin\s*/, "")
+            .replace(/```$/, "");
+          setGherkin(newGherkin);
+          await refetch();
+        }
       } catch (error) {
         throw error;
       } finally {
@@ -126,7 +150,7 @@ const AcEditorItemPage: React.FC<AcEditorItemPageProps> = ({ idOrKey }) => {
       <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
         <GherkinEditorWrapper
           acId={currentAC!.id}
-          initialValue={initialGherkin}
+          initialValue={gherkin}
           onSave={handleSave}
           onSendFeedback={handleSendFeedback}
           readOnly={editorReadOnly}

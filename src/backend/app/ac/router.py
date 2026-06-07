@@ -141,11 +141,13 @@ async def regenerate_ac(
     if conn_id is None:
         raise HTTPException(status_code=401, detail="Invalid JWT payload: missing sub")
     try:
-        service.regenerate_ac(
+        new_content = service.regenerate_ac(
             ac_id=ac_id,
             content=ac_data.content,
             feedback=ac_data.feedback,
         )
+
+        return BasicResponse(data=new_content)
 
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

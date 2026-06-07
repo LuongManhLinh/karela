@@ -135,6 +135,9 @@ Simulate the application of `CREATE`/`UPDATE`/`DELETE` actions and check for:
 5.  **If there are issues, rewrite the proposal to fix them, but only modify the fields that cause the issue.**
 
 {{extra_instruction}}
+
+## **OUTPUT RULES**
+* For CREATE, UPDATE, mention all related story keys in the **description**
 """
 
 # ---------------------------------------------------------------------------
